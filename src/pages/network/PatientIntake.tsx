@@ -39,6 +39,8 @@ export default function PatientIntake() {
   const [aobConsent, setAobConsent] = useState(false);
   const [smsConsent, setSmsConsent] = useState(false);
   const [signatureName, setSignatureName] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const toggleCareType = (type: string) => {
     setCareTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]);
