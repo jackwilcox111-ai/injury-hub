@@ -39,13 +39,13 @@ export function AppSidebar() {
       <div className="px-5 py-5 border-b border-sidebar-border">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-display font-bold text-xs">GH</span>
+            <span className="text-primary-foreground font-display font-bold text-xs">CL</span>
           </div>
           <div>
             <h1 className="font-display text-sm font-bold tracking-tight text-foreground leading-none">
-              GOT HURT
+              CareLink
             </h1>
-            <p className="text-[10px] text-primary font-medium mt-0.5">Injury Network</p>
+            <p className="text-[10px] text-primary font-medium mt-0.5">Care Coordination</p>
           </div>
         </div>
       </div>
