@@ -18,7 +18,7 @@ export default function LandingPage() {
     <PublicLayout>
       {/* Hero */}
       <section className="relative overflow-hidden min-h-[600px] md:min-h-[700px] flex items-center">
-        <img src={heroImage} alt="Medical professionals coordinating patient care in a modern clinic" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+        <img src={heroImage} alt="Medical professionals coordinating patient care in a modern clinic" className="absolute inset-0 w-full h-full object-cover opacity-10" />
         <div className="absolute inset-0 bg-gradient-to-r from-foreground/70 via-foreground/40 to-transparent" />
         <div className="max-w-6xl mx-auto px-6 py-28 md:py-36 relative z-10">
           <div className="max-w-xl">
