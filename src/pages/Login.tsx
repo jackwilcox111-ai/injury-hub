@@ -39,7 +39,7 @@ export default function Login() {
             <span className="text-primary-foreground font-display font-bold text-2xl">CL</span>
           </div>
           <h1 className="font-display text-4xl font-bold text-primary-foreground leading-tight">
-            Got Hurt<br />Injury Network
+            CareLink
           </h1>
           <p className="text-primary-foreground/70 mt-4 text-sm leading-relaxed">
             Personal injury medical care coordination platform.
