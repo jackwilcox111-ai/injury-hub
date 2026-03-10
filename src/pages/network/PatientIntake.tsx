@@ -182,12 +182,12 @@ export default function PatientIntake() {
             <div className="bg-card border border-border rounded-xl p-6 space-y-3">
               <h4 className="font-semibold text-sm text-foreground">HIPAA Authorization</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                I authorize Got Hurt Injury Network to use and disclose my protected health information (PHI) for purposes of coordinating medical treatment related to my personal injury case. This includes sharing information with treating medical providers, my legal representative, and care coordinators within the GHIN network. This authorization remains in effect until my case is resolved or I revoke it in writing.
+                I authorize CareLink to use and disclose my protected health information (PHI) for purposes of coordinating medical treatment related to my personal injury case. This includes sharing information with treating medical providers, my legal representative, and care coordinators within the CareLink network. This authorization remains in effect until my case is resolved or I revoke it in writing.
               </p>
               <div className="flex items-start gap-3 pt-2">
                 <Checkbox checked={hipaaConsent} onCheckedChange={v => setHipaaConsent(!!v)} id="hipaa" />
                 <Label htmlFor="hipaa" className="text-sm leading-relaxed">
-                  I authorize Got Hurt Injury Network to coordinate my medical care and share necessary health information with treating providers and my legal representative. *
+                  I authorize CareLink to coordinate my medical care and share necessary health information with treating providers and my legal representative. *
                 </Label>
               </div>
             </div>
