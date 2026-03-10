@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { ShieldCheck } from 'lucide-react';
 
 export default function Login() {
-  const { signIn, resetPassword } = useAuth();
+  const { signIn, resetPassword, session, profile, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
