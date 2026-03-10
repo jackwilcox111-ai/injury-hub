@@ -56,7 +56,7 @@ export default function AttorneyJoin() {
       <div className="max-w-2xl mx-auto px-6 py-16">
         <div className="mb-10">
           <span className="text-xs font-medium uppercase tracking-widest text-primary mb-3 block">Attorney Partnership</span>
-          <h2 className="text-3xl font-display font-bold text-foreground mb-2">Partner with GHIN</h2>
+          <h2 className="text-3xl font-display font-bold text-foreground mb-2">Partner with CareLink</h2>
           <p className="text-sm text-muted-foreground">Register your firm to access coordinated PI medical care.</p>
         </div>
 
