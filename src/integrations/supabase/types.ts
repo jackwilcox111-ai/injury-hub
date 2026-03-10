@@ -1,0 +1,626 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.1"
+  }
+  public: {
+    Tables: {
+      appointments: {
+        Row: {
+          case_id: string
+          created_at: string | null
+          id: string
+          notes: string | null
+          provider_id: string | null
+          scheduled_date: string | null
+          specialty: string | null
+          status: string
+        }
+        Insert: {
+          case_id: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          provider_id?: string | null
+          scheduled_date?: string | null
+          specialty?: string | null
+          status?: string
+        }
+        Update: {
+          case_id?: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          provider_id?: string | null
+          scheduled_date?: string | null
+          specialty?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attorneys: {
+        Row: {
+          contact_name: string | null
+          created_at: string | null
+          email: string | null
+          firm_name: string
+          id: string
+          phone: string | null
+          status: string
+        }
+        Insert: {
+          contact_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          firm_name: string
+          id?: string
+          phone?: string | null
+          status?: string
+        }
+        Update: {
+          contact_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          firm_name?: string
+          id?: string
+          phone?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      case_sequence: {
+        Row: {
+          last_seq: number
+          year: number
+        }
+        Insert: {
+          last_seq?: number
+          year: number
+        }
+        Update: {
+          last_seq?: number
+          year?: number
+        }
+        Relationships: []
+      }
+      case_updates: {
+        Row: {
+          author_id: string | null
+          case_id: string
+          created_at: string | null
+          id: string
+          message: string
+        }
+        Insert: {
+          author_id?: string | null
+          case_id: string
+          created_at?: string | null
+          id?: string
+          message: string
+        }
+        Update: {
+          author_id?: string | null
+          case_id?: string
+          created_at?: string | null
+          id?: string
+          message?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "case_updates_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_updates_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_updates_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cases: {
+        Row: {
+          accident_date: string | null
+          accident_state: string | null
+          attorney_id: string | null
+          case_number: string
+          created_at: string | null
+          flag: string | null
+          id: string
+          lien_amount: number
+          notes: string | null
+          opened_date: string
+          patient_email: string | null
+          patient_name: string
+          patient_phone: string | null
+          provider_id: string | null
+          settlement_estimate: number | null
+          settlement_final: number | null
+          sol_date: string | null
+          sol_period_days: number
+          specialty: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          accident_date?: string | null
+          accident_state?: string | null
+          attorney_id?: string | null
+          case_number?: string
+          created_at?: string | null
+          flag?: string | null
+          id?: string
+          lien_amount?: number
+          notes?: string | null
+          opened_date?: string
+          patient_email?: string | null
+          patient_name: string
+          patient_phone?: string | null
+          provider_id?: string | null
+          settlement_estimate?: number | null
+          settlement_final?: number | null
+          sol_date?: string | null
+          sol_period_days?: number
+          specialty?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          accident_date?: string | null
+          accident_state?: string | null
+          attorney_id?: string | null
+          case_number?: string
+          created_at?: string | null
+          flag?: string | null
+          id?: string
+          lien_amount?: number
+          notes?: string | null
+          opened_date?: string
+          patient_email?: string | null
+          patient_name?: string
+          patient_phone?: string | null
+          provider_id?: string | null
+          settlement_estimate?: number | null
+          settlement_final?: number | null
+          sol_date?: string | null
+          sol_period_days?: number
+          specialty?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cases_attorney_id_fkey"
+            columns: ["attorney_id"]
+            isOneToOne: false
+            referencedRelation: "attorneys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cases_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      liens: {
+        Row: {
+          amount: number
+          case_id: string
+          created_at: string | null
+          id: string
+          notes: string | null
+          payment_date: string | null
+          provider_id: string | null
+          reduction_amount: number
+          status: string
+        }
+        Insert: {
+          amount?: number
+          case_id: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          payment_date?: string | null
+          provider_id?: string | null
+          reduction_amount?: number
+          status?: string
+        }
+        Update: {
+          amount?: number
+          case_id?: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          payment_date?: string | null
+          provider_id?: string | null
+          reduction_amount?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "liens_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "liens_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "liens_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          firm_id: string | null
+          full_name: string | null
+          id: string
+          provider_id: string | null
+          role: string
+        }
+        Insert: {
+          created_at?: string | null
+          firm_id?: string | null
+          full_name?: string | null
+          id: string
+          provider_id?: string | null
+          role?: string
+        }
+        Update: {
+          created_at?: string | null
+          firm_id?: string | null
+          full_name?: string | null
+          id?: string
+          provider_id?: string | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "attorneys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      providers: {
+        Row: {
+          created_at: string | null
+          credentialing_expiry: string | null
+          hipaa_baa_on_file: boolean | null
+          id: string
+          locations: number | null
+          name: string
+          notes: string | null
+          rating: number | null
+          specialty: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string | null
+          credentialing_expiry?: string | null
+          hipaa_baa_on_file?: boolean | null
+          id?: string
+          locations?: number | null
+          name: string
+          notes?: string | null
+          rating?: number | null
+          specialty?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string | null
+          credentialing_expiry?: string | null
+          hipaa_baa_on_file?: boolean | null
+          id?: string
+          locations?: number | null
+          name?: string
+          notes?: string | null
+          rating?: number | null
+          specialty?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      records: {
+        Row: {
+          case_id: string
+          created_at: string | null
+          delivered_to_attorney_date: string | null
+          hipaa_auth_on_file: boolean | null
+          id: string
+          notes: string | null
+          provider_id: string | null
+          received_date: string | null
+          record_type: string | null
+        }
+        Insert: {
+          case_id: string
+          created_at?: string | null
+          delivered_to_attorney_date?: string | null
+          hipaa_auth_on_file?: boolean | null
+          id?: string
+          notes?: string | null
+          provider_id?: string | null
+          received_date?: string | null
+          record_type?: string | null
+        }
+        Update: {
+          case_id?: string
+          created_at?: string | null
+          delivered_to_attorney_date?: string | null
+          hipaa_auth_on_file?: boolean | null
+          id?: string
+          notes?: string | null
+          provider_id?: string | null
+          received_date?: string | null
+          record_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "records_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "records_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "records_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
+    Views: {
+      cases_with_counts: {
+        Row: {
+          accident_date: string | null
+          accident_state: string | null
+          appointments_completed: number | null
+          appointments_total: number | null
+          attorney_id: string | null
+          case_number: string | null
+          created_at: string | null
+          flag: string | null
+          id: string | null
+          lien_amount: number | null
+          notes: string | null
+          opened_date: string | null
+          patient_email: string | null
+          patient_name: string | null
+          patient_phone: string | null
+          provider_id: string | null
+          settlement_estimate: number | null
+          settlement_final: number | null
+          sol_date: string | null
+          sol_period_days: number | null
+          specialty: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cases_attorney_id_fkey"
+            columns: ["attorney_id"]
+            isOneToOne: false
+            referencedRelation: "attorneys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cases_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
+    Functions: {
+      next_case_number: { Args: never; Returns: string }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const
