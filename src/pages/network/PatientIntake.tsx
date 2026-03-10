@@ -39,6 +39,8 @@ export default function PatientIntake() {
   const [aobConsent, setAobConsent] = useState(false);
   const [smsConsent, setSmsConsent] = useState(false);
   const [signatureName, setSignatureName] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const toggleCareType = (type: string) => {
     setCareTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]);
@@ -47,7 +49,7 @@ export default function PatientIntake() {
   const canAdvance = () => {
     if (step === 1) return fullName && dob && phone && email && accidentDate && accidentState;
     if (step === 2) return true;
-    if (step === 3) return hipaaConsent && aobConsent && signatureName.trim().length > 0;
+    if (step === 3) return hipaaConsent && aobConsent && signatureName.trim().length > 0 && password.length >= 8 && password === confirmPassword;
     return true;
   };
 
@@ -56,7 +58,7 @@ export default function PatientIntake() {
     try {
       const { data, error } = await supabase.functions.invoke('submit-intake', {
         body: {
-          full_name: fullName, date_of_birth: dob, phone, email,
+          full_name: fullName, date_of_birth: dob, phone, email, password,
           accident_date: accidentDate, accident_state: accidentState,
           accident_description: description, insurance_status: insurance,
           has_treatment: hasTreatment, care_types: careTypes,
@@ -67,8 +69,10 @@ export default function PatientIntake() {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       setCaseNumber(data.case_number || 'Pending');
+      // Auto-sign in the newly created patient
+      await supabase.auth.signInWithPassword({ email, password });
       setStep(4);
-      toast.success('Intake submitted successfully');
+      toast.success('Intake submitted — your account is ready!');
     } catch (err: any) {
       toast.error(err.message || 'Submission failed');
     } finally {
@@ -207,6 +211,28 @@ export default function PatientIntake() {
               <Checkbox checked={smsConsent} onCheckedChange={v => setSmsConsent(!!v)} id="sms" />
               <Label htmlFor="sms" className="text-sm">I agree to receive appointment reminders and case updates via text message.</Label>
             </div>
+            <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+              <div>
+                <h4 className="font-semibold text-sm text-foreground mb-1">Create Your Account</h4>
+                <p className="text-xs text-muted-foreground">Set a password so you can track your case online.</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Password *</Label>
+                  <Input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min 8 characters" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Confirm Password *</Label>
+                  <Input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-enter password" />
+                </div>
+              </div>
+              {password.length > 0 && password.length < 8 && (
+                <p className="text-xs text-destructive">Password must be at least 8 characters</p>
+              )}
+              {confirmPassword.length > 0 && password !== confirmPassword && (
+                <p className="text-xs text-destructive">Passwords do not match</p>
+              )}
+            </div>
             <div className="bg-card border border-border rounded-xl p-6 space-y-2">
               <Label>E-Signature — Type your full name *</Label>
               <Input value={signatureName} onChange={e => setSignatureName(e.target.value)} placeholder="Your full legal name" className="font-mono-data text-lg" />
@@ -233,8 +259,8 @@ export default function PatientIntake() {
                 <li className="flex gap-3"><span className="font-mono-data text-primary font-semibold">03</span> Your first appointment is scheduled</li>
               </ul>
             </div>
-            <Button onClick={() => navigate('/login')} className="gap-2 rounded-lg">
-              Create Your Account <ArrowRight className="w-4 h-4" />
+            <Button onClick={() => navigate('/dashboard')} className="gap-2 rounded-lg">
+              Go to My Dashboard <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
         )}
