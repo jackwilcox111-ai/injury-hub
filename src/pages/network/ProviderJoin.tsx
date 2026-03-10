@@ -93,7 +93,7 @@ export default function ProviderJoin() {
             <div className="flex items-start gap-3">
               <Checkbox checked={form.hipaa_baa_agreed} onCheckedChange={v => set('hipaa_baa_agreed', !!v)} id="baa" />
               <Label htmlFor="baa" className="text-sm leading-relaxed">
-                I agree to execute a HIPAA Business Associate Agreement with GHIN *
+                I agree to execute a HIPAA Business Associate Agreement with CareLink *
               </Label>
             </div>
           </div>

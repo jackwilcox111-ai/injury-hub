@@ -86,7 +86,7 @@ export default function AttorneyJoin() {
             </div>
           </div>
           <Button type="submit" disabled={loading} className="w-full h-11 rounded-lg">
-            {loading ? 'Submitting...' : 'Partner with GHIN'}
+            {loading ? 'Submitting...' : 'Partner with CareLink'}
           </Button>
         </form>
       </div>
