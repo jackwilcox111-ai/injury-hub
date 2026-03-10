@@ -69,8 +69,10 @@ export default function PatientIntake() {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       setCaseNumber(data.case_number || 'Pending');
+      // Auto-sign in the newly created patient
+      await supabase.auth.signInWithPassword({ email, password });
       setStep(4);
-      toast.success('Intake submitted successfully');
+      toast.success('Intake submitted — your account is ready!');
     } catch (err: any) {
       toast.error(err.message || 'Submission failed');
     } finally {
