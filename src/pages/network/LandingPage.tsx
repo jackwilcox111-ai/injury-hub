@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { Heart, Users, FileCheck, DollarSign, ArrowRight, Shield, Clock, Stethoscope, Scale, ChevronRight } from 'lucide-react';
+import heroImage from '@/assets/hero-image.jpg';
 
 const steps = [
   { icon: Heart, title: "You're Injured", desc: "No health insurance? No problem. We connect you to care immediately.", num: '01' },
