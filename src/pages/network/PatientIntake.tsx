@@ -49,7 +49,7 @@ export default function PatientIntake() {
   const canAdvance = () => {
     if (step === 1) return fullName && dob && phone && email && accidentDate && accidentState;
     if (step === 2) return true;
-    if (step === 3) return hipaaConsent && aobConsent && signatureName.trim().length > 0;
+    if (step === 3) return hipaaConsent && aobConsent && signatureName.trim().length > 0 && password.length >= 8 && password === confirmPassword;
     return true;
   };
 
