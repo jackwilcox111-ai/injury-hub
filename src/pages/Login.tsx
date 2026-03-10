@@ -70,7 +70,7 @@ export default function Login() {
               {showForgot ? 'Reset Password' : 'Welcome back'}
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              {showForgot ? 'Enter your email to receive a reset link.' : 'Sign in to the GHIN Operations Portal.'}
+              {showForgot ? 'Enter your email to receive a reset link.' : 'Sign in to the GHIN Network Portal.'}
             </p>
           </div>
 
