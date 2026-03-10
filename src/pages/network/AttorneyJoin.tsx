@@ -45,7 +45,7 @@ export default function AttorneyJoin() {
             <CheckCircle className="w-8 h-8 text-primary" />
           </div>
           <h2 className="text-2xl font-display font-bold text-foreground">Partnership Application Received</h2>
-          <p className="text-muted-foreground text-sm">Thank you. A GHIN partnership coordinator will be in touch within 1 business day.</p>
+          <p className="text-muted-foreground text-sm">Thank you. A CareLink partnership coordinator will be in touch within 1 business day.</p>
         </div>
       </PublicLayout>
     );
