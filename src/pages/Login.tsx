@@ -60,9 +60,9 @@ export default function Login() {
         <div className="w-full max-w-sm">
           <div className="lg:hidden mb-8 text-center">
             <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mx-auto mb-4">
-              <span className="text-primary-foreground font-display font-bold text-lg">GH</span>
+              <span className="text-primary-foreground font-display font-bold text-lg">CL</span>
             </div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Got Hurt Injury Network</h1>
+            <h1 className="font-display text-2xl font-bold text-foreground">CareLink</h1>
           </div>
 
           <div className="mb-8">
