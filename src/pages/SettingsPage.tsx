@@ -157,8 +157,8 @@ export default function SettingsPage() {
         </div>
         <div className="bg-card border border-border rounded-xl p-5 shadow-card space-y-3 text-sm">
           <div className="flex justify-between"><span className="text-muted-foreground">Default SoL Period</span><span className="font-medium">730 days (Florida — 2 years)</span></div>
-          <div className="flex justify-between"><span className="text-muted-foreground">Company</span><span className="font-medium">Got Hurt Injury Network</span></div>
-          <div className="flex justify-between"><span className="text-muted-foreground">Contact</span><span className="font-mono text-sm">admin@gothurtnetwork.com</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">Company</span><span className="font-medium">CareLink</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">Contact</span><span className="font-mono text-sm">admin@carelink.com</span></div>
         </div>
       </div>
 
