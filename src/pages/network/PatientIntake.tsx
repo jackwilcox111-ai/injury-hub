@@ -259,8 +259,8 @@ export default function PatientIntake() {
                 <li className="flex gap-3"><span className="font-mono-data text-primary font-semibold">03</span> Your first appointment is scheduled</li>
               </ul>
             </div>
-            <Button onClick={() => navigate('/login')} className="gap-2 rounded-lg">
-              Create Your Account <ArrowRight className="w-4 h-4" />
+            <Button onClick={() => navigate('/dashboard')} className="gap-2 rounded-lg">
+              Go to My Dashboard <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
         )}
