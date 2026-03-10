@@ -69,6 +69,51 @@ export type Database = {
           },
         ]
       }
+      attorney_applications: {
+        Row: {
+          bar_number: string | null
+          contact_name: string
+          created_at: string | null
+          email: string
+          firm_name: string
+          id: string
+          notes: string | null
+          phone: string
+          pi_case_volume_monthly: number | null
+          referral_source: string | null
+          state: string
+          status: string
+        }
+        Insert: {
+          bar_number?: string | null
+          contact_name: string
+          created_at?: string | null
+          email: string
+          firm_name: string
+          id?: string
+          notes?: string | null
+          phone: string
+          pi_case_volume_monthly?: number | null
+          referral_source?: string | null
+          state: string
+          status?: string
+        }
+        Update: {
+          bar_number?: string | null
+          contact_name?: string
+          created_at?: string | null
+          email?: string
+          firm_name?: string
+          id?: string
+          notes?: string | null
+          phone?: string
+          pi_case_volume_monthly?: number | null
+          referral_source?: string | null
+          state?: string
+          status?: string
+        }
+        Relationships: []
+      }
       attorneys: {
         Row: {
           contact_name: string | null
@@ -247,6 +292,184 @@ export type Database = {
           },
         ]
       }
+      documents: {
+        Row: {
+          case_id: string | null
+          created_at: string | null
+          document_type: string
+          file_name: string
+          id: string
+          signed: boolean | null
+          signed_at: string | null
+          storage_path: string
+          uploader_id: string | null
+          visible_to: string[]
+        }
+        Insert: {
+          case_id?: string | null
+          created_at?: string | null
+          document_type: string
+          file_name: string
+          id?: string
+          signed?: boolean | null
+          signed_at?: string | null
+          storage_path: string
+          uploader_id?: string | null
+          visible_to?: string[]
+        }
+        Update: {
+          case_id?: string | null
+          created_at?: string | null
+          document_type?: string
+          file_name?: string
+          id?: string
+          signed?: boolean | null
+          signed_at?: string | null
+          storage_path?: string
+          uploader_id?: string | null
+          visible_to?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_uploader_id_fkey"
+            columns: ["uploader_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funder_profiles: {
+        Row: {
+          accredited_investor: boolean | null
+          company_name: string
+          contact_name: string
+          created_at: string | null
+          email: string
+          funding_capacity_max: number | null
+          funding_capacity_min: number | null
+          id: string
+          phone: string | null
+          preferred_specialties: string[] | null
+          preferred_states: string[] | null
+          profile_id: string | null
+        }
+        Insert: {
+          accredited_investor?: boolean | null
+          company_name: string
+          contact_name: string
+          created_at?: string | null
+          email: string
+          funding_capacity_max?: number | null
+          funding_capacity_min?: number | null
+          id?: string
+          phone?: string | null
+          preferred_specialties?: string[] | null
+          preferred_states?: string[] | null
+          profile_id?: string | null
+        }
+        Update: {
+          accredited_investor?: boolean | null
+          company_name?: string
+          contact_name?: string
+          created_at?: string | null
+          email?: string
+          funding_capacity_max?: number | null
+          funding_capacity_min?: number | null
+          id?: string
+          phone?: string | null
+          preferred_specialties?: string[] | null
+          preferred_states?: string[] | null
+          profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funder_profiles_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funding_requests: {
+        Row: {
+          advance_date: string | null
+          approved_amount: number | null
+          case_id: string
+          created_at: string | null
+          funder_id: string | null
+          id: string
+          notes: string | null
+          repayment_amount: number | null
+          repayment_date: string | null
+          requested_amount: number
+          status: string
+        }
+        Insert: {
+          advance_date?: string | null
+          approved_amount?: number | null
+          case_id: string
+          created_at?: string | null
+          funder_id?: string | null
+          id?: string
+          notes?: string | null
+          repayment_amount?: number | null
+          repayment_date?: string | null
+          requested_amount: number
+          status?: string
+        }
+        Update: {
+          advance_date?: string | null
+          approved_amount?: number | null
+          case_id?: string
+          created_at?: string | null
+          funder_id?: string | null
+          id?: string
+          notes?: string | null
+          repayment_amount?: number | null
+          repayment_date?: string | null
+          requested_amount?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funding_requests_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funding_requests_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funding_requests_funder_id_fkey"
+            columns: ["funder_id"]
+            isOneToOne: false
+            referencedRelation: "funder_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       liens: {
         Row: {
           amount: number
@@ -305,6 +528,123 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          link: string | null
+          message: string
+          read: boolean | null
+          recipient_id: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          link?: string | null
+          message: string
+          read?: boolean | null
+          recipient_id?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          link?: string | null
+          message?: string
+          read?: boolean | null
+          recipient_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_profiles: {
+        Row: {
+          accident_description: string | null
+          address: string | null
+          aob_date: string | null
+          assignment_of_benefits_signed: boolean | null
+          case_id: string | null
+          city: string | null
+          created_at: string | null
+          date_of_birth: string | null
+          hipaa_auth_date: string | null
+          hipaa_auth_signed: boolean | null
+          id: string
+          insurance_status: string | null
+          preferred_language: string | null
+          profile_id: string | null
+          state: string | null
+          zip: string | null
+        }
+        Insert: {
+          accident_description?: string | null
+          address?: string | null
+          aob_date?: string | null
+          assignment_of_benefits_signed?: boolean | null
+          case_id?: string | null
+          city?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          hipaa_auth_date?: string | null
+          hipaa_auth_signed?: boolean | null
+          id?: string
+          insurance_status?: string | null
+          preferred_language?: string | null
+          profile_id?: string | null
+          state?: string | null
+          zip?: string | null
+        }
+        Update: {
+          accident_description?: string | null
+          address?: string | null
+          aob_date?: string | null
+          assignment_of_benefits_signed?: boolean | null
+          case_id?: string | null
+          city?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          hipaa_auth_date?: string | null
+          hipaa_auth_signed?: boolean | null
+          id?: string
+          insurance_status?: string | null
+          preferred_language?: string | null
+          profile_id?: string | null
+          state?: string | null
+          zip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_profiles_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_profiles_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_profiles_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -346,6 +686,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      provider_applications: {
+        Row: {
+          contact_name: string
+          created_at: string | null
+          email: string
+          hipaa_baa_agreed: boolean | null
+          id: string
+          license_number: string | null
+          lien_experience: boolean | null
+          locations: number | null
+          notes: string | null
+          phone: string
+          practice_name: string
+          specialty: string
+          state: string
+          status: string
+        }
+        Insert: {
+          contact_name: string
+          created_at?: string | null
+          email: string
+          hipaa_baa_agreed?: boolean | null
+          id?: string
+          license_number?: string | null
+          lien_experience?: boolean | null
+          locations?: number | null
+          notes?: string | null
+          phone: string
+          practice_name: string
+          specialty: string
+          state: string
+          status?: string
+        }
+        Update: {
+          contact_name?: string
+          created_at?: string | null
+          email?: string
+          hipaa_baa_agreed?: boolean | null
+          id?: string
+          license_number?: string | null
+          lien_experience?: boolean | null
+          locations?: number | null
+          notes?: string | null
+          phone?: string
+          practice_name?: string
+          specialty?: string
+          state?: string
+          status?: string
+        }
+        Relationships: []
       }
       providers: {
         Row: {

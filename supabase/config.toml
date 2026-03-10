@@ -1,1 +1,4 @@
 project_id = "qfyvgpgsyzygivopekfa"
+
+[functions.submit-intake]
+verify_jwt = false
