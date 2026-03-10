@@ -77,7 +77,7 @@ export default function SettingsPage() {
 
   const handleExportCases = async () => {
     const { data } = await supabase.from('cases_with_counts').select('*');
-    if (data) exportToCSV(data as any, 'ghin-cases.csv');
+    if (data) exportToCSV(data as any, 'carelink-cases.csv');
   };
 
   const handleExportLiens = async () => {
