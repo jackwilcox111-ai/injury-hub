@@ -109,6 +109,11 @@ export default function Login() {
               >
                 Forgot password?
               </button>
+              <div className="border-t border-border pt-4 mt-2 space-y-2 text-center">
+                <p className="text-xs text-muted-foreground">Don't have an account?</p>
+                <a href="/get-started" className="text-sm text-primary hover:text-primary/80 font-medium block">I'm a patient → Get Started</a>
+                <a href="/provider/join" className="text-sm text-muted-foreground hover:text-foreground block">I'm a provider → Join Network</a>
+              </div>
             </form>
           ) : (
             <form onSubmit={handleReset} className="space-y-5">
