@@ -19,7 +19,7 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="relative overflow-hidden min-h-[600px] md:min-h-[700px] flex items-center">
         <img src={heroImage} alt="Medical professionals coordinating patient care in a modern clinic" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-foreground/60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-foreground/90 via-foreground/70 to-transparent" />
         <div className="max-w-6xl mx-auto px-6 py-28 md:py-36 relative z-10">
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-foreground/10 border border-primary-foreground/20 mb-8">
