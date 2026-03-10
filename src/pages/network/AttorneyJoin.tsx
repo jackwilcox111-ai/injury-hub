@@ -77,7 +77,7 @@ export default function AttorneyJoin() {
               <div className="space-y-2"><Label>Bar Number</Label><Input value={form.bar_number} onChange={e => set('bar_number', e.target.value)} /></div>
               <div className="space-y-2"><Label>Monthly PI Case Volume</Label><Input type="number" min={0} value={form.pi_case_volume_monthly} onChange={e => set('pi_case_volume_monthly', e.target.value)} /></div>
               <div className="space-y-2">
-                <Label>How did you hear about GHIN?</Label>
+                <Label>How did you hear about CareLink?</Label>
                 <Select value={form.referral_source} onValueChange={v => set('referral_source', v)}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>{REFERRAL_SOURCES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
