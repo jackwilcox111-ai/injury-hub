@@ -86,7 +86,7 @@ export default function SettingsPage() {
       case_number: (l as any).cases?.case_number, patient: (l as any).cases?.patient_name,
       provider: (l as any).providers?.name, amount: l.amount, reduction: l.reduction_amount,
       net: l.amount - l.reduction_amount, status: l.status,
-    })), 'ghin-liens.csv');
+    })), 'carelink-liens.csv');
   };
 
   if (isLoading) return <div className="space-y-6"><h2 className="font-display text-2xl">Settings</h2><Skeleton className="h-96 rounded-xl" /></div>;
