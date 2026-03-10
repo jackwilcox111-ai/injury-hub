@@ -194,7 +194,7 @@ export default function PatientIntake() {
             <div className="bg-card border border-border rounded-xl p-6 space-y-3">
               <h4 className="font-semibold text-sm text-foreground">Assignment of Benefits</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                By using GHIN's medical care coordination services, you acknowledge that treatment will be provided on a medical lien basis. This means that payment for your medical treatment will be deferred and made from the proceeds of any settlement or judgment in your personal injury case.
+                By using CareLink's medical care coordination services, you acknowledge that treatment will be provided on a medical lien basis. This means that payment for your medical treatment will be deferred and made from the proceeds of any settlement or judgment in your personal injury case.
               </p>
               <div className="flex items-start gap-3 pt-2">
                 <Checkbox checked={aobConsent} onCheckedChange={v => setAobConsent(!!v)} id="aob" />
