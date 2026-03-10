@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,53 +6,53 @@
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 220 20% 12%;
+    --background: 42 30% 97%;
+    --foreground: 222 25% 11%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 20% 12%;
+    --card: 40 25% 99%;
+    --card-foreground: 222 25% 11%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 12%;
+    --popover: 40 25% 99%;
+    --popover-foreground: 222 25% 11%;
 
-    --primary: 217 72% 50%;
+    --primary: 192 65% 33%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 94%;
-    --secondary-foreground: 220 20% 25%;
+    --secondary: 42 25% 93%;
+    --secondary-foreground: 222 20% 20%;
 
-    --muted: 220 14% 94%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 42 18% 93%;
+    --muted-foreground: 220 10% 48%;
 
-    --accent: 220 14% 94%;
-    --accent-foreground: 220 20% 25%;
+    --accent: 42 50% 90%;
+    --accent-foreground: 222 20% 15%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 68% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 152 60% 40%;
+    --success: 160 50% 38%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
+    --warning: 38 88% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --settled: 258 60% 55%;
+    --settled: 270 45% 52%;
     --settled-foreground: 0 0% 100%;
 
-    --border: 220 13% 90%;
-    --input: 220 13% 90%;
-    --ring: 217 72% 50%;
+    --border: 40 16% 89%;
+    --input: 40 16% 89%;
+    --ring: 192 65% 33%;
 
     --radius: 10px;
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 20% 12%;
-    --sidebar-primary: 217 72% 50%;
+    --sidebar-foreground: 222 25% 11%;
+    --sidebar-primary: 192 65% 33%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 97%;
-    --sidebar-accent-foreground: 220 20% 25%;
-    --sidebar-border: 220 13% 92%;
-    --sidebar-ring: 217 72% 50%;
+    --sidebar-accent: 42 30% 96%;
+    --sidebar-accent-foreground: 222 20% 20%;
+    --sidebar-border: 40 16% 91%;
+    --sidebar-ring: 192 65% 33%;
 
     --font-display: 'Syne', sans-serif;
     --font-mono: 'DM Mono', monospace;
