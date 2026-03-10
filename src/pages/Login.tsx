@@ -36,7 +36,7 @@ export default function Login() {
       <div className="hidden lg:flex lg:flex-1 bg-primary items-center justify-center relative overflow-hidden">
         <div className="relative z-10 text-center px-12 max-w-md">
           <div className="w-16 h-16 rounded-2xl bg-primary-foreground/20 flex items-center justify-center mx-auto mb-8">
-            <span className="text-primary-foreground font-display font-bold text-2xl">GH</span>
+            <span className="text-primary-foreground font-display font-bold text-2xl">CL</span>
           </div>
           <h1 className="font-display text-4xl font-bold text-primary-foreground leading-tight">
             Got Hurt<br />Injury Network
