@@ -12,12 +12,9 @@ export function PublicNav() {
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-display font-bold text-sm">GH</span>
+            <span className="text-primary-foreground font-display font-bold text-sm">CL</span>
           </div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="font-display text-base font-bold tracking-tight text-foreground">GHIN</span>
-            <span className="text-[11px] text-muted-foreground font-medium tracking-wide">Network</span>
-          </div>
+          <span className="font-display text-base font-bold tracking-tight text-foreground">CareLink</span>
         </Link>
 
         {/* Desktop */}
@@ -69,9 +66,9 @@ export function PublicFooter() {
           <div className="md:col-span-2">
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-display font-bold text-xs">GH</span>
+                <span className="text-primary-foreground font-display font-bold text-xs">CL</span>
               </div>
-              <span className="font-display text-sm font-bold text-primary-foreground">GHIN Network</span>
+              <span className="font-display text-sm font-bold text-primary-foreground">CareLink</span>
             </div>
             <p className="text-sm max-w-sm leading-relaxed">
               Coordinated personal injury medical care. Connecting patients, providers, attorneys, and funders — all on one platform.
@@ -85,12 +82,12 @@ export function PublicFooter() {
           </div>
           <div className="space-y-3">
             <p className="text-primary-foreground/90 font-medium text-xs uppercase tracking-widest">Contact</p>
-            <p className="text-sm">info@gothurtnetwork.com</p>
+            <p className="text-sm">info@carelink.com</p>
             <p className="text-sm">(813) 555-0000</p>
           </div>
         </div>
         <div className="border-t border-primary-foreground/10 mt-12 pt-6 text-xs text-center text-primary-foreground/40">
-          © {new Date().getFullYear()} Got Hurt Injury Network. All rights reserved.
+          © {new Date().getFullYear()} CareLink. All rights reserved.
         </div>
       </div>
     </footer>

@@ -56,7 +56,7 @@ export default function ProviderJoin() {
         <div className="mb-10">
           <span className="text-xs font-medium uppercase tracking-widest text-success mb-3 block">Provider Network</span>
           <h2 className="text-3xl font-display font-bold text-foreground mb-2">Join the Network</h2>
-          <p className="text-sm text-muted-foreground">Apply to treat PI patients on lien through GHIN.</p>
+          <p className="text-sm text-muted-foreground">Apply to treat PI patients on lien through CareLink.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -93,7 +93,7 @@ export default function ProviderJoin() {
             <div className="flex items-start gap-3">
               <Checkbox checked={form.hipaa_baa_agreed} onCheckedChange={v => set('hipaa_baa_agreed', !!v)} id="baa" />
               <Label htmlFor="baa" className="text-sm leading-relaxed">
-                I agree to execute a HIPAA Business Associate Agreement with GHIN *
+                I agree to execute a HIPAA Business Associate Agreement with CareLink *
               </Label>
             </div>
           </div>

@@ -48,7 +48,7 @@ export default function FunderJoin() {
         <div className="mb-10">
           <span className="text-xs font-medium uppercase tracking-widest text-settled mb-3 block">Investment Opportunity</span>
           <h2 className="text-3xl font-display font-bold text-foreground mb-2">Become a Network Funder</h2>
-          <p className="text-sm text-muted-foreground">Express interest in funding PI medical liens through GHIN.</p>
+          <p className="text-sm text-muted-foreground">Express interest in funding PI medical liens through CareLink.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">

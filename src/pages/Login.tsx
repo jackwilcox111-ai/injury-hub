@@ -36,10 +36,10 @@ export default function Login() {
       <div className="hidden lg:flex lg:flex-1 bg-primary items-center justify-center relative overflow-hidden">
         <div className="relative z-10 text-center px-12 max-w-md">
           <div className="w-16 h-16 rounded-2xl bg-primary-foreground/20 flex items-center justify-center mx-auto mb-8">
-            <span className="text-primary-foreground font-display font-bold text-2xl">GH</span>
+            <span className="text-primary-foreground font-display font-bold text-2xl">CL</span>
           </div>
           <h1 className="font-display text-4xl font-bold text-primary-foreground leading-tight">
-            Got Hurt<br />Injury Network
+            CareLink
           </h1>
           <p className="text-primary-foreground/70 mt-4 text-sm leading-relaxed">
             Personal injury medical care coordination platform.
@@ -60,9 +60,9 @@ export default function Login() {
         <div className="w-full max-w-sm">
           <div className="lg:hidden mb-8 text-center">
             <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mx-auto mb-4">
-              <span className="text-primary-foreground font-display font-bold text-lg">GH</span>
+              <span className="text-primary-foreground font-display font-bold text-lg">CL</span>
             </div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Got Hurt Injury Network</h1>
+            <h1 className="font-display text-2xl font-bold text-foreground">CareLink</h1>
           </div>
 
           <div className="mb-8">
@@ -70,7 +70,7 @@ export default function Login() {
               {showForgot ? 'Reset Password' : 'Welcome back'}
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              {showForgot ? 'Enter your email to receive a reset link.' : 'Sign in to the GHIN Network Portal.'}
+              {showForgot ? 'Enter your email to receive a reset link.' : 'Sign in to the CareLink portal.'}
             </p>
           </div>
 
@@ -85,7 +85,7 @@ export default function Login() {
                   onChange={e => setEmail(e.target.value)}
                   required
                   className="h-11"
-                  placeholder="admin@gothurtnetwork.com"
+                  placeholder="admin@carelink.com"
                 />
               </div>
               <div className="space-y-2">

@@ -5,9 +5,9 @@ import { Heart, Users, FileCheck, DollarSign, ArrowRight, Shield, Clock, Stethos
 
 const steps = [
   { icon: Heart, title: "You're Injured", desc: "No health insurance? No problem. We connect you to care immediately.", num: '01' },
-  { icon: Users, title: "GHIN Coordinates", desc: "We assign your case a care manager who handles everything.", num: '02' },
+  { icon: Users, title: "CareLink Coordinates", desc: "We assign your case a care manager who handles everything.", num: '02' },
   { icon: Stethoscope, title: "Providers Treat You", desc: "On a medical lien — no upfront payment required.", num: '03' },
-  { icon: DollarSign, title: "Paid at Settlement", desc: "Providers and GHIN are paid when your case settles.", num: '04' },
+  { icon: DollarSign, title: "Paid at Settlement", desc: "Providers and CareLink are paid when your case settles.", num: '04' },
 ];
 
 export default function LandingPage() {
@@ -29,7 +29,7 @@ export default function LandingPage() {
               <span className="text-primary">Zero Upfront Cost.</span>
             </h1>
             <p className="text-base md:text-lg text-muted-foreground mb-10 max-w-lg leading-relaxed">
-              Got Hurt Injury Network connects accident victims with top medical providers, experienced PI attorneys, and case funding — all on lien.
+              CareLink connects accident victims with top medical providers, experienced PI attorneys, and case funding — all on lien.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button size="lg" onClick={() => navigate('/get-started')} className="gap-2 text-sm h-12 px-7 rounded-lg">
@@ -77,7 +77,7 @@ export default function LandingPage() {
                 {[
                   { icon: Shield, label: 'Pre-screened patients', desc: 'Referred by attorneys with active PI cases.' },
                   { icon: Clock, label: 'Lien-basis treatment', desc: 'No collections, no denials. Payment at settlement.' },
-                  { icon: FileCheck, label: 'Payment coordination', desc: 'GHIN handles lien tracking and settlement distribution.' },
+                  { icon: FileCheck, label: 'Payment coordination', desc: 'CareLink handles lien tracking and settlement distribution.' },
                 ].map((item, i) => (
                   <div key={i} className="flex gap-4">
                     <div className="w-9 h-9 rounded-lg bg-success/8 flex items-center justify-center shrink-0 mt-0.5">
@@ -149,7 +149,7 @@ export default function LandingPage() {
                 ))}
               </div>
               <Button className="mt-8 gap-2 rounded-lg" onClick={() => navigate('/attorney/join')}>
-                Partner with GHIN <ChevronRight className="w-4 h-4" />
+                Partner with CareLink <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
           </div>
@@ -189,7 +189,7 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-display font-bold text-primary-foreground mb-4">Ready to Get Started?</h2>
           <p className="text-primary-foreground/70 mb-8 text-sm max-w-md mx-auto">
-            Whether you're injured, a provider, an attorney, or a funder — there's a place for you in the GHIN Network.
+            Whether you're injured, a provider, an attorney, or a funder — there's a place for you in the CareLink network.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Button size="lg" variant="secondary" onClick={() => navigate('/get-started')} className="gap-2 h-12 px-7 rounded-lg bg-primary-foreground text-foreground hover:bg-primary-foreground/90">

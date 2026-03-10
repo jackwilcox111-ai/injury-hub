@@ -77,7 +77,7 @@ export default function SettingsPage() {
 
   const handleExportCases = async () => {
     const { data } = await supabase.from('cases_with_counts').select('*');
-    if (data) exportToCSV(data as any, 'ghin-cases.csv');
+    if (data) exportToCSV(data as any, 'carelink-cases.csv');
   };
 
   const handleExportLiens = async () => {
@@ -86,7 +86,7 @@ export default function SettingsPage() {
       case_number: (l as any).cases?.case_number, patient: (l as any).cases?.patient_name,
       provider: (l as any).providers?.name, amount: l.amount, reduction: l.reduction_amount,
       net: l.amount - l.reduction_amount, status: l.status,
-    })), 'ghin-liens.csv');
+    })), 'carelink-liens.csv');
   };
 
   if (isLoading) return <div className="space-y-6"><h2 className="font-display text-2xl">Settings</h2><Skeleton className="h-96 rounded-xl" /></div>;
@@ -157,8 +157,8 @@ export default function SettingsPage() {
         </div>
         <div className="bg-card border border-border rounded-xl p-5 shadow-card space-y-3 text-sm">
           <div className="flex justify-between"><span className="text-muted-foreground">Default SoL Period</span><span className="font-medium">730 days (Florida — 2 years)</span></div>
-          <div className="flex justify-between"><span className="text-muted-foreground">Company</span><span className="font-medium">Got Hurt Injury Network</span></div>
-          <div className="flex justify-between"><span className="text-muted-foreground">Contact</span><span className="font-mono text-sm">admin@gothurtnetwork.com</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">Company</span><span className="font-medium">CareLink</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">Contact</span><span className="font-mono text-sm">admin@carelink.com</span></div>
         </div>
       </div>
 
