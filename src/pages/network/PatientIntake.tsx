@@ -58,7 +58,7 @@ export default function PatientIntake() {
     try {
       const { data, error } = await supabase.functions.invoke('submit-intake', {
         body: {
-          full_name: fullName, date_of_birth: dob, phone, email,
+          full_name: fullName, date_of_birth: dob, phone, email, password,
           accident_date: accidentDate, accident_state: accidentState,
           accident_description: description, insurance_status: insurance,
           has_treatment: hasTreatment, care_types: careTypes,
