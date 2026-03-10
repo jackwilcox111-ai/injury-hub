@@ -85,15 +85,18 @@ export default function CasesList() {
   }) || [];
 
   if (isLoading) {
-    return <div className="space-y-6"><h2 className="font-display text-xl">Cases</h2><div className="grid grid-cols-2 gap-4">{[1,2,3,4].map(i => <Skeleton key={i} className="h-40 rounded" />)}</div></div>;
+    return <div className="space-y-6"><div className="flex items-center justify-between"><Skeleton className="h-8 w-32" /><Skeleton className="h-10 w-32" /></div><div className="grid grid-cols-2 gap-4">{[1,2,3,4].map(i => <Skeleton key={i} className="h-44 rounded-xl" />)}</div></div>;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-xl">Cases</h2>
-        <Button onClick={() => setShowNew(true)} size="sm">
-          <Plus className="w-4 h-4 mr-1" /> New Case
+        <div>
+          <h2 className="font-display text-2xl text-foreground">Cases</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">{cases?.length || 0} total cases</p>
+        </div>
+        <Button onClick={() => setShowNew(true)}>
+          <Plus className="w-4 h-4 mr-1.5" /> New Case
         </Button>
       </div>
 
@@ -101,14 +104,14 @@ export default function CasesList() {
       <div className="flex items-center gap-4">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search cases..." className="pl-9 bg-card border-border" />
+          <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by patient, case #, or attorney..." className="pl-9 h-10" />
         </div>
-        <div className="flex gap-1">
+        <div className="flex gap-1 bg-card border border-border rounded-lg p-1">
           {statuses.map(s => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1.5 text-xs font-mono rounded transition-colors ${statusFilter === s ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary'}`}
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${statusFilter === s ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
             >
               {s}
             </button>
@@ -118,8 +121,8 @@ export default function CasesList() {
 
       {/* Case Cards */}
       {filtered.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground">
-          <p className="text-sm">No cases found</p>
+        <div className="bg-card border border-border rounded-xl p-16 text-center">
+          <p className="text-sm text-muted-foreground">No cases found</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -127,30 +130,30 @@ export default function CasesList() {
             <button
               key={c.id}
               onClick={() => navigate(`/cases/${c.id}`)}
-              className="bg-card border border-border rounded p-6 text-left hover:border-primary/50 transition-colors"
+              className="bg-card border border-border rounded-xl p-5 text-left shadow-card hover:shadow-card-hover hover:border-primary/30 transition-all group"
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <p className="text-xs font-mono text-primary">{c.case_number}</p>
-                  <p className="text-sm font-medium text-foreground mt-0.5">{c.patient_name}</p>
+                  <p className="text-[11px] font-mono text-primary font-medium">{c.case_number}</p>
+                  <p className="text-sm font-semibold text-foreground mt-0.5 group-hover:text-primary transition-colors">{c.patient_name}</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <StatusBadge status={c.status || ''} />
+                <div className="flex items-center gap-1.5">
                   <FlagBadge flag={c.flag} />
+                  <StatusBadge status={c.status || ''} />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-y-2 text-xs">
+              <div className="grid grid-cols-2 gap-y-2 text-xs mb-4">
                 <div>
                   <span className="text-muted-foreground">Specialty: </span>
-                  <span className="text-foreground">{c.specialty || '—'}</span>
+                  <span className="text-foreground font-medium">{c.specialty || '—'}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Attorney: </span>
-                  <span className="text-foreground">{(c as any).attorneys?.firm_name || '—'}</span>
+                  <span className="text-foreground font-medium">{(c as any).attorneys?.firm_name || '—'}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Provider: </span>
-                  <span className="text-foreground">{(c as any).providers?.name || '—'}</span>
+                  <span className="text-foreground font-medium">{(c as any).providers?.name || '—'}</span>
                 </div>
                 {isAdmin && (
                   <div>
@@ -159,7 +162,7 @@ export default function CasesList() {
                   </div>
                 )}
               </div>
-              <div className="flex items-center justify-between mt-4">
+              <div className="flex items-center justify-between pt-3 border-t border-border">
                 <SoLCountdown sol_date={c.sol_date} sol_period_days={c.sol_period_days} accident_state={c.accident_state} />
                 <ProgressBar completed={c.appointments_completed || 0} total={c.appointments_total || 0} />
               </div>
@@ -170,59 +173,59 @@ export default function CasesList() {
 
       {/* New Case Modal */}
       <Dialog open={showNew} onOpenChange={setShowNew}>
-        <DialogContent className="bg-card border-border max-w-lg">
-          <DialogHeader><DialogTitle className="font-display">New Case</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle className="font-display text-lg">New Case</DialogTitle></DialogHeader>
           <form onSubmit={e => { e.preventDefault(); createCase.mutate(); }} className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-xs font-mono text-muted-foreground">Patient Name *</Label>
-              <Input value={newCase.patient_name} onChange={e => setNewCase(p => ({...p, patient_name: e.target.value}))} required className="bg-background border-border" />
+              <Label className="text-sm font-medium">Patient Name *</Label>
+              <Input value={newCase.patient_name} onChange={e => setNewCase(p => ({...p, patient_name: e.target.value}))} required className="h-10" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-xs font-mono text-muted-foreground">Accident Date *</Label>
-                <Input type="date" value={newCase.accident_date} onChange={e => setNewCase(p => ({...p, accident_date: e.target.value}))} required className="bg-background border-border" />
+                <Label className="text-sm font-medium">Accident Date *</Label>
+                <Input type="date" value={newCase.accident_date} onChange={e => setNewCase(p => ({...p, accident_date: e.target.value}))} required className="h-10" />
               </div>
               <div className="space-y-2">
-                <Label className="text-xs font-mono text-muted-foreground">Accident State *</Label>
-                <Input value={newCase.accident_state} onChange={e => setNewCase(p => ({...p, accident_state: e.target.value}))} placeholder="FL" required className="bg-background border-border" />
+                <Label className="text-sm font-medium">Accident State *</Label>
+                <Input value={newCase.accident_state} onChange={e => setNewCase(p => ({...p, accident_state: e.target.value}))} placeholder="FL" required className="h-10" />
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-mono text-muted-foreground">SoL Period (days)</Label>
-              <Input type="number" value={newCase.sol_period_days} onChange={e => setNewCase(p => ({...p, sol_period_days: Number(e.target.value)}))} className="bg-background border-border" />
-              <p className="text-[10px] text-muted-foreground">Common: FL/TX/CA/GA = 730, NY = 1095. Confirm with legal counsel.</p>
+              <Label className="text-sm font-medium">SoL Period (days)</Label>
+              <Input type="number" value={newCase.sol_period_days} onChange={e => setNewCase(p => ({...p, sol_period_days: Number(e.target.value)}))} className="h-10" />
+              <p className="text-xs text-muted-foreground">FL/TX/CA/GA = 730, NY = 1095. Confirm with legal counsel.</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-xs font-mono text-muted-foreground">Phone</Label>
-                <Input value={newCase.patient_phone} onChange={e => setNewCase(p => ({...p, patient_phone: e.target.value}))} className="bg-background border-border" />
+                <Label className="text-sm font-medium">Phone</Label>
+                <Input value={newCase.patient_phone} onChange={e => setNewCase(p => ({...p, patient_phone: e.target.value}))} className="h-10" />
               </div>
               <div className="space-y-2">
-                <Label className="text-xs font-mono text-muted-foreground">Email</Label>
-                <Input value={newCase.patient_email} onChange={e => setNewCase(p => ({...p, patient_email: e.target.value}))} className="bg-background border-border" />
+                <Label className="text-sm font-medium">Email</Label>
+                <Input value={newCase.patient_email} onChange={e => setNewCase(p => ({...p, patient_email: e.target.value}))} className="h-10" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-xs font-mono text-muted-foreground">Attorney</Label>
+                <Label className="text-sm font-medium">Attorney</Label>
                 <Select value={newCase.attorney_id} onValueChange={v => setNewCase(p => ({...p, attorney_id: v}))}>
-                  <SelectTrigger className="bg-background border-border"><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger>
                   <SelectContent>
                     {attorneys?.map(a => <SelectItem key={a.id} value={a.id}>{a.firm_name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-xs font-mono text-muted-foreground">Specialty</Label>
+                <Label className="text-sm font-medium">Specialty</Label>
                 <Select value={newCase.specialty} onValueChange={v => setNewCase(p => ({...p, specialty: v}))}>
-                  <SelectTrigger className="bg-background border-border"><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger>
                   <SelectContent>
                     {specialties.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            <p className="text-[10px] text-muted-foreground border-t border-border pt-3">PHI — Handle in accordance with HIPAA policy</p>
+            <p className="text-xs text-muted-foreground border-t border-border pt-3">PHI — Handle in accordance with HIPAA policy</p>
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setShowNew(false)}>Cancel</Button>
               <Button type="submit" disabled={createCase.isPending}>{createCase.isPending ? 'Creating...' : 'Create Case'}</Button>

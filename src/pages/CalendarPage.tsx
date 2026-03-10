@@ -25,7 +25,6 @@ export default function CalendarPage() {
     },
   });
 
-  // Group by date
   const grouped: Record<string, typeof appointments> = {};
   appointments?.forEach(a => {
     const dateKey = a.scheduled_date ? format(new Date(a.scheduled_date), 'yyyy-MM-dd') : 'Unknown';
@@ -35,41 +34,41 @@ export default function CalendarPage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="font-display text-xl">Calendar</h2>
-
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <CalendarDays className="w-12 h-12 text-muted-foreground mb-4" />
-        <h3 className="font-display text-lg text-foreground">Calendar</h3>
-        <p className="text-sm text-muted-foreground mt-1">Full scheduling view coming in Phase 2.</p>
+      <div>
+        <h2 className="font-display text-2xl text-foreground">Calendar</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">Scheduling and appointments overview</p>
       </div>
 
-      {/* Upcoming appointments */}
+      <div className="bg-card border border-border rounded-xl p-12 text-center shadow-card">
+        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+          <CalendarDays className="w-8 h-8 text-primary" />
+        </div>
+        <h3 className="font-display text-lg text-foreground">Full Calendar Coming Soon</h3>
+        <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">A complete scheduling view with drag-and-drop, recurring appointments, and provider availability is planned for Phase 2.</p>
+      </div>
+
       {Object.keys(grouped).length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-sm font-medium text-foreground">Upcoming 30 Days</h3>
+          <h3 className="text-sm font-semibold text-foreground">Upcoming 30 Days</h3>
           {Object.entries(grouped).map(([date, appts]) => (
             <div key={date}>
-              <p className="text-xs font-mono text-primary mb-2">{format(new Date(date), 'EEEE, MMM d, yyyy')}</p>
-              <div className="bg-card border border-border rounded overflow-hidden">
+              <p className="text-xs font-semibold text-primary mb-2">{format(new Date(date), 'EEEE, MMMM d, yyyy')}</p>
+              <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
                 <table className="w-full text-sm">
-                  <tbody>
-                    {appts?.map((a, i) => (
-                      <tr key={a.id} className={`border-b border-border last:border-0 ${i % 2 === 1 ? 'bg-card' : 'bg-background'}`}>
-                        <td className="px-4 py-2 font-mono text-xs text-muted-foreground w-20">
+                  <tbody className="divide-y divide-border">
+                    {appts?.map(a => (
+                      <tr key={a.id} className="hover:bg-accent/30 transition-colors">
+                        <td className="px-5 py-3 font-mono text-xs text-muted-foreground w-20">
                           {a.scheduled_date ? format(new Date(a.scheduled_date), 'HH:mm') : '—'}
                         </td>
-                        <td className="px-4 py-2 text-xs">
+                        <td className="px-5 py-3 text-sm font-medium">
                           {canNavigateCases ? (
-                            <button onClick={() => navigate(`/cases/${(a as any).cases?.case_number ? a.case_id : ''}`)} className="text-primary hover:underline">
-                              {(a as any).cases?.patient_name}
-                            </button>
-                          ) : (
-                            <span>{(a as any).cases?.patient_name}</span>
-                          )}
+                            <button onClick={() => navigate(`/cases/${a.case_id}`)} className="text-primary hover:underline">{(a as any).cases?.patient_name}</button>
+                          ) : <span>{(a as any).cases?.patient_name}</span>}
                         </td>
-                        <td className="px-4 py-2 text-xs text-muted-foreground">{(a as any).providers?.name || '—'}</td>
-                        <td className="px-4 py-2 text-xs text-muted-foreground">{a.specialty || '—'}</td>
-                        <td className="px-4 py-2"><StatusBadge status={a.status} /></td>
+                        <td className="px-5 py-3 text-xs text-muted-foreground">{(a as any).providers?.name || '—'}</td>
+                        <td className="px-5 py-3 text-xs text-muted-foreground">{a.specialty || '—'}</td>
+                        <td className="px-5 py-3"><StatusBadge status={a.status} /></td>
                       </tr>
                     ))}
                   </tbody>

@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus } from 'lucide-react';
+import { Plus, TrendingUp, Calendar, Users } from 'lucide-react';
 
 export default function AttorneysPage() {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ export default function AttorneysPage() {
       const { data: attys } = await supabase.from('attorneys').select('*').order('firm_name');
       if (!attys) return [];
       const { data: cases } = await supabase.from('cases').select('attorney_id, status, settlement_final, opened_date');
-      const enriched = attys.map(a => {
+      return attys.map(a => {
         const aCases = cases?.filter(c => c.attorney_id === a.id) || [];
         const settled = aCases.filter(c => c.status === 'Settled');
         const active = aCases.filter(c => c.status !== 'Settled');
@@ -34,7 +34,6 @@ export default function AttorneysPage() {
         const avgSettlement = settled.length > 0 ? settled.reduce((sum, c) => sum + (c.settlement_final || 0), 0) / settled.length : 0;
         return { ...a, totalCases: aCases.length, activeCases: active.length, settledCases: settled.length, avgSettlement, monthlyVolume: monthly.length };
       });
-      return enriched;
     },
   });
 
@@ -61,102 +60,97 @@ export default function AttorneysPage() {
   });
 
   const selectedAttorney = attorneys?.find(a => a.id === showDetail);
-
-  // LTV calculations
   const activeAttorneys = attorneys?.filter(a => a.status === 'Active') || [];
   const avgLTV = activeAttorneys.length > 0
-    ? activeAttorneys.reduce((sum, a) => sum + (a.avgSettlement * a.monthlyVolume * 36), 0) / activeAttorneys.length
-    : 0;
-  const totalPipeline = attorneys?.reduce((sum, a) => sum, 0) || 0; // computed below from cases
+    ? activeAttorneys.reduce((sum, a) => sum + (a.avgSettlement * a.monthlyVolume * 36), 0) / activeAttorneys.length : 0;
   const casesThisMonth = attorneys?.reduce((sum, a) => sum + a.monthlyVolume, 0) || 0;
 
-  if (isLoading) return <div className="space-y-6"><h2 className="font-display text-xl">Attorneys</h2><Skeleton className="h-96 rounded" /></div>;
+  if (isLoading) return <div className="space-y-6"><h2 className="font-display text-2xl">Attorneys</h2><Skeleton className="h-96 rounded-xl" /></div>;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-xl">Attorney Relationships</h2>
-        <Button size="sm" onClick={() => setShowAdd(true)}><Plus className="w-4 h-4 mr-1" /> Add Attorney</Button>
+        <div>
+          <h2 className="font-display text-2xl text-foreground">Attorney Relationships</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">{attorneys?.length || 0} firms</p>
+        </div>
+        <Button onClick={() => setShowAdd(true)}><Plus className="w-4 h-4 mr-1.5" /> Add Attorney</Button>
       </div>
 
-      <div className="bg-card border border-border rounded overflow-hidden">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-3 gap-5">
+        {[
+          { label: 'Avg Attorney LTV (3yr)', value: `$${Math.round(avgLTV).toLocaleString()}`, icon: TrendingUp, color: 'text-emerald-600 bg-emerald-50' },
+          { label: 'Cases This Month', value: casesThisMonth, icon: Calendar, color: 'text-blue-600 bg-blue-50' },
+          { label: 'Active Firms', value: activeAttorneys.length, icon: Users, color: 'text-violet-600 bg-violet-50' },
+        ].map(card => (
+          <div key={card.label} className="bg-card border border-border rounded-xl p-5 shadow-card">
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${card.color}`}>
+              <card.icon className="w-[18px] h-[18px]" />
+            </div>
+            <p className="text-2xl font-semibold text-foreground tabular-nums">{card.value}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{card.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Table */}
+      <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
         <table className="w-full text-sm">
-          <thead><tr className="border-b border-border">
-            <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground">Firm</th>
-            <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground">Contact</th>
-            <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground">Email</th>
-            <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground">Total</th>
-            <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground">Active</th>
-            <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground">Settled</th>
-            <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground">Avg Settlement</th>
-            <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground">Monthly</th>
-            <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground">Status</th>
+          <thead><tr className="border-b border-border bg-accent/50">
+            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Firm</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Contact</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Total</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Active</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Settled</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Avg Settlement</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Monthly</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
           </tr></thead>
-          <tbody>
-            {attorneys?.map((a, i) => (
-              <tr key={a.id} onClick={() => setShowDetail(a.id)} className={`border-b border-border cursor-pointer hover:bg-secondary/50 ${i % 2 === 1 ? 'bg-card' : 'bg-background'}`}>
-                <td className="px-4 py-3 text-foreground font-medium">{a.firm_name}</td>
-                <td className="px-4 py-3 text-muted-foreground text-xs">{a.contact_name || '—'}</td>
-                <td className="px-4 py-3 text-muted-foreground text-xs font-mono">{a.email || '—'}</td>
-                <td className="px-4 py-3 font-mono text-xs">{a.totalCases}</td>
-                <td className="px-4 py-3 font-mono text-xs text-primary">{a.activeCases}</td>
-                <td className="px-4 py-3 font-mono text-xs text-settled">{a.settledCases}</td>
-                <td className="px-4 py-3 font-mono text-xs text-success">{a.avgSettlement > 0 ? `$${Math.round(a.avgSettlement).toLocaleString()}` : '—'}</td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <div className="h-1.5 rounded-full bg-secondary w-16 overflow-hidden">
-                      <div className="h-full bg-primary rounded-full" style={{ width: `${Math.min(a.monthlyVolume / 5 * 100, 100)}%` }} />
-                    </div>
-                    <span className="font-mono text-xs text-muted-foreground">{a.monthlyVolume}</span>
+          <tbody className="divide-y divide-border">
+            {attorneys?.map(a => (
+              <tr key={a.id} onClick={() => setShowDetail(a.id)} className="cursor-pointer hover:bg-accent/50 transition-colors">
+                <td className="px-5 py-3.5 font-medium text-foreground">{a.firm_name}</td>
+                <td className="px-5 py-3.5 text-muted-foreground text-xs">{a.contact_name || '—'}</td>
+                <td className="px-5 py-3.5 font-mono text-xs tabular-nums">{a.totalCases}</td>
+                <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-primary">{a.activeCases}</td>
+                <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-violet-600">{a.settledCases}</td>
+                <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-emerald-600">{a.avgSettlement > 0 ? `$${Math.round(a.avgSettlement).toLocaleString()}` : '—'}</td>
+                <td className="px-5 py-3.5">
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-2 rounded-full bg-secondary w-14 overflow-hidden"><div className="h-full bg-primary rounded-full" style={{ width: `${Math.min(a.monthlyVolume / 5 * 100, 100)}%` }} /></div>
+                    <span className="font-mono text-xs text-muted-foreground tabular-nums">{a.monthlyVolume}</span>
                   </div>
                 </td>
-                <td className="px-4 py-3"><StatusBadge status={a.status} /></td>
+                <td className="px-5 py-3.5"><StatusBadge status={a.status} /></td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* LTV Cards */}
-      <div className="grid grid-cols-3 gap-6">
-        <div className="bg-card border border-border rounded p-6">
-          <div className="absolute top-0 left-0 right-0 h-[3px] bg-success" />
-          <p className="text-muted-foreground text-xs font-mono uppercase">Avg Attorney LTV (3yr)</p>
-          <p className="text-2xl font-mono text-foreground mt-2">${Math.round(avgLTV).toLocaleString()}</p>
-        </div>
-        <div className="bg-card border border-border rounded p-6">
-          <p className="text-muted-foreground text-xs font-mono uppercase">Cases This Month</p>
-          <p className="text-2xl font-mono text-foreground mt-2">{casesThisMonth}</p>
-        </div>
-        <div className="bg-card border border-border rounded p-6">
-          <p className="text-muted-foreground text-xs font-mono uppercase">Active Firms</p>
-          <p className="text-2xl font-mono text-foreground mt-2">{activeAttorneys.length}</p>
-        </div>
-      </div>
-
-      {/* Detail Modal */}
       <Dialog open={!!showDetail} onOpenChange={open => !open && setShowDetail(null)}>
-        <DialogContent className="bg-card border-border max-w-lg">
-          <DialogHeader><DialogTitle className="font-display">{selectedAttorney?.firm_name}</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>{selectedAttorney?.firm_name}</DialogTitle></DialogHeader>
           {selectedAttorney && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div><span className="text-muted-foreground">Contact:</span> <span className="text-foreground">{selectedAttorney.contact_name}</span></div>
-                <div><span className="text-muted-foreground">Email:</span> <span className="font-mono text-foreground">{selectedAttorney.email}</span></div>
-                <div><span className="text-muted-foreground">Phone:</span> <span className="font-mono text-foreground">{selectedAttorney.phone}</span></div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div><span className="text-muted-foreground">Contact:</span> <span className="font-medium">{selectedAttorney.contact_name}</span></div>
+                <div><span className="text-muted-foreground">Email:</span> <span className="font-mono text-sm">{selectedAttorney.email}</span></div>
+                <div><span className="text-muted-foreground">Phone:</span> <span className="font-mono text-sm">{selectedAttorney.phone}</span></div>
                 <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={selectedAttorney.status} /></div>
               </div>
               {linkedCases && linkedCases.length > 0 && (
                 <div>
-                  <p className="text-xs font-medium text-foreground mb-2">Cases</p>
-                  {linkedCases.map(c => (
-                    <button key={c.id} onClick={() => { setShowDetail(null); navigate(`/cases/${c.id}`); }} className="w-full flex items-center justify-between py-1.5 text-xs hover:bg-secondary rounded px-2">
-                      <span className="font-mono text-primary">{c.case_number}</span>
-                      <span className="text-foreground">{c.patient_name}</span>
+                  <p className="text-sm font-semibold mb-2">Cases</p>
+                  <div className="space-y-1">{linkedCases.map(c => (
+                    <button key={c.id} onClick={() => { setShowDetail(null); navigate(`/cases/${c.id}`); }} className="w-full flex items-center justify-between py-2 text-sm hover:bg-accent rounded-lg px-2">
+                      <span className="font-mono text-primary text-xs font-medium">{c.case_number}</span>
+                      <span>{c.patient_name}</span>
                       <SoLCountdown sol_date={c.sol_date} />
                       <StatusBadge status={c.status || ''} />
                     </button>
-                  ))}
+                  ))}</div>
                 </div>
               )}
             </div>
@@ -164,29 +158,16 @@ export default function AttorneysPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Add Attorney Modal */}
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
-        <DialogContent className="bg-card border-border">
-          <DialogHeader><DialogTitle className="font-display">Add Attorney</DialogTitle></DialogHeader>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Add Attorney</DialogTitle></DialogHeader>
           <form onSubmit={e => { e.preventDefault(); addAttorney.mutate(); }} className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-xs font-mono text-muted-foreground">Firm Name *</Label>
-              <Input value={form.firm_name} onChange={e => setForm(p => ({...p, firm_name: e.target.value}))} required className="bg-background border-border" />
-            </div>
+            <div className="space-y-2"><Label className="text-sm font-medium">Firm Name *</Label><Input value={form.firm_name} onChange={e => setForm(p => ({...p, firm_name: e.target.value}))} required className="h-10" /></div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-xs font-mono text-muted-foreground">Contact Name</Label>
-                <Input value={form.contact_name} onChange={e => setForm(p => ({...p, contact_name: e.target.value}))} className="bg-background border-border" />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-mono text-muted-foreground">Email</Label>
-                <Input value={form.email} onChange={e => setForm(p => ({...p, email: e.target.value}))} className="bg-background border-border" />
-              </div>
+              <div className="space-y-2"><Label className="text-sm font-medium">Contact</Label><Input value={form.contact_name} onChange={e => setForm(p => ({...p, contact_name: e.target.value}))} className="h-10" /></div>
+              <div className="space-y-2"><Label className="text-sm font-medium">Email</Label><Input value={form.email} onChange={e => setForm(p => ({...p, email: e.target.value}))} className="h-10" /></div>
             </div>
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
-              <Button type="submit" disabled={addAttorney.isPending}>Add</Button>
-            </div>
+            <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button><Button type="submit" disabled={addAttorney.isPending}>Add Attorney</Button></div>
           </form>
         </DialogContent>
       </Dialog>

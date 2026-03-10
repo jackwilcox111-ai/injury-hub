@@ -8,8 +8,9 @@ import { ProgressBar } from '@/components/global/ProgressBar';
 import { FlagBadge } from '@/components/global/FlagBadge';
 import { FinancialValue } from '@/components/global/FinancialValue';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, TrendingUp, Users, Stethoscope, FolderOpen, Plus, ArrowRight } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { Button } from '@/components/ui/button';
 
 export default function Dashboard() {
   const { profile } = useAuth();
@@ -21,7 +22,7 @@ export default function Dashboard() {
     queryFn: async () => {
       const { data } = await supabase
         .from('cases_with_counts')
-        .select('*, attorneys!cases_attorney_id_fkey(firm_name)')
+        .select('*, attorneys!cases_attorney_id_fkey(firm_name), providers!cases_provider_id_fkey(name)')
         .order('updated_at', { ascending: false })
         .limit(20);
       return data || [];
@@ -39,110 +40,194 @@ export default function Dashboard() {
   const activeCases = cases?.filter(c => c.status !== 'Settled') || [];
   const totalLien = activeCases.reduce((sum, c) => sum + (c.lien_amount || 0), 0);
   const flaggedCases = cases?.filter(c => c.flag) || [];
-
-  const kpis = [
-    { label: 'Active Cases', value: activeCases.length, color: 'bg-primary' },
-    ...(isAdmin ? [{ label: 'Total Lien Exposure', value: `$${totalLien.toLocaleString()}`, color: 'bg-success' }] : []),
-    { label: 'Network Providers', value: providerCount || 0, color: 'bg-settled' },
-    { label: 'Alerts', value: flaggedCases.length, color: flaggedCases.length > 0 ? 'bg-destructive' : 'bg-success' },
-  ];
+  const intakeCases = cases?.filter(c => c.status === 'Intake') || [];
+  const inTreatment = cases?.filter(c => c.status === 'In Treatment') || [];
 
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <h2 className="font-display text-xl">Dashboard</h2>
-        <div className="grid grid-cols-4 gap-6">
-          {[1,2,3,4].map(i => <Skeleton key={i} className="h-28 rounded" />)}
+        <div className="flex items-center justify-between">
+          <div><Skeleton className="h-7 w-48 mb-2" /><Skeleton className="h-4 w-64" /></div>
+          <Skeleton className="h-10 w-32" />
         </div>
-        <Skeleton className="h-96 rounded" />
+        <div className="grid grid-cols-4 gap-5">
+          {[1,2,3,4].map(i => <Skeleton key={i} className="h-28 rounded-xl" />)}
+        </div>
+        <Skeleton className="h-[400px] rounded-xl" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <h2 className="font-display text-xl">Dashboard</h2>
-
-      {/* KPI Cards */}
-      <div className={`grid gap-6 ${isAdmin ? 'grid-cols-4' : 'grid-cols-3'}`}>
-        {kpis.map(kpi => (
-          <div key={kpi.label} className="bg-card border border-border rounded p-6 relative overflow-hidden">
-            <div className={`absolute top-0 left-0 right-0 h-[3px] ${kpi.color}`} />
-            <p className="text-muted-foreground text-xs font-mono uppercase tracking-wider">{kpi.label}</p>
-            <p className="text-2xl font-mono font-medium text-foreground mt-2">{kpi.value}</p>
-          </div>
-        ))}
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="font-display text-2xl text-foreground">Good morning{profile?.full_name ? `, ${profile.full_name.split(' ')[0]}` : ''}</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">Here's what's happening with your cases today.</p>
+        </div>
+        <Button onClick={() => navigate('/cases')} size="sm" className="gap-1.5">
+          <Plus className="w-4 h-4" /> New Case
+        </Button>
       </div>
 
-      {/* Alert Banner */}
-      {flaggedCases.length > 0 && (
-        <div className="bg-destructive/10 border border-destructive/30 rounded p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <AlertTriangle className="w-4 h-4 text-destructive" />
-            <h3 className="text-sm font-medium text-foreground">Active Alerts</h3>
+      {/* KPI Cards */}
+      <div className={`grid gap-5 ${isAdmin ? 'grid-cols-4' : 'grid-cols-3'}`}>
+        <div className="bg-card border border-border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-shadow cursor-pointer" onClick={() => navigate('/cases')}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+              <FolderOpen className="w-[18px] h-[18px] text-primary" />
+            </div>
+            <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </div>
-          <div className="space-y-1">
-            {flaggedCases.map(c => (
-              <button
-                key={c.id}
-                onClick={() => navigate(`/cases/${c.id}`)}
-                className="w-full flex items-center justify-between py-1.5 px-2 rounded text-left hover:bg-destructive/10 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-mono text-muted-foreground">{c.case_number}</span>
-                  <span className="text-sm text-foreground">{c.patient_name}</span>
-                </div>
-                <FlagBadge flag={c.flag} />
-              </button>
-            ))}
+          <p className="text-2xl font-semibold text-foreground tabular-nums">{activeCases.length}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Active Cases</p>
+          <div className="flex gap-3 mt-3 text-[11px]">
+            <span className="text-blue-600">{intakeCases.length} intake</span>
+            <span className="text-emerald-600">{inTreatment.length} treating</span>
           </div>
         </div>
-      )}
+
+        {isAdmin && (
+          <div className="bg-card border border-border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-shadow cursor-pointer" onClick={() => navigate('/liens')}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
+                <TrendingUp className="w-[18px] h-[18px] text-emerald-600" />
+              </div>
+              <ArrowRight className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-2xl font-semibold text-foreground tabular-nums">${totalLien.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Total Lien Exposure</p>
+          </div>
+        )}
+
+        <div className="bg-card border border-border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-shadow cursor-pointer" onClick={() => navigate('/providers')}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-9 h-9 rounded-lg bg-violet-50 flex items-center justify-center">
+              <Stethoscope className="w-[18px] h-[18px] text-violet-600" />
+            </div>
+            <ArrowRight className="w-4 h-4 text-muted-foreground" />
+          </div>
+          <p className="text-2xl font-semibold text-foreground tabular-nums">{providerCount}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Active Providers</p>
+        </div>
+
+        <div className={`bg-card border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-shadow ${flaggedCases.length > 0 ? 'border-red-200 bg-red-50/30' : 'border-border'}`}>
+          <div className="flex items-center justify-between mb-3">
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${flaggedCases.length > 0 ? 'bg-red-100' : 'bg-emerald-50'}`}>
+              <AlertTriangle className={`w-[18px] h-[18px] ${flaggedCases.length > 0 ? 'text-red-600' : 'text-emerald-600'}`} />
+            </div>
+            {flaggedCases.length > 0 && <span className="text-[10px] font-semibold text-red-600 bg-red-100 px-2 py-0.5 rounded-full">Action needed</span>}
+          </div>
+          <p className="text-2xl font-semibold text-foreground tabular-nums">{flaggedCases.length}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Active Alerts</p>
+        </div>
+      </div>
+
+      {/* Two-column: Alerts + Quick Actions */}
+      <div className="grid grid-cols-3 gap-5">
+        {/* Alert Banner */}
+        {flaggedCases.length > 0 && (
+          <div className="col-span-2 bg-card border border-border rounded-xl shadow-card overflow-hidden">
+            <div className="px-5 py-3 border-b border-border flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-red-500" />
+              <h3 className="text-sm font-semibold text-foreground">Cases Requiring Attention</h3>
+              <span className="text-[10px] bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-medium ml-1">{flaggedCases.length}</span>
+            </div>
+            <div className="divide-y divide-border">
+              {flaggedCases.map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => navigate(`/cases/${c.id}`)}
+                  className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-accent transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-mono text-primary font-medium">{c.case_number}</span>
+                    <span className="text-sm text-foreground">{c.patient_name}</span>
+                  </div>
+                  <FlagBadge flag={c.flag} />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Quick Links */}
+        <div className={`bg-card border border-border rounded-xl shadow-card p-5 ${flaggedCases.length === 0 ? 'col-span-3' : ''}`}>
+          <h3 className="text-sm font-semibold text-foreground mb-3">Quick Actions</h3>
+          <div className={`${flaggedCases.length === 0 ? 'flex gap-3' : 'space-y-2'}`}>
+            <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigate('/cases')}>
+              <FolderOpen className="w-4 h-4" /> View All Cases
+            </Button>
+            <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigate('/providers')}>
+              <Stethoscope className="w-4 h-4" /> Manage Providers
+            </Button>
+            {isAdmin && (
+              <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigate('/liens')}>
+                <TrendingUp className="w-4 h-4" /> Lien Tracker
+              </Button>
+            )}
+            {isAdmin && (
+              <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigate('/attorneys')}>
+                <Users className="w-4 h-4" /> Attorney Network
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Recent Cases Table */}
-      <div className="bg-card border border-border rounded overflow-hidden">
-        <div className="p-4 border-b border-border">
-          <h3 className="text-sm font-medium text-foreground">Recent Cases</h3>
+      <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
+        <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-foreground">Recent Cases</h3>
+          <Button variant="ghost" size="sm" className="text-primary text-xs font-medium gap-1" onClick={() => navigate('/cases')}>
+            View all <ArrowRight className="w-3.5 h-3.5" />
+          </Button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border">
-                <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground uppercase">Case ID</th>
-                <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground uppercase">Patient</th>
-                <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground uppercase">Attorney</th>
-                <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground uppercase">Status</th>
-                {isAdmin && <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground uppercase">Lien</th>}
-                <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground uppercase">SoL</th>
-                <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground uppercase">Progress</th>
-                <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground uppercase">Updated</th>
+              <tr className="border-b border-border bg-accent/50">
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Case</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Patient</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Attorney</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
+                {isAdmin && <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Lien</th>}
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">SoL</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Progress</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Updated</th>
               </tr>
             </thead>
-            <tbody>
-              {cases?.map((c, i) => (
+            <tbody className="divide-y divide-border">
+              {cases?.map(c => (
                 <tr
                   key={c.id}
                   onClick={() => navigate(`/cases/${c.id}`)}
-                  className={`border-b border-border cursor-pointer hover:bg-secondary/50 transition-colors ${i % 2 === 1 ? 'bg-card' : 'bg-background'}`}
+                  className="cursor-pointer hover:bg-accent/50 transition-colors"
                 >
-                  <td className="px-4 py-3 font-mono text-xs text-primary">{c.case_number}</td>
-                  <td className="px-4 py-3 text-foreground">{c.patient_name}</td>
-                  <td className="px-4 py-3 text-muted-foreground text-xs">{(c as any).attorneys?.firm_name || '—'}</td>
-                  <td className="px-4 py-3"><StatusBadge status={c.status || ''} /></td>
-                  {isAdmin && <td className="px-4 py-3"><FinancialValue value={c.lien_amount} /></td>}
-                  <td className="px-4 py-3">
+                  <td className="px-5 py-3.5 font-mono text-xs text-primary font-medium">{c.case_number}</td>
+                  <td className="px-5 py-3.5">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{c.patient_name}</p>
+                      <p className="text-xs text-muted-foreground">{c.specialty || ''}</p>
+                    </div>
+                  </td>
+                  <td className="px-5 py-3.5 text-muted-foreground text-xs">{(c as any).attorneys?.firm_name || '—'}</td>
+                  <td className="px-5 py-3.5"><StatusBadge status={c.status || ''} /></td>
+                  {isAdmin && <td className="px-5 py-3.5"><FinancialValue value={c.lien_amount} /></td>}
+                  <td className="px-5 py-3.5">
                     <SoLCountdown sol_date={c.sol_date} sol_period_days={c.sol_period_days} accident_state={c.accident_state} />
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-5 py-3.5">
                     <ProgressBar completed={c.appointments_completed || 0} total={c.appointments_total || 0} />
                   </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground font-mono">
+                  <td className="px-5 py-3.5 text-xs text-muted-foreground">
                     {c.updated_at ? formatDistanceToNow(new Date(c.updated_at), { addSuffix: true }) : '—'}
                   </td>
                 </tr>
               ))}
               {(!cases || cases.length === 0) && (
-                <tr><td colSpan={isAdmin ? 8 : 7} className="px-4 py-12 text-center text-muted-foreground text-sm">No cases found</td></tr>
+                <tr><td colSpan={isAdmin ? 8 : 7} className="px-5 py-16 text-center text-muted-foreground text-sm">No cases found. Create your first case to get started.</td></tr>
               )}
             </tbody>
           </table>
