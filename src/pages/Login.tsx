@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,11 +8,20 @@ import { toast } from 'sonner';
 import { ShieldCheck } from 'lucide-react';
 
 export default function Login() {
-  const { signIn, resetPassword } = useAuth();
+  const { signIn, resetPassword, session, profile, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
+
+  // Redirect if already authenticated
+  if (!authLoading && session) {
+    if (profile?.role === 'attorney') return <Navigate to="/attorney-portal" replace />;
+    if (profile?.role === 'provider') return <Navigate to="/provider-portal" replace />;
+    if (profile?.role === 'patient') return <Navigate to="/patient/dashboard" replace />;
+    if (profile?.role === 'funder') return <Navigate to="/funder/dashboard" replace />;
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
