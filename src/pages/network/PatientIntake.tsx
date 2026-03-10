@@ -211,6 +211,28 @@ export default function PatientIntake() {
               <Checkbox checked={smsConsent} onCheckedChange={v => setSmsConsent(!!v)} id="sms" />
               <Label htmlFor="sms" className="text-sm">I agree to receive appointment reminders and case updates via text message.</Label>
             </div>
+            <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+              <div>
+                <h4 className="font-semibold text-sm text-foreground mb-1">Create Your Account</h4>
+                <p className="text-xs text-muted-foreground">Set a password so you can track your case online.</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Password *</Label>
+                  <Input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min 8 characters" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Confirm Password *</Label>
+                  <Input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-enter password" />
+                </div>
+              </div>
+              {password.length > 0 && password.length < 8 && (
+                <p className="text-xs text-destructive">Password must be at least 8 characters</p>
+              )}
+              {confirmPassword.length > 0 && password !== confirmPassword && (
+                <p className="text-xs text-destructive">Passwords do not match</p>
+              )}
+            </div>
             <div className="bg-card border border-border rounded-xl p-6 space-y-2">
               <Label>E-Signature — Type your full name *</Label>
               <Input value={signatureName} onChange={e => setSignatureName(e.target.value)} placeholder="Your full legal name" className="font-mono-data text-lg" />
