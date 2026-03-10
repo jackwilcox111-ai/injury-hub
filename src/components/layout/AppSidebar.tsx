@@ -16,10 +16,10 @@ const navItems = [
 ];
 
 const roleBadgeStyles: Record<string, string> = {
-  admin: 'bg-primary/20 text-primary',
-  care_manager: 'bg-success/20 text-success',
-  attorney: 'bg-warning/20 text-warning',
-  provider: 'bg-settled/20 text-settled',
+  admin: 'bg-primary/10 text-primary',
+  care_manager: 'bg-success/10 text-success',
+  attorney: 'bg-warning/10 text-warning',
+  provider: 'bg-settled/10 text-settled',
 };
 
 export function AppSidebar() {
@@ -36,31 +36,39 @@ export function AppSidebar() {
   return (
     <aside className="w-60 h-screen bg-sidebar flex flex-col border-r border-sidebar-border fixed left-0 top-0 z-30">
       {/* Logo */}
-      <div className="px-6 py-5 border-b border-sidebar-border">
-        <h1 className="font-display text-lg font-extrabold tracking-tight text-foreground">
-          GOT HURT
-        </h1>
-        <p className="text-xs text-primary font-mono">Injury Network</p>
+      <div className="px-5 py-5 border-b border-sidebar-border">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <span className="text-primary-foreground font-display font-bold text-xs">GH</span>
+          </div>
+          <div>
+            <h1 className="font-display text-sm font-bold tracking-tight text-foreground leading-none">
+              GOT HURT
+            </h1>
+            <p className="text-[10px] text-primary font-medium mt-0.5">Injury Network</p>
+          </div>
+        </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+      <nav className="flex-1 py-3 px-3 space-y-0.5 overflow-y-auto">
+        <p className="px-3 py-2 text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Menu</p>
         {visibleItems.map(item => {
           const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
           return (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-all duration-150 ${
                 isActive
-                  ? 'bg-sidebar-accent text-primary font-medium'
-                  : 'text-muted-foreground hover:bg-sidebar-accent hover:text-foreground'
+                  ? 'bg-primary/8 text-primary font-medium shadow-sm'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
               }`}
             >
-              <item.icon className="w-4 h-4 shrink-0" />
+              <item.icon className={`w-[18px] h-[18px] shrink-0 ${isActive ? 'text-primary' : ''}`} />
               <span>{item.title}</span>
               {item.title === 'Calendar' && (
-                <span className="ml-auto text-[10px] bg-warning/20 text-warning px-1.5 py-0.5 rounded font-mono">Soon</span>
+                <span className="ml-auto text-[9px] bg-warning/15 text-warning px-1.5 py-0.5 rounded-full font-medium">Soon</span>
               )}
             </button>
           );
@@ -69,18 +77,18 @@ export function AppSidebar() {
 
       {/* Footer */}
       <div className="border-t border-sidebar-border p-4 space-y-3">
-        <div className="flex items-center gap-2 text-xs text-success">
-          <ShieldCheck className="w-3.5 h-3.5" />
-          <span className="font-mono">HIPAA Compliant</span>
+        <div className="flex items-center gap-1.5 text-[10px] text-success">
+          <ShieldCheck className="w-3 h-3" />
+          <span className="font-medium tracking-wide uppercase">HIPAA Compliant</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded bg-secondary flex items-center justify-center text-xs font-mono font-medium text-foreground">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-foreground truncate">{profile?.full_name || 'User'}</p>
-            <span className={`inline-block text-[10px] px-1.5 py-0.5 rounded font-mono ${roleBadgeStyles[role] || 'bg-muted text-muted-foreground'}`}>
+            <p className="text-xs text-foreground font-medium truncate">{profile?.full_name || 'User'}</p>
+            <span className={`inline-block text-[10px] px-1.5 py-0.5 rounded-full font-medium mt-0.5 ${roleBadgeStyles[role] || 'bg-muted text-muted-foreground'}`}>
               {role?.replace('_', ' ')}
             </span>
           </div>
@@ -88,7 +96,7 @@ export function AppSidebar() {
 
         <button
           onClick={signOut}
-          className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors rounded hover:bg-secondary"
+          className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors rounded-lg hover:bg-destructive/5"
         >
           <LogOut className="w-3.5 h-3.5" />
           Sign Out
