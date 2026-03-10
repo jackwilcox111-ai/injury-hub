@@ -2,12 +2,12 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
@@ -18,12 +18,27 @@ Deno.serve(async (req) => {
 
     const body = await req.json();
     const {
-      full_name, date_of_birth, phone, email, accident_date, accident_state,
+      full_name, date_of_birth, phone, email, password, accident_date, accident_state,
       accident_description, insurance_status, has_treatment, care_types,
       has_attorney, attorney_info, sms_consent, signature_name,
     } = body;
 
-    // Insert case
+    if (!password || password.length < 8) {
+      throw new Error('Password must be at least 8 characters');
+    }
+
+    // 1. Create auth user with patient role
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name, role: 'patient' },
+    });
+
+    if (authError) throw authError;
+    const userId = authData.user.id;
+
+    // 2. Insert case
     const { data: caseData, error: caseError } = await supabase
       .from('cases')
       .insert({
@@ -42,11 +57,12 @@ Deno.serve(async (req) => {
 
     if (caseError) throw caseError;
 
-    // Insert patient_profiles (no profile_id yet — linked later by admin)
+    // 3. Insert patient_profile linked to the new user
     const { error: patientError } = await supabase
       .from('patient_profiles')
       .insert({
         case_id: caseData.id,
+        profile_id: userId,
         date_of_birth,
         insurance_status: insurance_status || 'None',
         accident_description,
@@ -58,7 +74,7 @@ Deno.serve(async (req) => {
 
     if (patientError) throw patientError;
 
-    // Notify all admins
+    // 4. Notify all admins
     const { data: admins } = await supabase
       .from('profiles')
       .select('id')
