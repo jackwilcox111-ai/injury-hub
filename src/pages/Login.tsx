@@ -14,6 +14,15 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
 
+  // Redirect if already authenticated
+  if (!authLoading && session) {
+    if (profile?.role === 'attorney') return <Navigate to="/attorney-portal" replace />;
+    if (profile?.role === 'provider') return <Navigate to="/provider-portal" replace />;
+    if (profile?.role === 'patient') return <Navigate to="/patient/dashboard" replace />;
+    if (profile?.role === 'funder') return <Navigate to="/funder/dashboard" replace />;
+    return <Navigate to="/dashboard" replace />;
+  }
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
