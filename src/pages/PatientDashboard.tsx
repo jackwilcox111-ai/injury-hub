@@ -128,12 +128,11 @@ export default function PatientDashboard() {
   };
 
   const downloadICS = (appt: any) => {
-    const ics = generateICS(
-      appt.scheduled_date ? new Date(appt.scheduled_date) : new Date(),
-      appt.specialty || 'Medical Appointment',
-      (appt as any).providers?.name || 'Provider',
-      ''
-    );
+    const ics = generateICS({
+      date: appt.scheduled_date || new Date().toISOString(),
+      providerName: (appt as any).providers?.name || 'Provider',
+      summary: appt.specialty || 'Medical Appointment',
+    });
     const blob = new Blob([ics], { type: 'text/calendar' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
