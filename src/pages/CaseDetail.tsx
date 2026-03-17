@@ -568,14 +568,26 @@ export default function CaseDetail() {
         <DialogContent>
           <DialogHeader><DialogTitle>Add Appointment</DialogTitle></DialogHeader>
           <form onSubmit={e => { e.preventDefault(); addAppointment.mutate(); }} className="space-y-4">
+            {needsInterpreter && (
+              <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <Languages className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-800">Reminder: This patient needs an interpreter. Confirm the provider can accommodate before booking.</p>
+              </div>
+            )}
             <div className="space-y-2"><Label className="text-sm font-medium">Provider</Label>
               <Select value={newAppt.provider_id} onValueChange={v => setNewAppt(p => ({...p, provider_id: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{allProviders?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
             </div>
             <div className="space-y-2"><Label className="text-sm font-medium">Date & Time</Label><Input type="datetime-local" value={newAppt.scheduled_date} onChange={e => setNewAppt(p => ({...p, scheduled_date: e.target.value}))} className="h-10" /></div>
             <div className="space-y-2"><Label className="text-sm font-medium">Specialty</Label><Input value={newAppt.specialty} onChange={e => setNewAppt(p => ({...p, specialty: e.target.value}))} className="h-10" /></div>
             <div className="space-y-2"><Label className="text-sm font-medium">Notes</Label><Textarea value={newAppt.notes} onChange={e => setNewAppt(p => ({...p, notes: e.target.value}))} /></div>
+            {needsInterpreter && (
+              <div className="flex items-start gap-2.5 pt-1">
+                <Checkbox checked={newAppt.interpreter_confirmed} onCheckedChange={v => setNewAppt(p => ({...p, interpreter_confirmed: !!v}))} id="interpreter-confirm" />
+                <Label htmlFor="interpreter-confirm" className="text-sm leading-relaxed">I confirm the selected provider can accommodate an interpreter for this patient *</Label>
+              </div>
+            )}
             <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
-            <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowAddAppt(false)}>Cancel</Button><Button type="submit" disabled={addAppointment.isPending}>Add</Button></div>
+            <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowAddAppt(false)}>Cancel</Button><Button type="submit" disabled={addAppointment.isPending || (needsInterpreter && !newAppt.interpreter_confirmed)}>Add</Button></div>
           </form>
         </DialogContent>
       </Dialog>
