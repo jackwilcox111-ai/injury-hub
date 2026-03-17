@@ -10,10 +10,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 import { AttorneySettingsModal } from '@/components/attorney/AttorneySettingsModal';
 import { toast } from 'sonner';
-import { Plus, TrendingUp, Calendar, Users, Settings, Check, X, CheckCircle2, XCircle } from 'lucide-react';
+import { Plus, TrendingUp, Calendar, Users, Settings, Check, X, CheckCircle2, XCircle, Languages } from 'lucide-react';
 import { format } from 'date-fns';
+import { LANGUAGES } from '@/lib/languages';
 
 export default function AttorneysPage() {
   const navigate = useNavigate();
