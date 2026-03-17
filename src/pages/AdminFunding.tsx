@@ -25,6 +25,11 @@ export default function AdminFunding() {
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState('All');
   const [showAdd, setShowAdd] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editStatus, setEditStatus] = useState('');
+  const [editApproved, setEditApproved] = useState('');
+  const [editRepayment, setEditRepayment] = useState('');
+  const [editPayoff, setEditPayoff] = useState('');
   const [form, setForm] = useState({
     case_id: '', plaintiff_name: '', funding_type: 'Pre-Settlement', funding_company: '',
     requested_amount: '', approved_amount: '', interest_rate: '', advance_date: '',
