@@ -168,11 +168,21 @@ export default function AdminFunding() {
                 <td className="px-4 py-3 text-xs">{r.funding_company || '—'}</td>
                 <td className="px-4 py-3"><Badge variant="outline" className="text-[10px]">{r.status}</Badge></td>
                 <td className="px-4 py-3 text-xs">{r.funding_agreement_signed ? <span className="text-emerald-600">✓ Signed</span> : <span className="text-muted-foreground">Pending</span>}</td>
-                <td className="px-4 py-3 text-right font-mono text-xs tabular-nums">{r.repayment_amount != null ? `$${r.repayment_amount.toLocaleString()}` : '—'}</td>
-              </tr>
-            ))}
-            {(!filtered || filtered.length === 0) && (
-              <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">No funding requests</td></tr>
+                 <td className="px-4 py-3 text-right font-mono text-xs tabular-nums">{r.repayment_amount != null ? `$${r.repayment_amount.toLocaleString()}` : '—'}</td>
+                 <td className="px-4 py-3 text-center">
+                   <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={e => {
+                     e.stopPropagation();
+                     setEditId(r.id);
+                     setEditStatus(r.status);
+                     setEditApproved(r.approved_amount?.toString() || '');
+                     setEditRepayment(r.repayment_amount?.toString() || '');
+                     setEditPayoff(r.payoff_amount?.toString() || '');
+                   }}><Pencil className="w-3.5 h-3.5" /></Button>
+                 </td>
+               </tr>
+             ))}
+             {(!filtered || filtered.length === 0) && (
+               <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">No funding requests</td></tr>
             )}
           </tbody>
         </table>
