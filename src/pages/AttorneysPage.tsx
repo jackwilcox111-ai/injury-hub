@@ -300,6 +300,24 @@ export default function AttorneysPage() {
                 <div><span className="text-muted-foreground">Phone:</span> <span className="font-mono text-sm">{selectedAttorney.phone}</span></div>
                 <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={selectedAttorney.status} /></div>
               </div>
+              <div className="border-t border-border pt-3">
+                <p className="text-sm font-medium mb-2">Languages Spoken</p>
+                <div className="flex flex-wrap gap-2">
+                  {LANGUAGES.map(lang => {
+                    const checked = ((selectedAttorney as any).languages_spoken || ['English']).includes(lang);
+                    return (
+                      <label key={lang} className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border cursor-pointer transition-colors ${checked ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/50 border-border text-muted-foreground'}`}>
+                        <Checkbox checked={checked} onCheckedChange={() => {
+                          const current: string[] = (selectedAttorney as any).languages_spoken || ['English'];
+                          const updated = checked ? current.filter(l => l !== lang) : [...current, lang];
+                          if (updated.length > 0) updateAttorney.mutate({ languages_spoken: updated });
+                        }} className="w-3 h-3" />
+                        {lang}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
               {linkedCases && linkedCases.length > 0 && (
                 <div>
                   <p className="text-sm font-semibold mb-2">Cases</p>
