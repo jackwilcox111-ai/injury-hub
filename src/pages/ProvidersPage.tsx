@@ -13,7 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Plus, Check, X, Star, MapPin, Clock, CheckCircle2, XCircle, Stethoscope, TrendingUp, Users, Languages } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { format, differenceInDays } from 'date-fns';
+import { LANGUAGES } from '@/lib/languages';
 
 export default function ProvidersPage() {
   const { profile } = useAuth();
