@@ -154,7 +154,41 @@ export default function PatientDashboard() {
         <p className="text-sm text-muted-foreground mt-0.5">Case {caseData.case_number} — {caseData.status}</p>
       </div>
 
-      {/* Case Overview */}
+      {/* Appointment Reminder Banner */}
+      {soonAppt && (
+        <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Bell className="w-5 h-5 text-primary" />
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                Reminder: You have an appointment {differenceInHours(new Date(soonAppt.scheduled_date!), new Date()) <= 24 ? 'today' : 'tomorrow'} with {(soonAppt as any).providers?.name || 'your provider'}
+              </p>
+              <p className="text-xs text-muted-foreground">{format(new Date(soonAppt.scheduled_date!), 'MMM d, yyyy h:mm a')}</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" className="text-xs h-8" onClick={() => downloadICS(soonAppt)}>Add to Calendar</Button>
+            <Button size="sm" variant="ghost" className="text-xs h-8 text-destructive" onClick={() => rescheduleAppt(soonAppt)}>Reschedule</Button>
+          </div>
+        </div>
+      )}
+
+      {/* Case Progress Bar (5-stage) */}
+      <div className="bg-card border border-border rounded-xl p-5 space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">Case Progress</h3>
+        <div className="flex items-center gap-1">
+          {caseStages.map((stage, i) => (
+            <div key={stage} className="flex-1 flex flex-col items-center gap-1.5">
+              <div className={`w-full h-2 rounded-full ${i < currentStageIdx ? 'bg-primary' : i === currentStageIdx ? 'bg-primary' : 'bg-secondary'}`} />
+              <div className={`w-3 h-3 rounded-full border-2 ${i < currentStageIdx ? 'bg-primary border-primary' : i === currentStageIdx ? 'bg-primary border-primary animate-pulse' : 'bg-background border-muted-foreground/30'}`} />
+              <span className={`text-[9px] text-center ${i === currentStageIdx ? 'text-primary font-medium' : 'text-muted-foreground'}`}>{stage}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground text-center">You are in Step {currentStageIdx + 1} of 5 — {caseStages[currentStageIdx] || 'Intake'}</p>
+      </div>
+
+      {/* Overview Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-card border border-border rounded-xl p-4 text-center">
           <StatusBadge status={caseData.status} />
