@@ -90,28 +90,34 @@ export default function LiensPage() {
         ))}
       </div>
 
-      {/* Filter */}
-      <div className="flex gap-1 bg-card border border-border rounded-lg p-1 w-fit">
-        {lienStatuses.map(s => (
-          <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${statusFilter === s ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}>{s}</button>
-        ))}
+      {/* Filter + Search */}
+      <div className="flex items-center gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search case, patient, provider..." className="pl-9 h-10" />
+        </div>
+        <div className="flex gap-1 bg-card border border-border rounded-lg p-1">
+          {lienStatuses.map(s => (
+            <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${statusFilter === s ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}>{s}</button>
+          ))}
+        </div>
       </div>
 
       {/* Table */}
       <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
         <table className="w-full text-sm">
           <thead><tr className="border-b border-border bg-accent/50">
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Case</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Patient</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Provider</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Lien</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Reduction</th>
+            <SortableHeader label="Case" sortKey="cases.case_number" currentKey={lienSortConfig.key} direction={lienSortConfig.direction} onSort={lienRequestSort} />
+            <SortableHeader label="Patient" sortKey="cases.patient_name" currentKey={lienSortConfig.key} direction={lienSortConfig.direction} onSort={lienRequestSort} />
+            <SortableHeader label="Provider" sortKey="providers.name" currentKey={lienSortConfig.key} direction={lienSortConfig.direction} onSort={lienRequestSort} />
+            <SortableHeader label="Lien" sortKey="amount" currentKey={lienSortConfig.key} direction={lienSortConfig.direction} onSort={lienRequestSort} />
+            <SortableHeader label="Reduction" sortKey="reduction_amount" currentKey={lienSortConfig.key} direction={lienSortConfig.direction} onSort={lienRequestSort} />
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Net</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">SoL</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
+            <SortableHeader label="Status" sortKey="status" currentKey={lienSortConfig.key} direction={lienSortConfig.direction} onSort={lienRequestSort} />
           </tr></thead>
           <tbody className="divide-y divide-border">
-            {filtered?.map(l => (
+            {sortedLiens?.map(l => (
               <tr key={l.id} className="hover:bg-accent/50 cursor-pointer transition-colors" onClick={() => navigate(`/cases/${(l as any).cases?.id}`)}>
                 <td className="px-5 py-3.5 font-mono text-xs text-primary font-medium">{(l as any).cases?.case_number}</td>
                 <td className="px-5 py-3.5 text-xs font-medium">{(l as any).cases?.patient_name}</td>
@@ -123,7 +129,7 @@ export default function LiensPage() {
                 <td className="px-5 py-3.5"><StatusBadge status={l.status} /></td>
               </tr>
             ))}
-            {(!filtered || filtered.length === 0) && (
+            {(!sortedLiens || sortedLiens.length === 0) && (
               <tr><td colSpan={8} className="px-5 py-16 text-center text-muted-foreground">No liens recorded</td></tr>
             )}
           </tbody>
