@@ -111,7 +111,7 @@ const App = () => (
             <Route path="/patient/messages" element={<RequireAuth roles={['patient']}><AppLayout><PatientMessages /></AppLayout></RequireAuth>} />
 
             {/* Funder portal placeholder */}
-            <Route path="/funder/dashboard" element={<RequireAuth roles={['funder']}><AppLayout><FunderDashboardPlaceholder /></AppLayout></RequireAuth>} />
+            <Route path="/funder/dashboard" element={<RequireAuth roles={['funder']}><AppLayout><FunderDashboard /></AppLayout></RequireAuth>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
