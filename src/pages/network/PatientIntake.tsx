@@ -14,6 +14,7 @@ import { CheckCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 
 const INSURANCE_OPTIONS = ['None', 'MedPay', 'PIP', 'Health Insurance', 'Medicare', 'Medicaid'];
 const CARE_TYPES = ['Pain Management', 'Chiropractic', 'Physical Therapy', 'Orthopedic', 'Imaging/MRI', 'Surgery Consultation', 'Other'];
+const REFERRAL_SOURCES = ['Attorney Referral', 'Google', 'Social Media', 'Friend/Family', 'Healthcare Provider', 'Other'];
 
 export default function PatientIntake() {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ export default function PatientIntake() {
   const [careTypes, setCareTypes] = useState<string[]>([]);
   const [hasAttorney, setHasAttorney] = useState(false);
   const [attorneyInfo, setAttorneyInfo] = useState('');
+  const [referralSource, setReferralSource] = useState('');
 
   const [hipaaConsent, setHipaaConsent] = useState(false);
   const [aobConsent, setAobConsent] = useState(false);
@@ -64,12 +66,12 @@ export default function PatientIntake() {
           has_treatment: hasTreatment, care_types: careTypes,
           has_attorney: hasAttorney, attorney_info: attorneyInfo,
           sms_consent: smsConsent, signature_name: signatureName,
+          referral_source: referralSource || null,
         },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       setCaseNumber(data.case_number || 'Pending');
-      // Auto-sign in the newly created patient
       await supabase.auth.signInWithPassword({ email, password });
       setStep(4);
       toast.success('Intake submitted — your account is ready!');
@@ -173,6 +175,13 @@ export default function PatientIntake() {
                   <Input value={attorneyInfo} onChange={e => setAttorneyInfo(e.target.value)} placeholder="e.g., John Smith, Smith & Associates" />
                 </div>
               )}
+              <div className="space-y-2">
+                <Label>How did you hear about CareLink?</Label>
+                <Select value={referralSource} onValueChange={setReferralSource}>
+                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>{REFERRAL_SOURCES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         )}
