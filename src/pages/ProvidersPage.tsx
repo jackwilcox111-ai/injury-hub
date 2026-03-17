@@ -9,8 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Plus, Check, X, Star, MapPin } from 'lucide-react';
+import { Plus, Check, X, Star, MapPin, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 
 export default function ProvidersPage() {
@@ -29,6 +30,17 @@ export default function ProvidersPage() {
       return data || [];
     },
   });
+
+  const { data: applications, isLoading: appsLoading } = useQuery({
+    queryKey: ['provider-applications'],
+    queryFn: async () => {
+      const { data } = await supabase.from('provider_applications').select('*').order('created_at', { ascending: false });
+      return data || [];
+    },
+    enabled: isAdmin,
+  });
+
+  const pendingCount = applications?.filter(a => a.status === 'Pending').length || 0;
 
   const { data: caseCounts } = useQuery({
     queryKey: ['provider-case-counts'],
@@ -63,6 +75,42 @@ export default function ProvidersPage() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const approveApp = useMutation({
+    mutationFn: async (app: any) => {
+      // Create provider record
+      const { error: provErr } = await supabase.from('providers').insert({
+        name: app.practice_name,
+        specialty: app.specialty || null,
+        locations: app.locations || 1,
+        hipaa_baa_on_file: app.hipaa_baa_agreed || false,
+        status: 'Active',
+        notes: `Approved from application. Contact: ${app.contact_name}, ${app.email}, ${app.phone}`,
+      });
+      if (provErr) throw provErr;
+      // Update application status
+      const { error: updErr } = await supabase.from('provider_applications').update({ status: 'Approved' }).eq('id', app.id);
+      if (updErr) throw updErr;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['providers'] });
+      queryClient.invalidateQueries({ queryKey: ['provider-applications'] });
+      toast.success('Provider approved and added to network');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const rejectApp = useMutation({
+    mutationFn: async (appId: string) => {
+      const { error } = await supabase.from('provider_applications').update({ status: 'Rejected' }).eq('id', appId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['provider-applications'] });
+      toast.success('Application rejected');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   const updateProvider = useMutation({
     mutationFn: async (updates: Record<string, any>) => {
       const { error } = await supabase.from('providers').update(updates).eq('id', showDetail!);
@@ -88,37 +136,81 @@ export default function ProvidersPage() {
         {isAdmin && <Button onClick={() => setShowAdd(true)}><Plus className="w-4 h-4 mr-1.5" /> Add Provider</Button>}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {providers?.map(p => {
-          const daysToExpiry = p.credentialing_expiry ? differenceInDays(new Date(p.credentialing_expiry), new Date()) : null;
-          return (
-            <button key={p.id} onClick={() => setShowDetail(p.id)} className="bg-card border border-border rounded-xl p-5 text-left shadow-card hover:shadow-card-hover hover:border-primary/30 transition-all group">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{p.name}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{p.specialty || '—'}</p>
-                </div>
-                <StatusBadge status={p.status} />
-              </div>
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {p.locations} location{(p.locations || 1) > 1 ? 's' : ''}</span>
-                <span className="flex items-center gap-1"><Star className="w-3 h-3 text-amber-500" /> {p.rating || '—'}</span>
-                <span className="font-medium text-primary">{caseCounts?.[p.id] || 0} active cases</span>
-              </div>
-              <div className="flex items-center gap-4 mt-3 text-xs">
-                <span className={`flex items-center gap-1 ${p.hipaa_baa_on_file ? 'text-emerald-600' : 'text-red-500'}`}>
-                  {p.hipaa_baa_on_file ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />} HIPAA BAA
+      {isAdmin ? (
+        <Tabs defaultValue="providers">
+          <TabsList>
+            <TabsTrigger value="providers">Active Providers</TabsTrigger>
+            <TabsTrigger value="applications" className="relative">
+              Applications
+              {pendingCount > 0 && (
+                <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold rounded-full bg-destructive text-destructive-foreground">
+                  {pendingCount}
                 </span>
-                {daysToExpiry != null && (
-                  <span className={daysToExpiry < 0 ? 'text-red-500 font-medium' : daysToExpiry < 90 ? 'text-amber-600 font-medium' : 'text-muted-foreground'}>
-                    {daysToExpiry < 0 ? 'Credentials Expired' : daysToExpiry < 90 ? 'Expiring Soon' : `Exp. ${format(new Date(p.credentialing_expiry!), 'MMM yyyy')}`}
-                  </span>
-                )}
+              )}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="providers" className="mt-4">
+            <ProviderGrid providers={providers} caseCounts={caseCounts} onSelect={setShowDetail} />
+          </TabsContent>
+
+          <TabsContent value="applications" className="mt-4">
+            {appsLoading ? (
+              <div className="space-y-3">{[1,2,3].map(i => <Skeleton key={i} className="h-24 rounded-xl" />)}</div>
+            ) : applications?.length === 0 ? (
+              <div className="bg-card border border-border rounded-xl p-8 text-center">
+                <p className="text-sm text-muted-foreground">No applications yet.</p>
               </div>
-            </button>
-          );
-        })}
-      </div>
+            ) : (
+              <div className="space-y-3">
+                {applications?.map(app => (
+                  <div key={app.id} className="bg-card border border-border rounded-xl p-5 shadow-card">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold text-foreground">{app.practice_name}</p>
+                          <StatusBadge status={app.status} />
+                        </div>
+                        <p className="text-xs text-muted-foreground">{app.contact_name} · {app.specialty} · {app.state}</p>
+                        <p className="text-xs text-muted-foreground">{app.email} · {app.phone}</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{format(new Date(app.created_at!), 'MMM d, yyyy')}</p>
+                    </div>
+
+                    <div className="flex items-center gap-4 mt-3 text-xs">
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <MapPin className="w-3 h-3" /> {app.locations || 1} location{(app.locations || 1) > 1 ? 's' : ''}
+                      </span>
+                      {app.license_number && <span className="text-muted-foreground">Lic: {app.license_number}</span>}
+                      <span className={`flex items-center gap-1 ${app.lien_experience ? 'text-emerald-600' : 'text-muted-foreground'}`}>
+                        {app.lien_experience ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />} Lien Experience
+                      </span>
+                      <span className={`flex items-center gap-1 ${app.hipaa_baa_agreed ? 'text-emerald-600' : 'text-red-500'}`}>
+                        {app.hipaa_baa_agreed ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />} HIPAA BAA
+                      </span>
+                    </div>
+
+                    {app.notes && <p className="text-xs text-muted-foreground mt-2 italic">"{app.notes}"</p>}
+
+                    {app.status === 'Pending' && (
+                      <div className="flex gap-2 mt-4">
+                        <Button size="sm" onClick={() => approveApp.mutate(app)} disabled={approveApp.isPending}>
+                          <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Approve
+                        </Button>
+                        <Button size="sm" variant="outline" className="text-destructive hover:text-destructive" onClick={() => { if (confirm('Reject this application?')) rejectApp.mutate(app.id); }} disabled={rejectApp.isPending}>
+                          <XCircle className="w-3.5 h-3.5 mr-1" /> Reject
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      ) : (
+        <ProviderGrid providers={providers} caseCounts={caseCounts} onSelect={setShowDetail} />
+      )}
 
       <Dialog open={!!showDetail} onOpenChange={open => !open && setShowDetail(null)}>
         <DialogContent className="max-w-lg">
@@ -168,6 +260,42 @@ export default function ProvidersPage() {
           </form>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function ProviderGrid({ providers, caseCounts, onSelect }: { providers: any[] | undefined; caseCounts: Record<string, number> | undefined; onSelect: (id: string) => void }) {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {providers?.map(p => {
+        const daysToExpiry = p.credentialing_expiry ? differenceInDays(new Date(p.credentialing_expiry), new Date()) : null;
+        return (
+          <button key={p.id} onClick={() => onSelect(p.id)} className="bg-card border border-border rounded-xl p-5 text-left shadow-card hover:shadow-card-hover hover:border-primary/30 transition-all group">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{p.name}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{p.specialty || '—'}</p>
+              </div>
+              <StatusBadge status={p.status} />
+            </div>
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {p.locations} location{(p.locations || 1) > 1 ? 's' : ''}</span>
+              <span className="flex items-center gap-1"><Star className="w-3 h-3 text-amber-500" /> {p.rating || '—'}</span>
+              <span className="font-medium text-primary">{caseCounts?.[p.id] || 0} active cases</span>
+            </div>
+            <div className="flex items-center gap-4 mt-3 text-xs">
+              <span className={`flex items-center gap-1 ${p.hipaa_baa_on_file ? 'text-emerald-600' : 'text-red-500'}`}>
+                {p.hipaa_baa_on_file ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />} HIPAA BAA
+              </span>
+              {daysToExpiry != null && (
+                <span className={daysToExpiry < 0 ? 'text-red-500 font-medium' : daysToExpiry < 90 ? 'text-amber-600 font-medium' : 'text-muted-foreground'}>
+                  {daysToExpiry < 0 ? 'Credentials Expired' : daysToExpiry < 90 ? 'Expiring Soon' : `Exp. ${format(new Date(p.credentialing_expiry!), 'MMM yyyy')}`}
+                </span>
+              )}
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }
