@@ -151,13 +151,15 @@ export default function CaseDetail() {
   const addAppointment = useMutation({
     mutationFn: async () => {
       if (caseData?.status === 'Settled') throw new Error('Cannot add appointments to a settled case.');
+      if (needsInterpreter && !newAppt.interpreter_confirmed) throw new Error('Please confirm interpreter availability before booking.');
       const { error } = await supabase.from('appointments').insert({
         case_id: id!, provider_id: newAppt.provider_id || null,
         scheduled_date: newAppt.scheduled_date || null, specialty: newAppt.specialty || null, notes: newAppt.notes || null,
+        interpreter_confirmed: newAppt.interpreter_confirmed,
       });
       if (error) throw error;
     },
-    onSuccess: () => { invalidateAll(); setShowAddAppt(false); setNewAppt({ provider_id: '', scheduled_date: '', specialty: '', notes: '' }); toast.success('Appointment added'); },
+    onSuccess: () => { invalidateAll(); setShowAddAppt(false); setNewAppt({ provider_id: '', scheduled_date: '', specialty: '', notes: '', interpreter_confirmed: false }); toast.success('Appointment added'); },
     onError: (e: any) => toast.error(e.message),
   });
 
