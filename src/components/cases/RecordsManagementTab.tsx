@@ -8,9 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { FileText, Plus, CheckCircle2, Clock, AlertCircle, Send } from 'lucide-react';
+import { FileText, Plus, CheckCircle2, Clock, AlertCircle, Send, Upload } from 'lucide-react';
 
-// Auto-generated expected records by specialty
 const SPECIALTY_RECORDS: Record<string, string[]> = {
   'Pain Management': ['Initial Evaluation', 'Treatment Notes', 'Injection Records', 'Imaging', 'Billing'],
   'Chiropractic': ['Initial Evaluation', 'Treatment Notes', 'X-rays', 'Billing'],
@@ -19,8 +18,6 @@ const SPECIALTY_RECORDS: Record<string, string[]> = {
   'Imaging/MRI': ['MRI Report', 'X-ray Report', 'CT Report', 'Billing'],
   'Surgery Consultation': ['Consultation Notes', 'Pre-Op Evaluation', 'Surgical Report', 'Anesthesia Records', 'Billing'],
 };
-
-const RECORD_STATUSES = ['Requested', 'Received', 'Under Review', 'Delivered to Attorney'];
 
 interface RecordsManagementTabProps {
   caseId: string;
@@ -32,12 +29,23 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const isAdminOrCM = profile?.role === 'admin' || profile?.role === 'care_manager';
 
   const { data: records, isLoading } = useQuery({
     queryKey: ['case-records-mgmt', caseId],
     queryFn: async () => {
       const { data } = await supabase.from('records').select('*, providers(name)')
+        .eq('case_id', caseId).order('created_at', { ascending: false });
+      return data || [];
+    },
+  });
+
+  const { data: documents } = useQuery({
+    queryKey: ['case-documents', caseId],
+    queryFn: async () => {
+      const { data } = await supabase.from('documents').select('*')
         .eq('case_id', caseId).order('created_at', { ascending: false });
       return data || [];
     },
@@ -69,9 +77,9 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
     onError: (e: any) => toast.error(e.message),
   });
 
-  // Request all missing records at once
   const requestAllMissing = useMutation({
     mutationFn: async (missing: string[]) => {
+      // Create record entries
       const inserts = missing.map(rt => ({
         case_id: caseId,
         record_type: rt,
@@ -79,19 +87,64 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
       }));
       const { error } = await supabase.from('records').insert(inserts);
       if (error) throw error;
+
+      // Notify admin/CM staff about the request
+      const { data: staff } = await supabase.from('profiles')
+        .select('id').in('role', ['admin', 'care_manager']);
+      if (staff && staff.length > 0) {
+        await supabase.from('notifications').insert(
+          staff.map((s: any) => ({
+            recipient_id: s.id,
+            title: 'Records Requested',
+            message: `${missing.length} missing records requested for case. Types: ${missing.join(', ')}`,
+            link: `/cases/${caseId}`,
+          }))
+        );
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['case-records-mgmt', caseId] });
-      toast.success('All missing records requested');
+      toast.success('All missing records requested — staff notified');
     },
     onError: (e: any) => toast.error(e.message),
   });
 
-  // Compute expected vs received checklist
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const path = `${caseId}/${Date.now()}-${file.name}`;
+      const { error: uploadError } = await supabase.storage.from('documents').upload(path, file);
+      if (uploadError) throw uploadError;
+      const { error: dbError } = await supabase.from('documents').insert({
+        case_id: caseId,
+        file_name: file.name,
+        storage_path: path,
+        document_type: 'Medical Record',
+        uploader_id: profile?.id,
+        visible_to: ['admin', 'care_manager', 'attorney'],
+      });
+      if (dbError) throw dbError;
+      queryClient.invalidateQueries({ queryKey: ['case-documents', caseId] });
+      toast.success('Document uploaded');
+      setShowUpload(false);
+    } catch (err: any) {
+      toast.error(err.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const downloadDoc = async (storagePath: string, fileName: string) => {
+    const { data, error } = await supabase.storage.from('documents').createSignedUrl(storagePath, 300);
+    if (error) { toast.error('Failed to get download link'); return; }
+    window.open(data.signedUrl, '_blank');
+  };
+
   const expectedTypes = specialty && SPECIALTY_RECORDS[specialty] ? SPECIALTY_RECORDS[specialty] : [];
   const receivedTypes = new Set(records?.map((r: any) => r.record_type) || []);
   const missingTypes = expectedTypes.filter(t => !receivedTypes.has(t));
-
   const deliveredCount = records?.filter((r: any) => r.delivered_to_attorney_date).length || 0;
   const receivedCount = records?.filter((r: any) => r.received_date).length || 0;
 
@@ -103,6 +156,11 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
           <h3 className="text-sm font-semibold text-foreground">Records Pipeline</h3>
         </div>
         <div className="flex items-center gap-2">
+          {isAdminOrCM && (
+            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowUpload(true)}>
+              <Upload className="w-3.5 h-3.5 mr-1" /> Upload
+            </Button>
+          )}
           {isAdminOrCM && missingTypes.length > 0 && (
             <Button size="sm" variant="outline" className="h-8 text-xs text-amber-600 border-amber-200 hover:bg-amber-50"
               onClick={() => requestAllMissing.mutate(missingTypes)} disabled={requestAllMissing.isPending}>
@@ -145,17 +203,33 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
             const received = receivedTypes.has(type);
             return (
               <div key={type} className="flex items-center gap-2 text-xs">
-                {received ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                ) : (
-                  <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
-                )}
+                {received ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <AlertCircle className="w-3.5 h-3.5 text-amber-500" />}
                 <span className={received ? 'text-foreground' : 'text-muted-foreground'}>{type}</span>
-                {received && <span className="text-emerald-600 text-[10px] ml-auto">Received</span>}
-                {!received && <span className="text-amber-500 text-[10px] ml-auto">Missing</span>}
+                <span className={`text-[10px] ml-auto ${received ? 'text-emerald-600' : 'text-amber-500'}`}>{received ? 'Received' : 'Missing'}</span>
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Uploaded Documents */}
+      {documents && documents.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-foreground">Uploaded Documents</p>
+          <div className="space-y-1">
+            {documents.map((d: any) => (
+              <div key={d.id} className="flex items-center justify-between border border-border rounded-lg px-3 py-2">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-xs text-foreground">{d.file_name}</span>
+                  <span className="text-[10px] text-muted-foreground">{d.document_type}</span>
+                </div>
+                <Button size="sm" variant="ghost" className="h-6 text-[10px]" onClick={() => downloadDoc(d.storage_path, d.file_name)}>
+                  Download
+                </Button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -182,8 +256,8 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
                   <tr key={r.id} className="hover:bg-accent/30 transition-colors">
                     <td className="px-4 py-2.5 text-xs font-medium">{r.record_type || '—'}</td>
                     <td className="px-4 py-2.5 text-xs">{r.providers?.name || '—'}</td>
-                    <td className="px-4 py-2.5 font-mono-data text-xs">{r.received_date || <span className="text-amber-500"><Clock className="w-3 h-3 inline" /> Pending</span>}</td>
-                    <td className="px-4 py-2.5 font-mono-data text-xs">{r.delivered_to_attorney_date || '—'}</td>
+                    <td className="px-4 py-2.5 font-mono text-xs">{r.received_date || <span className="text-amber-500"><Clock className="w-3 h-3 inline" /> Pending</span>}</td>
+                    <td className="px-4 py-2.5 font-mono text-xs">{r.delivered_to_attorney_date || '—'}</td>
                     <td className="px-4 py-2.5 text-xs">{r.hipaa_auth_on_file ? <span className="text-emerald-600">✓</span> : <span className="text-red-500">✗</span>}</td>
                     <td className="px-4 py-2.5">
                       <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
@@ -199,6 +273,18 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
           </table>
         </div>
       )}
+
+      {/* Upload Dialog */}
+      <Dialog open={showUpload} onOpenChange={setShowUpload}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Upload Document</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Upload medical records, billing docs, or other case files.</p>
+            <Input type="file" onChange={handleFileUpload} disabled={uploading} accept=".pdf,.doc,.docx,.jpg,.png,.tiff" />
+            {uploading && <p className="text-xs text-muted-foreground">Uploading...</p>}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Add Record Dialog */}
       <Dialog open={showAdd} onOpenChange={setShowAdd}>

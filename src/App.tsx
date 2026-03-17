@@ -19,6 +19,8 @@ import AttorneyPortal from "./pages/AttorneyPortal";
 import ProviderPortal from "./pages/ProviderPortal";
 import ReportingDashboard from "./pages/ReportingDashboard";
 import ReferralTracking from "./pages/ReferralTracking";
+import TaskDashboard from "./pages/TaskDashboard";
+import PatientDashboard from "./pages/PatientDashboard";
 import NotFound from "./pages/NotFound";
 import LandingPage from "./pages/network/LandingPage";
 import PatientIntake from "./pages/network/PatientIntake";
@@ -54,11 +56,8 @@ function AuthRedirect() {
   return <Navigate to="/dashboard" replace />;
 }
 
-// Placeholder pages for patient and funder portals
-function PatientDashboard() {
-  return <div className="p-8"><h1 className="text-2xl font-display font-bold">Patient Portal</h1><p className="text-muted-foreground mt-2">Coming in Phase 2 — your case dashboard will appear here.</p></div>;
-}
-function FunderDashboard() {
+// Placeholder for funder portal
+function FunderDashboardPlaceholder() {
   return <div className="p-8"><h1 className="text-2xl font-display font-bold">Funder Portal</h1><p className="text-muted-foreground mt-2">Coming in Phase 2 — your portfolio dashboard will appear here.</p></div>;
 }
 
@@ -90,15 +89,16 @@ const App = () => (
             <Route path="/calendar" element={<RequireAuth><AppLayout><CalendarPage /></AppLayout></RequireAuth>} />
             <Route path="/reports" element={<RequireAuth roles={['admin']}><AppLayout><ReportingDashboard /></AppLayout></RequireAuth>} />
             <Route path="/referrals" element={<RequireAuth roles={['admin']}><AppLayout><ReferralTracking /></AppLayout></RequireAuth>} />
+            <Route path="/tasks" element={<RequireAuth roles={['admin','care_manager']}><AppLayout><TaskDashboard /></AppLayout></RequireAuth>} />
             <Route path="/settings" element={<RequireAuth roles={['admin']}><AppLayout><SettingsPage /></AppLayout></RequireAuth>} />
             <Route path="/attorney-portal" element={<RequireAuth roles={['attorney']}><AppLayout><AttorneyPortal /></AppLayout></RequireAuth>} />
             <Route path="/provider-portal" element={<RequireAuth roles={['provider']}><AppLayout><ProviderPortal /></AppLayout></RequireAuth>} />
 
-            {/* Patient portal placeholder */}
+            {/* Patient portal */}
             <Route path="/patient/dashboard" element={<RequireAuth roles={['patient']}><AppLayout><PatientDashboard /></AppLayout></RequireAuth>} />
 
             {/* Funder portal placeholder */}
-            <Route path="/funder/dashboard" element={<RequireAuth roles={['funder']}><AppLayout><FunderDashboard /></AppLayout></RequireAuth>} />
+            <Route path="/funder/dashboard" element={<RequireAuth roles={['funder']}><AppLayout><FunderDashboardPlaceholder /></AppLayout></RequireAuth>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
