@@ -36,6 +36,7 @@ export default function PatientIntake() {
   const [hasAttorney, setHasAttorney] = useState(false);
   const [attorneyInfo, setAttorneyInfo] = useState('');
   const [referralSource, setReferralSource] = useState('');
+  const [needsInterpreter, setNeedsInterpreter] = useState(false);
 
   const [hipaaConsent, setHipaaConsent] = useState(false);
   const [aobConsent, setAobConsent] = useState(false);
