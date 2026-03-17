@@ -8,7 +8,7 @@ import { ProgressBar } from '@/components/global/ProgressBar';
 import { FlagBadge } from '@/components/global/FlagBadge';
 import { FinancialValue } from '@/components/global/FinancialValue';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertTriangle, TrendingUp, Users, Stethoscope, FolderOpen, Plus, ArrowRight } from 'lucide-react';
+import { AlertTriangle, TrendingUp, Users, Stethoscope, FolderOpen, Plus, ArrowRight, Phone } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 
