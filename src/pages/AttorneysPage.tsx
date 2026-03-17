@@ -23,7 +23,7 @@ export default function AttorneysPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [showDetail, setShowDetail] = useState<string | null>(null);
   const [settingsTarget, setSettingsTarget] = useState<{ id: string; firm_name: string; contact_name: string | null } | null>(null);
-  const [form, setForm] = useState({ firm_name: '', contact_name: '', email: '', phone: '' });
+  const [form, setForm] = useState({ firm_name: '', contact_name: '', email: '', phone: '', languages_spoken: ['English'] as string[] });
 
   const { data: attorneys, isLoading } = useQuery({
     queryKey: ['attorneys'],
