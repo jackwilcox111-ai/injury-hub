@@ -84,7 +84,7 @@ export default function CaseDetail() {
   const { data: records } = useQuery({
     queryKey: ['case-records', id],
     queryFn: async () => {
-      const { data } = await supabase.from('records').select('*, providers(name)')
+      const { data } = await supabase.from('records').select('*, providers(name), documents(id, file_name, storage_path)')
         .eq('case_id', id!).order('created_at', { ascending: false });
       return data || [];
     },
