@@ -14,6 +14,61 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_summaries: {
+        Row: {
+          case_id: string
+          content: Json
+          created_at: string | null
+          generated_by: string | null
+          id: string
+          readiness_score: number | null
+          summary_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          case_id: string
+          content?: Json
+          created_at?: string | null
+          generated_by?: string | null
+          id?: string
+          readiness_score?: number | null
+          summary_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          case_id?: string
+          content?: Json
+          created_at?: string | null
+          generated_by?: string | null
+          id?: string
+          readiness_score?: number | null
+          summary_type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_summaries_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_summaries_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_summaries_generated_by_fkey"
+            columns: ["generated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointments: {
         Row: {
           case_id: string
@@ -159,6 +214,77 @@ export type Database = {
         }
         Relationships: []
       }
+      case_tasks: {
+        Row: {
+          assignee_id: string | null
+          case_id: string
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          sort_order: number | null
+          status: string
+          title: string
+          workplan_template_id: string | null
+        }
+        Insert: {
+          assignee_id?: string | null
+          case_id: string
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          sort_order?: number | null
+          status?: string
+          title: string
+          workplan_template_id?: string | null
+        }
+        Update: {
+          assignee_id?: string | null
+          case_id?: string
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          sort_order?: number | null
+          status?: string
+          title?: string
+          workplan_template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "case_tasks_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_tasks_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_tasks_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_tasks_workplan_template_id_fkey"
+            columns: ["workplan_template_id"]
+            isOneToOne: false
+            referencedRelation: "workplan_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       case_updates: {
         Row: {
           author_id: string | null
@@ -285,6 +411,79 @@ export type Database = {
           },
           {
             foreignKeyName: "cases_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      charges: {
+        Row: {
+          allowed_amount: number | null
+          billing_path: string | null
+          case_id: string
+          charge_amount: number
+          cpt_code: string
+          cpt_description: string | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          paid_amount: number | null
+          provider_id: string | null
+          service_date: string
+          status: string
+          units: number | null
+        }
+        Insert: {
+          allowed_amount?: number | null
+          billing_path?: string | null
+          case_id: string
+          charge_amount?: number
+          cpt_code: string
+          cpt_description?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          paid_amount?: number | null
+          provider_id?: string | null
+          service_date: string
+          status?: string
+          units?: number | null
+        }
+        Update: {
+          allowed_amount?: number | null
+          billing_path?: string | null
+          case_id?: string
+          charge_amount?: number
+          cpt_code?: string
+          cpt_description?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          paid_amount?: number | null
+          provider_id?: string | null
+          service_date?: string
+          status?: string
+          units?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "charges_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "charges_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "charges_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
@@ -470,6 +669,79 @@ export type Database = {
           },
         ]
       }
+      insurance_eligibility: {
+        Row: {
+          amount_used: number | null
+          billing_path: string
+          carrier_name: string | null
+          case_id: string
+          coverage_limit: number | null
+          created_at: string | null
+          id: string
+          insurance_type: string
+          notes: string | null
+          policy_number: string | null
+          updated_at: string | null
+          verified: boolean | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          amount_used?: number | null
+          billing_path?: string
+          carrier_name?: string | null
+          case_id: string
+          coverage_limit?: number | null
+          created_at?: string | null
+          id?: string
+          insurance_type?: string
+          notes?: string | null
+          policy_number?: string | null
+          updated_at?: string | null
+          verified?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          amount_used?: number | null
+          billing_path?: string
+          carrier_name?: string | null
+          case_id?: string
+          coverage_limit?: number | null
+          created_at?: string | null
+          id?: string
+          insurance_type?: string
+          notes?: string | null
+          policy_number?: string | null
+          updated_at?: string | null
+          verified?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insurance_eligibility_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "insurance_eligibility_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "insurance_eligibility_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       liens: {
         Row: {
           amount: number
@@ -560,6 +832,61 @@ export type Database = {
           {
             foreignKeyName: "notifications_recipient_id_fkey"
             columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_checkins: {
+        Row: {
+          case_id: string
+          created_at: string | null
+          id: string
+          logged_by: string | null
+          mood: string | null
+          notes: string | null
+          pain_level: number | null
+          patient_id: string | null
+        }
+        Insert: {
+          case_id: string
+          created_at?: string | null
+          id?: string
+          logged_by?: string | null
+          mood?: string | null
+          notes?: string | null
+          pain_level?: number | null
+          patient_id?: string | null
+        }
+        Update: {
+          case_id?: string
+          created_at?: string | null
+          id?: string
+          logged_by?: string | null
+          mood?: string | null
+          notes?: string | null
+          pain_level?: number | null
+          patient_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_checkins_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_checkins_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_checkins_patient_id_fkey"
+            columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -834,6 +1161,126 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      referral_sources: {
+        Row: {
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          referring_attorney_id: string | null
+          source_detail: string | null
+          source_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          referring_attorney_id?: string | null
+          source_detail?: string | null
+          source_type: string
+        }
+        Update: {
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          referring_attorney_id?: string | null
+          source_detail?: string | null
+          source_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_sources_referring_attorney_id_fkey"
+            columns: ["referring_attorney_id"]
+            isOneToOne: false
+            referencedRelation: "attorneys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sol_alerts: {
+        Row: {
+          acknowledged: boolean | null
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          alert_tier: number
+          case_id: string
+          id: string
+          recipient_email: string | null
+          sent_at: string | null
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_tier: number
+          case_id: string
+          id?: string
+          recipient_email?: string | null
+          sent_at?: string | null
+        }
+        Update: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_tier?: number
+          case_id?: string
+          id?: string
+          recipient_email?: string | null
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sol_alerts_acknowledged_by_fkey"
+            columns: ["acknowledged_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sol_alerts_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sol_alerts_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workplan_templates: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          name: string
+          tasks: Json
+          trigger_status: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          name: string
+          tasks?: Json
+          trigger_status: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          tasks?: Json
+          trigger_status?: string
+        }
+        Relationships: []
       }
     }
     Views: {

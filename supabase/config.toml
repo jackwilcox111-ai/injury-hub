@@ -2,3 +2,12 @@ project_id = "qfyvgpgsyzygivopekfa"
 
 [functions.submit-intake]
 verify_jwt = false
+
+[functions.ai-case-analysis]
+verify_jwt = false
+
+[functions.sol-alert-emailer]
+verify_jwt = false
+
+[functions.patient-engagement-reminders]
+verify_jwt = false
