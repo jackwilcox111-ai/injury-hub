@@ -8,18 +8,19 @@ import {
 } from 'lucide-react';
 
 const navItems = [
+  // Admin / Care Manager — prioritized order
   { title: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'care_manager'] as UserRole[] },
+  { title: 'Messages', path: '/messages', icon: Video, roles: ['admin', 'care_manager'] as UserRole[] },
+  { title: 'Tasks', path: '/tasks', icon: CheckSquare, roles: ['admin', 'care_manager'] as UserRole[] },
   { title: 'Cases', path: '/cases', icon: FolderOpen, roles: ['admin', 'care_manager'] as UserRole[] },
-  { title: 'Providers', path: '/providers', icon: Stethoscope, roles: ['admin', 'care_manager'] as UserRole[] },
   { title: 'Attorneys', path: '/attorneys', icon: Scale, roles: ['admin'] as UserRole[] },
+  { title: 'Providers', path: '/providers', icon: Stethoscope, roles: ['admin', 'care_manager'] as UserRole[] },
   { title: 'Liens & Settlements', path: '/liens', icon: DollarSign, roles: ['admin'] as UserRole[] },
   { title: 'Demand Letters', path: '/demand-letters', icon: FileSignature, roles: ['admin', 'care_manager'] as UserRole[] },
-  { title: 'Messages', path: '/messages', icon: Video, roles: ['admin', 'care_manager'] as UserRole[] },
   { title: 'RCM', path: '/rcm', icon: Landmark, roles: ['admin'] as UserRole[] },
   { title: 'Funding', path: '/funding', icon: Banknote, roles: ['admin'] as UserRole[] },
   { title: 'Reports', path: '/reports', icon: BarChart3, roles: ['admin'] as UserRole[] },
   { title: 'Referrals', path: '/referrals', icon: Link2, roles: ['admin'] as UserRole[] },
-  { title: 'Tasks', path: '/tasks', icon: CheckSquare, roles: ['admin', 'care_manager'] as UserRole[] },
   { title: 'Calendar', path: '/calendar', icon: CalendarDays, roles: ['admin', 'care_manager', 'attorney', 'provider'] as UserRole[] },
   { title: 'Settings', path: '/settings', icon: Settings, roles: ['admin'] as UserRole[] },
   // Attorney sidebar
