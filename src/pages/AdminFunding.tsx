@@ -83,6 +83,26 @@ export default function AdminFunding() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const updateRequest = useMutation({
+    mutationFn: async () => {
+      if (!editId) return;
+      const updates: any = { status: editStatus };
+      if (editApproved) updates.approved_amount = parseFloat(editApproved);
+      if (editRepayment) updates.repayment_amount = parseFloat(editRepayment);
+      if (editPayoff) updates.payoff_amount = parseFloat(editPayoff);
+      if (editStatus === 'Funded' && !updates.advance_date) updates.advance_date = new Date().toISOString().split('T')[0];
+      if (editStatus === 'Repaid' && !updates.repayment_date) updates.repayment_date = new Date().toISOString().split('T')[0];
+      const { error } = await supabase.from('funding_requests').update(updates).eq('id', editId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-funding'] });
+      setEditId(null);
+      toast.success('Funding request updated');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   if (isLoading) return <div className="space-y-6"><h2 className="font-display text-2xl">Funding</h2><Skeleton className="h-96 rounded-xl" /></div>;
 
   const active = requests?.filter(r => ['Requested', 'Under Review'].includes(r.status)).length || 0;
