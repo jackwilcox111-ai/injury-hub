@@ -21,7 +21,7 @@ export default function ProvidersPage() {
   const isAdmin = profile?.role === 'admin';
   const [showAdd, setShowAdd] = useState(false);
   const [showDetail, setShowDetail] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', specialty: '', locations: 1, rating: 0, status: 'Active', credentialing_expiry: '', hipaa_baa_on_file: false, notes: '' });
+  const [form, setForm] = useState({ name: '', specialty: '', locations: 1, rating: 0, status: 'Active', credentialing_expiry: '', hipaa_baa_on_file: false, interpreter_available: false, notes: '' });
 
   const { data: providers, isLoading } = useQuery({
     queryKey: ['providers'],
