@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StatusBadge } from '@/components/global/StatusBadge';
 import { SoLCountdown } from '@/components/global/SoLCountdown';
+import { SortableHeader } from '@/components/global/SortableHeader';
+import { useSortableTable } from '@/hooks/use-sortable-table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { AttorneySettingsModal } from '@/components/attorney/AttorneySettingsModal';
 import { toast } from 'sonner';
-import { Plus, TrendingUp, Calendar, Users, Settings, Check, X, CheckCircle2, XCircle, Languages } from 'lucide-react';
+import { Plus, TrendingUp, Calendar, Users, Settings, Check, X, CheckCircle2, XCircle, Languages, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { LANGUAGES } from '@/lib/languages';
 
