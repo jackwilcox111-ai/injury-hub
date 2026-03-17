@@ -15,8 +15,17 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { ArrowLeft, AlertTriangle, Clock, FileText, DollarSign, Activity, Send } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Clock, FileText, DollarSign, Activity, Send, ShieldCheck, Brain, Heart, Bell, ListTodo } from 'lucide-react';
+import { format, formatDistanceToNow } from 'date-fns';
+import { InsuranceEligibilityTab } from '@/components/cases/InsuranceEligibilityTab';
+import { BillingChargesTab } from '@/components/cases/BillingChargesTab';
+import { RecordsManagementTab } from '@/components/cases/RecordsManagementTab';
+import { WorkPlanTab } from '@/components/cases/WorkPlanTab';
+import { AIToolsTab } from '@/components/cases/AIToolsTab';
+import { PatientEngagementTab } from '@/components/cases/PatientEngagementTab';
+import { SoLAlertsTab } from '@/components/cases/SoLAlertsTab';
 import { format, formatDistanceToNow } from 'date-fns';
 
 const caseStatuses = ['Intake', 'In Treatment', 'Records Pending', 'Demand Prep', 'Settled'];
