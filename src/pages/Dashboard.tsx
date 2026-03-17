@@ -139,11 +139,21 @@ export default function Dashboard() {
                 onClick={() => navigate(`/cases/${c.id}`)}
                 className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-accent transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-mono text-primary font-medium">{c.case_number}</span>
-                  <span className="text-sm text-foreground">{c.patient_name}</span>
+                <div className="flex items-center gap-4 min-w-0">
+                  <span className="text-xs font-mono text-primary font-medium shrink-0">{c.case_number}</span>
+                  <span className="text-sm text-foreground font-medium">{c.patient_name}</span>
+                  {c.patient_phone && (
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
+                      <Phone className="w-3 h-3" />{c.patient_phone}
+                    </span>
+                  )}
+                  <span className="text-xs text-muted-foreground">{(c as any).attorneys?.firm_name || ''}</span>
                 </div>
-                <FlagBadge flag={c.flag} />
+                <div className="flex items-center gap-3 shrink-0">
+                  <StatusBadge status={c.status || ''} />
+                  <SoLCountdown sol_date={c.sol_date} sol_period_days={c.sol_period_days} accident_state={c.accident_state} />
+                  <FlagBadge flag={c.flag} />
+                </div>
               </button>
             ))}
           </div>
