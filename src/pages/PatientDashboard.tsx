@@ -238,6 +238,38 @@ export default function PatientDashboard() {
         <Button variant="outline" size="sm" onClick={askQuestion}><HelpCircle className="w-3.5 h-3.5 mr-1" /> I Have a Question</Button>
       </div>
 
+      {/* Case Funding Card */}
+      {funding && funding.length > 0 && (
+        <div className="bg-card border border-border rounded-xl p-5 space-y-3">
+          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2"><DollarSign className="w-4 h-4 text-primary" /> Case Funding</h3>
+          {funding.map(f => (
+            <div key={f.id} className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Badge variant="outline" className="text-[10px]">{f.funding_type || 'Pre-Settlement'}</Badge>
+                <StatusBadge status={f.status} />
+              </div>
+              {f.status === 'Funded' && f.approved_amount != null && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Amount Funded</span>
+                  <span className="font-mono font-semibold text-foreground">${Number(f.approved_amount).toLocaleString()}</span>
+                </div>
+              )}
+              {f.repayment_amount != null && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Repaid from settlement</span>
+                  <span className="font-mono font-semibold text-foreground">${Number(f.repayment_amount).toLocaleString()}</span>
+                </div>
+              )}
+              {f.funding_agreement_signed ? (
+                <div className="flex items-center gap-1.5 text-xs text-emerald-600"><CheckCircle className="w-3.5 h-3.5" /> Agreement Signed</div>
+              ) : (
+                <p className="text-xs text-amber-600">Funding agreement needs signature</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Upcoming Appointments */}
       <div className="bg-card border border-border rounded-xl p-5 space-y-3">
         <h3 className="text-sm font-semibold text-foreground flex items-center gap-2"><Calendar className="w-4 h-4 text-primary" /> Upcoming Appointments</h3>
