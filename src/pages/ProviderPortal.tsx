@@ -13,7 +13,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { Calendar, FileText, DollarSign, Plus, Upload } from 'lucide-react';
+import { Calendar, FileText, DollarSign, Plus, Users, Building2, Link2, MessageCircle, Upload } from 'lucide-react';
+import { ProviderMetrics } from '@/components/provider/ProviderMetrics';
+import { ProviderProfileTab } from '@/components/provider/ProviderProfileTab';
+import { ProviderPatientsTab } from '@/components/provider/ProviderPatientsTab';
+import { ProviderLiensTab } from '@/components/provider/ProviderLiensTab';
+import { ProviderDocumentsTab } from '@/components/provider/ProviderDocumentsTab';
+import { ProviderMessagesTab } from '@/components/provider/ProviderMessagesTab';
 
 const CPT_CHIPS = [
   { code: '99213', desc: 'Office visit (est.)' },
@@ -61,6 +67,16 @@ export default function ProviderPortal() {
     },
   });
 
+  const { data: unreadMessages } = useQuery({
+    queryKey: ['provider-unread-count'],
+    queryFn: async () => {
+      const { count } = await supabase.from('video_messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('viewed', false);
+      return count || 0;
+    },
+  });
+
   const updateAppt = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
       const { error } = await supabase.from('appointments').update({ status }).eq('id', id);
@@ -95,6 +111,7 @@ export default function ProviderPortal() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  // Build unique case map for selectors
   const caseMap = new Map<string, any>();
   appointments?.forEach(a => {
     const c = (a as any).cases;
@@ -102,43 +119,50 @@ export default function ProviderPortal() {
   });
   const uniqueCases = [...caseMap.values()];
 
+  // Metrics
   const totalCharges = charges?.reduce((sum, c) => sum + (c.charge_amount || 0), 0) || 0;
   const totalPaid = charges?.reduce((sum, c) => sum + (c.paid_amount || 0), 0) || 0;
+  const completed = appointments?.filter(a => a.status === 'Completed').length || 0;
+  const total = appointments?.length || 0;
+  const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
   if (isLoading) return <div className="space-y-6"><h2 className="font-display text-xl">Provider Portal</h2><Skeleton className="h-96 rounded" /></div>;
 
   return (
     <div className="space-y-6">
-      <h2 className="font-display text-xl">Provider Portal</h2>
-      <p className="text-sm text-muted-foreground">Manage your appointments, submit charges, and track records.</p>
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-card border border-border rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-foreground tabular-nums">{appointments?.length || 0}</p>
-          <p className="text-xs text-muted-foreground">Appointments</p>
-        </div>
-        <div className="bg-card border border-border rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-foreground tabular-nums">{charges?.length || 0}</p>
-          <p className="text-xs text-muted-foreground">Charges</p>
-        </div>
-        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-emerald-600 tabular-nums">${totalCharges.toLocaleString()}</p>
-          <p className="text-xs text-muted-foreground">Billed</p>
-        </div>
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-blue-600 tabular-nums">${totalPaid.toLocaleString()}</p>
-          <p className="text-xs text-muted-foreground">Collected</p>
-        </div>
+      <div>
+        <h2 className="font-display text-xl">Provider Portal</h2>
+        <p className="text-sm text-muted-foreground">Manage your patients, appointments, charges, and records.</p>
       </div>
 
+      <ProviderMetrics
+        appointmentCount={total}
+        patientCount={uniqueCases.length}
+        totalBilled={totalCharges}
+        totalCollected={totalPaid}
+        completionRate={completionRate}
+      />
+
       <Tabs defaultValue="appointments">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto gap-1">
           <TabsTrigger value="appointments" className="gap-1.5"><Calendar className="w-3.5 h-3.5" /> Appointments</TabsTrigger>
+          <TabsTrigger value="patients" className="gap-1.5"><Users className="w-3.5 h-3.5" /> Patients</TabsTrigger>
           <TabsTrigger value="charges" className="gap-1.5"><DollarSign className="w-3.5 h-3.5" /> Charges</TabsTrigger>
           <TabsTrigger value="records" className="gap-1.5"><FileText className="w-3.5 h-3.5" /> Records</TabsTrigger>
+          <TabsTrigger value="documents" className="gap-1.5"><Upload className="w-3.5 h-3.5" /> Documents</TabsTrigger>
+          <TabsTrigger value="liens" className="gap-1.5"><Link2 className="w-3.5 h-3.5" /> Liens</TabsTrigger>
+          <TabsTrigger value="messages" className="gap-1.5 relative">
+            <MessageCircle className="w-3.5 h-3.5" /> Messages
+            {(unreadMessages || 0) > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-destructive text-destructive-foreground rounded-full text-[9px] flex items-center justify-center">
+                {unreadMessages}
+              </span>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="profile" className="gap-1.5"><Building2 className="w-3.5 h-3.5" /> My Practice</TabsTrigger>
         </TabsList>
 
+        {/* Appointments Tab */}
         <TabsContent value="appointments" className="mt-4">
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <table className="w-full text-sm">
@@ -161,7 +185,7 @@ export default function ProviderPortal() {
                         <>
                           <Button size="sm" variant="ghost" className="h-7 text-[10px] text-emerald-600"
                             onClick={() => updateAppt.mutate({ id: a.id, status: 'Completed' })}>Complete</Button>
-                          <Button size="sm" variant="ghost" className="h-7 text-[10px] text-red-500"
+                          <Button size="sm" variant="ghost" className="h-7 text-[10px] text-destructive"
                             onClick={() => updateAppt.mutate({ id: a.id, status: 'No-Show' })}>No-Show</Button>
                         </>
                       )}
@@ -176,6 +200,12 @@ export default function ProviderPortal() {
           </div>
         </TabsContent>
 
+        {/* Patients Tab */}
+        <TabsContent value="patients" className="mt-4">
+          <ProviderPatientsTab />
+        </TabsContent>
+
+        {/* Charges Tab */}
         <TabsContent value="charges" className="mt-4 space-y-4">
           <div className="flex justify-end">
             <Button size="sm" onClick={() => setShowAddCharge(true)}><Plus className="w-3.5 h-3.5 mr-1" /> Submit Charge</Button>
@@ -207,6 +237,7 @@ export default function ProviderPortal() {
           </div>
         </TabsContent>
 
+        {/* Records Tab */}
         <TabsContent value="records" className="mt-4">
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <table className="w-full text-sm">
@@ -231,6 +262,26 @@ export default function ProviderPortal() {
               </tbody>
             </table>
           </div>
+        </TabsContent>
+
+        {/* Documents Tab */}
+        <TabsContent value="documents" className="mt-4">
+          <ProviderDocumentsTab cases={uniqueCases} />
+        </TabsContent>
+
+        {/* Liens Tab */}
+        <TabsContent value="liens" className="mt-4">
+          <ProviderLiensTab />
+        </TabsContent>
+
+        {/* Messages Tab */}
+        <TabsContent value="messages" className="mt-4">
+          <ProviderMessagesTab />
+        </TabsContent>
+
+        {/* My Practice Tab */}
+        <TabsContent value="profile" className="mt-4">
+          <ProviderProfileTab />
         </TabsContent>
       </Tabs>
 
@@ -276,6 +327,11 @@ export default function ProviderPortal() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* HIPAA Disclaimer */}
+      <div className="text-[10px] text-muted-foreground text-center py-2 border-t border-border mt-8">
+        This portal contains Protected Health Information (PHI). Access is restricted to authorized personnel only. All activity is logged in compliance with HIPAA regulations.
+      </div>
     </div>
   );
 }
