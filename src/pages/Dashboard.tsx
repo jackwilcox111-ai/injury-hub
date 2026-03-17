@@ -135,15 +135,15 @@ export default function Dashboard() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <colgroup>
-                <col className="w-[120px]" />
-                <col className="w-[180px]" />
-                <col className="w-[160px]" />
-                <col className="w-[120px]" />
-                {isAdmin && <col className="w-[80px]" />}
-                <col className="w-[70px]" />
-                <col className="w-[120px]" />
-                <col />
                 <col className="w-[110px]" />
+                <col className="w-[170px]" />
+                <col className="w-[160px]" />
+                <col className="w-[110px]" />
+                {isAdmin && <col className="w-[70px]" />}
+                <col className="w-[60px]" />
+                <col className="w-[110px]" />
+                <col className="w-[100px]" />
+                <col className="w-[100px]" />
               </colgroup>
               <thead>
                 <tr className="border-b border-border bg-accent/50">
@@ -177,12 +177,12 @@ export default function Dashboard() {
                       </div>
                     </td>
                     <td className="px-5 py-3.5 text-muted-foreground text-xs">{(c as any).attorneys?.firm_name || '—'}</td>
-                    <td className="px-5 py-3.5"><StatusBadge status={c.status || ''} /></td>
+                    <td className="px-5 py-3.5 whitespace-nowrap"><StatusBadge status={c.status || ''} /></td>
                     {isAdmin && <td className="px-5 py-3.5"><FinancialValue value={c.lien_amount} /></td>}
                     <td className="px-5 py-3.5">
                       <SoLCountdown sol_date={c.sol_date} sol_period_days={c.sol_period_days} accident_state={c.accident_state} />
                     </td>
-                    <td className="px-5 py-3.5"><FlagBadge flag={c.flag} /></td>
+                    <td className="px-5 py-3.5 whitespace-nowrap"><FlagBadge flag={c.flag} /></td>
                     <td className="px-5 py-3.5">
                       <ProgressBar completed={c.appointments_completed || 0} total={c.appointments_total || 0} />
                     </td>
@@ -208,15 +208,15 @@ export default function Dashboard() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <colgroup>
-              <col className="w-[120px]" />
-              <col className="w-[180px]" />
-              <col className="w-[160px]" />
-              <col className="w-[120px]" />
-              {isAdmin && <col className="w-[80px]" />}
-              <col className="w-[70px]" />
-              <col className="w-[120px]" />
-              <col />
               <col className="w-[110px]" />
+              <col className="w-[170px]" />
+              <col className="w-[160px]" />
+              <col className="w-[110px]" />
+              {isAdmin && <col className="w-[70px]" />}
+              <col className="w-[60px]" />
+              <col className="w-[110px]" />
+              <col className="w-[100px]" />
+              <col className="w-[100px]" />
             </colgroup>
             <thead>
               <tr className="border-b border-border bg-accent/50">
@@ -252,12 +252,12 @@ export default function Dashboard() {
                     </div>
                   </td>
                   <td className="px-5 py-3.5 text-muted-foreground text-xs">{(c as any).attorneys?.firm_name || '—'}</td>
-                  <td className="px-5 py-3.5"><StatusBadge status={c.status || ''} /></td>
+                  <td className="px-5 py-3.5 whitespace-nowrap"><StatusBadge status={c.status || ''} /></td>
                   {isAdmin && <td className="px-5 py-3.5"><FinancialValue value={c.lien_amount} /></td>}
                   <td className="px-5 py-3.5">
                     <SoLCountdown sol_date={c.sol_date} sol_period_days={c.sol_period_days} accident_state={c.accident_state} />
                   </td>
-                  <td className="px-5 py-3.5">{c.flag ? <FlagBadge flag={c.flag} /> : <span className="text-xs text-muted-foreground">—</span>}</td>
+                  <td className="px-5 py-3.5 whitespace-nowrap">{c.flag ? <FlagBadge flag={c.flag} /> : <span className="text-xs text-muted-foreground">—</span>}</td>
                   <td className="px-5 py-3.5">
                     <ProgressBar completed={c.appointments_completed || 0} total={c.appointments_total || 0} />
                   </td>
