@@ -116,8 +116,8 @@ export default function ProviderRCM() {
                 <td className="px-4 py-3 text-right font-mono text-xs tabular-nums">{c.paid_amount != null ? `$${c.paid_amount.toLocaleString()}` : '—'}</td>
               </tr>
             ))}
-            {(!rcmCases || rcmCases.length === 0) && (
-              <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">No claims submitted yet</td></tr>
+             {(!rcmCases || rcmCases.length === 0) && (
+               <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">No claims submitted yet</td></tr>
             )}
           </tbody>
         </table>

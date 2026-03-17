@@ -75,6 +75,7 @@ export default function PatientMessages() {
                 storageUrl={selected.storage_path || ''}
                 mediaType={selected.storage_path ? (selected.storage_path.includes('audio') ? 'audio' : 'video') : 'text'}
                 transcript={selected.script}
+                textContent={!selected.storage_path ? selected.script : undefined}
                 onViewed={() => { if (!selected.viewed) markViewed.mutate(selected.id); }}
               />
             </div>
