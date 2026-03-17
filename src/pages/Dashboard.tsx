@@ -193,7 +193,13 @@ export default function Dashboard() {
                   <td className="px-5 py-3.5">
                     <div>
                       <p className="text-sm font-medium text-foreground">{c.patient_name}</p>
-                      <p className="text-xs text-muted-foreground">{c.specialty || ''}</p>
+                      {c.patient_phone ? (
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Phone className="w-3 h-3" />{c.patient_phone}
+                        </span>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">{c.specialty || ''}</p>
+                      )}
                     </div>
                   </td>
                   <td className="px-5 py-3.5 text-muted-foreground text-xs">{(c as any).attorneys?.firm_name || '—'}</td>
