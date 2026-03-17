@@ -16,6 +16,8 @@ const routeNames: Record<string, string> = {
   '/settings': 'Settings',
   '/attorney-portal': 'Attorney Portal',
   '/provider-portal': 'Provider Portal',
+  '/provider/rcm': 'RCM Billing',
+  '/provider/messages': 'Messages',
 };
 
 const roleBadgeStyles: Record<string, string> = {

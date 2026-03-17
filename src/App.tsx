@@ -34,6 +34,7 @@ import AdminFunding from "./pages/AdminFunding";
 import ProviderRCM from "./pages/ProviderRCM";
 import PatientTimeline from "./pages/PatientTimeline";
 import PatientMessages from "./pages/PatientMessages";
+import ProviderMessages from "./pages/ProviderMessages";
 import { ReactNode } from "react";
 
 const queryClient = new QueryClient();
@@ -105,6 +106,7 @@ const App = () => (
             <Route path="/attorney-portal" element={<RequireAuth roles={['attorney']}><AppLayout><AttorneyPortal /></AppLayout></RequireAuth>} />
             <Route path="/provider-portal" element={<RequireAuth roles={['provider']}><AppLayout><ProviderPortal /></AppLayout></RequireAuth>} />
             <Route path="/provider/rcm" element={<RequireAuth roles={['provider']}><AppLayout><ProviderRCM /></AppLayout></RequireAuth>} />
+            <Route path="/provider/messages" element={<RequireAuth roles={['provider']}><AppLayout><ProviderMessages /></AppLayout></RequireAuth>} />
 
             {/* Patient portal */}
             <Route path="/patient/dashboard" element={<RequireAuth roles={['patient']}><AppLayout><PatientDashboard /></AppLayout></RequireAuth>} />
