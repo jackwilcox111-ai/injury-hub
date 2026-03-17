@@ -25,15 +25,24 @@ export default function ProviderJoin() {
     e.preventDefault();
     if (!form.hipaa_baa_agreed) { toast.error('You must agree to the HIPAA BAA'); return; }
     setLoading(true);
-    const { error } = await supabase.from('provider_applications').insert({
+    const { data: appData, error } = await supabase.from('provider_applications').insert({
       practice_name: form.practice_name, contact_name: form.contact_name,
       specialty: form.specialty, email: form.email, phone: form.phone,
       locations: form.locations, state: form.state,
       license_number: form.license_number || null,
       lien_experience: form.lien_experience, hipaa_baa_agreed: form.hipaa_baa_agreed,
-    });
+    }).select('id').single();
     if (error) toast.error(error.message);
-    else { setSubmitted(true); toast.success('Application submitted'); }
+    else {
+      if (form.referral_source && appData?.id) {
+        await supabase.from('referral_sources').insert({
+          entity_id: appData.id,
+          entity_type: 'provider_application',
+          source_type: form.referral_source,
+        });
+      }
+      setSubmitted(true); toast.success('Application submitted');
+    }
     setLoading(false);
   };
 
