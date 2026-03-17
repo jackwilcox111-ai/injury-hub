@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { Video, Plus, Eye, Send, Sparkles } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const MESSAGE_TYPES = ['Welcome', 'Status Update', 'Appointment Reminder', 'Settlement Notification', 'General'];
 
