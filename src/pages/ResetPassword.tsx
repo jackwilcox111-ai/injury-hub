@@ -10,12 +10,16 @@ export default function ResetPassword() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isRecovery, setIsRecovery] = useState(false);
+  const [isInvite, setIsInvite] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const hash = window.location.hash;
-    if (hash.includes('type=recovery')) {
+    if (hash.includes('type=recovery') || hash.includes('type=invite') || hash.includes('type=signup')) {
       setIsRecovery(true);
+      if (hash.includes('type=invite') || hash.includes('type=signup')) {
+        setIsInvite(true);
+      }
     }
   }, []);
 
@@ -43,7 +47,12 @@ export default function ResetPassword() {
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <h1 className="font-display text-2xl font-extrabold text-foreground">Reset Password</h1>
+          <h1 className="font-display text-2xl font-extrabold text-foreground">
+            {isInvite ? 'Set Your Password' : 'Reset Password'}
+          </h1>
+          {isInvite && (
+            <p className="text-sm text-muted-foreground mt-2">Welcome to CareLink! Please create a password to complete your account setup.</p>
+          )}
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
