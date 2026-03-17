@@ -379,6 +379,7 @@ export default function CaseDetail() {
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Specialty</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Notes</th>
+            {needsInterpreter && <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Interpreter</th>}
           </tr></thead>
           <tbody className="divide-y divide-border">
             {appointments?.map(a => (
