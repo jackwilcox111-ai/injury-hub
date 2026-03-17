@@ -96,26 +96,28 @@ export default function ProviderRCM() {
           <thead><tr className="border-b border-border bg-accent/50">
             <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Patient</th>
             <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">DOS</th>
-            <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">CPT</th>
-            <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Billed</th>
-            <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
-            <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Denial</th>
-            <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Paid</th>
+             <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">CPT</th>
+             <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">ICD</th>
+             <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Billed</th>
+             <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
+             <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Denial</th>
+             <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Paid</th>
           </tr></thead>
           <tbody className="divide-y divide-border">
             {rcmCases?.map(c => (
               <tr key={c.id} className="hover:bg-accent/30 transition-colors">
                 <td className="px-4 py-3 text-xs">{c.patient_name}</td>
                 <td className="px-4 py-3 font-mono text-xs">{c.date_of_service}</td>
-                <td className="px-4 py-3 font-mono text-[10px]">{(c.cpt_codes as string[])?.join(', ')}</td>
-                <td className="px-4 py-3 text-right font-mono text-xs tabular-nums">${c.billed_amount.toLocaleString()}</td>
-                <td className="px-4 py-3"><Badge variant="outline" className={`text-[10px] ${statusColors[c.submission_status] || ''}`}>{c.submission_status}</Badge></td>
-                <td className="px-4 py-3 text-xs text-muted-foreground">{c.denial_reason || '—'}</td>
+                 <td className="px-4 py-3 font-mono text-[10px]">{(c.cpt_codes as string[])?.join(', ')}</td>
+                 <td className="px-4 py-3 font-mono text-[10px]">{(c.icd_codes as string[])?.join(', ') || '—'}</td>
+                 <td className="px-4 py-3 text-right font-mono text-xs tabular-nums">${c.billed_amount.toLocaleString()}</td>
+                 <td className="px-4 py-3"><Badge variant="outline" className={`text-[10px] ${statusColors[c.submission_status] || ''}`}>{c.submission_status}</Badge></td>
+                 <td className="px-4 py-3 text-xs text-muted-foreground">{c.denial_reason || '—'}</td>
                 <td className="px-4 py-3 text-right font-mono text-xs tabular-nums">{c.paid_amount != null ? `$${c.paid_amount.toLocaleString()}` : '—'}</td>
               </tr>
             ))}
-            {(!rcmCases || rcmCases.length === 0) && (
-              <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">No claims submitted yet</td></tr>
+             {(!rcmCases || rcmCases.length === 0) && (
+               <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">No claims submitted yet</td></tr>
             )}
           </tbody>
         </table>

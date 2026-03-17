@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Banknote, Plus } from 'lucide-react';
+import { Banknote, Plus, Pencil } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -25,6 +25,11 @@ export default function AdminFunding() {
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState('All');
   const [showAdd, setShowAdd] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editStatus, setEditStatus] = useState('');
+  const [editApproved, setEditApproved] = useState('');
+  const [editRepayment, setEditRepayment] = useState('');
+  const [editPayoff, setEditPayoff] = useState('');
   const [form, setForm] = useState({
     case_id: '', plaintiff_name: '', funding_type: 'Pre-Settlement', funding_company: '',
     requested_amount: '', approved_amount: '', interest_rate: '', advance_date: '',
@@ -78,6 +83,26 @@ export default function AdminFunding() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const updateRequest = useMutation({
+    mutationFn: async () => {
+      if (!editId) return;
+      const updates: any = { status: editStatus };
+      if (editApproved) updates.approved_amount = parseFloat(editApproved);
+      if (editRepayment) updates.repayment_amount = parseFloat(editRepayment);
+      if (editPayoff) updates.payoff_amount = parseFloat(editPayoff);
+      if (editStatus === 'Funded' && !updates.advance_date) updates.advance_date = new Date().toISOString().split('T')[0];
+      if (editStatus === 'Repaid' && !updates.repayment_date) updates.repayment_date = new Date().toISOString().split('T')[0];
+      const { error } = await supabase.from('funding_requests').update(updates).eq('id', editId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-funding'] });
+      setEditId(null);
+      toast.success('Funding request updated');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   if (isLoading) return <div className="space-y-6"><h2 className="font-display text-2xl">Funding</h2><Skeleton className="h-96 rounded-xl" /></div>;
 
   const active = requests?.filter(r => ['Requested', 'Under Review'].includes(r.status)).length || 0;
@@ -125,9 +150,10 @@ export default function AdminFunding() {
             <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Requested</th>
             <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Approved</th>
             <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Funder</th>
-            <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
-            <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Agreement</th>
-            <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Repayment</th>
+             <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
+             <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Agreement</th>
+             <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Repayment</th>
+             <th className="text-center px-4 py-3 text-xs font-medium text-muted-foreground">Edit</th>
           </tr></thead>
           <tbody className="divide-y divide-border">
             {filtered?.map(r => (
@@ -142,11 +168,21 @@ export default function AdminFunding() {
                 <td className="px-4 py-3 text-xs">{r.funding_company || '—'}</td>
                 <td className="px-4 py-3"><Badge variant="outline" className="text-[10px]">{r.status}</Badge></td>
                 <td className="px-4 py-3 text-xs">{r.funding_agreement_signed ? <span className="text-emerald-600">✓ Signed</span> : <span className="text-muted-foreground">Pending</span>}</td>
-                <td className="px-4 py-3 text-right font-mono text-xs tabular-nums">{r.repayment_amount != null ? `$${r.repayment_amount.toLocaleString()}` : '—'}</td>
-              </tr>
-            ))}
-            {(!filtered || filtered.length === 0) && (
-              <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">No funding requests</td></tr>
+                 <td className="px-4 py-3 text-right font-mono text-xs tabular-nums">{r.repayment_amount != null ? `$${r.repayment_amount.toLocaleString()}` : '—'}</td>
+                 <td className="px-4 py-3 text-center">
+                   <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={e => {
+                     e.stopPropagation();
+                     setEditId(r.id);
+                     setEditStatus(r.status);
+                     setEditApproved(r.approved_amount?.toString() || '');
+                     setEditRepayment(r.repayment_amount?.toString() || '');
+                     setEditPayoff(r.payoff_amount?.toString() || '');
+                   }}><Pencil className="w-3.5 h-3.5" /></Button>
+                 </td>
+               </tr>
+             ))}
+             {(!filtered || filtered.length === 0) && (
+               <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">No funding requests</td></tr>
             )}
           </tbody>
         </table>
@@ -192,6 +228,33 @@ export default function AdminFunding() {
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
               <Button type="submit" disabled={addRequest.isPending || !form.case_id}>Add</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Status Dialog */}
+      <Dialog open={!!editId} onOpenChange={open => !open && setEditId(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Update Funding Request</DialogTitle></DialogHeader>
+          <form onSubmit={e => { e.preventDefault(); updateRequest.mutate(); }} className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-xs">Status</Label>
+              <Select value={editStatus} onValueChange={setEditStatus}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {['Requested', 'Under Review', 'Funded', 'Repaid', 'Declined'].map(s => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2"><Label className="text-xs">Approved Amount</Label><Input type="number" step="0.01" value={editApproved} onChange={e => setEditApproved(e.target.value)} /></div>
+            <div className="space-y-2"><Label className="text-xs">Repayment Amount</Label><Input type="number" step="0.01" value={editRepayment} onChange={e => setEditRepayment(e.target.value)} /></div>
+            <div className="space-y-2"><Label className="text-xs">Payoff Amount</Label><Input type="number" step="0.01" value={editPayoff} onChange={e => setEditPayoff(e.target.value)} /></div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setEditId(null)}>Cancel</Button>
+              <Button type="submit" disabled={updateRequest.isPending}>Save</Button>
             </div>
           </form>
         </DialogContent>
