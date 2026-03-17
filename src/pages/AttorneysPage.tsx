@@ -123,6 +123,15 @@ export default function AttorneysPage() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const updateAttorney = useMutation({
+    mutationFn: async (updates: Record<string, any>) => {
+      const { error } = await supabase.from('attorneys').update(updates).eq('id', showDetail!);
+      if (error) throw error;
+    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['attorneys'] }); toast.success('Attorney updated'); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   const selectedAttorney = attorneys?.find(a => a.id === showDetail);
   const activeAttorneys = attorneys?.filter(a => a.status === 'Active') || [];
   const avgLTV = activeAttorneys.length > 0
