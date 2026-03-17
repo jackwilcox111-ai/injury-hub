@@ -58,8 +58,27 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
 
   const addRecord = useMutation({
     mutationFn: async () => {
-      // Insert the record metadata
-      const { data: recordData, error } = await supabase.from('records').insert({
+      let documentId: string | null = null;
+
+      // Upload file first if provided, so we can link it
+      if (recordFile) {
+        const path = `${caseId}/${Date.now()}-${recordFile.name}`;
+        const { error: uploadError } = await supabase.storage.from('documents').upload(path, recordFile);
+        if (uploadError) throw uploadError;
+        const { data: docData, error: docError } = await supabase.from('documents').insert({
+          case_id: caseId,
+          file_name: recordFile.name,
+          storage_path: path,
+          document_type: newRecord.record_type || 'Medical Record',
+          uploader_id: profile?.id,
+          visible_to: ['admin', 'care_manager', 'attorney'],
+        }).select('id').single();
+        if (docError) throw docError;
+        documentId = docData.id;
+      }
+
+      // Insert the record metadata with document link
+      const { error } = await supabase.from('records').insert({
         case_id: caseId,
         provider_id: newRecord.provider_id || null,
         record_type: newRecord.record_type || null,
@@ -67,24 +86,9 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
         delivered_to_attorney_date: newRecord.delivered_to_attorney_date || null,
         hipaa_auth_on_file: newRecord.hipaa_auth_on_file,
         notes: newRecord.notes || null,
-      }).select('id').single();
+        document_id: documentId,
+      });
       if (error) throw error;
-
-      // Upload file if provided
-      if (recordFile) {
-        const path = `${caseId}/${Date.now()}-${recordFile.name}`;
-        const { error: uploadError } = await supabase.storage.from('documents').upload(path, recordFile);
-        if (uploadError) throw uploadError;
-        const { error: docError } = await supabase.from('documents').insert({
-          case_id: caseId,
-          file_name: recordFile.name,
-          storage_path: path,
-          document_type: newRecord.record_type || 'Medical Record',
-          uploader_id: profile?.id,
-          visible_to: ['admin', 'care_manager', 'attorney'],
-        });
-        if (docError) throw docError;
-      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['case-records-mgmt', caseId] });
