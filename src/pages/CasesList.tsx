@@ -28,6 +28,7 @@ export default function CasesList() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showNew, setShowNew] = useState(false);
+  const [sortBy, setSortBy] = useState('updated_at');
   const [newCase, setNewCase] = useState({
     patient_name: '', accident_date: '', accident_state: '', sol_period_days: 730,
     patient_phone: '', patient_email: '', attorney_id: '', specialty: '',
