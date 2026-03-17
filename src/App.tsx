@@ -17,6 +17,8 @@ import CalendarPage from "./pages/CalendarPage";
 import SettingsPage from "./pages/SettingsPage";
 import AttorneyPortal from "./pages/AttorneyPortal";
 import ProviderPortal from "./pages/ProviderPortal";
+import ReportingDashboard from "./pages/ReportingDashboard";
+import ReferralTracking from "./pages/ReferralTracking";
 import NotFound from "./pages/NotFound";
 import LandingPage from "./pages/network/LandingPage";
 import PatientIntake from "./pages/network/PatientIntake";

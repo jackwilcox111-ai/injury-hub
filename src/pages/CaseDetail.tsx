@@ -26,7 +26,6 @@ import { WorkPlanTab } from '@/components/cases/WorkPlanTab';
 import { AIToolsTab } from '@/components/cases/AIToolsTab';
 import { PatientEngagementTab } from '@/components/cases/PatientEngagementTab';
 import { SoLAlertsTab } from '@/components/cases/SoLAlertsTab';
-import { format, formatDistanceToNow } from 'date-fns';
 
 const caseStatuses = ['Intake', 'In Treatment', 'Records Pending', 'Demand Prep', 'Settled'];
 const flagOptions = [{ value: 'none', label: 'None' }, { value: 'noshow', label: 'No-Show Risk' }, { value: 'records', label: 'Records Due' }, { value: 'urgent', label: 'Urgent' }];
