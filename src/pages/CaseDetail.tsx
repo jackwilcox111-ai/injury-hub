@@ -207,6 +207,25 @@ export default function CaseDetail() {
 
   const updateRecord = useMutation({
     mutationFn: async (rec: any) => {
+      let documentId = rec.document_id || null;
+
+      // Upload new file if provided
+      if (editRecordFile) {
+        const path = `${id}/${Date.now()}-${editRecordFile.name}`;
+        const { error: uploadError } = await supabase.storage.from('documents').upload(path, editRecordFile);
+        if (uploadError) throw uploadError;
+        const { data: docData, error: docError } = await supabase.from('documents').insert({
+          case_id: id!,
+          file_name: editRecordFile.name,
+          storage_path: path,
+          document_type: rec.record_type || 'Medical Record',
+          uploader_id: profile?.id,
+          visible_to: ['admin', 'care_manager', 'attorney'],
+        }).select('id').single();
+        if (docError) throw docError;
+        documentId = docData.id;
+      }
+
       const { error } = await supabase.from('records').update({
         record_type: rec.record_type || null,
         provider_id: rec.provider_id || null,
@@ -214,10 +233,11 @@ export default function CaseDetail() {
         delivered_to_attorney_date: rec.delivered_to_attorney_date || null,
         hipaa_auth_on_file: rec.hipaa_auth_on_file,
         notes: rec.notes || null,
+        document_id: documentId,
       }).eq('id', rec.id);
       if (error) throw error;
     },
-    onSuccess: () => { invalidateAll(); setShowEditRecord(false); setEditRecord(null); toast.success('Record updated'); },
+    onSuccess: () => { invalidateAll(); setShowEditRecord(false); setEditRecord(null); setEditRecordFile(null); toast.success('Record updated'); },
     onError: (e: any) => toast.error(e.message),
   });
 
