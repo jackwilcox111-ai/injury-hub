@@ -14,8 +14,9 @@ import { ProgressBar } from '@/components/global/ProgressBar';
 import { SoLCountdown } from '@/components/global/SoLCountdown';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { format, formatDistanceToNow } from 'date-fns';
-import { Activity, Calendar, Heart, FileText, CheckCircle } from 'lucide-react';
+import { format, formatDistanceToNow, differenceInHours } from 'date-fns';
+import { Activity, Calendar, Heart, FileText, CheckCircle, HelpCircle, Bell } from 'lucide-react';
+import { generateICS } from '@/lib/ics-generator';
 
 const MOODS = ['Great', 'Good', 'OK', 'Poor', 'Terrible'];
 
