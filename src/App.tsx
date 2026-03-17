@@ -34,6 +34,7 @@ import AdminFunding from "./pages/AdminFunding";
 import ProviderRCM from "./pages/ProviderRCM";
 import PatientTimeline from "./pages/PatientTimeline";
 import PatientMessages from "./pages/PatientMessages";
+import ProviderMessages from "./pages/ProviderMessages";
 import { ReactNode } from "react";
 
 const queryClient = new QueryClient();
