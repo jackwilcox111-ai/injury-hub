@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { ArrowLeft, AlertTriangle, Clock, FileText, DollarSign, Activity, Send, ShieldCheck, Brain, Heart, Bell, ListTodo } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Clock, FileText, DollarSign, Activity, Send, ShieldCheck, Brain, Heart, Bell, ListTodo, FileSignature, GitBranch, Radar, Shield } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { InsuranceEligibilityTab } from '@/components/cases/InsuranceEligibilityTab';
 import { BillingChargesTab } from '@/components/cases/BillingChargesTab';
@@ -26,6 +26,10 @@ import { WorkPlanTab } from '@/components/cases/WorkPlanTab';
 import { AIToolsTab } from '@/components/cases/AIToolsTab';
 import { PatientEngagementTab } from '@/components/cases/PatientEngagementTab';
 import { SoLAlertsTab } from '@/components/cases/SoLAlertsTab';
+import { PolicyDetailsTab } from '@/components/cases/PolicyDetailsTab';
+import { TimelineTab } from '@/components/cases/TimelineTab';
+import { ColossusTab } from '@/components/cases/ColossusTab';
+import { DemandLettersTab } from '@/components/cases/DemandLettersTab';
 
 const caseStatuses = ['Intake', 'In Treatment', 'Records Pending', 'Demand Prep', 'Settled'];
 const flagOptions = [{ value: 'none', label: 'None' }, { value: 'noshow', label: 'No-Show Risk' }, { value: 'records', label: 'Records Due' }, { value: 'urgent', label: 'Urgent' }];
@@ -453,7 +457,7 @@ export default function CaseDetail() {
 
       {/* Tabbed Module Panels */}
       <Tabs defaultValue="activity" className="bg-card border border-border rounded-xl shadow-card">
-        <TabsList className="w-full justify-start border-b border-border rounded-none bg-transparent px-2 pt-2">
+        <TabsList className="w-full justify-start border-b border-border rounded-none bg-transparent px-2 pt-2 flex-wrap">
           <TabsTrigger value="activity" className="text-xs gap-1.5"><Send className="w-3.5 h-3.5" /> Activity</TabsTrigger>
           <TabsTrigger value="insurance" className="text-xs gap-1.5"><ShieldCheck className="w-3.5 h-3.5" /> Insurance</TabsTrigger>
           <TabsTrigger value="billing" className="text-xs gap-1.5"><DollarSign className="w-3.5 h-3.5" /> Billing</TabsTrigger>
@@ -462,6 +466,10 @@ export default function CaseDetail() {
           <TabsTrigger value="engagement" className="text-xs gap-1.5"><Heart className="w-3.5 h-3.5" /> Engagement</TabsTrigger>
           {isAdmin && <TabsTrigger value="ai" className="text-xs gap-1.5"><Brain className="w-3.5 h-3.5" /> AI Tools</TabsTrigger>}
           <TabsTrigger value="sol-alerts" className="text-xs gap-1.5"><Bell className="w-3.5 h-3.5" /> SoL Alerts</TabsTrigger>
+          <TabsTrigger value="policy" className="text-xs gap-1.5"><Shield className="w-3.5 h-3.5" /> Policy</TabsTrigger>
+          <TabsTrigger value="timeline" className="text-xs gap-1.5"><GitBranch className="w-3.5 h-3.5" /> Timeline</TabsTrigger>
+          {isAdmin && <TabsTrigger value="colossus" className="text-xs gap-1.5"><Radar className="w-3.5 h-3.5" /> Colossus</TabsTrigger>}
+          <TabsTrigger value="demand" className="text-xs gap-1.5"><FileSignature className="w-3.5 h-3.5" /> Demand Letters</TabsTrigger>
         </TabsList>
 
         <TabsContent value="activity" className="p-5">
@@ -521,6 +529,24 @@ export default function CaseDetail() {
 
         <TabsContent value="sol-alerts" className="p-5">
           <SoLAlertsTab caseId={id!} />
+        </TabsContent>
+
+        <TabsContent value="policy" className="p-5">
+          <PolicyDetailsTab caseId={id!} />
+        </TabsContent>
+
+        <TabsContent value="timeline" className="p-5">
+          <TimelineTab caseId={id!} isAdmin={isAdmin} />
+        </TabsContent>
+
+        {isAdmin && (
+          <TabsContent value="colossus" className="p-5">
+            <ColossusTab caseId={id!} />
+          </TabsContent>
+        )}
+
+        <TabsContent value="demand" className="p-5">
+          <DemandLettersTab caseId={id!} />
         </TabsContent>
       </Tabs>
 

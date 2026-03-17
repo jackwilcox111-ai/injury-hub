@@ -14,8 +14,9 @@ import { ProgressBar } from '@/components/global/ProgressBar';
 import { SoLCountdown } from '@/components/global/SoLCountdown';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { format, formatDistanceToNow } from 'date-fns';
-import { Activity, Calendar, Heart, FileText, CheckCircle } from 'lucide-react';
+import { format, formatDistanceToNow, differenceInHours } from 'date-fns';
+import { Activity, Calendar, Heart, FileText, CheckCircle, HelpCircle, Bell } from 'lucide-react';
+import { generateICS } from '@/lib/ics-generator';
 
 const MOODS = ['Great', 'Good', 'OK', 'Poor', 'Terrible'];
 
@@ -103,6 +104,42 @@ export default function PatientDashboard() {
   const completedAppts = appointments?.filter(a => a.status === 'Completed').length || 0;
   const totalAppts = appointments?.length || 0;
   const upcomingAppts = appointments?.filter(a => a.status === 'Scheduled') || [];
+  const soonAppt = upcomingAppts.find(a => a.scheduled_date && differenceInHours(new Date(a.scheduled_date), new Date()) <= 48 && differenceInHours(new Date(a.scheduled_date), new Date()) >= 0);
+
+  const caseStages = ['Intake', 'In Treatment', 'Records Pending', 'Demand Prep', 'Settled'];
+  const currentStageIdx = caseStages.indexOf(caseData.status || 'Intake');
+
+  const askQuestion = async () => {
+    await supabase.from('notifications').insert({
+      title: 'Patient Question',
+      message: `Patient ${profile?.full_name} has a question about their case (${caseData.case_number})`,
+      link: `/cases/${caseId}`,
+    });
+    toast.success('Your question has been sent to your care manager!');
+  };
+
+  const rescheduleAppt = async (appt: any) => {
+    await supabase.from('notifications').insert({
+      title: 'Reschedule Request',
+      message: `${profile?.full_name} needs to reschedule appointment on ${appt.scheduled_date ? format(new Date(appt.scheduled_date), 'MMM d') : 'TBD'} with ${(appt as any).providers?.name || 'provider'}`,
+      link: `/cases/${caseId}`,
+    });
+    toast.success('Reschedule request sent!');
+  };
+
+  const downloadICS = (appt: any) => {
+    const ics = generateICS(
+      appt.scheduled_date ? new Date(appt.scheduled_date) : new Date(),
+      appt.specialty || 'Medical Appointment',
+      (appt as any).providers?.name || 'Provider',
+      ''
+    );
+    const blob = new Blob([ics], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'appointment.ics'; a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const painColor = (level: number) => {
     if (level <= 3) return 'text-emerald-600';
@@ -117,7 +154,41 @@ export default function PatientDashboard() {
         <p className="text-sm text-muted-foreground mt-0.5">Case {caseData.case_number} — {caseData.status}</p>
       </div>
 
-      {/* Case Overview */}
+      {/* Appointment Reminder Banner */}
+      {soonAppt && (
+        <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Bell className="w-5 h-5 text-primary" />
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                Reminder: You have an appointment {differenceInHours(new Date(soonAppt.scheduled_date!), new Date()) <= 24 ? 'today' : 'tomorrow'} with {(soonAppt as any).providers?.name || 'your provider'}
+              </p>
+              <p className="text-xs text-muted-foreground">{format(new Date(soonAppt.scheduled_date!), 'MMM d, yyyy h:mm a')}</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" className="text-xs h-8" onClick={() => downloadICS(soonAppt)}>Add to Calendar</Button>
+            <Button size="sm" variant="ghost" className="text-xs h-8 text-destructive" onClick={() => rescheduleAppt(soonAppt)}>Reschedule</Button>
+          </div>
+        </div>
+      )}
+
+      {/* Case Progress Bar (5-stage) */}
+      <div className="bg-card border border-border rounded-xl p-5 space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">Case Progress</h3>
+        <div className="flex items-center gap-1">
+          {caseStages.map((stage, i) => (
+            <div key={stage} className="flex-1 flex flex-col items-center gap-1.5">
+              <div className={`w-full h-2 rounded-full ${i < currentStageIdx ? 'bg-primary' : i === currentStageIdx ? 'bg-primary' : 'bg-secondary'}`} />
+              <div className={`w-3 h-3 rounded-full border-2 ${i < currentStageIdx ? 'bg-primary border-primary' : i === currentStageIdx ? 'bg-primary border-primary animate-pulse' : 'bg-background border-muted-foreground/30'}`} />
+              <span className={`text-[9px] text-center ${i === currentStageIdx ? 'text-primary font-medium' : 'text-muted-foreground'}`}>{stage}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground text-center">You are in Step {currentStageIdx + 1} of 5 — {caseStages[currentStageIdx] || 'Intake'}</p>
+      </div>
+
+      {/* Overview Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-card border border-border rounded-xl p-4 text-center">
           <StatusBadge status={caseData.status} />
@@ -145,6 +216,15 @@ export default function PatientDashboard() {
           <span>{completedAppts} completed</span>
           <span>{totalAppts - completedAppts} remaining</span>
         </div>
+      </div>
+
+      {/* "I have a question" button */}
+      <div className="bg-card border border-border rounded-xl p-5 flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-foreground">Have a question about your case?</p>
+          <p className="text-xs text-muted-foreground">Your care manager will respond within 24 hours</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={askQuestion}><HelpCircle className="w-3.5 h-3.5 mr-1" /> I Have a Question</Button>
       </div>
 
       {/* Upcoming Appointments */}

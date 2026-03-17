@@ -27,6 +27,13 @@ import PatientIntake from "./pages/network/PatientIntake";
 import ProviderJoin from "./pages/network/ProviderJoin";
 import AttorneyJoin from "./pages/network/AttorneyJoin";
 import FunderJoin from "./pages/network/FunderJoin";
+import AdminDemandLetters from "./pages/AdminDemandLetters";
+import AdminMessages from "./pages/AdminMessages";
+import AdminRCM from "./pages/AdminRCM";
+import AdminFunding from "./pages/AdminFunding";
+import ProviderRCM from "./pages/ProviderRCM";
+import PatientTimeline from "./pages/PatientTimeline";
+import PatientMessages from "./pages/PatientMessages";
 import { ReactNode } from "react";
 
 const queryClient = new QueryClient();
@@ -91,11 +98,18 @@ const App = () => (
             <Route path="/referrals" element={<RequireAuth roles={['admin']}><AppLayout><ReferralTracking /></AppLayout></RequireAuth>} />
             <Route path="/tasks" element={<RequireAuth roles={['admin','care_manager']}><AppLayout><TaskDashboard /></AppLayout></RequireAuth>} />
             <Route path="/settings" element={<RequireAuth roles={['admin']}><AppLayout><SettingsPage /></AppLayout></RequireAuth>} />
+            <Route path="/demand-letters" element={<RequireAuth roles={['admin','care_manager']}><AppLayout><AdminDemandLetters /></AppLayout></RequireAuth>} />
+            <Route path="/messages" element={<RequireAuth roles={['admin','care_manager']}><AppLayout><AdminMessages /></AppLayout></RequireAuth>} />
+            <Route path="/rcm" element={<RequireAuth roles={['admin']}><AppLayout><AdminRCM /></AppLayout></RequireAuth>} />
+            <Route path="/funding" element={<RequireAuth roles={['admin']}><AppLayout><AdminFunding /></AppLayout></RequireAuth>} />
             <Route path="/attorney-portal" element={<RequireAuth roles={['attorney']}><AppLayout><AttorneyPortal /></AppLayout></RequireAuth>} />
             <Route path="/provider-portal" element={<RequireAuth roles={['provider']}><AppLayout><ProviderPortal /></AppLayout></RequireAuth>} />
+            <Route path="/provider/rcm" element={<RequireAuth roles={['provider']}><AppLayout><ProviderRCM /></AppLayout></RequireAuth>} />
 
             {/* Patient portal */}
             <Route path="/patient/dashboard" element={<RequireAuth roles={['patient']}><AppLayout><PatientDashboard /></AppLayout></RequireAuth>} />
+            <Route path="/patient/timeline" element={<RequireAuth roles={['patient']}><AppLayout><PatientTimeline /></AppLayout></RequireAuth>} />
+            <Route path="/patient/messages" element={<RequireAuth roles={['patient']}><AppLayout><PatientMessages /></AppLayout></RequireAuth>} />
 
             {/* Funder portal placeholder */}
             <Route path="/funder/dashboard" element={<RequireAuth roles={['funder']}><AppLayout><FunderDashboardPlaceholder /></AppLayout></RequireAuth>} />
