@@ -9,9 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AttorneySettingsModal } from '@/components/attorney/AttorneySettingsModal';
 import { toast } from 'sonner';
-import { Plus, TrendingUp, Calendar, Users, Settings } from 'lucide-react';
+import { Plus, TrendingUp, Calendar, Users, Settings, Check, X, CheckCircle2, XCircle } from 'lucide-react';
+import { format } from 'date-fns';
 
 export default function AttorneysPage() {
   const navigate = useNavigate();
@@ -39,6 +41,16 @@ export default function AttorneysPage() {
     },
   });
 
+  const { data: applications } = useQuery({
+    queryKey: ['attorney-applications'],
+    queryFn: async () => {
+      const { data } = await supabase.from('attorney_applications').select('*').order('created_at', { ascending: false });
+      return data || [];
+    },
+  });
+
+  const pendingCount = applications?.filter(a => a.status === 'Pending').length || 0;
+
   const { data: linkedCases } = useQuery({
     queryKey: ['attorney-cases', showDetail],
     queryFn: async () => {
@@ -58,6 +70,53 @@ export default function AttorneysPage() {
       if (error) throw error;
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['attorneys'] }); setShowAdd(false); toast.success('Attorney added'); setForm({ firm_name: '', contact_name: '', email: '', phone: '' }); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const approveApp = useMutation({
+    mutationFn: async (app: any) => {
+      // Create attorney record
+      const { data: attyData, error: attyErr } = await supabase.from('attorneys').insert({
+        firm_name: app.firm_name,
+        contact_name: app.contact_name || null,
+        email: app.email || null,
+        phone: app.phone || null,
+        status: 'Active',
+      }).select('id').single();
+      if (attyErr) throw attyErr;
+
+      // Update application status
+      const { error: updErr } = await supabase.from('attorney_applications').update({ status: 'Approved' }).eq('id', app.id);
+      if (updErr) throw updErr;
+
+      // Invite attorney user with login credentials
+      const { error: inviteErr } = await supabase.functions.invoke('invite-user', {
+        body: {
+          email: app.email,
+          full_name: app.contact_name,
+          role: 'attorney',
+          firm_id: attyData.id,
+        },
+      });
+      if (inviteErr) throw inviteErr;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['attorneys'] });
+      queryClient.invalidateQueries({ queryKey: ['attorney-applications'] });
+      toast.success('Attorney approved — login invitation sent');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const rejectApp = useMutation({
+    mutationFn: async (appId: string) => {
+      const { error } = await supabase.from('attorney_applications').update({ status: 'Rejected' }).eq('id', appId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['attorney-applications'] });
+      toast.success('Application rejected');
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -96,51 +155,104 @@ export default function AttorneysPage() {
         ))}
       </div>
 
-      {/* Table */}
-      <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
-        <table className="w-full text-sm">
-          <thead><tr className="border-b border-border bg-accent/50">
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Firm</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Contact</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Total</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Active</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Settled</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Avg Settlement</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Monthly</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Settings</th>
-          </tr></thead>
-          <tbody className="divide-y divide-border">
-            {attorneys?.map(a => (
-              <tr key={a.id} className="hover:bg-accent/50 transition-colors">
-                <td className="px-5 py-3.5 font-medium text-foreground cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.firm_name}</td>
-                <td className="px-5 py-3.5 text-muted-foreground text-xs cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.contact_name || '—'}</td>
-                <td className="px-5 py-3.5 font-mono text-xs tabular-nums cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.totalCases}</td>
-                <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-primary cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.activeCases}</td>
-                <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-violet-600 cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.settledCases}</td>
-                <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-emerald-600 cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.avgSettlement > 0 ? `$${Math.round(a.avgSettlement).toLocaleString()}` : '—'}</td>
-                <td className="px-5 py-3.5 cursor-pointer" onClick={() => setShowDetail(a.id)}>
-                  <div className="flex items-center gap-1.5">
-                    <div className="h-2 rounded-full bg-secondary w-14 overflow-hidden"><div className="h-full bg-primary rounded-full" style={{ width: `${Math.min(a.monthlyVolume / 5 * 100, 100)}%` }} /></div>
-                    <span className="font-mono text-xs text-muted-foreground tabular-nums">{a.monthlyVolume}</span>
+      <Tabs defaultValue="attorneys">
+        <TabsList>
+          <TabsTrigger value="attorneys">Active Attorneys</TabsTrigger>
+          <TabsTrigger value="applications" className="relative">
+            Applications
+            {pendingCount > 0 && (
+              <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold rounded-full bg-destructive text-destructive-foreground">
+                {pendingCount}
+              </span>
+            )}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="attorneys" className="mt-4">
+          {/* Table */}
+          <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
+            <table className="w-full text-sm">
+              <thead><tr className="border-b border-border bg-accent/50">
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Firm</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Contact</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Total</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Active</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Settled</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Avg Settlement</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Monthly</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Settings</th>
+              </tr></thead>
+              <tbody className="divide-y divide-border">
+                {attorneys?.map(a => (
+                  <tr key={a.id} className="hover:bg-accent/50 transition-colors">
+                    <td className="px-5 py-3.5 font-medium text-foreground cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.firm_name}</td>
+                    <td className="px-5 py-3.5 text-muted-foreground text-xs cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.contact_name || '—'}</td>
+                    <td className="px-5 py-3.5 font-mono text-xs tabular-nums cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.totalCases}</td>
+                    <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-primary cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.activeCases}</td>
+                    <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-violet-600 cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.settledCases}</td>
+                    <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-emerald-600 cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.avgSettlement > 0 ? `$${Math.round(a.avgSettlement).toLocaleString()}` : '—'}</td>
+                    <td className="px-5 py-3.5 cursor-pointer" onClick={() => setShowDetail(a.id)}>
+                      <div className="flex items-center gap-1.5">
+                        <div className="h-2 rounded-full bg-secondary w-14 overflow-hidden"><div className="h-full bg-primary rounded-full" style={{ width: `${Math.min(a.monthlyVolume / 5 * 100, 100)}%` }} /></div>
+                        <span className="font-mono text-xs text-muted-foreground tabular-nums">{a.monthlyVolume}</span>
+                      </div>
+                    </td>
+                    <td className="px-5 py-3.5 cursor-pointer" onClick={() => setShowDetail(a.id)}><StatusBadge status={a.status} /></td>
+                    <td className="px-5 py-3.5">
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={e => { e.stopPropagation(); setSettingsTarget({ id: a.id, firm_name: a.firm_name, contact_name: a.contact_name }); }}>
+                        <Settings className="w-3.5 h-3.5" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="applications" className="mt-4">
+          {!applications || applications.length === 0 ? (
+            <div className="bg-card border border-border rounded-xl p-8 text-center">
+              <p className="text-sm text-muted-foreground">No applications yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {applications.map(app => (
+                <div key={app.id} className="bg-card border border-border rounded-xl p-5 shadow-card">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-foreground">{app.firm_name}</p>
+                        <StatusBadge status={app.status} />
+                      </div>
+                      <p className="text-xs text-muted-foreground">{app.contact_name} · {app.state}</p>
+                      <p className="text-xs text-muted-foreground">{app.email} · {app.phone}</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{format(new Date(app.created_at!), 'MMM d, yyyy')}</p>
                   </div>
-                </td>
-                <td className="px-5 py-3.5 cursor-pointer" onClick={() => setShowDetail(a.id)}><StatusBadge status={a.status} /></td>
-                <td className="px-5 py-3.5">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 w-7 p-0"
-                    onClick={e => { e.stopPropagation(); setSettingsTarget({ id: a.id, firm_name: a.firm_name, contact_name: a.contact_name }); }}
-                  >
-                    <Settings className="w-3.5 h-3.5" />
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                    {app.bar_number && <span>Bar #: {app.bar_number}</span>}
+                    {app.pi_case_volume_monthly != null && <span>{app.pi_case_volume_monthly} PI cases/mo</span>}
+                    {app.referral_source && <span>Ref: {app.referral_source}</span>}
+                  </div>
+                  {app.notes && <p className="text-xs text-muted-foreground mt-2 italic">"{app.notes}"</p>}
+                  {app.status === 'Pending' && (
+                    <div className="flex gap-2 mt-4">
+                      <Button size="sm" onClick={() => approveApp.mutate(app)} disabled={approveApp.isPending}>
+                        <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Approve
+                      </Button>
+                      <Button size="sm" variant="outline" className="text-destructive hover:text-destructive" onClick={() => { if (confirm('Reject this application?')) rejectApp.mutate(app.id); }} disabled={rejectApp.isPending}>
+                        <XCircle className="w-3.5 h-3.5 mr-1" /> Reject
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
 
       {/* Attorney Settings Modal */}
       {settingsTarget && (

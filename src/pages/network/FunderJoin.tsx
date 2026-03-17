@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,10 +23,20 @@ export default function FunderJoin() {
     e.preventDefault();
     if (!form.accredited) { toast.error('Please indicate accredited investor status'); return; }
     setLoading(true);
-    await new Promise(r => setTimeout(r, 500));
+    const { error } = await supabase.from('funder_applications').insert({
+      company_name: form.company_name,
+      contact_name: form.contact_name,
+      email: form.email,
+      phone: form.phone || null,
+      funding_capacity_min: form.funding_min ? parseFloat(form.funding_min) : null,
+      funding_capacity_max: form.funding_max ? parseFloat(form.funding_max) : null,
+      accredited_investor: form.accredited === 'yes',
+      experience_notes: form.experience || null,
+    });
+    setLoading(false);
+    if (error) { toast.error('Submission failed. Please try again.'); return; }
     setSubmitted(true);
     toast.success('Interest form submitted');
-    setLoading(false);
   };
 
   if (submitted) {
@@ -44,43 +55,32 @@ export default function FunderJoin() {
 
   return (
     <PublicLayout>
-      <div className="max-w-2xl mx-auto px-6 py-16">
-        <div className="mb-10">
-          <span className="text-xs font-medium uppercase tracking-widest text-settled mb-3 block">Investment Opportunity</span>
-          <h2 className="text-3xl font-display font-bold text-foreground mb-2">Become a Network Funder</h2>
-          <p className="text-sm text-muted-foreground">Express interest in funding PI medical liens through CareLink.</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-card border border-border rounded-xl p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Company Name *</Label><Input value={form.company_name} onChange={e => set('company_name', e.target.value)} required /></div>
-              <div className="space-y-2"><Label>Contact Name *</Label><Input value={form.contact_name} onChange={e => set('contact_name', e.target.value)} required /></div>
-              <div className="space-y-2"><Label>Email *</Label><Input type="email" value={form.email} onChange={e => set('email', e.target.value)} required /></div>
-              <div className="space-y-2"><Label>Phone</Label><Input type="tel" value={form.phone} onChange={e => set('phone', e.target.value)} /></div>
-              <div className="space-y-2"><Label>Min Funding per Case ($)</Label><Input type="number" min={0} value={form.funding_min} onChange={e => set('funding_min', e.target.value)} placeholder="e.g., 5,000" /></div>
-              <div className="space-y-2"><Label>Max Funding per Case ($)</Label><Input type="number" min={0} value={form.funding_max} onChange={e => set('funding_max', e.target.value)} placeholder="e.g., 50,000" /></div>
-            </div>
+      <div className="max-w-lg mx-auto px-6 py-12">
+        <h2 className="text-2xl font-display font-bold text-foreground mb-2">Funder Interest Form</h2>
+        <p className="text-sm text-muted-foreground mb-8">Join our pre-settlement funding network. Complete the form below to express interest.</p>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-2"><Label>Company Name *</Label><Input value={form.company_name} onChange={e => set('company_name', e.target.value)} required /></div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2"><Label>Contact Name *</Label><Input value={form.contact_name} onChange={e => set('contact_name', e.target.value)} required /></div>
+            <div className="space-y-2"><Label>Email *</Label><Input type="email" value={form.email} onChange={e => set('email', e.target.value)} required /></div>
           </div>
-          <div className="bg-card border border-border rounded-xl p-6 space-y-4">
-            <div className="space-y-2">
-              <Label>Are you an accredited investor? *</Label>
-              <Select value={form.accredited} onValueChange={v => set('accredited', v)}>
-                <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="yes">Yes</SelectItem>
-                  <SelectItem value="no">No</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Tell us about your PI funding experience</Label>
-              <Textarea value={form.experience} onChange={e => set('experience', e.target.value)} rows={4} placeholder="Portfolio size, deal types, etc." />
-            </div>
+          <div className="space-y-2"><Label>Phone</Label><Input value={form.phone} onChange={e => set('phone', e.target.value)} /></div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2"><Label>Min Funding Capacity ($)</Label><Input type="number" value={form.funding_min} onChange={e => set('funding_min', e.target.value)} /></div>
+            <div className="space-y-2"><Label>Max Funding Capacity ($)</Label><Input type="number" value={form.funding_max} onChange={e => set('funding_max', e.target.value)} /></div>
           </div>
-          <Button type="submit" disabled={loading} className="w-full h-11 rounded-lg">
-            {loading ? 'Submitting...' : 'Express Interest'}
-          </Button>
+          <div className="space-y-2">
+            <Label>Accredited Investor? *</Label>
+            <Select value={form.accredited} onValueChange={v => set('accredited', v)}>
+              <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="yes">Yes</SelectItem>
+                <SelectItem value="no">No</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2"><Label>Experience / Notes</Label><Textarea value={form.experience} onChange={e => set('experience', e.target.value)} rows={3} placeholder="Tell us about your lending experience..." /></div>
+          <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Submitting...' : 'Submit Interest Form'}</Button>
         </form>
       </div>
     </PublicLayout>

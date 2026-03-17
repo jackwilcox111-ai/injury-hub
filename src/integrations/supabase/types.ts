@@ -760,6 +760,48 @@ export type Database = {
           },
         ]
       }
+      funder_applications: {
+        Row: {
+          accredited_investor: boolean | null
+          company_name: string
+          contact_name: string
+          created_at: string | null
+          email: string
+          experience_notes: string | null
+          funding_capacity_max: number | null
+          funding_capacity_min: number | null
+          id: string
+          phone: string | null
+          status: string
+        }
+        Insert: {
+          accredited_investor?: boolean | null
+          company_name: string
+          contact_name: string
+          created_at?: string | null
+          email: string
+          experience_notes?: string | null
+          funding_capacity_max?: number | null
+          funding_capacity_min?: number | null
+          id?: string
+          phone?: string | null
+          status?: string
+        }
+        Update: {
+          accredited_investor?: boolean | null
+          company_name?: string
+          contact_name?: string
+          created_at?: string | null
+          email?: string
+          experience_notes?: string | null
+          funding_capacity_max?: number | null
+          funding_capacity_min?: number | null
+          id?: string
+          phone?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       funder_profiles: {
         Row: {
           accredited_investor: boolean | null
