@@ -165,6 +165,7 @@ export default function AdminRCM() {
           <TabsTrigger value="cases" className="text-xs">All Claims</TabsTrigger>
           <TabsTrigger value="denials" className="text-xs">Denials ({denials.length})</TabsTrigger>
           <TabsTrigger value="aging" className="text-xs">A/R Aging</TabsTrigger>
+          <TabsTrigger value="denial-codes" className="text-xs">Denial Codes Ref</TabsTrigger>
         </TabsList>
 
         <TabsContent value="cases" className="mt-4 space-y-4">
