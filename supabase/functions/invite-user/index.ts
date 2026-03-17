@@ -25,8 +25,12 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Get the site URL for redirect
+    const siteUrl = req.headers.get("origin") || Deno.env.get("SITE_URL") || "https://injury-hub.lovable.app";
+
     const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
       data: { full_name, role },
+      redirectTo: `${siteUrl}/reset-password`,
     });
 
     if (error) throw error;
