@@ -241,6 +241,44 @@ export default function AdminRCM() {
             ))}
           </div>
         </TabsContent>
+
+        <TabsContent value="denial-codes" className="mt-4">
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-border">
+              <h3 className="text-sm font-semibold text-foreground">Common Denial Codes Reference</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">CARC / RARC codes frequently encountered in PI billing</p>
+            </div>
+            <table className="w-full text-sm">
+              <thead><tr className="border-b border-border bg-accent/50">
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Code</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Description</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Common Resolution</th>
+              </tr></thead>
+              <tbody className="divide-y divide-border">
+                {[
+                  { code: 'CO-4', desc: 'Procedure code inconsistent with modifier or missing modifier', fix: 'Review modifier usage; resubmit with correct modifier' },
+                  { code: 'CO-16', desc: 'Claim lacks information needed for adjudication', fix: 'Resubmit with missing documentation (medical records, auth)' },
+                  { code: 'CO-18', desc: 'Duplicate claim/service', fix: 'Verify original claim status; submit corrected claim if needed' },
+                  { code: 'CO-29', desc: 'Time limit for filing has expired', fix: 'Appeal with proof of timely filing or extenuating circumstances' },
+                  { code: 'CO-45', desc: 'Exceeds fee schedule / maximum allowable', fix: 'Accept allowed amount or appeal with documentation of medical necessity' },
+                  { code: 'CO-50', desc: 'Non-covered service', fix: 'Verify benefits; appeal with Letter of Medical Necessity' },
+                  { code: 'CO-97', desc: 'Payment adjusted — already adjudicated', fix: 'Check for prior payment; submit appeal if no prior adjudication' },
+                  { code: 'PR-1', desc: 'Deductible amount', fix: 'Patient responsibility — bill patient or apply to lien' },
+                  { code: 'PR-2', desc: 'Coinsurance amount', fix: 'Patient responsibility — bill patient or apply to lien' },
+                  { code: 'PR-3', desc: 'Co-payment amount', fix: 'Patient responsibility — collect co-pay or apply to lien' },
+                  { code: 'OA-23', desc: 'Authorization not obtained', fix: 'Obtain retroactive auth if possible; appeal with clinical documentation' },
+                  { code: 'PI-B1', desc: 'Non-covered unless MedPay / PIP applies', fix: 'Verify PIP/MedPay eligibility; redirect to correct billing path' },
+                ].map(row => (
+                  <tr key={row.code} className="hover:bg-accent/30">
+                    <td className="px-4 py-3 font-mono text-xs font-semibold text-primary">{row.code}</td>
+                    <td className="px-4 py-3 text-xs">{row.desc}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{row.fix}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </TabsContent>
       </Tabs>
 
       <Dialog open={showAdd} onOpenChange={setShowAdd}>

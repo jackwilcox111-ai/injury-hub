@@ -339,7 +339,14 @@ export default function AttorneyPortal() {
                     </div>
                     <div className="flex justify-between items-center text-xs text-muted-foreground">
                       <span>{dl.created_at ? formatDistanceToNow(new Date(dl.created_at), { addSuffix: true }) : ''}</span>
-                      <Button size="sm" variant="outline" className="text-xs h-7" onClick={() => window.print()}>Download as PDF</Button>
+                      <Button size="sm" variant="outline" className="text-xs h-7" onClick={() => {
+                        const printWindow = window.open('', '_blank');
+                        if (printWindow) {
+                          printWindow.document.write(`<html><head><title>Demand Letter - ${selectedCase?.case_number}</title><style>body{font-family:monospace;white-space:pre-wrap;padding:40px;font-size:12px;line-height:1.6;}h1{font-family:sans-serif;font-size:16px;margin-bottom:8px;}p.meta{font-family:sans-serif;color:#666;font-size:11px;margin-bottom:24px;}</style></head><body><h1>Demand Letter — ${selectedCase?.case_number}</h1><p class="meta">Version ${dl.version} · Status: ${dl.status} · Total Demand: $${(dl.total_demand || 0).toLocaleString()}</p>${dl.content}</body></html>`);
+                          printWindow.document.close();
+                          printWindow.print();
+                        }
+                      }}>Download as PDF</Button>
                     </div>
                   </div>
                 )) : (
