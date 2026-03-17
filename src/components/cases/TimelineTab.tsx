@@ -39,7 +39,7 @@ const EVENT_COLORS: Record<string, string> = {
 
 const ROLES = ['admin', 'care_manager', 'patient', 'attorney', 'provider'];
 
-export function TimelineTab({ caseId }: { caseId: string }) {
+export function TimelineTab({ caseId, isAdmin }: { caseId: string; isAdmin?: boolean }) {
   const queryClient = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);
   const [filter, setFilter] = useState<'all' | 'patient' | 'attorney'>('all');
