@@ -88,6 +88,15 @@ export default function FunderJoin() {
             </Select>
           </div>
           <div className="space-y-2"><Label>Experience / Notes</Label><Textarea value={form.experience} onChange={e => set('experience', e.target.value)} rows={3} placeholder="Tell us about your lending experience..." /></div>
+          <div className="space-y-2">
+            <Label>How did you hear about CareLink?</Label>
+            <Select value={form.referral_source} onValueChange={v => set('referral_source', v)}>
+              <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectContent>
+                {['Attorney Referral', 'Google', 'Conference', 'Social Media', 'Colleague', 'Other'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
           <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Submitting...' : 'Submit Interest Form'}</Button>
         </form>
       </div>
