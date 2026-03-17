@@ -175,15 +175,30 @@ export default function CaseDetail() {
 
   const addRecord = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from('records').insert({
+      const { data: recordData, error } = await supabase.from('records').insert({
         case_id: id!, provider_id: newRecord.provider_id || null,
         record_type: newRecord.record_type || null, received_date: newRecord.received_date || null,
         delivered_to_attorney_date: newRecord.delivered_to_attorney_date || null,
         hipaa_auth_on_file: newRecord.hipaa_auth_on_file, notes: newRecord.notes || null,
-      });
+      }).select('id').single();
       if (error) throw error;
+
+      if (recordFile) {
+        const path = `${id}/${Date.now()}-${recordFile.name}`;
+        const { error: uploadError } = await supabase.storage.from('documents').upload(path, recordFile);
+        if (uploadError) throw uploadError;
+        const { error: docError } = await supabase.from('documents').insert({
+          case_id: id!,
+          file_name: recordFile.name,
+          storage_path: path,
+          document_type: newRecord.record_type || 'Medical Record',
+          uploader_id: profile?.id,
+          visible_to: ['admin', 'care_manager', 'attorney'],
+        });
+        if (docError) throw docError;
+      }
     },
-    onSuccess: () => { invalidateAll(); setShowAddRecord(false); toast.success('Record added'); },
+    onSuccess: () => { invalidateAll(); setShowAddRecord(false); setRecordFile(null); toast.success('Record added'); },
     onError: (e: any) => toast.error(e.message),
   });
 
