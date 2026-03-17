@@ -124,57 +124,31 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Two-column: Alerts + Quick Actions */}
-      <div className="grid grid-cols-3 gap-5">
-        {/* Alert Banner */}
-        {flaggedCases.length > 0 && (
-          <div className="col-span-2 bg-card border border-border rounded-xl shadow-card overflow-hidden">
-            <div className="px-5 py-3 border-b border-border flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-red-500" />
-              <h3 className="text-sm font-semibold text-foreground">Cases Requiring Attention</h3>
-              <span className="text-[10px] bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-medium ml-1">{flaggedCases.length}</span>
-            </div>
-            <div className="divide-y divide-border">
-              {flaggedCases.map(c => (
-                <button
-                  key={c.id}
-                  onClick={() => navigate(`/cases/${c.id}`)}
-                  className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-accent transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-mono text-primary font-medium">{c.case_number}</span>
-                    <span className="text-sm text-foreground">{c.patient_name}</span>
-                  </div>
-                  <FlagBadge flag={c.flag} />
-                </button>
-              ))}
-            </div>
+      {/* Alert Banner */}
+      {flaggedCases.length > 0 && (
+        <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
+          <div className="px-5 py-3 border-b border-border flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-red-500" />
+            <h3 className="text-sm font-semibold text-foreground">Cases Requiring Attention</h3>
+            <span className="text-[10px] bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-medium ml-1">{flaggedCases.length}</span>
           </div>
-        )}
-
-        {/* Quick Links */}
-        <div className={`bg-card border border-border rounded-xl shadow-card p-5 ${flaggedCases.length === 0 ? 'col-span-3' : ''}`}>
-          <h3 className="text-sm font-semibold text-foreground mb-3">Quick Actions</h3>
-          <div className={`${flaggedCases.length === 0 ? 'flex gap-3' : 'space-y-2'}`}>
-            <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigate('/cases')}>
-              <FolderOpen className="w-4 h-4" /> View All Cases
-            </Button>
-            <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigate('/providers')}>
-              <Stethoscope className="w-4 h-4" /> Manage Providers
-            </Button>
-            {isAdmin && (
-              <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigate('/liens')}>
-                <TrendingUp className="w-4 h-4" /> Lien Tracker
-              </Button>
-            )}
-            {isAdmin && (
-              <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigate('/attorneys')}>
-                <Users className="w-4 h-4" /> Attorney Network
-              </Button>
-            )}
+          <div className="divide-y divide-border">
+            {flaggedCases.map(c => (
+              <button
+                key={c.id}
+                onClick={() => navigate(`/cases/${c.id}`)}
+                className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-accent transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-mono text-primary font-medium">{c.case_number}</span>
+                  <span className="text-sm text-foreground">{c.patient_name}</span>
+                </div>
+                <FlagBadge flag={c.flag} />
+              </button>
+            ))}
           </div>
         </div>
-      </div>
+      )}
 
       {/* Recent Cases Table */}
       <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
