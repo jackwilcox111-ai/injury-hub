@@ -1,0 +1,239 @@
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import { FileText, Plus, CheckCircle2, Clock, AlertCircle, Send } from 'lucide-react';
+
+// Auto-generated expected records by specialty
+const SPECIALTY_RECORDS: Record<string, string[]> = {
+  'Pain Management': ['Initial Evaluation', 'Treatment Notes', 'Injection Records', 'Imaging', 'Billing'],
+  'Chiropractic': ['Initial Evaluation', 'Treatment Notes', 'X-rays', 'Billing'],
+  'Physical Therapy': ['Initial Evaluation', 'Progress Notes', 'Discharge Summary', 'Billing'],
+  'Orthopedic': ['Initial Evaluation', 'Surgical Report', 'Imaging', 'Post-Op Notes', 'Billing'],
+  'Imaging/MRI': ['MRI Report', 'X-ray Report', 'CT Report', 'Billing'],
+  'Surgery Consultation': ['Consultation Notes', 'Pre-Op Evaluation', 'Surgical Report', 'Anesthesia Records', 'Billing'],
+};
+
+const RECORD_STATUSES = ['Requested', 'Received', 'Under Review', 'Delivered to Attorney'];
+
+interface RecordsManagementTabProps {
+  caseId: string;
+  specialty?: string | null;
+  providers: { id: string; name: string }[];
+}
+
+export function RecordsManagementTab({ caseId, specialty, providers }: RecordsManagementTabProps) {
+  const { profile } = useAuth();
+  const queryClient = useQueryClient();
+  const [showAdd, setShowAdd] = useState(false);
+  const isAdminOrCM = profile?.role === 'admin' || profile?.role === 'care_manager';
+
+  const { data: records, isLoading } = useQuery({
+    queryKey: ['case-records-mgmt', caseId],
+    queryFn: async () => {
+      const { data } = await supabase.from('records').select('*, providers(name)')
+        .eq('case_id', caseId).order('created_at', { ascending: false });
+      return data || [];
+    },
+  });
+
+  const [newRecord, setNewRecord] = useState({
+    record_type: '', provider_id: '', received_date: '', delivered_to_attorney_date: '', hipaa_auth_on_file: false, notes: '',
+  });
+
+  const addRecord = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from('records').insert({
+        case_id: caseId,
+        provider_id: newRecord.provider_id || null,
+        record_type: newRecord.record_type || null,
+        received_date: newRecord.received_date || null,
+        delivered_to_attorney_date: newRecord.delivered_to_attorney_date || null,
+        hipaa_auth_on_file: newRecord.hipaa_auth_on_file,
+        notes: newRecord.notes || null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['case-records-mgmt', caseId] });
+      setShowAdd(false);
+      setNewRecord({ record_type: '', provider_id: '', received_date: '', delivered_to_attorney_date: '', hipaa_auth_on_file: false, notes: '' });
+      toast.success('Record added');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  // Request all missing records at once
+  const requestAllMissing = useMutation({
+    mutationFn: async (missing: string[]) => {
+      const inserts = missing.map(rt => ({
+        case_id: caseId,
+        record_type: rt,
+        notes: 'Auto-requested — missing record',
+      }));
+      const { error } = await supabase.from('records').insert(inserts);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['case-records-mgmt', caseId] });
+      toast.success('All missing records requested');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  // Compute expected vs received checklist
+  const expectedTypes = specialty && SPECIALTY_RECORDS[specialty] ? SPECIALTY_RECORDS[specialty] : [];
+  const receivedTypes = new Set(records?.map((r: any) => r.record_type) || []);
+  const missingTypes = expectedTypes.filter(t => !receivedTypes.has(t));
+
+  const deliveredCount = records?.filter((r: any) => r.delivered_to_attorney_date).length || 0;
+  const receivedCount = records?.filter((r: any) => r.received_date).length || 0;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <FileText className="w-4 h-4 text-primary" />
+          <h3 className="text-sm font-semibold text-foreground">Records Pipeline</h3>
+        </div>
+        <div className="flex items-center gap-2">
+          {isAdminOrCM && missingTypes.length > 0 && (
+            <Button size="sm" variant="outline" className="h-8 text-xs text-amber-600 border-amber-200 hover:bg-amber-50"
+              onClick={() => requestAllMissing.mutate(missingTypes)} disabled={requestAllMissing.isPending}>
+              <Send className="w-3.5 h-3.5 mr-1" /> Request All Missing ({missingTypes.length})
+            </Button>
+          )}
+          {isAdminOrCM && (
+            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowAdd(true)}>
+              <Plus className="w-3.5 h-3.5 mr-1" /> Add Record
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Pipeline Stats */}
+      <div className="grid grid-cols-4 gap-3">
+        <div className="bg-card border border-border rounded-lg p-3 text-center">
+          <p className="text-lg font-semibold text-foreground tabular-nums">{expectedTypes.length}</p>
+          <p className="text-[10px] text-muted-foreground">Expected</p>
+        </div>
+        <div className="bg-card border border-border rounded-lg p-3 text-center">
+          <p className="text-lg font-semibold text-foreground tabular-nums">{records?.length || 0}</p>
+          <p className="text-[10px] text-muted-foreground">Total</p>
+        </div>
+        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-center">
+          <p className="text-lg font-semibold text-emerald-600 tabular-nums">{receivedCount}</p>
+          <p className="text-[10px] text-muted-foreground">Received</p>
+        </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+          <p className="text-lg font-semibold text-blue-600 tabular-nums">{deliveredCount}</p>
+          <p className="text-[10px] text-muted-foreground">Delivered to Atty</p>
+        </div>
+      </div>
+
+      {/* Expected Records Checklist */}
+      {expectedTypes.length > 0 && (
+        <div className="bg-accent/30 rounded-lg p-3 space-y-1.5">
+          <p className="text-xs font-semibold text-foreground mb-1">Expected Records Checklist — {specialty}</p>
+          {expectedTypes.map(type => {
+            const received = receivedTypes.has(type);
+            return (
+              <div key={type} className="flex items-center gap-2 text-xs">
+                {received ? (
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                ) : (
+                  <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
+                )}
+                <span className={received ? 'text-foreground' : 'text-muted-foreground'}>{type}</span>
+                {received && <span className="text-emerald-600 text-[10px] ml-auto">Received</span>}
+                {!received && <span className="text-amber-500 text-[10px] ml-auto">Missing</span>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Records Table */}
+      {isLoading ? (
+        <div className="text-sm text-muted-foreground py-8 text-center">Loading...</div>
+      ) : !records?.length ? (
+        <div className="text-sm text-muted-foreground py-8 text-center border border-dashed border-border rounded-xl">No records on file</div>
+      ) : (
+        <div className="border border-border rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead><tr className="border-b border-border bg-accent/50">
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Type</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Received</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Delivered to Atty</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">HIPAA</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Status</th>
+            </tr></thead>
+            <tbody className="divide-y divide-border">
+              {records.map((r: any) => {
+                const status = r.delivered_to_attorney_date ? 'Delivered' : r.received_date ? 'Received' : 'Requested';
+                return (
+                  <tr key={r.id} className="hover:bg-accent/30 transition-colors">
+                    <td className="px-4 py-2.5 text-xs font-medium">{r.record_type || '—'}</td>
+                    <td className="px-4 py-2.5 text-xs">{r.providers?.name || '—'}</td>
+                    <td className="px-4 py-2.5 font-mono-data text-xs">{r.received_date || <span className="text-amber-500"><Clock className="w-3 h-3 inline" /> Pending</span>}</td>
+                    <td className="px-4 py-2.5 font-mono-data text-xs">{r.delivered_to_attorney_date || '—'}</td>
+                    <td className="px-4 py-2.5 text-xs">{r.hipaa_auth_on_file ? <span className="text-emerald-600">✓</span> : <span className="text-red-500">✗</span>}</td>
+                    <td className="px-4 py-2.5">
+                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
+                        status === 'Delivered' ? 'bg-blue-50 text-blue-700' :
+                        status === 'Received' ? 'bg-emerald-50 text-emerald-700' :
+                        'bg-amber-50 text-amber-700'
+                      }`}>{status}</span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Add Record Dialog */}
+      <Dialog open={showAdd} onOpenChange={setShowAdd}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Add Record</DialogTitle></DialogHeader>
+          <form onSubmit={e => { e.preventDefault(); addRecord.mutate(); }} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Record Type</Label>
+              <Select value={newRecord.record_type} onValueChange={v => setNewRecord(p => ({ ...p, record_type: v }))}>
+                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                <SelectContent>
+                  {['Treatment Notes', 'Billing', 'Imaging', 'Surgical Report', 'Initial Evaluation', 'Progress Notes', 'Discharge Summary', 'X-rays', 'MRI Report', 'Other'].map(t =>
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Provider</Label>
+              <Select value={newRecord.provider_id} onValueChange={v => setNewRecord(p => ({ ...p, provider_id: v }))}>
+                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                <SelectContent>{providers.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2"><Label>Received Date</Label><Input type="date" value={newRecord.received_date} onChange={e => setNewRecord(p => ({ ...p, received_date: e.target.value }))} /></div>
+              <div className="space-y-2"><Label>Delivered to Attorney</Label><Input type="date" value={newRecord.delivered_to_attorney_date} onChange={e => setNewRecord(p => ({ ...p, delivered_to_attorney_date: e.target.value }))} /></div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
+              <Button type="submit" disabled={addRecord.isPending}>Add</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
