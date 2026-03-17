@@ -3,11 +3,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { StatusBadge } from '@/components/global/StatusBadge';
 import { SoLCountdown } from '@/components/global/SoLCountdown';
+import { SortableHeader } from '@/components/global/SortableHeader';
+import { useSortableTable } from '@/hooks/use-sortable-table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { exportToCSV } from '@/lib/csv-export';
 import { useState } from 'react';
-import { Download, TrendingUp, PieChart, BarChart3, Percent } from 'lucide-react';
+import { Download, TrendingUp, PieChart, BarChart3, Percent, Search } from 'lucide-react';
 import { format } from 'date-fns';
 
 const lienStatuses = ['All', 'Active', 'Reduced', 'Paid', 'Waived'];
