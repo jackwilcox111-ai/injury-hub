@@ -95,6 +95,16 @@ export default function ProviderJoin() {
             </div>
           </div>
 
+          <div className="space-y-2">
+            <Label>How did you hear about CareLink?</Label>
+            <Select value={form.referral_source} onValueChange={v => set('referral_source', v)}>
+              <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectContent>
+                {['Attorney Referral', 'Google', 'Conference', 'Social Media', 'Colleague', 'Other'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="bg-card border border-border rounded-xl p-6 space-y-4">
             <div className="flex items-center gap-3">
               <Checkbox checked={form.lien_experience} onCheckedChange={v => set('lien_experience', !!v)} id="lien" />

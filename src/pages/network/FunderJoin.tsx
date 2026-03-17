@@ -24,7 +24,7 @@ export default function FunderJoin() {
     e.preventDefault();
     if (!form.accredited) { toast.error('Please indicate accredited investor status'); return; }
     setLoading(true);
-    const { error } = await supabase.from('funder_applications').insert({
+    const { data: appData, error } = await supabase.from('funder_applications').insert({
       company_name: form.company_name,
       contact_name: form.contact_name,
       email: form.email,
@@ -33,9 +33,16 @@ export default function FunderJoin() {
       funding_capacity_max: form.funding_max ? parseFloat(form.funding_max) : null,
       accredited_investor: form.accredited === 'yes',
       experience_notes: form.experience || null,
-    });
+    }).select('id').single();
     setLoading(false);
     if (error) { toast.error('Submission failed. Please try again.'); return; }
+    if (form.referral_source && appData?.id) {
+      await supabase.from('referral_sources').insert({
+        entity_id: appData.id,
+        entity_type: 'funder_application',
+        source_type: form.referral_source,
+      });
+    }
     setSubmitted(true);
     toast.success('Interest form submitted');
   };
