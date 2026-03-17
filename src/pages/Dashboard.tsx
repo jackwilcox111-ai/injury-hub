@@ -208,15 +208,15 @@ export default function Dashboard() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <colgroup>
-              <col className="w-[120px]" />
-              <col className="w-[180px]" />
-              <col className="w-[160px]" />
-              <col className="w-[120px]" />
-              {isAdmin && <col className="w-[80px]" />}
-              <col className="w-[70px]" />
-              <col className="w-[120px]" />
-              <col />
               <col className="w-[110px]" />
+              <col className="w-[170px]" />
+              <col className="w-[160px]" />
+              <col className="w-[110px]" />
+              {isAdmin && <col className="w-[70px]" />}
+              <col className="w-[60px]" />
+              <col className="w-[110px]" />
+              <col className="w-[100px]" />
+              <col className="w-[100px]" />
             </colgroup>
             <thead>
               <tr className="border-b border-border bg-accent/50">
