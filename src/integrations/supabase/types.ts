@@ -1530,6 +1530,7 @@ export type Database = {
           locations: number | null
           name: string
           notes: string | null
+          phone: string | null
           rating: number | null
           specialty: string | null
           status: string
@@ -1544,6 +1545,7 @@ export type Database = {
           locations?: number | null
           name: string
           notes?: string | null
+          phone?: string | null
           rating?: number | null
           specialty?: string | null
           status?: string
@@ -1558,6 +1560,7 @@ export type Database = {
           locations?: number | null
           name?: string
           notes?: string | null
+          phone?: string | null
           rating?: number | null
           specialty?: string | null
           status?: string
