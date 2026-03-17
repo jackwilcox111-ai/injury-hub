@@ -14,14 +14,17 @@ import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { Video, Plus, Eye, Send, Sparkles } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const MESSAGE_TYPES = ['Welcome', 'Status Update', 'Appointment Reminder', 'Settlement Notification', 'General'];
 
 export default function AdminMessages() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
   const [showCompose, setShowCompose] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState<any>(null);
   const [recipientRole, setRecipientRole] = useState('patient');
   const [caseId, setCaseId] = useState('');
   const [messageType, setMessageType] = useState('Status Update');
@@ -140,7 +143,7 @@ export default function AdminMessages() {
           </tr></thead>
           <tbody className="divide-y divide-border">
             {filtered?.map(m => (
-              <tr key={m.id} className="hover:bg-accent/30 transition-colors">
+              <tr key={m.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => setSelectedMessage(m)}>
                 <td className="px-4 py-3">
                   <span className="text-xs">{(m as any).profiles?.full_name || '—'}</span>
                   <Badge variant="outline" className="ml-2 text-[10px]">{m.recipient_role}</Badge>
@@ -211,6 +214,58 @@ export default function AdminMessages() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Message Detail Dialog */}
+      <Dialog open={!!selectedMessage} onOpenChange={open => !open && setSelectedMessage(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {selectedMessage?.message_type}
+              <Badge variant={selectedMessage?.viewed ? 'default' : selectedMessage?.sent_at ? 'secondary' : 'outline'} className="text-[10px]">
+                {selectedMessage?.viewed ? 'Viewed' : selectedMessage?.sent_at ? 'Sent' : 'Pending'}
+              </Badge>
+            </DialogTitle>
+          </DialogHeader>
+          {selectedMessage && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="text-muted-foreground text-xs">Recipient</span>
+                  <p className="font-medium">{(selectedMessage as any).profiles?.full_name || '—'} <Badge variant="outline" className="text-[10px] ml-1">{selectedMessage.recipient_role}</Badge></p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground text-xs">Case</span>
+                  {(selectedMessage as any).cases?.case_number ? (
+                    <p className="font-mono text-primary text-xs cursor-pointer hover:underline" onClick={() => { setSelectedMessage(null); navigate(`/cases/${selectedMessage.case_id}`); }}>
+                      {(selectedMessage as any).cases.case_number} — {(selectedMessage as any).cases.patient_name}
+                    </p>
+                  ) : <p className="text-muted-foreground">—</p>}
+                </div>
+                <div>
+                  <span className="text-muted-foreground text-xs">Sent</span>
+                  <p className="text-xs">{selectedMessage.sent_at ? formatDistanceToNow(new Date(selectedMessage.sent_at), { addSuffix: true }) : 'Not sent'}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground text-xs">Viewed</span>
+                  <p className="text-xs">{selectedMessage.viewed_at ? formatDistanceToNow(new Date(selectedMessage.viewed_at), { addSuffix: true }) : 'Not viewed'}</p>
+                </div>
+                {selectedMessage.ai_generated_script && (
+                  <div className="col-span-2">
+                    <Badge variant="outline" className="text-[10px]"><Sparkles className="w-3 h-3 mr-1" /> AI Generated</Badge>
+                  </div>
+                )}
+              </div>
+              <div className="border-t border-border pt-3">
+                <span className="text-muted-foreground text-xs block mb-2">Message Script</span>
+                <div className="bg-muted/50 rounded-lg p-4 text-sm whitespace-pre-wrap leading-relaxed">
+                  {selectedMessage.script}
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-2">{selectedMessage.script.split(/\s+/).filter(Boolean).length} words · ~{Math.ceil(selectedMessage.script.split(/\s+/).filter(Boolean).length / 150)} min read</p>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
