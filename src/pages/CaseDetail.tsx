@@ -452,34 +452,78 @@ export default function CaseDetail() {
         </div>
       )}
 
-      {/* Activity Feed */}
-      <div className="bg-card border border-border rounded-xl shadow-card p-5">
-        <h3 className="text-sm font-semibold text-foreground mb-4">Activity</h3>
-        <div className="flex gap-2 mb-5">
-          <Input value={updateMsg} onChange={e => setUpdateMsg(e.target.value)} placeholder="Add a note or update..." className="h-10" 
-            onKeyDown={e => { if (e.key === 'Enter' && updateMsg) addUpdate.mutate(updateMsg); }} />
-          <Button size="sm" className="h-10 px-4" onClick={() => updateMsg && addUpdate.mutate(updateMsg)} disabled={!updateMsg || addUpdate.isPending}>
-            <Send className="w-4 h-4" />
-          </Button>
-        </div>
-        <div className="space-y-4 max-h-72 overflow-y-auto">
-          {updates?.map(u => (
-            <div key={u.id} className="flex gap-3">
-              <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-medium text-primary shrink-0 mt-0.5">
-                {((u as any).profiles?.full_name || 'S').charAt(0)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-foreground">{(u as any).profiles?.full_name || 'System'}</span>
-                  <span className="text-xs text-muted-foreground">{u.created_at ? formatDistanceToNow(new Date(u.created_at), { addSuffix: true }) : ''}</span>
+      {/* Tabbed Module Panels */}
+      <Tabs defaultValue="activity" className="bg-card border border-border rounded-xl shadow-card">
+        <TabsList className="w-full justify-start border-b border-border rounded-none bg-transparent px-2 pt-2">
+          <TabsTrigger value="activity" className="text-xs gap-1.5"><Send className="w-3.5 h-3.5" /> Activity</TabsTrigger>
+          <TabsTrigger value="insurance" className="text-xs gap-1.5"><ShieldCheck className="w-3.5 h-3.5" /> Insurance</TabsTrigger>
+          <TabsTrigger value="billing" className="text-xs gap-1.5"><DollarSign className="w-3.5 h-3.5" /> Billing</TabsTrigger>
+          <TabsTrigger value="records" className="text-xs gap-1.5"><FileText className="w-3.5 h-3.5" /> Records</TabsTrigger>
+          <TabsTrigger value="workplan" className="text-xs gap-1.5"><ListTodo className="w-3.5 h-3.5" /> Work Plan</TabsTrigger>
+          <TabsTrigger value="engagement" className="text-xs gap-1.5"><Heart className="w-3.5 h-3.5" /> Engagement</TabsTrigger>
+          {isAdmin && <TabsTrigger value="ai" className="text-xs gap-1.5"><Brain className="w-3.5 h-3.5" /> AI Tools</TabsTrigger>}
+          <TabsTrigger value="sol-alerts" className="text-xs gap-1.5"><Bell className="w-3.5 h-3.5" /> SoL Alerts</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="activity" className="p-5">
+          {/* Activity Feed */}
+          <h3 className="text-sm font-semibold text-foreground mb-4">Activity</h3>
+          <div className="flex gap-2 mb-5">
+            <Input value={updateMsg} onChange={e => setUpdateMsg(e.target.value)} placeholder="Add a note or update..." className="h-10"
+              onKeyDown={e => { if (e.key === 'Enter' && updateMsg) addUpdate.mutate(updateMsg); }} />
+            <Button size="sm" className="h-10 px-4" onClick={() => updateMsg && addUpdate.mutate(updateMsg)} disabled={!updateMsg || addUpdate.isPending}>
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="space-y-4 max-h-72 overflow-y-auto">
+            {updates?.map(u => (
+              <div key={u.id} className="flex gap-3">
+                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-medium text-primary shrink-0 mt-0.5">
+                  {((u as any).profiles?.full_name || 'S').charAt(0)}
                 </div>
-                <p className="text-sm text-muted-foreground mt-0.5">{u.message}</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-foreground">{(u as any).profiles?.full_name || 'System'}</span>
+                    <span className="text-xs text-muted-foreground">{u.created_at ? formatDistanceToNow(new Date(u.created_at), { addSuffix: true }) : ''}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-0.5">{u.message}</p>
+                </div>
               </div>
-            </div>
-          ))}
-          {(!updates || updates.length === 0) && <p className="text-sm text-muted-foreground text-center py-4">No activity yet</p>}
-        </div>
-      </div>
+            ))}
+            {(!updates || updates.length === 0) && <p className="text-sm text-muted-foreground text-center py-4">No activity yet</p>}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="insurance" className="p-5">
+          <InsuranceEligibilityTab caseId={id!} />
+        </TabsContent>
+
+        <TabsContent value="billing" className="p-5">
+          <BillingChargesTab caseId={id!} providers={allProviders || []} />
+        </TabsContent>
+
+        <TabsContent value="records" className="p-5">
+          <RecordsManagementTab caseId={id!} specialty={c.specialty} providers={allProviders || []} />
+        </TabsContent>
+
+        <TabsContent value="workplan" className="p-5">
+          <WorkPlanTab caseId={id!} caseStatus={c.status || ''} />
+        </TabsContent>
+
+        <TabsContent value="engagement" className="p-5">
+          <PatientEngagementTab caseId={id!} />
+        </TabsContent>
+
+        {isAdmin && (
+          <TabsContent value="ai" className="p-5">
+            <AIToolsTab caseId={id!} caseData={c} records={records || []} appointments={appointments || []} liens={liens || []} />
+          </TabsContent>
+        )}
+
+        <TabsContent value="sol-alerts" className="p-5">
+          <SoLAlertsTab caseId={id!} />
+        </TabsContent>
+      </Tabs>
 
       {/* Modals */}
       <Dialog open={showAddAppt} onOpenChange={setShowAddAppt}>
