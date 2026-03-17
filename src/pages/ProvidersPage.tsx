@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Plus, Check, X, Star, MapPin, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { Plus, Check, X, Star, MapPin, Clock, CheckCircle2, XCircle, Stethoscope, TrendingUp, Users } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 
 export default function ProvidersPage() {
@@ -45,7 +45,7 @@ export default function ProvidersPage() {
   const { data: caseCounts } = useQuery({
     queryKey: ['provider-case-counts'],
     queryFn: async () => {
-      const { data } = await supabase.from('cases').select('provider_id').neq('status', 'Settled');
+      const { data } = await supabase.from('cases').select('provider_id, status').neq('status', 'Settled');
       const counts: Record<string, number> = {};
       data?.forEach(c => { if (c.provider_id) counts[c.provider_id] = (counts[c.provider_id] || 0) + 1; });
       return counts;
@@ -77,7 +77,6 @@ export default function ProvidersPage() {
 
   const approveApp = useMutation({
     mutationFn: async (app: any) => {
-      // Create provider record
       const { data: provData, error: provErr } = await supabase.from('providers').insert({
         name: app.practice_name,
         specialty: app.specialty || null,
@@ -88,11 +87,9 @@ export default function ProvidersPage() {
       }).select('id').single();
       if (provErr) throw provErr;
 
-      // Update application status
       const { error: updErr } = await supabase.from('provider_applications').update({ status: 'Approved' }).eq('id', app.id);
       if (updErr) throw updErr;
 
-      // Invite provider user with login credentials
       const { error: inviteErr } = await supabase.functions.invoke('invite-user', {
         body: {
           email: app.email,
@@ -133,9 +130,14 @@ export default function ProvidersPage() {
   });
 
   const selectedProvider = providers?.find(p => p.id === showDetail);
+  const activeProviders = providers?.filter(p => p.status === 'Active') || [];
+  const totalActiveCases = Object.values(caseCounts || {}).reduce((s, c) => s + c, 0);
+  const avgRating = activeProviders.length > 0
+    ? activeProviders.filter(p => p.rating).reduce((s, p) => s + (p.rating || 0), 0) / activeProviders.filter(p => p.rating).length
+    : 0;
 
   if (isLoading) {
-    return <div className="space-y-6"><h2 className="font-display text-2xl">Providers</h2><div className="grid grid-cols-2 gap-4">{[1,2,3,4].map(i => <Skeleton key={i} className="h-44 rounded-xl" />)}</div></div>;
+    return <div className="space-y-6"><h2 className="font-display text-2xl">Providers</h2><Skeleton className="h-96 rounded-xl" /></div>;
   }
 
   return (
@@ -146,6 +148,23 @@ export default function ProvidersPage() {
           <p className="text-sm text-muted-foreground mt-0.5">{providers?.length || 0} providers</p>
         </div>
         {isAdmin && <Button onClick={() => setShowAdd(true)}><Plus className="w-4 h-4 mr-1.5" /> Add Provider</Button>}
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-3 gap-5">
+        {[
+          { label: 'Active Providers', value: activeProviders.length, icon: Users, color: 'text-primary bg-primary/10' },
+          { label: 'Total Active Cases', value: totalActiveCases, icon: Stethoscope, color: 'text-emerald-600 bg-emerald-50' },
+          { label: 'Avg Provider Rating', value: avgRating > 0 ? avgRating.toFixed(1) : '—', icon: TrendingUp, color: 'text-amber-600 bg-amber-50' },
+        ].map(card => (
+          <div key={card.label} className="bg-card border border-border rounded-xl p-5 shadow-card">
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${card.color}`}>
+              <card.icon className="w-[18px] h-[18px]" />
+            </div>
+            <p className="text-2xl font-semibold text-foreground tabular-nums">{card.value}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{card.label}</p>
+          </div>
+        ))}
       </div>
 
       {isAdmin ? (
@@ -163,7 +182,7 @@ export default function ProvidersPage() {
           </TabsList>
 
           <TabsContent value="providers" className="mt-4">
-            <ProviderGrid providers={providers} caseCounts={caseCounts} onSelect={setShowDetail} />
+            <ProviderTable providers={providers} caseCounts={caseCounts} onSelect={setShowDetail} />
           </TabsContent>
 
           <TabsContent value="applications" className="mt-4">
@@ -221,9 +240,10 @@ export default function ProvidersPage() {
           </TabsContent>
         </Tabs>
       ) : (
-        <ProviderGrid providers={providers} caseCounts={caseCounts} onSelect={setShowDetail} />
+        <ProviderTable providers={providers} caseCounts={caseCounts} onSelect={setShowDetail} />
       )}
 
+      {/* Detail Dialog */}
       <Dialog open={!!showDetail} onOpenChange={open => !open && setShowDetail(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>{selectedProvider?.name}</DialogTitle></DialogHeader>
@@ -259,6 +279,7 @@ export default function ProvidersPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Add Dialog */}
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
         <DialogContent>
           <DialogHeader><DialogTitle>Add Provider</DialogTitle></DialogHeader>
@@ -276,38 +297,63 @@ export default function ProvidersPage() {
   );
 }
 
-function ProviderGrid({ providers, caseCounts, onSelect }: { providers: any[] | undefined; caseCounts: Record<string, number> | undefined; onSelect: (id: string) => void }) {
+function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] | undefined; caseCounts: Record<string, number> | undefined; onSelect: (id: string) => void }) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      {providers?.map(p => {
-        const daysToExpiry = p.credentialing_expiry ? differenceInDays(new Date(p.credentialing_expiry), new Date()) : null;
-        return (
-          <button key={p.id} onClick={() => onSelect(p.id)} className="bg-card border border-border rounded-xl p-5 text-left shadow-card hover:shadow-card-hover hover:border-primary/30 transition-all group">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{p.name}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{p.specialty || '—'}</p>
-              </div>
-              <StatusBadge status={p.status} />
-            </div>
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {p.locations} location{(p.locations || 1) > 1 ? 's' : ''}</span>
-              <span className="flex items-center gap-1"><Star className="w-3 h-3 text-amber-500" /> {p.rating || '—'}</span>
-              <span className="font-medium text-primary">{caseCounts?.[p.id] || 0} active cases</span>
-            </div>
-            <div className="flex items-center gap-4 mt-3 text-xs">
-              <span className={`flex items-center gap-1 ${p.hipaa_baa_on_file ? 'text-emerald-600' : 'text-red-500'}`}>
-                {p.hipaa_baa_on_file ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />} HIPAA BAA
-              </span>
-              {daysToExpiry != null && (
-                <span className={daysToExpiry < 0 ? 'text-red-500 font-medium' : daysToExpiry < 90 ? 'text-amber-600 font-medium' : 'text-muted-foreground'}>
-                  {daysToExpiry < 0 ? 'Credentials Expired' : daysToExpiry < 90 ? 'Expiring Soon' : `Exp. ${format(new Date(p.credentialing_expiry!), 'MMM yyyy')}`}
-                </span>
-              )}
-            </div>
-          </button>
-        );
-      })}
+    <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
+      <table className="w-full text-sm">
+        <thead><tr className="border-b border-border bg-accent/50">
+          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Provider</th>
+          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Specialty</th>
+          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Locations</th>
+          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Rating</th>
+          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Active Cases</th>
+          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">HIPAA BAA</th>
+          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Credentials</th>
+          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
+        </tr></thead>
+        <tbody className="divide-y divide-border">
+          {providers?.map(p => {
+            const daysToExpiry = p.credentialing_expiry ? differenceInDays(new Date(p.credentialing_expiry), new Date()) : null;
+            const activeCases = caseCounts?.[p.id] || 0;
+            return (
+              <tr key={p.id} className="hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => onSelect(p.id)}>
+                <td className="px-5 py-3.5 font-medium text-foreground">{p.name}</td>
+                <td className="px-5 py-3.5 text-muted-foreground text-xs">{p.specialty || '—'}</td>
+                <td className="px-5 py-3.5">
+                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <MapPin className="w-3 h-3" /> {p.locations || 1}
+                  </span>
+                </td>
+                <td className="px-5 py-3.5">
+                  <span className="flex items-center gap-1 text-xs">
+                    <Star className="w-3 h-3 text-amber-500" />
+                    <span className="font-mono tabular-nums">{p.rating || '—'}</span>
+                  </span>
+                </td>
+                <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-primary">{activeCases}</td>
+                <td className="px-5 py-3.5">
+                  <span className={`flex items-center gap-1 text-xs ${p.hipaa_baa_on_file ? 'text-emerald-600' : 'text-red-500'}`}>
+                    {p.hipaa_baa_on_file ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                    {p.hipaa_baa_on_file ? 'On File' : 'Missing'}
+                  </span>
+                </td>
+                <td className="px-5 py-3.5 text-xs">
+                  {daysToExpiry == null ? (
+                    <span className="text-muted-foreground">—</span>
+                  ) : daysToExpiry < 0 ? (
+                    <span className="text-red-500 font-medium">Expired</span>
+                  ) : daysToExpiry < 90 ? (
+                    <span className="text-amber-600 font-medium">Expiring Soon</span>
+                  ) : (
+                    <span className="text-muted-foreground">{format(new Date(p.credentialing_expiry!), 'MMM yyyy')}</span>
+                  )}
+                </td>
+                <td className="px-5 py-3.5"><StatusBadge status={p.status} /></td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
