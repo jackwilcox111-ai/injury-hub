@@ -31,6 +31,7 @@ import AdminDemandLetters from "./pages/AdminDemandLetters";
 import AdminMessages from "./pages/AdminMessages";
 import AdminRCM from "./pages/AdminRCM";
 import AdminFunding from "./pages/AdminFunding";
+import FunderDashboard from "./pages/FunderDashboard";
 import ProviderRCM from "./pages/ProviderRCM";
 import PatientTimeline from "./pages/PatientTimeline";
 import PatientMessages from "./pages/PatientMessages";
@@ -64,10 +65,6 @@ function AuthRedirect() {
   return <Navigate to="/dashboard" replace />;
 }
 
-// Placeholder for funder portal
-function FunderDashboardPlaceholder() {
-  return <div className="p-8"><h1 className="text-2xl font-display font-bold">Funder Portal</h1><p className="text-muted-foreground mt-2">Coming in Phase 2 — your portfolio dashboard will appear here.</p></div>;
-}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -114,7 +111,7 @@ const App = () => (
             <Route path="/patient/messages" element={<RequireAuth roles={['patient']}><AppLayout><PatientMessages /></AppLayout></RequireAuth>} />
 
             {/* Funder portal placeholder */}
-            <Route path="/funder/dashboard" element={<RequireAuth roles={['funder']}><AppLayout><FunderDashboardPlaceholder /></AppLayout></RequireAuth>} />
+            <Route path="/funder/dashboard" element={<RequireAuth roles={['funder']}><AppLayout><FunderDashboard /></AppLayout></RequireAuth>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
