@@ -87,9 +87,6 @@ export function AppSidebar() {
             >
               <item.icon className={`w-[18px] h-[18px] shrink-0 ${isActive ? 'text-primary' : ''}`} />
               <span>{item.title}</span>
-              {item.title === 'Calendar' && (
-                <span className="ml-auto text-[9px] bg-warning/15 text-warning px-1.5 py-0.5 rounded-full font-medium">Soon</span>
-              )}
             </button>
           );
         })}
