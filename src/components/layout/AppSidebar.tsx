@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FolderOpen, Stethoscope, Scale,
   DollarSign, CalendarDays, Settings, LogOut, ShieldCheck,
-  BarChart3, Link2, CheckSquare
+  BarChart3, Link2, CheckSquare, FileSignature, Video, Landmark, Banknote,
+  CreditCard, GitBranch, MessageCircle, Heart
 } from 'lucide-react';
 
 const navItems = [
@@ -12,11 +13,21 @@ const navItems = [
   { title: 'Providers', path: '/providers', icon: Stethoscope, roles: ['admin', 'care_manager'] as UserRole[] },
   { title: 'Attorneys', path: '/attorneys', icon: Scale, roles: ['admin'] as UserRole[] },
   { title: 'Liens & Settlements', path: '/liens', icon: DollarSign, roles: ['admin'] as UserRole[] },
+  { title: 'Demand Letters', path: '/demand-letters', icon: FileSignature, roles: ['admin', 'care_manager'] as UserRole[] },
+  { title: 'Messages', path: '/messages', icon: Video, roles: ['admin', 'care_manager'] as UserRole[] },
+  { title: 'RCM', path: '/rcm', icon: Landmark, roles: ['admin'] as UserRole[] },
+  { title: 'Funding', path: '/funding', icon: Banknote, roles: ['admin'] as UserRole[] },
   { title: 'Reports', path: '/reports', icon: BarChart3, roles: ['admin'] as UserRole[] },
   { title: 'Referrals', path: '/referrals', icon: Link2, roles: ['admin'] as UserRole[] },
   { title: 'Tasks', path: '/tasks', icon: CheckSquare, roles: ['admin', 'care_manager'] as UserRole[] },
   { title: 'Calendar', path: '/calendar', icon: CalendarDays, roles: ['admin', 'care_manager', 'attorney', 'provider'] as UserRole[] },
   { title: 'Settings', path: '/settings', icon: Settings, roles: ['admin'] as UserRole[] },
+  // Provider sidebar
+  { title: 'RCM Billing', path: '/provider/rcm', icon: CreditCard, roles: ['provider'] as UserRole[] },
+  // Patient sidebar
+  { title: 'My Dashboard', path: '/patient/dashboard', icon: Heart, roles: ['patient'] as UserRole[] },
+  { title: 'Timeline', path: '/patient/timeline', icon: GitBranch, roles: ['patient'] as UserRole[] },
+  { title: 'Messages', path: '/patient/messages', icon: MessageCircle, roles: ['patient'] as UserRole[] },
 ];
 
 const roleBadgeStyles: Record<string, string> = {
