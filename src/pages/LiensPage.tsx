@@ -43,7 +43,13 @@ export default function LiensPage() {
     },
   });
 
-  const filtered = statusFilter === 'All' ? liens : liens?.filter(l => l.status === statusFilter);
+  const statusFiltered = statusFilter === 'All' ? liens : liens?.filter(l => l.status === statusFilter);
+  const filtered = statusFiltered?.filter(l => {
+    if (!search) return true;
+    const s = search.toLowerCase();
+    return (l as any).cases?.case_number?.toLowerCase().includes(s) || (l as any).cases?.patient_name?.toLowerCase().includes(s) || (l as any).providers?.name?.toLowerCase().includes(s);
+  });
+  const { sortedData: sortedLiens, sortConfig: lienSortConfig, requestSort: lienRequestSort } = useSortableTable(filtered);
   const activeLiens = liens?.filter(l => l.status === 'Active' || l.status === 'Reduced') || [];
   const totalExposure = activeLiens.reduce((sum, l) => sum + (l.amount - l.reduction_amount), 0);
   const settledCases = new Set((liens || []).filter(l => (l as any).cases?.status === 'Settled').map(l => (l as any).cases?.id));
