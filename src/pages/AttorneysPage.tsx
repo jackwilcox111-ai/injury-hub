@@ -345,6 +345,25 @@ export default function AttorneysPage() {
               <div className="space-y-2"><Label className="text-sm font-medium">Contact</Label><Input value={form.contact_name} onChange={e => setForm(p => ({...p, contact_name: e.target.value}))} className="h-10" /></div>
               <div className="space-y-2"><Label className="text-sm font-medium">Email</Label><Input value={form.email} onChange={e => setForm(p => ({...p, email: e.target.value}))} className="h-10" /></div>
             </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Languages Spoken</Label>
+              <div className="flex flex-wrap gap-2">
+                {LANGUAGES.map(lang => {
+                  const checked = form.languages_spoken.includes(lang);
+                  return (
+                    <label key={lang} className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border cursor-pointer transition-colors ${checked ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/50 border-border text-muted-foreground'}`}>
+                      <Checkbox checked={checked} onCheckedChange={() => {
+                        setForm(p => ({
+                          ...p,
+                          languages_spoken: checked ? p.languages_spoken.filter(l => l !== lang) : [...p.languages_spoken, lang],
+                        }));
+                      }} className="w-3 h-3" />
+                      {lang}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
             <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button><Button type="submit" disabled={addAttorney.isPending}>Add Attorney</Button></div>
           </form>
         </DialogContent>
