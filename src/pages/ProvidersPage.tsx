@@ -259,18 +259,46 @@ export default function ProvidersPage() {
                 <div><span className="text-muted-foreground">Rating:</span> <span className="font-medium">{selectedProvider.rating}</span></div>
                 <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={selectedProvider.status} /></div>
               </div>
-              <div className="flex items-center justify-between py-2 border-t border-border">
-                <div className="flex items-center gap-2">
-                  <Languages className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">Interpreter Available</span>
+              <div className="border-t border-border pt-3 space-y-3">
+                <div>
+                  <p className="text-sm font-medium mb-2">Languages Spoken</p>
+                  {isAdmin ? (
+                    <div className="flex flex-wrap gap-2">
+                      {LANGUAGES.map(lang => {
+                        const checked = (selectedProvider.languages_spoken || ['English']).includes(lang);
+                        return (
+                          <label key={lang} className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border cursor-pointer transition-colors ${checked ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/50 border-border text-muted-foreground'}`}>
+                            <Checkbox checked={checked} onCheckedChange={() => {
+                              const current: string[] = selectedProvider.languages_spoken || ['English'];
+                              const updated = checked ? current.filter(l => l !== lang) : [...current, lang];
+                              if (updated.length > 0) updateProvider.mutate({ languages_spoken: updated });
+                            }} className="w-3 h-3" />
+                            {lang}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-1.5">
+                      {(selectedProvider.languages_spoken || ['English']).map((lang: string) => (
+                        <span key={lang} className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground">{lang}</span>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                {isAdmin ? (
-                  <Switch checked={selectedProvider.interpreter_available || false} onCheckedChange={v => updateProvider.mutate({ interpreter_available: v })} />
-                ) : (
-                  <span className={`text-xs font-medium ${selectedProvider.interpreter_available ? 'text-blue-600' : 'text-muted-foreground'}`}>
-                    {selectedProvider.interpreter_available ? 'Yes' : 'No'}
-                  </span>
-                )}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Languages className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm">Interpreter Available</span>
+                  </div>
+                  {isAdmin ? (
+                    <Switch checked={selectedProvider.interpreter_available || false} onCheckedChange={v => updateProvider.mutate({ interpreter_available: v })} />
+                  ) : (
+                    <span className={`text-xs font-medium ${selectedProvider.interpreter_available ? 'text-blue-600' : 'text-muted-foreground'}`}>
+                      {selectedProvider.interpreter_available ? 'Yes' : 'No'}
+                    </span>
+                  )}
+                </div>
               </div>
               {linkedCases && linkedCases.length > 0 && (
                 <div>
