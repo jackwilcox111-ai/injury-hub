@@ -232,6 +232,33 @@ export default function AdminFunding() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Status Dialog */}
+      <Dialog open={!!editId} onOpenChange={open => !open && setEditId(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Update Funding Request</DialogTitle></DialogHeader>
+          <form onSubmit={e => { e.preventDefault(); updateRequest.mutate(); }} className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-xs">Status</Label>
+              <Select value={editStatus} onValueChange={setEditStatus}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {['Requested', 'Under Review', 'Funded', 'Repaid', 'Declined'].map(s => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2"><Label className="text-xs">Approved Amount</Label><Input type="number" step="0.01" value={editApproved} onChange={e => setEditApproved(e.target.value)} /></div>
+            <div className="space-y-2"><Label className="text-xs">Repayment Amount</Label><Input type="number" step="0.01" value={editRepayment} onChange={e => setEditRepayment(e.target.value)} /></div>
+            <div className="space-y-2"><Label className="text-xs">Payoff Amount</Label><Input type="number" step="0.01" value={editPayoff} onChange={e => setEditPayoff(e.target.value)} /></div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setEditId(null)}>Cancel</Button>
+              <Button type="submit" disabled={updateRequest.isPending}>Save</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
