@@ -530,6 +530,24 @@ export default function CaseDetail() {
         <TabsContent value="sol-alerts" className="p-5">
           <SoLAlertsTab caseId={id!} />
         </TabsContent>
+
+        <TabsContent value="policy" className="p-5">
+          <PolicyDetailsTab caseId={id!} />
+        </TabsContent>
+
+        <TabsContent value="timeline" className="p-5">
+          <TimelineTab caseId={id!} isAdmin={isAdmin} />
+        </TabsContent>
+
+        {isAdmin && (
+          <TabsContent value="colossus" className="p-5">
+            <ColossusTab caseId={id!} />
+          </TabsContent>
+        )}
+
+        <TabsContent value="demand" className="p-5">
+          <DemandLettersTab caseId={id!} />
+        </TabsContent>
       </Tabs>
 
       {/* Modals */}
