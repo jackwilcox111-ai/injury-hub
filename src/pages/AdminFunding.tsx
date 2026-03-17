@@ -5,14 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { StatusBadge } from '@/components/global/StatusBadge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Banknote, Plus, Pencil } from 'lucide-react';
+import { Banknote, Plus, Pencil, CheckCircle2, XCircle, Check, X } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 
 const typeColors: Record<string, string> = {
   'Pre-Settlement': 'bg-indigo-100 text-indigo-700',
@@ -30,6 +32,7 @@ export default function AdminFunding() {
   const [editApproved, setEditApproved] = useState('');
   const [editRepayment, setEditRepayment] = useState('');
   const [editPayoff, setEditPayoff] = useState('');
+  const [activeTab, setActiveTab] = useState('requests');
   const [form, setForm] = useState({
     case_id: '', plaintiff_name: '', funding_type: 'Pre-Settlement', funding_company: '',
     requested_amount: '', approved_amount: '', interest_rate: '', advance_date: '',
@@ -46,6 +49,16 @@ export default function AdminFunding() {
       return data || [];
     },
   });
+
+  const { data: funderApps } = useQuery({
+    queryKey: ['funder-applications'],
+    queryFn: async () => {
+      const { data } = await supabase.from('funder_applications').select('*').order('created_at', { ascending: false });
+      return data || [];
+    },
+  });
+
+  const pendingFunderCount = funderApps?.filter((a: any) => a.status === 'Pending').length || 0;
 
   const { data: cases } = useQuery({
     queryKey: ['cases-for-funding'],
@@ -103,6 +116,53 @@ export default function AdminFunding() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const approveFunder = useMutation({
+    mutationFn: async (app: any) => {
+      // Create funder_profiles record
+      const { error: fpErr } = await supabase.from('funder_profiles').insert({
+        company_name: app.company_name,
+        contact_name: app.contact_name,
+        email: app.email,
+        phone: app.phone || null,
+        funding_capacity_min: app.funding_capacity_min,
+        funding_capacity_max: app.funding_capacity_max,
+        accredited_investor: app.accredited_investor || false,
+      });
+      if (fpErr) throw fpErr;
+
+      // Update application status
+      const { error: updErr } = await supabase.from('funder_applications').update({ status: 'Approved' }).eq('id', app.id);
+      if (updErr) throw updErr;
+
+      // Invite funder user
+      const { error: inviteErr } = await supabase.functions.invoke('invite-user', {
+        body: {
+          email: app.email,
+          full_name: app.contact_name,
+          role: 'funder',
+        },
+      });
+      if (inviteErr) throw inviteErr;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['funder-applications'] });
+      toast.success('Funder approved — login invitation sent');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const rejectFunder = useMutation({
+    mutationFn: async (appId: string) => {
+      const { error } = await supabase.from('funder_applications').update({ status: 'Rejected' }).eq('id', appId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['funder-applications'] });
+      toast.success('Application rejected');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   if (isLoading) return <div className="space-y-6"><h2 className="font-display text-2xl">Funding</h2><Skeleton className="h-96 rounded-xl" /></div>;
 
   const active = requests?.filter(r => ['Requested', 'Under Review'].includes(r.status)).length || 0;
@@ -136,57 +196,118 @@ export default function AdminFunding() {
         ))}
       </div>
 
-      <Tabs value={filter} onValueChange={setFilter}>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          {['All', 'Requested', 'Under Review', 'Funded', 'Repaid', 'Declined'].map(s => <TabsTrigger key={s} value={s} className="text-xs">{s}</TabsTrigger>)}
-        </TabsList>
-      </Tabs>
-
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead><tr className="border-b border-border bg-accent/50">
-            <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Case</th>
-            <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Type</th>
-            <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Requested</th>
-            <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Approved</th>
-            <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Funder</th>
-             <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
-             <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Agreement</th>
-             <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Repayment</th>
-             <th className="text-center px-4 py-3 text-xs font-medium text-muted-foreground">Edit</th>
-          </tr></thead>
-          <tbody className="divide-y divide-border">
-            {filtered?.map(r => (
-              <tr key={r.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => navigate(`/cases/${r.case_id}`)}>
-                <td className="px-4 py-3">
-                  <span className="font-mono text-xs text-primary">{(r as any).cases?.case_number}</span>
-                  <span className="text-xs text-muted-foreground ml-2">{r.plaintiff_name || (r as any).cases?.patient_name}</span>
-                </td>
-                <td className="px-4 py-3"><Badge variant="outline" className={`text-[10px] ${typeColors[r.funding_type || ''] || ''}`}>{r.funding_type}</Badge></td>
-                <td className="px-4 py-3 text-right font-mono text-xs tabular-nums">${r.requested_amount.toLocaleString()}</td>
-                <td className="px-4 py-3 text-right font-mono text-xs tabular-nums">{r.approved_amount != null ? `$${r.approved_amount.toLocaleString()}` : '—'}</td>
-                <td className="px-4 py-3 text-xs">{r.funding_company || '—'}</td>
-                <td className="px-4 py-3"><Badge variant="outline" className="text-[10px]">{r.status}</Badge></td>
-                <td className="px-4 py-3 text-xs">{r.funding_agreement_signed ? <span className="text-emerald-600">✓ Signed</span> : <span className="text-muted-foreground">Pending</span>}</td>
-                 <td className="px-4 py-3 text-right font-mono text-xs tabular-nums">{r.repayment_amount != null ? `$${r.repayment_amount.toLocaleString()}` : '—'}</td>
-                 <td className="px-4 py-3 text-center">
-                   <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={e => {
-                     e.stopPropagation();
-                     setEditId(r.id);
-                     setEditStatus(r.status);
-                     setEditApproved(r.approved_amount?.toString() || '');
-                     setEditRepayment(r.repayment_amount?.toString() || '');
-                     setEditPayoff(r.payoff_amount?.toString() || '');
-                   }}><Pencil className="w-3.5 h-3.5" /></Button>
-                 </td>
-               </tr>
-             ))}
-             {(!filtered || filtered.length === 0) && (
-               <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">No funding requests</td></tr>
+          <TabsTrigger value="requests">Funding Requests</TabsTrigger>
+          <TabsTrigger value="lender-apps" className="relative">
+            Lender Applications
+            {pendingFunderCount > 0 && (
+              <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold rounded-full bg-destructive text-destructive-foreground">
+                {pendingFunderCount}
+              </span>
             )}
-          </tbody>
-        </table>
-      </div>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="requests" className="mt-4 space-y-4">
+          <Tabs value={filter} onValueChange={setFilter}>
+            <TabsList>
+              {['All', 'Requested', 'Under Review', 'Funded', 'Repaid', 'Declined'].map(s => <TabsTrigger key={s} value={s} className="text-xs">{s}</TabsTrigger>)}
+            </TabsList>
+          </Tabs>
+
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead><tr className="border-b border-border bg-accent/50">
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Case</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Type</th>
+                <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Requested</th>
+                <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Approved</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Funder</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Agreement</th>
+                <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Repayment</th>
+                <th className="text-center px-4 py-3 text-xs font-medium text-muted-foreground">Edit</th>
+              </tr></thead>
+              <tbody className="divide-y divide-border">
+                {filtered?.map(r => (
+                  <tr key={r.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => navigate(`/cases/${r.case_id}`)}>
+                    <td className="px-4 py-3">
+                      <span className="font-mono text-xs text-primary">{(r as any).cases?.case_number}</span>
+                      <span className="text-xs text-muted-foreground ml-2">{r.plaintiff_name || (r as any).cases?.patient_name}</span>
+                    </td>
+                    <td className="px-4 py-3"><Badge variant="outline" className={`text-[10px] ${typeColors[r.funding_type || ''] || ''}`}>{r.funding_type}</Badge></td>
+                    <td className="px-4 py-3 text-right font-mono text-xs tabular-nums">${r.requested_amount.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-right font-mono text-xs tabular-nums">{r.approved_amount != null ? `$${r.approved_amount.toLocaleString()}` : '—'}</td>
+                    <td className="px-4 py-3 text-xs">{r.funding_company || '—'}</td>
+                    <td className="px-4 py-3"><Badge variant="outline" className="text-[10px]">{r.status}</Badge></td>
+                    <td className="px-4 py-3 text-xs">{r.funding_agreement_signed ? <span className="text-emerald-600">✓ Signed</span> : <span className="text-muted-foreground">Pending</span>}</td>
+                    <td className="px-4 py-3 text-right font-mono text-xs tabular-nums">{r.repayment_amount != null ? `$${r.repayment_amount.toLocaleString()}` : '—'}</td>
+                    <td className="px-4 py-3 text-center">
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={e => {
+                        e.stopPropagation();
+                        setEditId(r.id);
+                        setEditStatus(r.status);
+                        setEditApproved(r.approved_amount?.toString() || '');
+                        setEditRepayment(r.repayment_amount?.toString() || '');
+                        setEditPayoff(r.payoff_amount?.toString() || '');
+                      }}><Pencil className="w-3.5 h-3.5" /></Button>
+                    </td>
+                  </tr>
+                ))}
+                {(!filtered || filtered.length === 0) && (
+                  <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">No funding requests</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="lender-apps" className="mt-4">
+          {!funderApps || funderApps.length === 0 ? (
+            <div className="bg-card border border-border rounded-xl p-8 text-center">
+              <p className="text-sm text-muted-foreground">No lender applications yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {funderApps.map((app: any) => (
+                <div key={app.id} className="bg-card border border-border rounded-xl p-5 shadow-card">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-foreground">{app.company_name}</p>
+                        <StatusBadge status={app.status} />
+                      </div>
+                      <p className="text-xs text-muted-foreground">{app.contact_name}</p>
+                      <p className="text-xs text-muted-foreground">{app.email}{app.phone ? ` · ${app.phone}` : ''}</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{format(new Date(app.created_at), 'MMM d, yyyy')}</p>
+                  </div>
+                  <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                    {app.funding_capacity_min != null && app.funding_capacity_max != null && (
+                      <span>Capacity: ${Number(app.funding_capacity_min).toLocaleString()} – ${Number(app.funding_capacity_max).toLocaleString()}</span>
+                    )}
+                    <span className={`flex items-center gap-1 ${app.accredited_investor ? 'text-emerald-600' : 'text-muted-foreground'}`}>
+                      {app.accredited_investor ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />} Accredited
+                    </span>
+                  </div>
+                  {app.experience_notes && <p className="text-xs text-muted-foreground mt-2 italic">"{app.experience_notes}"</p>}
+                  {app.status === 'Pending' && (
+                    <div className="flex gap-2 mt-4">
+                      <Button size="sm" onClick={() => approveFunder.mutate(app)} disabled={approveFunder.isPending}>
+                        <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Approve
+                      </Button>
+                      <Button size="sm" variant="outline" className="text-destructive hover:text-destructive" onClick={() => { if (confirm('Reject this application?')) rejectFunder.mutate(app.id); }} disabled={rejectFunder.isPending}>
+                        <XCircle className="w-3.5 h-3.5 mr-1" /> Reject
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
 
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
         <DialogContent className="max-w-lg">
