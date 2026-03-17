@@ -265,31 +265,35 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
       ) : (
         <div className="border border-border rounded-xl overflow-hidden">
           <table className="w-full text-sm">
-            <thead><tr className="border-b border-border bg-accent/50">
+           <thead><tr className="border-b border-border bg-accent/50">
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Type</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Document</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Received</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Delivered to Atty</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">HIPAA</th>
-              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Status</th>
             </tr></thead>
             <tbody className="divide-y divide-border">
               {records.map((r: any) => {
-                const status = r.delivered_to_attorney_date ? 'Delivered' : r.received_date ? 'Received' : 'Requested';
+                const doc = r.documents;
                 return (
                   <tr key={r.id} className="hover:bg-accent/30 transition-colors">
                     <td className="px-4 py-2.5 text-xs font-medium">{r.record_type || '—'}</td>
                     <td className="px-4 py-2.5 text-xs">{r.providers?.name || '—'}</td>
+                    <td className="px-4 py-2.5 text-xs">
+                      {doc ? (
+                        <button onClick={() => downloadDoc(doc.storage_path, doc.file_name)}
+                          className="flex items-center gap-1 text-primary hover:underline">
+                          <FileText className="w-3 h-3" />
+                          <span className="truncate max-w-[140px]">{doc.file_name}</span>
+                        </button>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </td>
                     <td className="px-4 py-2.5 font-mono text-xs">{r.received_date || <span className="text-amber-500"><Clock className="w-3 h-3 inline" /> Pending</span>}</td>
                     <td className="px-4 py-2.5 font-mono text-xs">{r.delivered_to_attorney_date || '—'}</td>
-                    <td className="px-4 py-2.5 text-xs">{r.hipaa_auth_on_file ? <span className="text-emerald-600">✓</span> : <span className="text-red-500">✗</span>}</td>
-                    <td className="px-4 py-2.5">
-                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                        status === 'Delivered' ? 'bg-blue-50 text-blue-700' :
-                        status === 'Received' ? 'bg-emerald-50 text-emerald-700' :
-                        'bg-amber-50 text-amber-700'
-                      }`}>{status}</span>
-                    </td>
+                    <td className="px-4 py-2.5 text-xs">{r.hipaa_auth_on_file ? <span className="text-emerald-600">✓</span> : <span className="text-destructive">✗ Missing</span>}</td>
                   </tr>
                 );
               })}
