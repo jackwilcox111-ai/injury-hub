@@ -16,6 +16,7 @@ export default function ProviderJoin() {
   const [form, setForm] = useState({
     practice_name: '', contact_name: '', specialty: '', email: '', phone: '',
     locations: 1, state: '', license_number: '', lien_experience: false, hipaa_baa_agreed: false,
+    referral_source: '',
   });
 
   const set = (k: string, v: any) => setForm(prev => ({ ...prev, [k]: v }));
@@ -24,15 +25,24 @@ export default function ProviderJoin() {
     e.preventDefault();
     if (!form.hipaa_baa_agreed) { toast.error('You must agree to the HIPAA BAA'); return; }
     setLoading(true);
-    const { error } = await supabase.from('provider_applications').insert({
+    const { data: appData, error } = await supabase.from('provider_applications').insert({
       practice_name: form.practice_name, contact_name: form.contact_name,
       specialty: form.specialty, email: form.email, phone: form.phone,
       locations: form.locations, state: form.state,
       license_number: form.license_number || null,
       lien_experience: form.lien_experience, hipaa_baa_agreed: form.hipaa_baa_agreed,
-    });
+    }).select('id').single();
     if (error) toast.error(error.message);
-    else { setSubmitted(true); toast.success('Application submitted'); }
+    else {
+      if (form.referral_source && appData?.id) {
+        await supabase.from('referral_sources').insert({
+          entity_id: appData.id,
+          entity_type: 'provider_application',
+          source_type: form.referral_source,
+        });
+      }
+      setSubmitted(true); toast.success('Application submitted');
+    }
     setLoading(false);
   };
 
@@ -83,6 +93,16 @@ export default function ProviderJoin() {
               </div>
               <div className="space-y-2"><Label>License Number</Label><Input value={form.license_number} onChange={e => set('license_number', e.target.value)} /></div>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>How did you hear about CareLink?</Label>
+            <Select value={form.referral_source} onValueChange={v => set('referral_source', v)}>
+              <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectContent>
+                {['Attorney Referral', 'Google', 'Conference', 'Social Media', 'Colleague', 'Other'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="bg-card border border-border rounded-xl p-6 space-y-4">

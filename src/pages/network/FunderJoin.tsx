@@ -15,6 +15,7 @@ export default function FunderJoin() {
   const [form, setForm] = useState({
     company_name: '', contact_name: '', email: '', phone: '',
     funding_min: '', funding_max: '', accredited: '', experience: '',
+    referral_source: '',
   });
 
   const set = (k: string, v: any) => setForm(prev => ({ ...prev, [k]: v }));
@@ -23,7 +24,7 @@ export default function FunderJoin() {
     e.preventDefault();
     if (!form.accredited) { toast.error('Please indicate accredited investor status'); return; }
     setLoading(true);
-    const { error } = await supabase.from('funder_applications').insert({
+    const { data: appData, error } = await supabase.from('funder_applications').insert({
       company_name: form.company_name,
       contact_name: form.contact_name,
       email: form.email,
@@ -32,9 +33,16 @@ export default function FunderJoin() {
       funding_capacity_max: form.funding_max ? parseFloat(form.funding_max) : null,
       accredited_investor: form.accredited === 'yes',
       experience_notes: form.experience || null,
-    });
+    }).select('id').single();
     setLoading(false);
     if (error) { toast.error('Submission failed. Please try again.'); return; }
+    if (form.referral_source && appData?.id) {
+      await supabase.from('referral_sources').insert({
+        entity_id: appData.id,
+        entity_type: 'funder_application',
+        source_type: form.referral_source,
+      });
+    }
     setSubmitted(true);
     toast.success('Interest form submitted');
   };
@@ -80,6 +88,15 @@ export default function FunderJoin() {
             </Select>
           </div>
           <div className="space-y-2"><Label>Experience / Notes</Label><Textarea value={form.experience} onChange={e => set('experience', e.target.value)} rows={3} placeholder="Tell us about your lending experience..." /></div>
+          <div className="space-y-2">
+            <Label>How did you hear about CareLink?</Label>
+            <Select value={form.referral_source} onValueChange={v => set('referral_source', v)}>
+              <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectContent>
+                {['Attorney Referral', 'Google', 'Conference', 'Social Media', 'Colleague', 'Other'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
           <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Submitting...' : 'Submit Interest Form'}</Button>
         </form>
       </div>
