@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
     const {
       full_name, date_of_birth, phone, email, password, accident_date, accident_state,
       accident_description, insurance_status, has_treatment, care_types,
-      has_attorney, attorney_info, sms_consent, signature_name,
+      has_attorney, attorney_info, sms_consent, signature_name, referral_source,
     } = body;
 
     if (!password || password.length < 8) {
@@ -74,7 +74,26 @@ Deno.serve(async (req) => {
 
     if (patientError) throw patientError;
 
-    // 4. Notify all admins
+    // 4. Auto-create insurance eligibility row
+    const billingPath = (insurance_status === 'PIP' || insurance_status === 'MedPay')
+      ? 'PIP/MedPay' : 'Lien Only';
+    await supabase.from('insurance_eligibility').insert({
+      case_id: caseData.id,
+      insurance_type: insurance_status || 'None',
+      billing_path: billingPath,
+      verified: false,
+    });
+
+    // 5. Capture referral source if provided
+    if (referral_source) {
+      await supabase.from('referral_sources').insert({
+        entity_id: caseData.id,
+        entity_type: 'case',
+        source_type: referral_source,
+      });
+    }
+
+    // 6. Notify all admins
     const { data: admins } = await supabase
       .from('profiles')
       .select('id')

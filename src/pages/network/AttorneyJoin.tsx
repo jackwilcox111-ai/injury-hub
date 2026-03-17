@@ -25,15 +25,34 @@ export default function AttorneyJoin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.from('attorney_applications').insert({
+
+    // Insert attorney application
+    const { data: appData, error } = await supabase.from('attorney_applications').insert({
       firm_name: form.firm_name, contact_name: form.contact_name,
       email: form.email, phone: form.phone, state: form.state,
       bar_number: form.bar_number || null,
       pi_case_volume_monthly: form.pi_case_volume_monthly ? parseInt(form.pi_case_volume_monthly) : null,
       referral_source: form.referral_source || null,
-    });
-    if (error) toast.error(error.message);
-    else { setSubmitted(true); toast.success('Application submitted'); }
+    }).select('id').single();
+
+    if (error) {
+      toast.error(error.message);
+      setLoading(false);
+      return;
+    }
+
+    // Write to referral_sources table
+    if (form.referral_source && appData?.id) {
+      await supabase.from('referral_sources').insert({
+        entity_id: appData.id,
+        entity_type: 'attorney_application',
+        source_type: form.referral_source,
+        source_detail: null,
+      });
+    }
+
+    setSubmitted(true);
+    toast.success('Application submitted');
     setLoading(false);
   };
 
