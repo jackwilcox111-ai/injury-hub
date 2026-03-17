@@ -98,8 +98,13 @@ const App = () => (
             <Route path="/referrals" element={<RequireAuth roles={['admin']}><AppLayout><ReferralTracking /></AppLayout></RequireAuth>} />
             <Route path="/tasks" element={<RequireAuth roles={['admin','care_manager']}><AppLayout><TaskDashboard /></AppLayout></RequireAuth>} />
             <Route path="/settings" element={<RequireAuth roles={['admin']}><AppLayout><SettingsPage /></AppLayout></RequireAuth>} />
+            <Route path="/demand-letters" element={<RequireAuth roles={['admin','care_manager']}><AppLayout><AdminDemandLetters /></AppLayout></RequireAuth>} />
+            <Route path="/messages" element={<RequireAuth roles={['admin','care_manager']}><AppLayout><AdminMessages /></AppLayout></RequireAuth>} />
+            <Route path="/rcm" element={<RequireAuth roles={['admin']}><AppLayout><AdminRCM /></AppLayout></RequireAuth>} />
+            <Route path="/funding" element={<RequireAuth roles={['admin']}><AppLayout><AdminFunding /></AppLayout></RequireAuth>} />
             <Route path="/attorney-portal" element={<RequireAuth roles={['attorney']}><AppLayout><AttorneyPortal /></AppLayout></RequireAuth>} />
             <Route path="/provider-portal" element={<RequireAuth roles={['provider']}><AppLayout><ProviderPortal /></AppLayout></RequireAuth>} />
+            <Route path="/provider/rcm" element={<RequireAuth roles={['provider']}><AppLayout><ProviderRCM /></AppLayout></RequireAuth>} />
 
             {/* Patient portal */}
             <Route path="/patient/dashboard" element={<RequireAuth roles={['patient']}><AppLayout><PatientDashboard /></AppLayout></RequireAuth>} />
