@@ -188,6 +188,10 @@ export default function CasesList() {
                   <span className="text-muted-foreground">Provider: </span>
                   <span className="text-foreground font-medium">{(c as any).providers?.name || '—'}</span>
                 </div>
+                <div>
+                  <span className="text-muted-foreground">Phone: </span>
+                  <span className="text-foreground font-medium">{c.patient_phone || '—'}</span>
+                </div>
                 {isAdmin && (
                   <div>
                     <span className="text-muted-foreground">Lien: </span>
