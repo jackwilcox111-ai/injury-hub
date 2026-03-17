@@ -50,6 +50,7 @@ export default function CaseDetail() {
   const [newAppt, setNewAppt] = useState({ provider_id: '', scheduled_date: '', specialty: '', notes: '', interpreter_confirmed: false });
   const [newRecord, setNewRecord] = useState({ record_type: '', provider_id: '', received_date: '', delivered_to_attorney_date: '', hipaa_auth_on_file: false, notes: '' });
   const [recordFile, setRecordFile] = useState<File | null>(null);
+  const [editRecordFile, setEditRecordFile] = useState<File | null>(null);
   const [newLien, setNewLien] = useState({ provider_id: '', amount: 0, status: 'Active', reduction_amount: 0, payment_date: '', notes: '' });
 
   // Fetch patient profile to check interpreter needs
@@ -206,6 +207,25 @@ export default function CaseDetail() {
 
   const updateRecord = useMutation({
     mutationFn: async (rec: any) => {
+      let documentId = rec.document_id || null;
+
+      // Upload new file if provided
+      if (editRecordFile) {
+        const path = `${id}/${Date.now()}-${editRecordFile.name}`;
+        const { error: uploadError } = await supabase.storage.from('documents').upload(path, editRecordFile);
+        if (uploadError) throw uploadError;
+        const { data: docData, error: docError } = await supabase.from('documents').insert({
+          case_id: id!,
+          file_name: editRecordFile.name,
+          storage_path: path,
+          document_type: rec.record_type || 'Medical Record',
+          uploader_id: profile?.id,
+          visible_to: ['admin', 'care_manager', 'attorney'],
+        }).select('id').single();
+        if (docError) throw docError;
+        documentId = docData.id;
+      }
+
       const { error } = await supabase.from('records').update({
         record_type: rec.record_type || null,
         provider_id: rec.provider_id || null,
@@ -213,10 +233,11 @@ export default function CaseDetail() {
         delivered_to_attorney_date: rec.delivered_to_attorney_date || null,
         hipaa_auth_on_file: rec.hipaa_auth_on_file,
         notes: rec.notes || null,
+        document_id: documentId,
       }).eq('id', rec.id);
       if (error) throw error;
     },
-    onSuccess: () => { invalidateAll(); setShowEditRecord(false); setEditRecord(null); toast.success('Record updated'); },
+    onSuccess: () => { invalidateAll(); setShowEditRecord(false); setEditRecord(null); setEditRecordFile(null); toast.success('Record updated'); },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -710,7 +731,7 @@ export default function CaseDetail() {
       )}
 
       {/* Edit Record Dialog */}
-      <Dialog open={showEditRecord} onOpenChange={v => { setShowEditRecord(v); if (!v) setEditRecord(null); }}>
+      <Dialog open={showEditRecord} onOpenChange={v => { setShowEditRecord(v); if (!v) { setEditRecord(null); setEditRecordFile(null); } }}>
         <DialogContent>
           <DialogHeader><DialogTitle>Edit Record</DialogTitle></DialogHeader>
           {editRecord && (
@@ -728,6 +749,18 @@ export default function CaseDetail() {
               <div className="flex items-center gap-2">
                 <Checkbox checked={editRecord.hipaa_auth_on_file || false} onCheckedChange={v => setEditRecord((p: any) => ({...p, hipaa_auth_on_file: !!v}))} id="edit-hipaa" />
                 <Label htmlFor="edit-hipaa" className="text-sm">HIPAA Authorization on file</Label>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Document</Label>
+                {editRecord.documents ? (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <FileText className="w-3.5 h-3.5" />
+                    <span className="truncate">{editRecord.documents.file_name}</span>
+                    <span className="text-[10px]">(attached)</span>
+                  </div>
+                ) : null}
+                <Input type="file" accept=".pdf,.doc,.docx,.jpg,.png,.tiff" onChange={e => setEditRecordFile(e.target.files?.[0] || null)} />
+                <p className="text-xs text-muted-foreground">{editRecord.documents ? 'Upload to replace existing file' : 'PDF, DOC, DOCX, JPG, PNG, or TIFF'}</p>
               </div>
               <div className="space-y-2"><Label className="text-sm font-medium">Notes</Label><Textarea value={editRecord.notes || ''} onChange={e => setEditRecord((p: any) => ({...p, notes: e.target.value}))} /></div>
               <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
