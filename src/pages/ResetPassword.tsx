@@ -17,6 +17,9 @@ export default function ResetPassword() {
     const hash = window.location.hash;
     if (hash.includes('type=recovery') || hash.includes('type=invite') || hash.includes('type=signup')) {
       setIsRecovery(true);
+      if (hash.includes('type=invite') || hash.includes('type=signup')) {
+        setIsInvite(true);
+      }
     }
   }, []);
 
