@@ -120,26 +120,40 @@ export default function CasesList() {
       </div>
 
       {/* Search + Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by patient, case #, or attorney..." className="pl-9 h-10" />
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by patient, case #, or attorney..." className="pl-9 h-10" />
+          </div>
+          <div className="flex gap-1 bg-card border border-border rounded-lg p-1">
+            {statuses.map(s => (
+              <button
+                key={s}
+                onClick={() => setStatusFilter(s)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${statusFilter === s ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[180px] h-10">
+              <ArrowUpDown className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
+              <SelectValue placeholder="Sort by..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="updated_at">Recently Updated</SelectItem>
+              <SelectItem value="patient_name">Patient Name</SelectItem>
+              <SelectItem value="case_number">Case Number</SelectItem>
+              <SelectItem value="status">Status</SelectItem>
+              <SelectItem value="sol_date">SoL Date</SelectItem>
+              <SelectItem value="lien_amount">Lien Amount</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <div className="flex gap-1 bg-card border border-border rounded-lg p-1">
-          {statuses.map(s => (
-            <button
-              key={s}
-              onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${statusFilter === s ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* Case Cards */}
-      {filtered.length === 0 ? (
+      {sorted.length === 0 ? (
         <div className="bg-card border border-border rounded-xl p-16 text-center">
           <p className="text-sm text-muted-foreground">No cases found</p>
         </div>
