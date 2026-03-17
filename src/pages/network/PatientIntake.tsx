@@ -176,6 +176,13 @@ export default function PatientIntake() {
                   <Input value={attorneyInfo} onChange={e => setAttorneyInfo(e.target.value)} placeholder="e.g., John Smith, Smith & Associates" />
                 </div>
               )}
+              <div className="flex items-center gap-3">
+                <Checkbox checked={needsInterpreter} onCheckedChange={v => setNeedsInterpreter(!!v)} id="interpreter" />
+                <div>
+                  <Label htmlFor="interpreter" className="text-sm">I need a language interpreter for appointments</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">We'll match you with a provider that can accommodate</p>
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label>How did you hear about CareLink?</Label>
                 <Select value={referralSource} onValueChange={setReferralSource}>
