@@ -36,7 +36,7 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
   const { data: records, isLoading } = useQuery({
     queryKey: ['case-records-mgmt', caseId],
     queryFn: async () => {
-      const { data } = await supabase.from('records').select('*, providers(name)')
+      const { data } = await supabase.from('records').select('*, providers(name), documents(id, file_name, storage_path)')
         .eq('case_id', caseId).order('created_at', { ascending: false });
       return data || [];
     },
