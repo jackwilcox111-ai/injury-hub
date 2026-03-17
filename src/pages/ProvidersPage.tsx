@@ -11,7 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Plus, Check, X, Star, MapPin, Clock, CheckCircle2, XCircle, Stethoscope, TrendingUp, Users } from 'lucide-react';
+import { Plus, Check, X, Star, MapPin, Clock, CheckCircle2, XCircle, Stethoscope, TrendingUp, Users, Languages } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { format, differenceInDays } from 'date-fns';
 
 export default function ProvidersPage() {
@@ -21,7 +22,7 @@ export default function ProvidersPage() {
   const isAdmin = profile?.role === 'admin';
   const [showAdd, setShowAdd] = useState(false);
   const [showDetail, setShowDetail] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', specialty: '', locations: 1, rating: 0, status: 'Active', credentialing_expiry: '', hipaa_baa_on_file: false, notes: '' });
+  const [form, setForm] = useState({ name: '', specialty: '', locations: 1, rating: 0, status: 'Active', credentialing_expiry: '', hipaa_baa_on_file: false, interpreter_available: false, notes: '' });
 
   const { data: providers, isLoading } = useQuery({
     queryKey: ['providers'],
@@ -67,7 +68,7 @@ export default function ProvidersPage() {
       const { error } = await supabase.from('providers').insert({
         name: form.name, specialty: form.specialty || null, locations: form.locations,
         rating: form.rating || null, status: form.status, credentialing_expiry: form.credentialing_expiry || null,
-        hipaa_baa_on_file: form.hipaa_baa_on_file, notes: form.notes || null,
+        hipaa_baa_on_file: form.hipaa_baa_on_file, interpreter_available: form.interpreter_available, notes: form.notes || null,
       });
       if (error) throw error;
     },
@@ -255,6 +256,19 @@ export default function ProvidersPage() {
                 <div><span className="text-muted-foreground">Rating:</span> <span className="font-medium">{selectedProvider.rating}</span></div>
                 <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={selectedProvider.status} /></div>
               </div>
+              <div className="flex items-center justify-between py-2 border-t border-border">
+                <div className="flex items-center gap-2">
+                  <Languages className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm">Interpreter Available</span>
+                </div>
+                {isAdmin ? (
+                  <Switch checked={selectedProvider.interpreter_available || false} onCheckedChange={v => updateProvider.mutate({ interpreter_available: v })} />
+                ) : (
+                  <span className={`text-xs font-medium ${selectedProvider.interpreter_available ? 'text-blue-600' : 'text-muted-foreground'}`}>
+                    {selectedProvider.interpreter_available ? 'Yes' : 'No'}
+                  </span>
+                )}
+              </div>
               {linkedCases && linkedCases.length > 0 && (
                 <div>
                   <p className="text-sm font-semibold mb-2">Active Cases</p>
@@ -289,6 +303,13 @@ export default function ProvidersPage() {
               <div className="space-y-2"><Label className="text-sm font-medium">Specialty</Label><Input value={form.specialty} onChange={e => setForm(p => ({...p, specialty: e.target.value}))} className="h-10" /></div>
               <div className="space-y-2"><Label className="text-sm font-medium">Locations</Label><Input type="number" value={form.locations} onChange={e => setForm(p => ({...p, locations: Number(e.target.value)}))} className="h-10" /></div>
             </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-sm font-medium">Interpreter Available</Label>
+                <p className="text-xs text-muted-foreground">This provider can accommodate interpreter patients</p>
+              </div>
+              <Switch checked={form.interpreter_available} onCheckedChange={v => setForm(p => ({...p, interpreter_available: v}))} />
+            </div>
             <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button><Button type="submit" disabled={addProvider.isPending}>Add Provider</Button></div>
           </form>
         </DialogContent>
@@ -307,6 +328,7 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Locations</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Rating</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Active Cases</th>
+          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Interpreter</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">HIPAA BAA</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Credentials</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
@@ -331,6 +353,13 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
                   </span>
                 </td>
                 <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-primary">{activeCases}</td>
+                <td className="px-5 py-3.5">
+                  {p.interpreter_available && (
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                      <Languages className="w-3 h-3" /> Yes
+                    </span>
+                  )}
+                </td>
                 <td className="px-5 py-3.5">
                   <span className={`flex items-center gap-1 text-xs ${p.hipaa_baa_on_file ? 'text-emerald-600' : 'text-red-500'}`}>
                     {p.hipaa_baa_on_file ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}

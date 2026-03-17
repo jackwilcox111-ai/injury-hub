@@ -21,6 +21,7 @@ Deno.serve(async (req) => {
       full_name, date_of_birth, phone, email, password, accident_date, accident_state,
       accident_description, insurance_status, has_treatment, care_types,
       has_attorney, attorney_info, sms_consent, signature_name, referral_source,
+      needs_interpreter,
     } = body;
 
     if (!password || password.length < 8) {
@@ -70,6 +71,7 @@ Deno.serve(async (req) => {
         hipaa_auth_date: new Date().toISOString(),
         assignment_of_benefits_signed: true,
         aob_date: new Date().toISOString(),
+        needs_interpreter: needs_interpreter || false,
       });
 
     if (patientError) throw patientError;

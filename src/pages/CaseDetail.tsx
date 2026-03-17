@@ -17,7 +17,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { ArrowLeft, AlertTriangle, Clock, FileText, DollarSign, Activity, Send, ShieldCheck, Brain, Heart, Bell, ListTodo, FileSignature, GitBranch, Radar, Shield } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Clock, FileText, DollarSign, Activity, Send, ShieldCheck, Brain, Heart, Bell, ListTodo, FileSignature, GitBranch, Radar, Shield, Languages, Info } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { format, formatDistanceToNow } from 'date-fns';
 import { InsuranceEligibilityTab } from '@/components/cases/InsuranceEligibilityTab';
 import { BillingChargesTab } from '@/components/cases/BillingChargesTab';
@@ -44,9 +45,19 @@ export default function CaseDetail() {
   const [showAddRecord, setShowAddRecord] = useState(false);
   const [showAddLien, setShowAddLien] = useState(false);
   const [updateMsg, setUpdateMsg] = useState('');
-  const [newAppt, setNewAppt] = useState({ provider_id: '', scheduled_date: '', specialty: '', notes: '' });
+  const [newAppt, setNewAppt] = useState({ provider_id: '', scheduled_date: '', specialty: '', notes: '', interpreter_confirmed: false });
   const [newRecord, setNewRecord] = useState({ record_type: '', provider_id: '', received_date: '', delivered_to_attorney_date: '', hipaa_auth_on_file: false, notes: '' });
   const [newLien, setNewLien] = useState({ provider_id: '', amount: 0, status: 'Active', reduction_amount: 0, payment_date: '', notes: '' });
+
+  // Fetch patient profile to check interpreter needs
+  const { data: patientProfile } = useQuery({
+    queryKey: ['patient-profile-for-case', id],
+    queryFn: async () => {
+      const { data } = await supabase.from('patient_profiles').select('needs_interpreter').eq('case_id', id!).maybeSingle();
+      return data;
+    },
+  });
+  const needsInterpreter = patientProfile?.needs_interpreter || false;
 
   const { data: caseData, isLoading } = useQuery({
     queryKey: ['case-detail', id],
@@ -140,13 +151,15 @@ export default function CaseDetail() {
   const addAppointment = useMutation({
     mutationFn: async () => {
       if (caseData?.status === 'Settled') throw new Error('Cannot add appointments to a settled case.');
+      if (needsInterpreter && !newAppt.interpreter_confirmed) throw new Error('Please confirm interpreter availability before booking.');
       const { error } = await supabase.from('appointments').insert({
         case_id: id!, provider_id: newAppt.provider_id || null,
         scheduled_date: newAppt.scheduled_date || null, specialty: newAppt.specialty || null, notes: newAppt.notes || null,
+        interpreter_confirmed: newAppt.interpreter_confirmed,
       });
       if (error) throw error;
     },
-    onSuccess: () => { invalidateAll(); setShowAddAppt(false); setNewAppt({ provider_id: '', scheduled_date: '', specialty: '', notes: '' }); toast.success('Appointment added'); },
+    onSuccess: () => { invalidateAll(); setShowAddAppt(false); setNewAppt({ provider_id: '', scheduled_date: '', specialty: '', notes: '', interpreter_confirmed: false }); toast.success('Appointment added'); },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -366,6 +379,7 @@ export default function CaseDetail() {
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Specialty</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Notes</th>
+            {needsInterpreter && <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Interpreter</th>}
           </tr></thead>
           <tbody className="divide-y divide-border">
             {appointments?.map(a => (
@@ -380,10 +394,21 @@ export default function CaseDetail() {
                   </Select>
                 </td>
                 <td className="px-5 py-3 text-xs text-muted-foreground max-w-[200px] truncate">{a.notes || '—'}</td>
+                {needsInterpreter && (
+                  <td className="px-5 py-3">
+                    {(a as any).interpreter_confirmed ? (
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                        <Languages className="w-3 h-3" /> Confirmed
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </td>
+                )}
               </tr>
             ))}
             {(!appointments || appointments.length === 0) && (
-              <tr><td colSpan={5} className="px-5 py-12 text-center text-muted-foreground text-sm">No appointments yet</td></tr>
+              <tr><td colSpan={needsInterpreter ? 6 : 5} className="px-5 py-12 text-center text-muted-foreground text-sm">No appointments yet</td></tr>
             )}
           </tbody>
         </table>
@@ -555,14 +580,26 @@ export default function CaseDetail() {
         <DialogContent>
           <DialogHeader><DialogTitle>Add Appointment</DialogTitle></DialogHeader>
           <form onSubmit={e => { e.preventDefault(); addAppointment.mutate(); }} className="space-y-4">
+            {needsInterpreter && (
+              <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <Languages className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-800">Reminder: This patient needs an interpreter. Confirm the provider can accommodate before booking.</p>
+              </div>
+            )}
             <div className="space-y-2"><Label className="text-sm font-medium">Provider</Label>
               <Select value={newAppt.provider_id} onValueChange={v => setNewAppt(p => ({...p, provider_id: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{allProviders?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
             </div>
             <div className="space-y-2"><Label className="text-sm font-medium">Date & Time</Label><Input type="datetime-local" value={newAppt.scheduled_date} onChange={e => setNewAppt(p => ({...p, scheduled_date: e.target.value}))} className="h-10" /></div>
             <div className="space-y-2"><Label className="text-sm font-medium">Specialty</Label><Input value={newAppt.specialty} onChange={e => setNewAppt(p => ({...p, specialty: e.target.value}))} className="h-10" /></div>
             <div className="space-y-2"><Label className="text-sm font-medium">Notes</Label><Textarea value={newAppt.notes} onChange={e => setNewAppt(p => ({...p, notes: e.target.value}))} /></div>
+            {needsInterpreter && (
+              <div className="flex items-start gap-2.5 pt-1">
+                <Checkbox checked={newAppt.interpreter_confirmed} onCheckedChange={v => setNewAppt(p => ({...p, interpreter_confirmed: !!v}))} id="interpreter-confirm" />
+                <Label htmlFor="interpreter-confirm" className="text-sm leading-relaxed">I confirm the selected provider can accommodate an interpreter for this patient *</Label>
+              </div>
+            )}
             <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
-            <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowAddAppt(false)}>Cancel</Button><Button type="submit" disabled={addAppointment.isPending}>Add</Button></div>
+            <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowAddAppt(false)}>Cancel</Button><Button type="submit" disabled={addAppointment.isPending || (needsInterpreter && !newAppt.interpreter_confirmed)}>Add</Button></div>
           </form>
         </DialogContent>
       </Dialog>

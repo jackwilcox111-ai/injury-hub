@@ -36,6 +36,7 @@ export default function PatientIntake() {
   const [hasAttorney, setHasAttorney] = useState(false);
   const [attorneyInfo, setAttorneyInfo] = useState('');
   const [referralSource, setReferralSource] = useState('');
+  const [needsInterpreter, setNeedsInterpreter] = useState(false);
 
   const [hipaaConsent, setHipaaConsent] = useState(false);
   const [aobConsent, setAobConsent] = useState(false);
@@ -67,6 +68,7 @@ export default function PatientIntake() {
           has_attorney: hasAttorney, attorney_info: attorneyInfo,
           sms_consent: smsConsent, signature_name: signatureName,
           referral_source: referralSource || null,
+          needs_interpreter: needsInterpreter,
         },
       });
       if (error) throw error;
@@ -175,6 +177,13 @@ export default function PatientIntake() {
                   <Input value={attorneyInfo} onChange={e => setAttorneyInfo(e.target.value)} placeholder="e.g., John Smith, Smith & Associates" />
                 </div>
               )}
+              <div className="flex items-center gap-3">
+                <Checkbox checked={needsInterpreter} onCheckedChange={v => setNeedsInterpreter(!!v)} id="interpreter" />
+                <div>
+                  <Label htmlFor="interpreter" className="text-sm">I need a language interpreter for appointments</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">We'll match you with a provider that can accommodate</p>
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label>How did you hear about CareLink?</Label>
                 <Select value={referralSource} onValueChange={setReferralSource}>
