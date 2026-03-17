@@ -105,8 +105,8 @@ export default function AdminMessages() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-display text-2xl text-foreground flex items-center gap-2"><Video className="w-6 h-6 text-primary" /> Messages</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">Personalized video/audio/text messages</p>
+          <h2 className="font-display text-2xl text-foreground flex items-center gap-2">Messages</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">Personalized text messages</p>
         </div>
         <Button onClick={() => setShowCompose(true)}><Plus className="w-4 h-4 mr-1" /> New Message</Button>
       </div>
