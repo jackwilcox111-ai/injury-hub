@@ -375,11 +375,10 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
         <thead><tr className="border-b border-border bg-accent/50">
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Provider</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Specialty</th>
-          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Languages</th>
+          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Languages / Interpreter</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Locations</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Rating</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Active Cases</th>
-          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Interpreter</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">HIPAA BAA</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Credentials</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
