@@ -464,22 +464,41 @@ export default function CaseDetail() {
           <thead><tr className="border-b border-border bg-accent/50">
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Type</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Provider</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Document</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Received</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Delivered to Attorney</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">HIPAA</th>
           </tr></thead>
           <tbody className="divide-y divide-border">
-            {records?.map(r => (
-              <tr key={r.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => { setEditRecord({ ...r, provider_id: r.provider_id || '' }); setShowEditRecord(true); }}>
-                <td className="px-5 py-3 text-xs font-medium text-primary">{r.record_type || '—'}</td>
-                <td className="px-5 py-3 text-xs">{(r as any).providers?.name || '—'}</td>
-                <td className="px-5 py-3 font-mono text-xs">{r.received_date || '—'}</td>
-                <td className="px-5 py-3 font-mono text-xs">{r.delivered_to_attorney_date || '—'}</td>
-                <td className="px-5 py-3 text-xs">{r.hipaa_auth_on_file ? <span className="text-emerald-600">✓ On file</span> : <span className="text-destructive">✗ Missing</span>}</td>
-              </tr>
-            ))}
+            {records?.map(r => {
+              const doc = (r as any).documents;
+              return (
+                <tr key={r.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => { setEditRecord({ ...r, provider_id: r.provider_id || '' }); setShowEditRecord(true); }}>
+                  <td className="px-5 py-3 text-xs font-medium text-primary">{r.record_type || '—'}</td>
+                  <td className="px-5 py-3 text-xs">{(r as any).providers?.name || '—'}</td>
+                  <td className="px-5 py-3 text-xs">
+                    {doc ? (
+                      <button onClick={async (e) => {
+                        e.stopPropagation();
+                        const { data, error } = await supabase.storage.from('documents').createSignedUrl(doc.storage_path, 300);
+                        if (error) { toast.error('Failed to get download link'); return; }
+                        window.open(data.signedUrl, '_blank');
+                      }} className="flex items-center gap-1 text-primary hover:underline">
+                        <FileText className="w-3 h-3" />
+                        <span className="truncate max-w-[140px]">{doc.file_name}</span>
+                      </button>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </td>
+                  <td className="px-5 py-3 font-mono text-xs">{r.received_date || '—'}</td>
+                  <td className="px-5 py-3 font-mono text-xs">{r.delivered_to_attorney_date || '—'}</td>
+                  <td className="px-5 py-3 text-xs">{r.hipaa_auth_on_file ? <span className="text-emerald-600">✓ On file</span> : <span className="text-destructive">✗ Missing</span>}</td>
+                </tr>
+              );
+            })}
             {(!records || records.length === 0) && (
-              <tr><td colSpan={5} className="px-5 py-12 text-center text-muted-foreground text-sm">No records</td></tr>
+              <tr><td colSpan={6} className="px-5 py-12 text-center text-muted-foreground text-sm">No records</td></tr>
             )}
           </tbody>
         </table>
