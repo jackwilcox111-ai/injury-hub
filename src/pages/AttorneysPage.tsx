@@ -68,6 +68,7 @@ export default function AttorneysPage() {
       const { error } = await supabase.from('attorneys').insert({
         firm_name: form.firm_name, contact_name: form.contact_name || null,
         email: form.email || null, phone: form.phone || null,
+        languages_spoken: form.languages_spoken,
       });
       if (error) throw error;
     },
