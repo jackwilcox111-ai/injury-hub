@@ -10,6 +10,7 @@ export default function ResetPassword() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isRecovery, setIsRecovery] = useState(false);
+  const [isInvite, setIsInvite] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
