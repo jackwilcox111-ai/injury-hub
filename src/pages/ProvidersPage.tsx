@@ -255,13 +255,53 @@ export default function ProvidersPage() {
           <DialogHeader><DialogTitle>{selectedProvider?.name}</DialogTitle></DialogHeader>
           {selectedProvider && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div><span className="text-muted-foreground">Specialty:</span> <span className="font-medium">{selectedProvider.specialty}</span></div>
-                <div><span className="text-muted-foreground">Locations:</span> <span className="font-medium">{selectedProvider.locations}</span></div>
-                <div><span className="text-muted-foreground">Rating:</span> <span className="font-medium">{selectedProvider.rating}</span></div>
-                <div><span className="text-muted-foreground">Phone:</span> <span className="font-mono text-sm">{(selectedProvider as any).phone || '—'}</span></div>
-                <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={selectedProvider.status} /></div>
-              </div>
+              {isAdmin ? (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Name</Label>
+                    <Input defaultValue={selectedProvider.name} className="h-9" onBlur={e => { if (e.target.value !== selectedProvider.name) updateProvider.mutate({ name: e.target.value }); }} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Specialty</Label>
+                    <Input defaultValue={selectedProvider.specialty || ''} className="h-9" onBlur={e => { const v = e.target.value || null; if (v !== selectedProvider.specialty) updateProvider.mutate({ specialty: v }); }} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Phone</Label>
+                    <Input defaultValue={(selectedProvider as any).phone || ''} placeholder="(555) 555-5555" className="h-9 font-mono" onBlur={e => { const v = e.target.value || null; if (v !== (selectedProvider as any).phone) updateProvider.mutate({ phone: v }); }} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Locations</Label>
+                    <Input type="number" defaultValue={selectedProvider.locations || 1} className="h-9" onBlur={e => { const v = Number(e.target.value); if (v !== selectedProvider.locations) updateProvider.mutate({ locations: v }); }} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Rating</Label>
+                    <Input type="number" step="0.1" min="0" max="5" defaultValue={selectedProvider.rating || ''} className="h-9" onBlur={e => { const v = e.target.value ? Number(e.target.value) : null; if (v !== selectedProvider.rating) updateProvider.mutate({ rating: v }); }} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Credentialing Expiry</Label>
+                    <Input type="date" defaultValue={selectedProvider.credentialing_expiry || ''} className="h-9" onBlur={e => { const v = e.target.value || null; if (v !== selectedProvider.credentialing_expiry) updateProvider.mutate({ credentialing_expiry: v }); }} />
+                  </div>
+                  <div className="col-span-2 flex items-center justify-between">
+                    <Label className="text-xs text-muted-foreground">HIPAA BAA On File</Label>
+                    <Switch checked={selectedProvider.hipaa_baa_on_file || false} onCheckedChange={v => updateProvider.mutate({ hipaa_baa_on_file: v })} />
+                  </div>
+                  <div className="col-span-2 space-y-1">
+                    <Label className="text-xs text-muted-foreground">Notes</Label>
+                    <Input defaultValue={selectedProvider.notes || ''} className="h-9" onBlur={e => { const v = e.target.value || null; if (v !== selectedProvider.notes) updateProvider.mutate({ notes: v }); }} />
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-xs text-muted-foreground">Status:</span> <StatusBadge status={selectedProvider.status} />
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div><span className="text-muted-foreground">Specialty:</span> <span className="font-medium">{selectedProvider.specialty}</span></div>
+                  <div><span className="text-muted-foreground">Locations:</span> <span className="font-medium">{selectedProvider.locations}</span></div>
+                  <div><span className="text-muted-foreground">Rating:</span> <span className="font-medium">{selectedProvider.rating}</span></div>
+                  <div><span className="text-muted-foreground">Phone:</span> <span className="font-mono text-sm">{(selectedProvider as any).phone || '—'}</span></div>
+                  <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={selectedProvider.status} /></div>
+                </div>
+              )}
               <div className="border-t border-border pt-3 space-y-3">
                 <div>
                   <p className="text-sm font-medium mb-2">Languages Spoken</p>
