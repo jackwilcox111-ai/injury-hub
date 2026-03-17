@@ -190,24 +190,29 @@ export default function AttorneysPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="attorneys" className="mt-4">
+        <TabsContent value="attorneys" className="mt-4 space-y-4">
+          {/* Search */}
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search firms, contacts, emails..." className="pl-9 h-10" />
+          </div>
           {/* Table */}
           <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
             <table className="w-full text-sm">
               <thead><tr className="border-b border-border bg-accent/50">
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Firm</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Contact</th>
+                <SortableHeader label="Firm" sortKey="firm_name" currentKey={attSortConfig.key} direction={attSortConfig.direction} onSort={attRequestSort} />
+                <SortableHeader label="Contact" sortKey="contact_name" currentKey={attSortConfig.key} direction={attSortConfig.direction} onSort={attRequestSort} />
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Languages</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Total</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Active</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Settled</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Avg Settlement</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Monthly</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
+                <SortableHeader label="Total" sortKey="totalCases" currentKey={attSortConfig.key} direction={attSortConfig.direction} onSort={attRequestSort} />
+                <SortableHeader label="Active" sortKey="activeCases" currentKey={attSortConfig.key} direction={attSortConfig.direction} onSort={attRequestSort} />
+                <SortableHeader label="Settled" sortKey="settledCases" currentKey={attSortConfig.key} direction={attSortConfig.direction} onSort={attRequestSort} />
+                <SortableHeader label="Avg Settlement" sortKey="avgSettlement" currentKey={attSortConfig.key} direction={attSortConfig.direction} onSort={attRequestSort} />
+                <SortableHeader label="Monthly" sortKey="monthlyVolume" currentKey={attSortConfig.key} direction={attSortConfig.direction} onSort={attRequestSort} />
+                <SortableHeader label="Status" sortKey="status" currentKey={attSortConfig.key} direction={attSortConfig.direction} onSort={attRequestSort} />
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Settings</th>
               </tr></thead>
               <tbody className="divide-y divide-border">
-                {attorneys?.map(a => {
+                {sortedAttorneys?.map(a => {
                   const langs: string[] = (a as any).languages_spoken || ['English'];
                   return (
                   <tr key={a.id} className="hover:bg-accent/50 transition-colors">
