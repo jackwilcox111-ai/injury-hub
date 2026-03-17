@@ -411,6 +411,7 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
               return (
                 <tr key={p.id} className="hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => onSelect(p.id)}>
                   <td className="px-5 py-3.5 font-medium text-foreground">{p.name}</td>
+                  <td className="px-5 py-3.5 font-mono text-xs text-muted-foreground">{(p as any).phone || '—'}</td>
                   <td className="px-5 py-3.5 text-muted-foreground text-xs">{p.specialty || '—'}</td>
                   <td className="px-5 py-3.5">
                     <div className="flex flex-wrap items-center gap-1">
