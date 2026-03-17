@@ -15,7 +15,7 @@ import { SoLCountdown } from '@/components/global/SoLCountdown';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { format, formatDistanceToNow, differenceInHours } from 'date-fns';
-import { Activity, Calendar, Heart, FileText, CheckCircle, HelpCircle, Bell } from 'lucide-react';
+import { Activity, Calendar, Heart, FileText, CheckCircle, HelpCircle, Bell, DollarSign } from 'lucide-react';
 import { generateICS } from '@/lib/ics-generator';
 
 const MOODS = ['Great', 'Good', 'OK', 'Poor', 'Terrible'];

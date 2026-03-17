@@ -9,14 +9,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AttorneySettingsModal } from '@/components/attorney/AttorneySettingsModal';
 import { toast } from 'sonner';
-import { Plus, TrendingUp, Calendar, Users } from 'lucide-react';
+import { Plus, TrendingUp, Calendar, Users, Settings } from 'lucide-react';
 
 export default function AttorneysPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);
   const [showDetail, setShowDetail] = useState<string | null>(null);
+  const [settingsTarget, setSettingsTarget] = useState<{ id: string; firm_name: string; contact_name: string | null } | null>(null);
   const [form, setForm] = useState({ firm_name: '', contact_name: '', email: '', phone: '' });
 
   const { data: attorneys, isLoading } = useQuery({
@@ -106,28 +108,50 @@ export default function AttorneysPage() {
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Avg Settlement</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Monthly</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Settings</th>
           </tr></thead>
           <tbody className="divide-y divide-border">
             {attorneys?.map(a => (
-              <tr key={a.id} onClick={() => setShowDetail(a.id)} className="cursor-pointer hover:bg-accent/50 transition-colors">
-                <td className="px-5 py-3.5 font-medium text-foreground">{a.firm_name}</td>
-                <td className="px-5 py-3.5 text-muted-foreground text-xs">{a.contact_name || '—'}</td>
-                <td className="px-5 py-3.5 font-mono text-xs tabular-nums">{a.totalCases}</td>
-                <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-primary">{a.activeCases}</td>
-                <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-violet-600">{a.settledCases}</td>
-                <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-emerald-600">{a.avgSettlement > 0 ? `$${Math.round(a.avgSettlement).toLocaleString()}` : '—'}</td>
-                <td className="px-5 py-3.5">
+              <tr key={a.id} className="hover:bg-accent/50 transition-colors">
+                <td className="px-5 py-3.5 font-medium text-foreground cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.firm_name}</td>
+                <td className="px-5 py-3.5 text-muted-foreground text-xs cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.contact_name || '—'}</td>
+                <td className="px-5 py-3.5 font-mono text-xs tabular-nums cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.totalCases}</td>
+                <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-primary cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.activeCases}</td>
+                <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-violet-600 cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.settledCases}</td>
+                <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-emerald-600 cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.avgSettlement > 0 ? `$${Math.round(a.avgSettlement).toLocaleString()}` : '—'}</td>
+                <td className="px-5 py-3.5 cursor-pointer" onClick={() => setShowDetail(a.id)}>
                   <div className="flex items-center gap-1.5">
                     <div className="h-2 rounded-full bg-secondary w-14 overflow-hidden"><div className="h-full bg-primary rounded-full" style={{ width: `${Math.min(a.monthlyVolume / 5 * 100, 100)}%` }} /></div>
                     <span className="font-mono text-xs text-muted-foreground tabular-nums">{a.monthlyVolume}</span>
                   </div>
                 </td>
-                <td className="px-5 py-3.5"><StatusBadge status={a.status} /></td>
+                <td className="px-5 py-3.5 cursor-pointer" onClick={() => setShowDetail(a.id)}><StatusBadge status={a.status} /></td>
+                <td className="px-5 py-3.5">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 w-7 p-0"
+                    onClick={e => { e.stopPropagation(); setSettingsTarget({ id: a.id, firm_name: a.firm_name, contact_name: a.contact_name }); }}
+                  >
+                    <Settings className="w-3.5 h-3.5" />
+                  </Button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* Attorney Settings Modal */}
+      {settingsTarget && (
+        <AttorneySettingsModal
+          attorneyId={settingsTarget.id}
+          firmName={settingsTarget.firm_name}
+          contactName={settingsTarget.contact_name}
+          open={!!settingsTarget}
+          onClose={() => setSettingsTarget(null)}
+        />
+      )}
 
       <Dialog open={!!showDetail} onOpenChange={open => !open && setShowDetail(null)}>
         <DialogContent className="max-w-lg">
