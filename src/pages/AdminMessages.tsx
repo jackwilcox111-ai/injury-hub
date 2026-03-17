@@ -21,8 +21,10 @@ const MESSAGE_TYPES = ['Welcome', 'Status Update', 'Appointment Reminder', 'Sett
 export default function AdminMessages() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
   const [showCompose, setShowCompose] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState<any>(null);
   const [recipientRole, setRecipientRole] = useState('patient');
   const [caseId, setCaseId] = useState('');
   const [messageType, setMessageType] = useState('Status Update');
