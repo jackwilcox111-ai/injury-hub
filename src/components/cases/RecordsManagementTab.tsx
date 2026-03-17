@@ -54,6 +54,7 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
   const [newRecord, setNewRecord] = useState({
     record_type: '', provider_id: '', received_date: '', delivered_to_attorney_date: '', hipaa_auth_on_file: false, notes: '',
   });
+  const [recordFile, setRecordFile] = useState<File | null>(null);
 
   const addRecord = useMutation({
     mutationFn: async () => {
