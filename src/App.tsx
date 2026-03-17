@@ -27,6 +27,13 @@ import PatientIntake from "./pages/network/PatientIntake";
 import ProviderJoin from "./pages/network/ProviderJoin";
 import AttorneyJoin from "./pages/network/AttorneyJoin";
 import FunderJoin from "./pages/network/FunderJoin";
+import AdminDemandLetters from "./pages/AdminDemandLetters";
+import AdminMessages from "./pages/AdminMessages";
+import AdminRCM from "./pages/AdminRCM";
+import AdminFunding from "./pages/AdminFunding";
+import ProviderRCM from "./pages/ProviderRCM";
+import PatientTimeline from "./pages/PatientTimeline";
+import PatientMessages from "./pages/PatientMessages";
 import { ReactNode } from "react";
 
 const queryClient = new QueryClient();
