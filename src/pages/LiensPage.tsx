@@ -18,6 +18,7 @@ const lienStatuses = ['All', 'Active', 'Reduced', 'Paid', 'Waived'];
 export default function LiensPage() {
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState('All');
+  const [search, setSearch] = useState('');
 
   const { data: liens, isLoading } = useQuery({
     queryKey: ['liens-full'],
