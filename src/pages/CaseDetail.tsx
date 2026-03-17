@@ -47,6 +47,7 @@ export default function CaseDetail() {
   const [updateMsg, setUpdateMsg] = useState('');
   const [newAppt, setNewAppt] = useState({ provider_id: '', scheduled_date: '', specialty: '', notes: '', interpreter_confirmed: false });
   const [newRecord, setNewRecord] = useState({ record_type: '', provider_id: '', received_date: '', delivered_to_attorney_date: '', hipaa_auth_on_file: false, notes: '' });
+  const [recordFile, setRecordFile] = useState<File | null>(null);
   const [newLien, setNewLien] = useState({ provider_id: '', amount: 0, status: 'Active', reduction_amount: 0, payment_date: '', notes: '' });
 
   // Fetch patient profile to check interpreter needs
@@ -174,15 +175,30 @@ export default function CaseDetail() {
 
   const addRecord = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from('records').insert({
+      const { data: recordData, error } = await supabase.from('records').insert({
         case_id: id!, provider_id: newRecord.provider_id || null,
         record_type: newRecord.record_type || null, received_date: newRecord.received_date || null,
         delivered_to_attorney_date: newRecord.delivered_to_attorney_date || null,
         hipaa_auth_on_file: newRecord.hipaa_auth_on_file, notes: newRecord.notes || null,
-      });
+      }).select('id').single();
       if (error) throw error;
+
+      if (recordFile) {
+        const path = `${id}/${Date.now()}-${recordFile.name}`;
+        const { error: uploadError } = await supabase.storage.from('documents').upload(path, recordFile);
+        if (uploadError) throw uploadError;
+        const { error: docError } = await supabase.from('documents').insert({
+          case_id: id!,
+          file_name: recordFile.name,
+          storage_path: path,
+          document_type: newRecord.record_type || 'Medical Record',
+          uploader_id: profile?.id,
+          visible_to: ['admin', 'care_manager', 'attorney'],
+        });
+        if (docError) throw docError;
+      }
     },
-    onSuccess: () => { invalidateAll(); setShowAddRecord(false); toast.success('Record added'); },
+    onSuccess: () => { invalidateAll(); setShowAddRecord(false); setRecordFile(null); toast.success('Record added'); },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -609,7 +625,7 @@ export default function CaseDetail() {
           <DialogHeader><DialogTitle>Add Record</DialogTitle></DialogHeader>
           <form onSubmit={e => { e.preventDefault(); addRecord.mutate(); }} className="space-y-4">
             <div className="space-y-2"><Label className="text-sm font-medium">Record Type</Label>
-              <Select value={newRecord.record_type} onValueChange={v => setNewRecord(p => ({...p, record_type: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{['Treatment Notes','Billing','Imaging','Surgical Report','Other'].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent></Select>
+              <Select value={newRecord.record_type} onValueChange={v => setNewRecord(p => ({...p, record_type: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{['Treatment Notes','Billing','Imaging','Surgical Report','Initial Evaluation','Progress Notes','Discharge Summary','X-rays','MRI Report','Other'].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent></Select>
             </div>
             <div className="space-y-2"><Label className="text-sm font-medium">Provider</Label>
               <Select value={newRecord.provider_id} onValueChange={v => setNewRecord(p => ({...p, provider_id: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{allProviders?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
@@ -618,8 +634,13 @@ export default function CaseDetail() {
               <div className="space-y-2"><Label className="text-sm font-medium">Received</Label><Input type="date" value={newRecord.received_date} onChange={e => setNewRecord(p => ({...p, received_date: e.target.value}))} className="h-10" /></div>
               <div className="space-y-2"><Label className="text-sm font-medium">Delivered to Atty</Label><Input type="date" value={newRecord.delivered_to_attorney_date} onChange={e => setNewRecord(p => ({...p, delivered_to_attorney_date: e.target.value}))} className="h-10" /></div>
             </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Upload Document</Label>
+              <Input type="file" accept=".pdf,.doc,.docx,.jpg,.png,.tiff" onChange={e => setRecordFile(e.target.files?.[0] || null)} className="h-10" />
+              <p className="text-xs text-muted-foreground">PDF, DOC, DOCX, JPG, PNG, or TIFF — max 20MB</p>
+            </div>
             <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
-            <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowAddRecord(false)}>Cancel</Button><Button type="submit" disabled={addRecord.isPending}>Add</Button></div>
+            <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowAddRecord(false)}>Cancel</Button><Button type="submit" disabled={addRecord.isPending}>{addRecord.isPending ? 'Uploading...' : 'Add'}</Button></div>
           </form>
         </DialogContent>
       </Dialog>
