@@ -22,12 +22,17 @@ const navItems = [
   { title: 'Tasks', path: '/tasks', icon: CheckSquare, roles: ['admin', 'care_manager'] as UserRole[] },
   { title: 'Calendar', path: '/calendar', icon: CalendarDays, roles: ['admin', 'care_manager', 'attorney', 'provider'] as UserRole[] },
   { title: 'Settings', path: '/settings', icon: Settings, roles: ['admin'] as UserRole[] },
+  // Attorney sidebar
+  { title: 'My Cases', path: '/attorney-portal', icon: Scale, roles: ['attorney'] as UserRole[] },
   // Provider sidebar
+  { title: 'My Patients', path: '/provider-portal', icon: Stethoscope, roles: ['provider'] as UserRole[] },
   { title: 'RCM Billing', path: '/provider/rcm', icon: CreditCard, roles: ['provider'] as UserRole[] },
   // Patient sidebar
   { title: 'My Dashboard', path: '/patient/dashboard', icon: Heart, roles: ['patient'] as UserRole[] },
   { title: 'Timeline', path: '/patient/timeline', icon: GitBranch, roles: ['patient'] as UserRole[] },
   { title: 'Messages', path: '/patient/messages', icon: MessageCircle, roles: ['patient'] as UserRole[] },
+  // Funder sidebar
+  { title: 'Portfolio', path: '/funder/dashboard', icon: Banknote, roles: ['funder'] as UserRole[] },
 ];
 
 const roleBadgeStyles: Record<string, string> = {
