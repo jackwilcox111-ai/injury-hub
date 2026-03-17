@@ -31,6 +31,7 @@ import AdminDemandLetters from "./pages/AdminDemandLetters";
 import AdminMessages from "./pages/AdminMessages";
 import AdminRCM from "./pages/AdminRCM";
 import AdminFunding from "./pages/AdminFunding";
+import FunderDashboard from "./pages/FunderDashboard";
 import ProviderRCM from "./pages/ProviderRCM";
 import PatientTimeline from "./pages/PatientTimeline";
 import PatientMessages from "./pages/PatientMessages";
