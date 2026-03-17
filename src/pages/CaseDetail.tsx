@@ -45,9 +45,19 @@ export default function CaseDetail() {
   const [showAddRecord, setShowAddRecord] = useState(false);
   const [showAddLien, setShowAddLien] = useState(false);
   const [updateMsg, setUpdateMsg] = useState('');
-  const [newAppt, setNewAppt] = useState({ provider_id: '', scheduled_date: '', specialty: '', notes: '' });
+  const [newAppt, setNewAppt] = useState({ provider_id: '', scheduled_date: '', specialty: '', notes: '', interpreter_confirmed: false });
   const [newRecord, setNewRecord] = useState({ record_type: '', provider_id: '', received_date: '', delivered_to_attorney_date: '', hipaa_auth_on_file: false, notes: '' });
   const [newLien, setNewLien] = useState({ provider_id: '', amount: 0, status: 'Active', reduction_amount: 0, payment_date: '', notes: '' });
+
+  // Fetch patient profile to check interpreter needs
+  const { data: patientProfile } = useQuery({
+    queryKey: ['patient-profile-for-case', id],
+    queryFn: async () => {
+      const { data } = await supabase.from('patient_profiles').select('needs_interpreter').eq('case_id', id!).maybeSingle();
+      return data;
+    },
+  });
+  const needsInterpreter = patientProfile?.needs_interpreter || false;
 
   const { data: caseData, isLoading } = useQuery({
     queryKey: ['case-detail', id],
