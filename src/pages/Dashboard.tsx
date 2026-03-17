@@ -208,14 +208,15 @@ export default function Dashboard() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <colgroup>
-              <col className="w-[140px]" />
-              <col className="w-[200px]" />
-              <col className="w-[200px]" />
-              <col className="w-[140px]" />
-              {isAdmin && <col className="w-[100px]" />}
-              <col className="w-[80px]" />
-              <col />
               <col className="w-[120px]" />
+              <col className="w-[180px]" />
+              <col className="w-[160px]" />
+              <col className="w-[120px]" />
+              {isAdmin && <col className="w-[80px]" />}
+              <col className="w-[70px]" />
+              <col className="w-[120px]" />
+              <col />
+              <col className="w-[110px]" />
             </colgroup>
             <thead>
               <tr className="border-b border-border bg-accent/50">
@@ -225,6 +226,7 @@ export default function Dashboard() {
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
                 {isAdmin && <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Lien</th>}
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">SoL</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Alert</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Progress</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Updated</th>
               </tr>
@@ -255,6 +257,7 @@ export default function Dashboard() {
                   <td className="px-5 py-3.5">
                     <SoLCountdown sol_date={c.sol_date} sol_period_days={c.sol_period_days} accident_state={c.accident_state} />
                   </td>
+                  <td className="px-5 py-3.5">{c.flag ? <FlagBadge flag={c.flag} /> : <span className="text-xs text-muted-foreground">—</span>}</td>
                   <td className="px-5 py-3.5">
                     <ProgressBar completed={c.appointments_completed || 0} total={c.appointments_total || 0} />
                   </td>
