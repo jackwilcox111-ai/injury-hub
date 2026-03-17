@@ -19,6 +19,8 @@ import AttorneyPortal from "./pages/AttorneyPortal";
 import ProviderPortal from "./pages/ProviderPortal";
 import ReportingDashboard from "./pages/ReportingDashboard";
 import ReferralTracking from "./pages/ReferralTracking";
+import TaskDashboard from "./pages/TaskDashboard";
+import PatientDashboard from "./pages/PatientDashboard";
 import NotFound from "./pages/NotFound";
 import LandingPage from "./pages/network/LandingPage";
 import PatientIntake from "./pages/network/PatientIntake";
