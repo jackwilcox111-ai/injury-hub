@@ -387,7 +387,13 @@ export default function CaseDetail() {
 
       {/* Appointments Table */}
       <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
-        <div className="px-5 py-4 border-b border-border"><h3 className="text-sm font-semibold text-foreground">Appointments</h3></div>
+        <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-foreground">Appointments</h3>
+          <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => {
+            if (c.status === 'Settled') { toast.error('Cannot add appointments to a settled case.'); return; }
+            setShowAddAppt(true);
+          }}>+ Appointment</Button>
+        </div>
         <table className="w-full text-sm">
           <thead><tr className="border-b border-border bg-accent/50">
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Date</th>
