@@ -169,6 +169,74 @@ export type Database = {
         }
         Relationships: []
       }
+      attorney_portal_settings: {
+        Row: {
+          attorney_id: string
+          created_at: string | null
+          custom_welcome_message: string | null
+          id: string
+          show_case_timeline: boolean | null
+          show_demand_letters: boolean | null
+          show_funding_status: boolean | null
+          show_lien_amounts: boolean | null
+          show_medical_specials: boolean | null
+          show_policy_limits: boolean | null
+          show_provider_details: boolean | null
+          show_retainer_status: boolean | null
+          show_settlement_worksheet: boolean | null
+          show_video_messages: boolean | null
+          simplified_mode: boolean | null
+          update_cadence: string
+          updated_at: string | null
+        }
+        Insert: {
+          attorney_id: string
+          created_at?: string | null
+          custom_welcome_message?: string | null
+          id?: string
+          show_case_timeline?: boolean | null
+          show_demand_letters?: boolean | null
+          show_funding_status?: boolean | null
+          show_lien_amounts?: boolean | null
+          show_medical_specials?: boolean | null
+          show_policy_limits?: boolean | null
+          show_provider_details?: boolean | null
+          show_retainer_status?: boolean | null
+          show_settlement_worksheet?: boolean | null
+          show_video_messages?: boolean | null
+          simplified_mode?: boolean | null
+          update_cadence?: string
+          updated_at?: string | null
+        }
+        Update: {
+          attorney_id?: string
+          created_at?: string | null
+          custom_welcome_message?: string | null
+          id?: string
+          show_case_timeline?: boolean | null
+          show_demand_letters?: boolean | null
+          show_funding_status?: boolean | null
+          show_lien_amounts?: boolean | null
+          show_medical_specials?: boolean | null
+          show_policy_limits?: boolean | null
+          show_provider_details?: boolean | null
+          show_retainer_status?: boolean | null
+          show_settlement_worksheet?: boolean | null
+          show_video_messages?: boolean | null
+          simplified_mode?: boolean | null
+          update_cadence?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attorney_portal_settings_attorney_id_fkey"
+            columns: ["attorney_id"]
+            isOneToOne: true
+            referencedRelation: "attorneys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attorneys: {
         Row: {
           contact_name: string | null
@@ -281,6 +349,57 @@ export type Database = {
             columns: ["workplan_template_id"]
             isOneToOne: false
             referencedRelation: "workplan_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      case_timelines: {
+        Row: {
+          auto_generated: boolean | null
+          case_id: string
+          created_at: string | null
+          event_date: string
+          event_detail: string | null
+          event_title: string
+          event_type: string
+          id: string
+          visible_to: string[]
+        }
+        Insert: {
+          auto_generated?: boolean | null
+          case_id: string
+          created_at?: string | null
+          event_date: string
+          event_detail?: string | null
+          event_title: string
+          event_type: string
+          id?: string
+          visible_to?: string[]
+        }
+        Update: {
+          auto_generated?: boolean | null
+          case_id?: string
+          created_at?: string | null
+          event_date?: string
+          event_detail?: string | null
+          event_title?: string
+          event_type?: string
+          id?: string
+          visible_to?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "case_timelines_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_timelines_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
             referencedColumns: ["id"]
           },
         ]
@@ -491,6 +610,95 @@ export type Database = {
           },
         ]
       }
+      demand_letters: {
+        Row: {
+          case_id: string
+          colossus_factors: Json | null
+          colossus_score: number | null
+          content: string
+          created_at: string | null
+          finalized_at: string | null
+          generated_by: string | null
+          id: string
+          medical_specials: number | null
+          model_used: string | null
+          pain_suffering_demand: number | null
+          reviewed_by: string | null
+          sent_at: string | null
+          sent_to: string | null
+          status: string
+          total_demand: number | null
+          version: number
+        }
+        Insert: {
+          case_id: string
+          colossus_factors?: Json | null
+          colossus_score?: number | null
+          content: string
+          created_at?: string | null
+          finalized_at?: string | null
+          generated_by?: string | null
+          id?: string
+          medical_specials?: number | null
+          model_used?: string | null
+          pain_suffering_demand?: number | null
+          reviewed_by?: string | null
+          sent_at?: string | null
+          sent_to?: string | null
+          status?: string
+          total_demand?: number | null
+          version?: number
+        }
+        Update: {
+          case_id?: string
+          colossus_factors?: Json | null
+          colossus_score?: number | null
+          content?: string
+          created_at?: string | null
+          finalized_at?: string | null
+          generated_by?: string | null
+          id?: string
+          medical_specials?: number | null
+          model_used?: string | null
+          pain_suffering_demand?: number | null
+          reviewed_by?: string | null
+          sent_at?: string | null
+          sent_to?: string | null
+          status?: string
+          total_demand?: number | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demand_letters_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demand_letters_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demand_letters_generated_by_fkey"
+            columns: ["generated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demand_letters_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           case_id: string | null
@@ -612,8 +820,15 @@ export type Database = {
           case_id: string
           created_at: string | null
           funder_id: string | null
+          funding_agreement_date: string | null
+          funding_agreement_signed: boolean | null
+          funding_company: string | null
+          funding_type: string | null
           id: string
+          interest_rate: number | null
           notes: string | null
+          payoff_amount: number | null
+          plaintiff_name: string | null
           repayment_amount: number | null
           repayment_date: string | null
           requested_amount: number
@@ -625,8 +840,15 @@ export type Database = {
           case_id: string
           created_at?: string | null
           funder_id?: string | null
+          funding_agreement_date?: string | null
+          funding_agreement_signed?: boolean | null
+          funding_company?: string | null
+          funding_type?: string | null
           id?: string
+          interest_rate?: number | null
           notes?: string | null
+          payoff_amount?: number | null
+          plaintiff_name?: string | null
           repayment_amount?: number | null
           repayment_date?: string | null
           requested_amount: number
@@ -638,8 +860,15 @@ export type Database = {
           case_id?: string
           created_at?: string | null
           funder_id?: string | null
+          funding_agreement_date?: string | null
+          funding_agreement_signed?: boolean | null
+          funding_company?: string | null
+          funding_type?: string | null
           id?: string
+          interest_rate?: number | null
           notes?: string | null
+          payoff_amount?: number | null
+          plaintiff_name?: string | null
           repayment_amount?: number | null
           repayment_date?: string | null
           requested_amount?: number
@@ -665,6 +894,96 @@ export type Database = {
             columns: ["funder_id"]
             isOneToOne: false
             referencedRelation: "funder_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      insurance_colossus_data: {
+        Row: {
+          case_id: string
+          created_at: string | null
+          estimated_colossus_range_high: number | null
+          estimated_colossus_range_low: number | null
+          id: string
+          imaging_performed: boolean | null
+          impairment_rating_percent: number | null
+          injury_severity: string | null
+          insurance_carrier: string | null
+          liability_strength: string | null
+          lost_wages_amount: number | null
+          lost_wages_claimed: boolean | null
+          notes: string | null
+          pain_duration_description: string | null
+          permanent_impairment: boolean | null
+          policy_limit: number | null
+          pre_existing_conditions: boolean | null
+          specialty_count: number | null
+          surgery_performed: boolean | null
+          total_medical_specials: number | null
+          treatment_duration_days: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          case_id: string
+          created_at?: string | null
+          estimated_colossus_range_high?: number | null
+          estimated_colossus_range_low?: number | null
+          id?: string
+          imaging_performed?: boolean | null
+          impairment_rating_percent?: number | null
+          injury_severity?: string | null
+          insurance_carrier?: string | null
+          liability_strength?: string | null
+          lost_wages_amount?: number | null
+          lost_wages_claimed?: boolean | null
+          notes?: string | null
+          pain_duration_description?: string | null
+          permanent_impairment?: boolean | null
+          policy_limit?: number | null
+          pre_existing_conditions?: boolean | null
+          specialty_count?: number | null
+          surgery_performed?: boolean | null
+          total_medical_specials?: number | null
+          treatment_duration_days?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          case_id?: string
+          created_at?: string | null
+          estimated_colossus_range_high?: number | null
+          estimated_colossus_range_low?: number | null
+          id?: string
+          imaging_performed?: boolean | null
+          impairment_rating_percent?: number | null
+          injury_severity?: string | null
+          insurance_carrier?: string | null
+          liability_strength?: string | null
+          lost_wages_amount?: number | null
+          lost_wages_claimed?: boolean | null
+          notes?: string | null
+          pain_duration_description?: string | null
+          permanent_impairment?: boolean | null
+          policy_limit?: number | null
+          pre_existing_conditions?: boolean | null
+          specialty_count?: number | null
+          surgery_performed?: boolean | null
+          total_medical_specials?: number | null
+          treatment_duration_days?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insurance_colossus_data_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: true
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "insurance_colossus_data_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: true
+            referencedRelation: "cases_with_counts"
             referencedColumns: ["id"]
           },
         ]
@@ -972,6 +1291,90 @@ export type Database = {
           },
         ]
       }
+      policy_details: {
+        Row: {
+          adjuster_email: string | null
+          adjuster_name: string | null
+          adjuster_phone: string | null
+          case_id: string
+          claim_number: string | null
+          coverage_dispute_notes: string | null
+          coverage_disputed: boolean | null
+          created_at: string | null
+          id: string
+          insurance_carrier: string | null
+          medpay_limit: number | null
+          pip_exhausted: boolean | null
+          pip_limit: number | null
+          policy_limit_bodily_injury: number | null
+          policy_limit_per_accident: number | null
+          retainer_date: string | null
+          retainer_fee_percent: number | null
+          retainer_signed: boolean | null
+          um_uim_limit: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          adjuster_email?: string | null
+          adjuster_name?: string | null
+          adjuster_phone?: string | null
+          case_id: string
+          claim_number?: string | null
+          coverage_dispute_notes?: string | null
+          coverage_disputed?: boolean | null
+          created_at?: string | null
+          id?: string
+          insurance_carrier?: string | null
+          medpay_limit?: number | null
+          pip_exhausted?: boolean | null
+          pip_limit?: number | null
+          policy_limit_bodily_injury?: number | null
+          policy_limit_per_accident?: number | null
+          retainer_date?: string | null
+          retainer_fee_percent?: number | null
+          retainer_signed?: boolean | null
+          um_uim_limit?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          adjuster_email?: string | null
+          adjuster_name?: string | null
+          adjuster_phone?: string | null
+          case_id?: string
+          claim_number?: string | null
+          coverage_dispute_notes?: string | null
+          coverage_disputed?: boolean | null
+          created_at?: string | null
+          id?: string
+          insurance_carrier?: string | null
+          medpay_limit?: number | null
+          pip_exhausted?: boolean | null
+          pip_limit?: number | null
+          policy_limit_bodily_injury?: number | null
+          policy_limit_per_accident?: number | null
+          retainer_date?: string | null
+          retainer_fee_percent?: number | null
+          retainer_signed?: boolean | null
+          um_uim_limit?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policy_details_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: true
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policy_details_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: true
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -1103,6 +1506,97 @@ export type Database = {
           status?: string
         }
         Relationships: []
+      }
+      rcm_cases: {
+        Row: {
+          appeal_date: string | null
+          appeal_submitted: boolean | null
+          billed_amount: number
+          case_id: string | null
+          claim_number: string | null
+          cpt_codes: string[]
+          created_at: string | null
+          date_of_service: string
+          denial_code: string | null
+          denial_reason: string | null
+          icd_codes: string[]
+          id: string
+          insurance_carrier: string | null
+          notes: string | null
+          paid_amount: number | null
+          patient_name: string
+          payment_date: string | null
+          provider_id: string
+          submission_date: string | null
+          submission_status: string
+        }
+        Insert: {
+          appeal_date?: string | null
+          appeal_submitted?: boolean | null
+          billed_amount: number
+          case_id?: string | null
+          claim_number?: string | null
+          cpt_codes?: string[]
+          created_at?: string | null
+          date_of_service: string
+          denial_code?: string | null
+          denial_reason?: string | null
+          icd_codes?: string[]
+          id?: string
+          insurance_carrier?: string | null
+          notes?: string | null
+          paid_amount?: number | null
+          patient_name: string
+          payment_date?: string | null
+          provider_id: string
+          submission_date?: string | null
+          submission_status?: string
+        }
+        Update: {
+          appeal_date?: string | null
+          appeal_submitted?: boolean | null
+          billed_amount?: number
+          case_id?: string | null
+          claim_number?: string | null
+          cpt_codes?: string[]
+          created_at?: string | null
+          date_of_service?: string
+          denial_code?: string | null
+          denial_reason?: string | null
+          icd_codes?: string[]
+          id?: string
+          insurance_carrier?: string | null
+          notes?: string | null
+          paid_amount?: number | null
+          patient_name?: string
+          payment_date?: string | null
+          provider_id?: string
+          submission_date?: string | null
+          submission_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rcm_cases_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rcm_cases_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rcm_cases_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       records: {
         Row: {
@@ -1251,6 +1745,89 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_messages: {
+        Row: {
+          ai_generated_script: boolean | null
+          case_id: string | null
+          created_at: string | null
+          created_by: string | null
+          duration_seconds: number | null
+          id: string
+          message_type: string
+          recipient_id: string | null
+          recipient_role: string
+          script: string
+          sent_at: string | null
+          storage_path: string | null
+          thumbnail_path: string | null
+          viewed: boolean | null
+          viewed_at: string | null
+        }
+        Insert: {
+          ai_generated_script?: boolean | null
+          case_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          duration_seconds?: number | null
+          id?: string
+          message_type: string
+          recipient_id?: string | null
+          recipient_role: string
+          script: string
+          sent_at?: string | null
+          storage_path?: string | null
+          thumbnail_path?: string | null
+          viewed?: boolean | null
+          viewed_at?: string | null
+        }
+        Update: {
+          ai_generated_script?: boolean | null
+          case_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          duration_seconds?: number | null
+          id?: string
+          message_type?: string
+          recipient_id?: string | null
+          recipient_role?: string
+          script?: string
+          sent_at?: string | null
+          storage_path?: string | null
+          thumbnail_path?: string | null
+          viewed?: boolean | null
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_messages_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_messages_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_messages_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_messages_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
