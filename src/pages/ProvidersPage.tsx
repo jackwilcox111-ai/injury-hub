@@ -354,6 +354,13 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
                 </td>
                 <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-primary">{activeCases}</td>
                 <td className="px-5 py-3.5">
+                  {p.interpreter_available && (
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                      <Languages className="w-3 h-3" /> Yes
+                    </span>
+                  )}
+                </td>
+                <td className="px-5 py-3.5">
                   <span className={`flex items-center gap-1 text-xs ${p.hipaa_baa_on_file ? 'text-emerald-600' : 'text-red-500'}`}>
                     {p.hipaa_baa_on_file ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
                     {p.hipaa_baa_on_file ? 'On File' : 'Missing'}
