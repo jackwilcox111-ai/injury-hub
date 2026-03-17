@@ -133,16 +133,16 @@ export default function Dashboard() {
             <span className="text-[10px] bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-medium ml-1">{flaggedCases.length}</span>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm table-fixed">
               <thead>
                 <tr className="border-b border-border bg-accent/50">
-                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Case</th>
-                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Patient</th>
-                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Attorney</th>
-                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
-                  {isAdmin && <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Lien</th>}
-                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">SoL</th>
-                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Alert</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground w-[12%]">Case</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground w-[18%]">Patient</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground w-[18%]">Attorney</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground w-[12%]">Status</th>
+                  {isAdmin && <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground w-[10%]">Lien</th>}
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground w-[8%]">SoL</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground w-[12%]">Alert</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -187,17 +187,17 @@ export default function Dashboard() {
           </Button>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm table-fixed">
             <thead>
               <tr className="border-b border-border bg-accent/50">
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Case</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Patient</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Attorney</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
-                {isAdmin && <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Lien</th>}
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">SoL</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Progress</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Updated</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground w-[12%]">Case</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground w-[18%]">Patient</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground w-[18%]">Attorney</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground w-[12%]">Status</th>
+                {isAdmin && <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground w-[10%]">Lien</th>}
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground w-[8%]">SoL</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground w-[12%]">Progress</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground w-[10%]">Updated</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
