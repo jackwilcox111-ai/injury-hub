@@ -218,6 +218,15 @@ export default function PatientDashboard() {
         </div>
       </div>
 
+      {/* "I have a question" button */}
+      <div className="bg-card border border-border rounded-xl p-5 flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-foreground">Have a question about your case?</p>
+          <p className="text-xs text-muted-foreground">Your care manager will respond within 24 hours</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={askQuestion}><HelpCircle className="w-3.5 h-3.5 mr-1" /> I Have a Question</Button>
+      </div>
+
       {/* Upcoming Appointments */}
       <div className="bg-card border border-border rounded-xl p-5 space-y-3">
         <h3 className="text-sm font-semibold text-foreground flex items-center gap-2"><Calendar className="w-4 h-4 text-primary" /> Upcoming Appointments</h3>
