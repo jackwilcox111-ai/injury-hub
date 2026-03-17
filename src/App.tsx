@@ -65,10 +65,6 @@ function AuthRedirect() {
   return <Navigate to="/dashboard" replace />;
 }
 
-// Placeholder for funder portal
-function FunderDashboardPlaceholder() {
-  return <div className="p-8"><h1 className="text-2xl font-display font-bold">Funder Portal</h1><p className="text-muted-foreground mt-2">Coming in Phase 2 — your portfolio dashboard will appear here.</p></div>;
-}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
