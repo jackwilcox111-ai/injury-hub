@@ -68,6 +68,7 @@ export default function PatientIntake() {
           has_attorney: hasAttorney, attorney_info: attorneyInfo,
           sms_consent: smsConsent, signature_name: signatureName,
           referral_source: referralSource || null,
+          needs_interpreter: needsInterpreter,
         },
       });
       if (error) throw error;

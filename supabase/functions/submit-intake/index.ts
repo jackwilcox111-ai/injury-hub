@@ -71,6 +71,7 @@ Deno.serve(async (req) => {
         hipaa_auth_date: new Date().toISOString(),
         assignment_of_benefits_signed: true,
         aob_date: new Date().toISOString(),
+        needs_interpreter: needs_interpreter || false,
       });
 
     if (patientError) throw patientError;

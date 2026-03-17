@@ -290,6 +290,13 @@ export default function ProvidersPage() {
               <div className="space-y-2"><Label className="text-sm font-medium">Specialty</Label><Input value={form.specialty} onChange={e => setForm(p => ({...p, specialty: e.target.value}))} className="h-10" /></div>
               <div className="space-y-2"><Label className="text-sm font-medium">Locations</Label><Input type="number" value={form.locations} onChange={e => setForm(p => ({...p, locations: Number(e.target.value)}))} className="h-10" /></div>
             </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-sm font-medium">Interpreter Available</Label>
+                <p className="text-xs text-muted-foreground">This provider can accommodate interpreter patients</p>
+              </div>
+              <Switch checked={form.interpreter_available} onCheckedChange={v => setForm(p => ({...p, interpreter_available: v}))} />
+            </div>
             <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button><Button type="submit" disabled={addProvider.isPending}>Add Provider</Button></div>
           </form>
         </DialogContent>
