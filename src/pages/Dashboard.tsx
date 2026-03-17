@@ -132,30 +132,48 @@ export default function Dashboard() {
             <h3 className="text-sm font-semibold text-foreground">Cases Requiring Attention</h3>
             <span className="text-[10px] bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-medium ml-1">{flaggedCases.length}</span>
           </div>
-          <div className="divide-y divide-border">
-            {flaggedCases.map(c => (
-              <button
-                key={c.id}
-                onClick={() => navigate(`/cases/${c.id}`)}
-                className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-accent transition-colors"
-              >
-                <div className="flex items-center gap-4 min-w-0">
-                  <span className="text-xs font-mono text-primary font-medium shrink-0">{c.case_number}</span>
-                  <span className="text-sm text-foreground font-medium">{c.patient_name}</span>
-                  {c.patient_phone && (
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
-                      <Phone className="w-3 h-3" />{c.patient_phone}
-                    </span>
-                  )}
-                  <span className="text-xs text-muted-foreground">{(c as any).attorneys?.firm_name || ''}</span>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <StatusBadge status={c.status || ''} />
-                  <SoLCountdown sol_date={c.sol_date} sol_period_days={c.sol_period_days} accident_state={c.accident_state} />
-                  <FlagBadge flag={c.flag} />
-                </div>
-              </button>
-            ))}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-accent/50">
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Case</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Patient</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Attorney</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
+                  {isAdmin && <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Lien</th>}
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">SoL</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Alert</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {flaggedCases.map(c => (
+                  <tr
+                    key={c.id}
+                    onClick={() => navigate(`/cases/${c.id}`)}
+                    className="cursor-pointer hover:bg-accent/50 transition-colors"
+                  >
+                    <td className="px-5 py-3.5 font-mono text-xs text-primary font-medium">{c.case_number}</td>
+                    <td className="px-5 py-3.5">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{c.patient_name}</p>
+                        {c.patient_phone && (
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Phone className="w-3 h-3" />{c.patient_phone}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-5 py-3.5 text-muted-foreground text-xs">{(c as any).attorneys?.firm_name || '—'}</td>
+                    <td className="px-5 py-3.5"><StatusBadge status={c.status || ''} /></td>
+                    {isAdmin && <td className="px-5 py-3.5"><FinancialValue value={c.lien_amount} /></td>}
+                    <td className="px-5 py-3.5">
+                      <SoLCountdown sol_date={c.sol_date} sol_period_days={c.sol_period_days} accident_state={c.accident_state} />
+                    </td>
+                    <td className="px-5 py-3.5"><FlagBadge flag={c.flag} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
