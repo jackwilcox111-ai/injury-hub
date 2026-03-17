@@ -731,7 +731,7 @@ export default function CaseDetail() {
       )}
 
       {/* Edit Record Dialog */}
-      <Dialog open={showEditRecord} onOpenChange={v => { setShowEditRecord(v); if (!v) setEditRecord(null); }}>
+      <Dialog open={showEditRecord} onOpenChange={v => { setShowEditRecord(v); if (!v) { setEditRecord(null); setEditRecordFile(null); } }}>
         <DialogContent>
           <DialogHeader><DialogTitle>Edit Record</DialogTitle></DialogHeader>
           {editRecord && (
