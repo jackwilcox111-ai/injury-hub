@@ -470,12 +470,12 @@ export default function CaseDetail() {
           </tr></thead>
           <tbody className="divide-y divide-border">
             {records?.map(r => (
-              <tr key={r.id} className="hover:bg-accent/30 transition-colors">
-                <td className="px-5 py-3 text-xs font-medium">{r.record_type || '—'}</td>
+              <tr key={r.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => { setEditRecord({ ...r, provider_id: r.provider_id || '' }); setShowEditRecord(true); }}>
+                <td className="px-5 py-3 text-xs font-medium text-primary">{r.record_type || '—'}</td>
                 <td className="px-5 py-3 text-xs">{(r as any).providers?.name || '—'}</td>
                 <td className="px-5 py-3 font-mono text-xs">{r.received_date || '—'}</td>
                 <td className="px-5 py-3 font-mono text-xs">{r.delivered_to_attorney_date || '—'}</td>
-                <td className="px-5 py-3 text-xs">{r.hipaa_auth_on_file ? <span className="text-emerald-600">✓ On file</span> : <span className="text-red-500">✗ Missing</span>}</td>
+                <td className="px-5 py-3 text-xs">{r.hipaa_auth_on_file ? <span className="text-emerald-600">✓ On file</span> : <span className="text-destructive">✗ Missing</span>}</td>
               </tr>
             ))}
             {(!records || records.length === 0) && (
