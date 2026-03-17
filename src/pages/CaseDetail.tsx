@@ -204,6 +204,22 @@ export default function CaseDetail() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const updateRecord = useMutation({
+    mutationFn: async (rec: any) => {
+      const { error } = await supabase.from('records').update({
+        record_type: rec.record_type || null,
+        provider_id: rec.provider_id || null,
+        received_date: rec.received_date || null,
+        delivered_to_attorney_date: rec.delivered_to_attorney_date || null,
+        hipaa_auth_on_file: rec.hipaa_auth_on_file,
+        notes: rec.notes || null,
+      }).eq('id', rec.id);
+      if (error) throw error;
+    },
+    onSuccess: () => { invalidateAll(); setShowEditRecord(false); setEditRecord(null); toast.success('Record updated'); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   const addLienMutation = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.from('liens').insert({
