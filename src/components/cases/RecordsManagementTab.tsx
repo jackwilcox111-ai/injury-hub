@@ -36,7 +36,7 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
   const { data: records, isLoading } = useQuery({
     queryKey: ['case-records-mgmt', caseId],
     queryFn: async () => {
-      const { data } = await supabase.from('records').select('*, providers(name)')
+      const { data } = await supabase.from('records').select('*, providers(name), documents(id, file_name, storage_path)')
         .eq('case_id', caseId).order('created_at', { ascending: false });
       return data || [];
     },
@@ -58,8 +58,27 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
 
   const addRecord = useMutation({
     mutationFn: async () => {
-      // Insert the record metadata
-      const { data: recordData, error } = await supabase.from('records').insert({
+      let documentId: string | null = null;
+
+      // Upload file first if provided, so we can link it
+      if (recordFile) {
+        const path = `${caseId}/${Date.now()}-${recordFile.name}`;
+        const { error: uploadError } = await supabase.storage.from('documents').upload(path, recordFile);
+        if (uploadError) throw uploadError;
+        const { data: docData, error: docError } = await supabase.from('documents').insert({
+          case_id: caseId,
+          file_name: recordFile.name,
+          storage_path: path,
+          document_type: newRecord.record_type || 'Medical Record',
+          uploader_id: profile?.id,
+          visible_to: ['admin', 'care_manager', 'attorney'],
+        }).select('id').single();
+        if (docError) throw docError;
+        documentId = docData.id;
+      }
+
+      // Insert the record metadata with document link
+      const { error } = await supabase.from('records').insert({
         case_id: caseId,
         provider_id: newRecord.provider_id || null,
         record_type: newRecord.record_type || null,
@@ -67,24 +86,9 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
         delivered_to_attorney_date: newRecord.delivered_to_attorney_date || null,
         hipaa_auth_on_file: newRecord.hipaa_auth_on_file,
         notes: newRecord.notes || null,
-      }).select('id').single();
+        document_id: documentId,
+      });
       if (error) throw error;
-
-      // Upload file if provided
-      if (recordFile) {
-        const path = `${caseId}/${Date.now()}-${recordFile.name}`;
-        const { error: uploadError } = await supabase.storage.from('documents').upload(path, recordFile);
-        if (uploadError) throw uploadError;
-        const { error: docError } = await supabase.from('documents').insert({
-          case_id: caseId,
-          file_name: recordFile.name,
-          storage_path: path,
-          document_type: newRecord.record_type || 'Medical Record',
-          uploader_id: profile?.id,
-          visible_to: ['admin', 'care_manager', 'attorney'],
-        });
-        if (docError) throw docError;
-      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['case-records-mgmt', caseId] });
@@ -261,31 +265,35 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
       ) : (
         <div className="border border-border rounded-xl overflow-hidden">
           <table className="w-full text-sm">
-            <thead><tr className="border-b border-border bg-accent/50">
+           <thead><tr className="border-b border-border bg-accent/50">
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Type</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Document</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Received</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Delivered to Atty</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">HIPAA</th>
-              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Status</th>
             </tr></thead>
             <tbody className="divide-y divide-border">
               {records.map((r: any) => {
-                const status = r.delivered_to_attorney_date ? 'Delivered' : r.received_date ? 'Received' : 'Requested';
+                const doc = r.documents;
                 return (
                   <tr key={r.id} className="hover:bg-accent/30 transition-colors">
                     <td className="px-4 py-2.5 text-xs font-medium">{r.record_type || '—'}</td>
                     <td className="px-4 py-2.5 text-xs">{r.providers?.name || '—'}</td>
+                    <td className="px-4 py-2.5 text-xs">
+                      {doc ? (
+                        <button onClick={() => downloadDoc(doc.storage_path, doc.file_name)}
+                          className="flex items-center gap-1 text-primary hover:underline">
+                          <FileText className="w-3 h-3" />
+                          <span className="truncate max-w-[140px]">{doc.file_name}</span>
+                        </button>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </td>
                     <td className="px-4 py-2.5 font-mono text-xs">{r.received_date || <span className="text-amber-500"><Clock className="w-3 h-3 inline" /> Pending</span>}</td>
                     <td className="px-4 py-2.5 font-mono text-xs">{r.delivered_to_attorney_date || '—'}</td>
-                    <td className="px-4 py-2.5 text-xs">{r.hipaa_auth_on_file ? <span className="text-emerald-600">✓</span> : <span className="text-red-500">✗</span>}</td>
-                    <td className="px-4 py-2.5">
-                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                        status === 'Delivered' ? 'bg-blue-50 text-blue-700' :
-                        status === 'Received' ? 'bg-emerald-50 text-emerald-700' :
-                        'bg-amber-50 text-amber-700'
-                      }`}>{status}</span>
-                    </td>
+                    <td className="px-4 py-2.5 text-xs">{r.hipaa_auth_on_file ? <span className="text-emerald-600">✓</span> : <span className="text-destructive">✗ Missing</span>}</td>
                   </tr>
                 );
               })}

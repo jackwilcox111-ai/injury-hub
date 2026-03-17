@@ -1660,6 +1660,7 @@ export type Database = {
           case_id: string
           created_at: string | null
           delivered_to_attorney_date: string | null
+          document_id: string | null
           hipaa_auth_on_file: boolean | null
           id: string
           notes: string | null
@@ -1671,6 +1672,7 @@ export type Database = {
           case_id: string
           created_at?: string | null
           delivered_to_attorney_date?: string | null
+          document_id?: string | null
           hipaa_auth_on_file?: boolean | null
           id?: string
           notes?: string | null
@@ -1682,6 +1684,7 @@ export type Database = {
           case_id?: string
           created_at?: string | null
           delivered_to_attorney_date?: string | null
+          document_id?: string | null
           hipaa_auth_on_file?: boolean | null
           id?: string
           notes?: string | null
@@ -1702,6 +1705,13 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "records_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
             referencedColumns: ["id"]
           },
           {
