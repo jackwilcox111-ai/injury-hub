@@ -78,23 +78,35 @@ export default function ProvidersPage() {
   const approveApp = useMutation({
     mutationFn: async (app: any) => {
       // Create provider record
-      const { error: provErr } = await supabase.from('providers').insert({
+      const { data: provData, error: provErr } = await supabase.from('providers').insert({
         name: app.practice_name,
         specialty: app.specialty || null,
         locations: app.locations || 1,
         hipaa_baa_on_file: app.hipaa_baa_agreed || false,
         status: 'Active',
         notes: `Approved from application. Contact: ${app.contact_name}, ${app.email}, ${app.phone}`,
-      });
+      }).select('id').single();
       if (provErr) throw provErr;
+
       // Update application status
       const { error: updErr } = await supabase.from('provider_applications').update({ status: 'Approved' }).eq('id', app.id);
       if (updErr) throw updErr;
+
+      // Invite provider user with login credentials
+      const { error: inviteErr } = await supabase.functions.invoke('invite-user', {
+        body: {
+          email: app.email,
+          full_name: app.contact_name,
+          role: 'provider',
+          provider_id: provData.id,
+        },
+      });
+      if (inviteErr) throw inviteErr;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['providers'] });
       queryClient.invalidateQueries({ queryKey: ['provider-applications'] });
-      toast.success('Provider approved and added to network');
+      toast.success('Provider approved — login invitation sent');
     },
     onError: (e: any) => toast.error(e.message),
   });
