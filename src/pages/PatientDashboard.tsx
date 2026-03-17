@@ -68,7 +68,18 @@ export default function PatientDashboard() {
     },
   });
 
-  const submitCheckin = useMutation({
+  const { data: funding } = useQuery({
+    queryKey: ['patient-funding', caseId],
+    enabled: !!caseId,
+    queryFn: async () => {
+      const { data } = await supabase.from('funding_requests')
+        .select('*')
+        .eq('case_id', caseId)
+        .limit(5);
+      return data || [];
+    },
+  });
+
     mutationFn: async () => {
       const { error } = await supabase.from('patient_checkins').insert({
         case_id: caseId,
