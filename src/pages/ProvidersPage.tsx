@@ -259,6 +259,7 @@ export default function ProvidersPage() {
                 <div><span className="text-muted-foreground">Specialty:</span> <span className="font-medium">{selectedProvider.specialty}</span></div>
                 <div><span className="text-muted-foreground">Locations:</span> <span className="font-medium">{selectedProvider.locations}</span></div>
                 <div><span className="text-muted-foreground">Rating:</span> <span className="font-medium">{selectedProvider.rating}</span></div>
+                <div><span className="text-muted-foreground">Phone:</span> <span className="font-mono text-sm">{(selectedProvider as any).phone || '—'}</span></div>
                 <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={selectedProvider.status} /></div>
               </div>
               <div className="border-t border-border pt-3 space-y-3">
@@ -393,6 +394,7 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
         <table className="w-full text-sm">
           <thead><tr className="border-b border-border bg-accent/50">
             <SortableHeader label="Provider" sortKey="name" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+            <SortableHeader label="Phone" sortKey="phone" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
             <SortableHeader label="Specialty" sortKey="specialty" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Languages / Interpreter</th>
             <SortableHeader label="Locations" sortKey="locations" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
@@ -409,6 +411,7 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
               return (
                 <tr key={p.id} className="hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => onSelect(p.id)}>
                   <td className="px-5 py-3.5 font-medium text-foreground">{p.name}</td>
+                  <td className="px-5 py-3.5 font-mono text-xs text-muted-foreground">{(p as any).phone || '—'}</td>
                   <td className="px-5 py-3.5 text-muted-foreground text-xs">{p.specialty || '—'}</td>
                   <td className="px-5 py-3.5">
                     <div className="flex flex-wrap items-center gap-1">
