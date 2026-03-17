@@ -80,6 +80,7 @@ export default function PatientDashboard() {
     },
   });
 
+  const submitCheckin = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.from('patient_checkins').insert({
         case_id: caseId,
