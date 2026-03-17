@@ -16,6 +16,7 @@ export default function ProviderJoin() {
   const [form, setForm] = useState({
     practice_name: '', contact_name: '', specialty: '', email: '', phone: '',
     locations: 1, state: '', license_number: '', lien_experience: false, hipaa_baa_agreed: false,
+    referral_source: '',
   });
 
   const set = (k: string, v: any) => setForm(prev => ({ ...prev, [k]: v }));

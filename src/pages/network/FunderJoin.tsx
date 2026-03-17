@@ -15,6 +15,7 @@ export default function FunderJoin() {
   const [form, setForm] = useState({
     company_name: '', contact_name: '', email: '', phone: '',
     funding_min: '', funding_max: '', accredited: '', experience: '',
+    referral_source: '',
   });
 
   const set = (k: string, v: any) => setForm(prev => ({ ...prev, [k]: v }));
