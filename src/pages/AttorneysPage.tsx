@@ -227,7 +227,9 @@ export default function AttorneysPage() {
                       </Button>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
+
               </tbody>
             </table>
           </div>
