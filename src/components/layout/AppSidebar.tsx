@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FolderOpen, Stethoscope, Scale,
   DollarSign, CalendarDays, Settings, LogOut, ShieldCheck,
-  BarChart3, Link2
+  BarChart3, Link2, CheckSquare
 } from 'lucide-react';
 
 const navItems = [
