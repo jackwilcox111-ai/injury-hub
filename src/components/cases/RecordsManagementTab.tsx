@@ -69,7 +69,7 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
           case_id: caseId,
           file_name: recordFile.name,
           storage_path: path,
-          document_type: newRecord.record_type || 'Medical Record',
+          document_type: 'Medical Record',
           uploader_id: profile?.id,
           visible_to: ['admin', 'care_manager', 'attorney'],
         }).select('id').single();

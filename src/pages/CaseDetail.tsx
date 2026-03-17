@@ -218,7 +218,7 @@ export default function CaseDetail() {
           case_id: id!,
           file_name: editRecordFile.name,
           storage_path: path,
-          document_type: rec.record_type || 'Medical Record',
+          document_type: 'Medical Record',
           uploader_id: profile?.id,
           visible_to: ['admin', 'care_manager', 'attorney'],
         }).select('id').single();
