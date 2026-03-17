@@ -362,9 +362,10 @@ export default function AttorneyPortal() {
                       </div>
                     </div>
                     <MediaPlayer
-                      storageUrl={msg.storage_path || undefined}
-                      mediaType={msg.storage_path?.includes('video') ? 'video' : msg.storage_path?.includes('audio') ? 'audio' : 'text'}
+                      storageUrl={msg.storage_path || ''}
+                      mediaType={msg.storage_path ? (msg.storage_path.includes('video') ? 'video' : 'audio') : 'text'}
                       transcript={msg.script}
+                      textContent={!msg.storage_path ? msg.script : undefined}
                       onViewed={() => markViewed.mutate(msg.id)}
                     />
                   </div>
