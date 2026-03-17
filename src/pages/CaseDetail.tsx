@@ -750,6 +750,18 @@ export default function CaseDetail() {
                 <Checkbox checked={editRecord.hipaa_auth_on_file || false} onCheckedChange={v => setEditRecord((p: any) => ({...p, hipaa_auth_on_file: !!v}))} id="edit-hipaa" />
                 <Label htmlFor="edit-hipaa" className="text-sm">HIPAA Authorization on file</Label>
               </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Document</Label>
+                {editRecord.documents ? (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <FileText className="w-3.5 h-3.5" />
+                    <span className="truncate">{editRecord.documents.file_name}</span>
+                    <span className="text-[10px]">(attached)</span>
+                  </div>
+                ) : null}
+                <Input type="file" accept=".pdf,.doc,.docx,.jpg,.png,.tiff" onChange={e => setEditRecordFile(e.target.files?.[0] || null)} />
+                <p className="text-xs text-muted-foreground">{editRecord.documents ? 'Upload to replace existing file' : 'PDF, DOC, DOCX, JPG, PNG, or TIFF'}</p>
+              </div>
               <div className="space-y-2"><Label className="text-sm font-medium">Notes</Label><Textarea value={editRecord.notes || ''} onChange={e => setEditRecord((p: any) => ({...p, notes: e.target.value}))} /></div>
               <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
               <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowEditRecord(false)}>Cancel</Button><Button type="submit" disabled={updateRecord.isPending}>{updateRecord.isPending ? 'Saving...' : 'Save'}</Button></div>
