@@ -256,6 +256,19 @@ export default function ProvidersPage() {
                 <div><span className="text-muted-foreground">Rating:</span> <span className="font-medium">{selectedProvider.rating}</span></div>
                 <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={selectedProvider.status} /></div>
               </div>
+              <div className="flex items-center justify-between py-2 border-t border-border">
+                <div className="flex items-center gap-2">
+                  <Languages className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm">Interpreter Available</span>
+                </div>
+                {isAdmin ? (
+                  <Switch checked={selectedProvider.interpreter_available || false} onCheckedChange={v => updateProvider.mutate({ interpreter_available: v })} />
+                ) : (
+                  <span className={`text-xs font-medium ${selectedProvider.interpreter_available ? 'text-blue-600' : 'text-muted-foreground'}`}>
+                    {selectedProvider.interpreter_available ? 'Yes' : 'No'}
+                  </span>
+                )}
+              </div>
               {linkedCases && linkedCases.length > 0 && (
                 <div>
                   <p className="text-sm font-semibold mb-2">Active Cases</p>
