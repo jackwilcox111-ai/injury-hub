@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StatusBadge } from '@/components/global/StatusBadge';
 import { SoLCountdown } from '@/components/global/SoLCountdown';
+import { SortableHeader } from '@/components/global/SortableHeader';
+import { useSortableTable } from '@/hooks/use-sortable-table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { AttorneySettingsModal } from '@/components/attorney/AttorneySettingsModal';
 import { toast } from 'sonner';
-import { Plus, TrendingUp, Calendar, Users, Settings, Check, X, CheckCircle2, XCircle, Languages } from 'lucide-react';
+import { Plus, TrendingUp, Calendar, Users, Settings, Check, X, CheckCircle2, XCircle, Languages, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { LANGUAGES } from '@/lib/languages';
 
@@ -24,6 +26,7 @@ export default function AttorneysPage() {
   const [showDetail, setShowDetail] = useState<string | null>(null);
   const [settingsTarget, setSettingsTarget] = useState<{ id: string; firm_name: string; contact_name: string | null } | null>(null);
   const [form, setForm] = useState({ firm_name: '', contact_name: '', email: '', phone: '', languages_spoken: ['English'] as string[] });
+  const [search, setSearch] = useState('');
 
   const { data: attorneys, isLoading } = useQuery({
     queryKey: ['attorneys'],
@@ -138,6 +141,13 @@ export default function AttorneysPage() {
     ? activeAttorneys.reduce((sum, a) => sum + (a.avgSettlement * a.monthlyVolume * 36), 0) / activeAttorneys.length : 0;
   const casesThisMonth = attorneys?.reduce((sum, a) => sum + a.monthlyVolume, 0) || 0;
 
+  const filteredAttorneys = attorneys?.filter(a => {
+    if (!search) return true;
+    const s = search.toLowerCase();
+    return a.firm_name.toLowerCase().includes(s) || a.contact_name?.toLowerCase().includes(s) || a.email?.toLowerCase().includes(s);
+  });
+  const { sortedData: sortedAttorneys, sortConfig: attSortConfig, requestSort: attRequestSort } = useSortableTable(filteredAttorneys, { key: 'firm_name', direction: 'asc' });
+
   if (isLoading) return <div className="space-y-6"><h2 className="font-display text-2xl">Attorneys</h2><Skeleton className="h-96 rounded-xl" /></div>;
 
   return (
@@ -180,24 +190,29 @@ export default function AttorneysPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="attorneys" className="mt-4">
+        <TabsContent value="attorneys" className="mt-4 space-y-4">
+          {/* Search */}
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search firms, contacts, emails..." className="pl-9 h-10" />
+          </div>
           {/* Table */}
           <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
             <table className="w-full text-sm">
               <thead><tr className="border-b border-border bg-accent/50">
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Firm</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Contact</th>
+                <SortableHeader label="Firm" sortKey="firm_name" currentKey={attSortConfig.key} direction={attSortConfig.direction} onSort={attRequestSort} />
+                <SortableHeader label="Contact" sortKey="contact_name" currentKey={attSortConfig.key} direction={attSortConfig.direction} onSort={attRequestSort} />
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Languages</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Total</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Active</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Settled</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Avg Settlement</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Monthly</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
+                <SortableHeader label="Total" sortKey="totalCases" currentKey={attSortConfig.key} direction={attSortConfig.direction} onSort={attRequestSort} />
+                <SortableHeader label="Active" sortKey="activeCases" currentKey={attSortConfig.key} direction={attSortConfig.direction} onSort={attRequestSort} />
+                <SortableHeader label="Settled" sortKey="settledCases" currentKey={attSortConfig.key} direction={attSortConfig.direction} onSort={attRequestSort} />
+                <SortableHeader label="Avg Settlement" sortKey="avgSettlement" currentKey={attSortConfig.key} direction={attSortConfig.direction} onSort={attRequestSort} />
+                <SortableHeader label="Monthly" sortKey="monthlyVolume" currentKey={attSortConfig.key} direction={attSortConfig.direction} onSort={attRequestSort} />
+                <SortableHeader label="Status" sortKey="status" currentKey={attSortConfig.key} direction={attSortConfig.direction} onSort={attRequestSort} />
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Settings</th>
               </tr></thead>
               <tbody className="divide-y divide-border">
-                {attorneys?.map(a => {
+                {sortedAttorneys?.map(a => {
                   const langs: string[] = (a as any).languages_spoken || ['English'];
                   return (
                   <tr key={a.id} className="hover:bg-accent/50 transition-colors">

@@ -4,6 +4,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StatusBadge } from '@/components/global/StatusBadge';
+import { SortableHeader } from '@/components/global/SortableHeader';
+import { useSortableTable } from '@/hooks/use-sortable-table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Plus, Check, X, Star, MapPin, Clock, CheckCircle2, XCircle, Stethoscope, TrendingUp, Users, Languages } from 'lucide-react';
+import { Plus, Check, X, Star, MapPin, Clock, CheckCircle2, XCircle, Stethoscope, TrendingUp, Users, Languages, Search } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, differenceInDays } from 'date-fns';
@@ -369,64 +371,93 @@ export default function ProvidersPage() {
 }
 
 function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] | undefined; caseCounts: Record<string, number> | undefined; onSelect: (id: string) => void }) {
+  const [search, setSearch] = useState('');
+  
+  const filtered = providers?.filter(p => {
+    if (!search) return true;
+    const s = search.toLowerCase();
+    return p.name.toLowerCase().includes(s) || p.specialty?.toLowerCase().includes(s);
+  });
+
+  // Enrich with activeCases for sorting
+  const enriched = filtered?.map(p => ({ ...p, activeCases: caseCounts?.[p.id] || 0 }));
+  const { sortedData, sortConfig, requestSort } = useSortableTable(enriched, { key: 'name', direction: 'asc' });
+
   return (
-    <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
-      <table className="w-full text-sm">
-        <thead><tr className="border-b border-border bg-accent/50">
-          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Provider</th>
-          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Specialty</th>
-          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Languages / Interpreter</th>
-          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Locations</th>
-          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Rating</th>
-          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Active Cases</th>
-          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">HIPAA BAA</th>
-          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Credentials</th>
-          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
-        </tr></thead>
-        <tbody className="divide-y divide-border">
-          {providers?.map(p => {
-            const daysToExpiry = p.credentialing_expiry ? differenceInDays(new Date(p.credentialing_expiry), new Date()) : null;
-            const activeCases = caseCounts?.[p.id] || 0;
-            const langs: string[] = p.languages_spoken || ['English'];
-            return (
-              <tr key={p.id} className="hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => onSelect(p.id)}>
-                <td className="px-5 py-3.5 font-medium text-foreground">{p.name}</td>
-                <td className="px-5 py-3.5 text-muted-foreground text-xs">{p.specialty || '—'}</td>
-                <td className="px-5 py-3.5">
-                  <div className="flex flex-wrap items-center gap-1">
-                    {langs.map(l => (
-                      <span key={l} className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">{l}</span>
-                    ))}
-                    {p.interpreter_available && (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
-                        <Languages className="w-3 h-3" /> Interpreter
-                      </span>
+    <div className="space-y-4">
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search providers, specialties..." className="pl-9 h-10" />
+      </div>
+      <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
+        <table className="w-full text-sm">
+          <thead><tr className="border-b border-border bg-accent/50">
+            <SortableHeader label="Provider" sortKey="name" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+            <SortableHeader label="Specialty" sortKey="specialty" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Languages / Interpreter</th>
+            <SortableHeader label="Locations" sortKey="locations" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+            <SortableHeader label="Rating" sortKey="rating" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+            <SortableHeader label="Active Cases" sortKey="activeCases" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+            <SortableHeader label="HIPAA BAA" sortKey="hipaa_baa_on_file" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Credentials</th>
+            <SortableHeader label="Status" sortKey="status" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+          </tr></thead>
+          <tbody className="divide-y divide-border">
+            {sortedData?.map(p => {
+              const daysToExpiry = p.credentialing_expiry ? differenceInDays(new Date(p.credentialing_expiry), new Date()) : null;
+              const langs: string[] = p.languages_spoken || ['English'];
+              return (
+                <tr key={p.id} className="hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => onSelect(p.id)}>
+                  <td className="px-5 py-3.5 font-medium text-foreground">{p.name}</td>
+                  <td className="px-5 py-3.5 text-muted-foreground text-xs">{p.specialty || '—'}</td>
+                  <td className="px-5 py-3.5">
+                    <div className="flex flex-wrap items-center gap-1">
+                      {langs.map(l => (
+                        <span key={l} className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">{l}</span>
+                      ))}
+                      {p.interpreter_available && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                          <Languages className="w-3 h-3" /> Interpreter
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <MapPin className="w-3 h-3" /> {p.locations || 1}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <span className="flex items-center gap-1 text-xs">
+                      <Star className="w-3 h-3 text-amber-500" />
+                      <span className="font-mono tabular-nums">{p.rating || '—'}</span>
+                    </span>
+                  </td>
+                  <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-primary">{p.activeCases}</td>
+                  <td className="px-5 py-3.5">
+                    <span className={`flex items-center gap-1 text-xs ${p.hipaa_baa_on_file ? 'text-emerald-600' : 'text-red-500'}`}>
+                      {p.hipaa_baa_on_file ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      {p.hipaa_baa_on_file ? 'On File' : 'Missing'}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3.5 text-xs">
+                    {daysToExpiry == null ? (
+                      <span className="text-muted-foreground">—</span>
+                    ) : daysToExpiry < 0 ? (
+                      <span className="text-red-500 font-medium">Expired</span>
+                    ) : daysToExpiry < 90 ? (
+                      <span className="text-amber-600 font-medium">Expiring Soon</span>
+                    ) : (
+                      <span className="text-muted-foreground">{format(new Date(p.credentialing_expiry!), 'MMM yyyy')}</span>
                     )}
-                  </div>
-                </td>
-                <td className="px-5 py-3.5">
-                  <span className={`flex items-center gap-1 text-xs ${p.hipaa_baa_on_file ? 'text-emerald-600' : 'text-red-500'}`}>
-                    {p.hipaa_baa_on_file ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-                    {p.hipaa_baa_on_file ? 'On File' : 'Missing'}
-                  </span>
-                </td>
-                <td className="px-5 py-3.5 text-xs">
-                  {daysToExpiry == null ? (
-                    <span className="text-muted-foreground">—</span>
-                  ) : daysToExpiry < 0 ? (
-                    <span className="text-red-500 font-medium">Expired</span>
-                  ) : daysToExpiry < 90 ? (
-                    <span className="text-amber-600 font-medium">Expiring Soon</span>
-                  ) : (
-                    <span className="text-muted-foreground">{format(new Date(p.credentialing_expiry!), 'MMM yyyy')}</span>
-                  )}
-                </td>
-                <td className="px-5 py-3.5"><StatusBadge status={p.status} /></td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                  </td>
+                  <td className="px-5 py-3.5"><StatusBadge status={p.status} /></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { StatusBadge } from '@/components/global/StatusBadge';
 import { SoLCountdown } from '@/components/global/SoLCountdown';
 import { ProgressBar } from '@/components/global/ProgressBar';
@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, ArrowUpDown } from 'lucide-react';
 
 const statuses = ['All', 'Intake', 'In Treatment', 'Records Pending', 'Demand Prep', 'Settled'];
 const specialties = ['Pain Management', 'Physical Therapy', 'Orthopedic', 'Chiropractic', 'Surgical Center', 'Diagnostics', 'Other'];
@@ -28,6 +28,7 @@ export default function CasesList() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showNew, setShowNew] = useState(false);
+  const [sortBy, setSortBy] = useState('updated_at');
   const [newCase, setNewCase] = useState({
     patient_name: '', accident_date: '', accident_state: '', sol_period_days: 730,
     patient_phone: '', patient_email: '', attorney_id: '', specialty: '',
@@ -84,6 +85,24 @@ export default function CasesList() {
     return (c.patient_name?.toLowerCase().includes(s) || c.case_number?.toLowerCase().includes(s) || (c as any).attorneys?.firm_name?.toLowerCase().includes(s));
   }) || [];
 
+  const sorted = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'patient_name': return (a.patient_name || '').localeCompare(b.patient_name || '');
+        case 'case_number': return (a.case_number || '').localeCompare(b.case_number || '', undefined, { numeric: true });
+        case 'status': return (a.status || '').localeCompare(b.status || '');
+        case 'sol_date': {
+          if (!a.sol_date && !b.sol_date) return 0;
+          if (!a.sol_date) return 1;
+          if (!b.sol_date) return -1;
+          return a.sol_date.localeCompare(b.sol_date);
+        }
+        case 'lien_amount': return (Number(b.lien_amount) || 0) - (Number(a.lien_amount) || 0);
+        default: return new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime();
+      }
+    });
+  }, [filtered, sortBy]);
+
   if (isLoading) {
     return <div className="space-y-6"><div className="flex items-center justify-between"><Skeleton className="h-8 w-32" /><Skeleton className="h-10 w-32" /></div><div className="grid grid-cols-2 gap-4">{[1,2,3,4].map(i => <Skeleton key={i} className="h-44 rounded-xl" />)}</div></div>;
   }
@@ -101,32 +120,46 @@ export default function CasesList() {
       </div>
 
       {/* Search + Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by patient, case #, or attorney..." className="pl-9 h-10" />
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by patient, case #, or attorney..." className="pl-9 h-10" />
+          </div>
+          <div className="flex gap-1 bg-card border border-border rounded-lg p-1">
+            {statuses.map(s => (
+              <button
+                key={s}
+                onClick={() => setStatusFilter(s)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${statusFilter === s ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[180px] h-10">
+              <ArrowUpDown className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
+              <SelectValue placeholder="Sort by..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="updated_at">Recently Updated</SelectItem>
+              <SelectItem value="patient_name">Patient Name</SelectItem>
+              <SelectItem value="case_number">Case Number</SelectItem>
+              <SelectItem value="status">Status</SelectItem>
+              <SelectItem value="sol_date">SoL Date</SelectItem>
+              <SelectItem value="lien_amount">Lien Amount</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <div className="flex gap-1 bg-card border border-border rounded-lg p-1">
-          {statuses.map(s => (
-            <button
-              key={s}
-              onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${statusFilter === s ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* Case Cards */}
-      {filtered.length === 0 ? (
+      {sorted.length === 0 ? (
         <div className="bg-card border border-border rounded-xl p-16 text-center">
           <p className="text-sm text-muted-foreground">No cases found</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {filtered.map(c => (
+          {sorted.map(c => (
             <button
               key={c.id}
               onClick={() => navigate(`/cases/${c.id}`)}
