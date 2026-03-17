@@ -104,6 +104,42 @@ export default function PatientDashboard() {
   const completedAppts = appointments?.filter(a => a.status === 'Completed').length || 0;
   const totalAppts = appointments?.length || 0;
   const upcomingAppts = appointments?.filter(a => a.status === 'Scheduled') || [];
+  const soonAppt = upcomingAppts.find(a => a.scheduled_date && differenceInHours(new Date(a.scheduled_date), new Date()) <= 48 && differenceInHours(new Date(a.scheduled_date), new Date()) >= 0);
+
+  const caseStages = ['Intake', 'In Treatment', 'Records Pending', 'Demand Prep', 'Settled'];
+  const currentStageIdx = caseStages.indexOf(caseData.status || 'Intake');
+
+  const askQuestion = async () => {
+    await supabase.from('notifications').insert({
+      title: 'Patient Question',
+      message: `Patient ${profile?.full_name} has a question about their case (${caseData.case_number})`,
+      link: `/cases/${caseId}`,
+    });
+    toast.success('Your question has been sent to your care manager!');
+  };
+
+  const rescheduleAppt = async (appt: any) => {
+    await supabase.from('notifications').insert({
+      title: 'Reschedule Request',
+      message: `${profile?.full_name} needs to reschedule appointment on ${appt.scheduled_date ? format(new Date(appt.scheduled_date), 'MMM d') : 'TBD'} with ${(appt as any).providers?.name || 'provider'}`,
+      link: `/cases/${caseId}`,
+    });
+    toast.success('Reschedule request sent!');
+  };
+
+  const downloadICS = (appt: any) => {
+    const ics = generateICS(
+      appt.scheduled_date ? new Date(appt.scheduled_date) : new Date(),
+      appt.specialty || 'Medical Appointment',
+      (appt as any).providers?.name || 'Provider',
+      ''
+    );
+    const blob = new Blob([ics], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'appointment.ics'; a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const painColor = (level: number) => {
     if (level <= 3) return 'text-emerald-600';
