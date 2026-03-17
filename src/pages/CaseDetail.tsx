@@ -43,6 +43,8 @@ export default function CaseDetail() {
   const isAdmin = profile?.role === 'admin';
   const [showAddAppt, setShowAddAppt] = useState(false);
   const [showAddRecord, setShowAddRecord] = useState(false);
+  const [showEditRecord, setShowEditRecord] = useState(false);
+  const [editRecord, setEditRecord] = useState<any>(null);
   const [showAddLien, setShowAddLien] = useState(false);
   const [updateMsg, setUpdateMsg] = useState('');
   const [newAppt, setNewAppt] = useState({ provider_id: '', scheduled_date: '', specialty: '', notes: '', interpreter_confirmed: false });
