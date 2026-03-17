@@ -141,6 +141,13 @@ export default function AttorneysPage() {
     ? activeAttorneys.reduce((sum, a) => sum + (a.avgSettlement * a.monthlyVolume * 36), 0) / activeAttorneys.length : 0;
   const casesThisMonth = attorneys?.reduce((sum, a) => sum + a.monthlyVolume, 0) || 0;
 
+  const filteredAttorneys = attorneys?.filter(a => {
+    if (!search) return true;
+    const s = search.toLowerCase();
+    return a.firm_name.toLowerCase().includes(s) || a.contact_name?.toLowerCase().includes(s) || a.email?.toLowerCase().includes(s);
+  });
+  const { sortedData: sortedAttorneys, sortConfig: attSortConfig, requestSort: attRequestSort } = useSortableTable(filteredAttorneys, { key: 'firm_name', direction: 'asc' });
+
   if (isLoading) return <div className="space-y-6"><h2 className="font-display text-2xl">Attorneys</h2><Skeleton className="h-96 rounded-xl" /></div>;
 
   return (
