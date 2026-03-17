@@ -79,8 +79,8 @@ export function ColossusTab({ caseId }: { caseId: string }) {
   const save = useMutation({
     mutationFn: async () => {
       const { low, high } = colossusRange(form.total_medical_specials || 0, score, form.policy_limit);
-      const payload = { ...form, case_id: caseId, estimated_colossus_range_low: low, estimated_colossus_range_high: high };
-      delete payload.id; delete payload.created_at; delete payload.updated_at;
+      const { id: _id, created_at: _ca, updated_at: _ua, ...rest } = form;
+      const payload = { ...rest, case_id: caseId, estimated_colossus_range_low: low, estimated_colossus_range_high: high };
       if (colossus?.id) {
         const { error } = await supabase.from('insurance_colossus_data').update(payload).eq('id', colossus.id);
         if (error) throw error;
