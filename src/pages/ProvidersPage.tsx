@@ -13,7 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Plus, Check, X, Star, MapPin, Clock, CheckCircle2, XCircle, Stethoscope, TrendingUp, Users, Languages } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { format, differenceInDays } from 'date-fns';
+import { LANGUAGES } from '@/lib/languages';
 
 export default function ProvidersPage() {
   const { profile } = useAuth();
@@ -22,7 +24,7 @@ export default function ProvidersPage() {
   const isAdmin = profile?.role === 'admin';
   const [showAdd, setShowAdd] = useState(false);
   const [showDetail, setShowDetail] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', specialty: '', locations: 1, rating: 0, status: 'Active', credentialing_expiry: '', hipaa_baa_on_file: false, interpreter_available: false, notes: '' });
+  const [form, setForm] = useState({ name: '', specialty: '', locations: 1, rating: 0, status: 'Active', credentialing_expiry: '', hipaa_baa_on_file: false, interpreter_available: false, languages_spoken: ['English'] as string[], notes: '' });
 
   const { data: providers, isLoading } = useQuery({
     queryKey: ['providers'],
@@ -68,7 +70,8 @@ export default function ProvidersPage() {
       const { error } = await supabase.from('providers').insert({
         name: form.name, specialty: form.specialty || null, locations: form.locations,
         rating: form.rating || null, status: form.status, credentialing_expiry: form.credentialing_expiry || null,
-        hipaa_baa_on_file: form.hipaa_baa_on_file, interpreter_available: form.interpreter_available, notes: form.notes || null,
+        hipaa_baa_on_file: form.hipaa_baa_on_file, interpreter_available: form.interpreter_available,
+        languages_spoken: form.languages_spoken, notes: form.notes || null,
       });
       if (error) throw error;
     },
@@ -256,18 +259,46 @@ export default function ProvidersPage() {
                 <div><span className="text-muted-foreground">Rating:</span> <span className="font-medium">{selectedProvider.rating}</span></div>
                 <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={selectedProvider.status} /></div>
               </div>
-              <div className="flex items-center justify-between py-2 border-t border-border">
-                <div className="flex items-center gap-2">
-                  <Languages className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">Interpreter Available</span>
+              <div className="border-t border-border pt-3 space-y-3">
+                <div>
+                  <p className="text-sm font-medium mb-2">Languages Spoken</p>
+                  {isAdmin ? (
+                    <div className="flex flex-wrap gap-2">
+                      {LANGUAGES.map(lang => {
+                        const checked = (selectedProvider.languages_spoken || ['English']).includes(lang);
+                        return (
+                          <label key={lang} className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border cursor-pointer transition-colors ${checked ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/50 border-border text-muted-foreground'}`}>
+                            <Checkbox checked={checked} onCheckedChange={() => {
+                              const current: string[] = selectedProvider.languages_spoken || ['English'];
+                              const updated = checked ? current.filter(l => l !== lang) : [...current, lang];
+                              if (updated.length > 0) updateProvider.mutate({ languages_spoken: updated });
+                            }} className="w-3 h-3" />
+                            {lang}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-1.5">
+                      {(selectedProvider.languages_spoken || ['English']).map((lang: string) => (
+                        <span key={lang} className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground">{lang}</span>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                {isAdmin ? (
-                  <Switch checked={selectedProvider.interpreter_available || false} onCheckedChange={v => updateProvider.mutate({ interpreter_available: v })} />
-                ) : (
-                  <span className={`text-xs font-medium ${selectedProvider.interpreter_available ? 'text-blue-600' : 'text-muted-foreground'}`}>
-                    {selectedProvider.interpreter_available ? 'Yes' : 'No'}
-                  </span>
-                )}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Languages className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm">Interpreter Available</span>
+                  </div>
+                  {isAdmin ? (
+                    <Switch checked={selectedProvider.interpreter_available || false} onCheckedChange={v => updateProvider.mutate({ interpreter_available: v })} />
+                  ) : (
+                    <span className={`text-xs font-medium ${selectedProvider.interpreter_available ? 'text-blue-600' : 'text-muted-foreground'}`}>
+                      {selectedProvider.interpreter_available ? 'Yes' : 'No'}
+                    </span>
+                  )}
+                </div>
               </div>
               {linkedCases && linkedCases.length > 0 && (
                 <div>
@@ -310,6 +341,25 @@ export default function ProvidersPage() {
               </div>
               <Switch checked={form.interpreter_available} onCheckedChange={v => setForm(p => ({...p, interpreter_available: v}))} />
             </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Languages Spoken</Label>
+              <div className="flex flex-wrap gap-2">
+                {LANGUAGES.map(lang => {
+                  const checked = form.languages_spoken.includes(lang);
+                  return (
+                    <label key={lang} className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border cursor-pointer transition-colors ${checked ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/50 border-border text-muted-foreground'}`}>
+                      <Checkbox checked={checked} onCheckedChange={() => {
+                        setForm(p => ({
+                          ...p,
+                          languages_spoken: checked ? p.languages_spoken.filter(l => l !== lang) : [...p.languages_spoken, lang],
+                        }));
+                      }} className="w-3 h-3" />
+                      {lang}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
             <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button><Button type="submit" disabled={addProvider.isPending}>Add Provider</Button></div>
           </form>
         </DialogContent>
@@ -325,6 +375,7 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
         <thead><tr className="border-b border-border bg-accent/50">
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Provider</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Specialty</th>
+          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Languages</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Locations</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Rating</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Active Cases</th>
@@ -337,10 +388,18 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
           {providers?.map(p => {
             const daysToExpiry = p.credentialing_expiry ? differenceInDays(new Date(p.credentialing_expiry), new Date()) : null;
             const activeCases = caseCounts?.[p.id] || 0;
+            const langs: string[] = p.languages_spoken || ['English'];
             return (
               <tr key={p.id} className="hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => onSelect(p.id)}>
                 <td className="px-5 py-3.5 font-medium text-foreground">{p.name}</td>
                 <td className="px-5 py-3.5 text-muted-foreground text-xs">{p.specialty || '—'}</td>
+                <td className="px-5 py-3.5">
+                  <div className="flex flex-wrap gap-1">
+                    {langs.map(l => (
+                      <span key={l} className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">{l}</span>
+                    ))}
+                  </div>
+                </td>
                 <td className="px-5 py-3.5">
                   <span className="flex items-center gap-1 text-xs text-muted-foreground">
                     <MapPin className="w-3 h-3" /> {p.locations || 1}

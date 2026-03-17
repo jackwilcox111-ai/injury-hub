@@ -10,10 +10,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 import { AttorneySettingsModal } from '@/components/attorney/AttorneySettingsModal';
 import { toast } from 'sonner';
-import { Plus, TrendingUp, Calendar, Users, Settings, Check, X, CheckCircle2, XCircle } from 'lucide-react';
+import { Plus, TrendingUp, Calendar, Users, Settings, Check, X, CheckCircle2, XCircle, Languages } from 'lucide-react';
 import { format } from 'date-fns';
+import { LANGUAGES } from '@/lib/languages';
 
 export default function AttorneysPage() {
   const navigate = useNavigate();
@@ -21,7 +23,7 @@ export default function AttorneysPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [showDetail, setShowDetail] = useState<string | null>(null);
   const [settingsTarget, setSettingsTarget] = useState<{ id: string; firm_name: string; contact_name: string | null } | null>(null);
-  const [form, setForm] = useState({ firm_name: '', contact_name: '', email: '', phone: '' });
+  const [form, setForm] = useState({ firm_name: '', contact_name: '', email: '', phone: '', languages_spoken: ['English'] as string[] });
 
   const { data: attorneys, isLoading } = useQuery({
     queryKey: ['attorneys'],
@@ -66,10 +68,11 @@ export default function AttorneysPage() {
       const { error } = await supabase.from('attorneys').insert({
         firm_name: form.firm_name, contact_name: form.contact_name || null,
         email: form.email || null, phone: form.phone || null,
+        languages_spoken: form.languages_spoken,
       });
       if (error) throw error;
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['attorneys'] }); setShowAdd(false); toast.success('Attorney added'); setForm({ firm_name: '', contact_name: '', email: '', phone: '' }); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['attorneys'] }); setShowAdd(false); toast.success('Attorney added'); setForm({ firm_name: '', contact_name: '', email: '', phone: '', languages_spoken: ['English'] }); },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -117,6 +120,15 @@ export default function AttorneysPage() {
       queryClient.invalidateQueries({ queryKey: ['attorney-applications'] });
       toast.success('Application rejected');
     },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const updateAttorney = useMutation({
+    mutationFn: async (updates: Record<string, any>) => {
+      const { error } = await supabase.from('attorneys').update(updates).eq('id', showDetail!);
+      if (error) throw error;
+    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['attorneys'] }); toast.success('Attorney updated'); },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -175,6 +187,7 @@ export default function AttorneysPage() {
               <thead><tr className="border-b border-border bg-accent/50">
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Firm</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Contact</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Languages</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Total</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Active</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Settled</th>
@@ -184,10 +197,19 @@ export default function AttorneysPage() {
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Settings</th>
               </tr></thead>
               <tbody className="divide-y divide-border">
-                {attorneys?.map(a => (
+                {attorneys?.map(a => {
+                  const langs: string[] = (a as any).languages_spoken || ['English'];
+                  return (
                   <tr key={a.id} className="hover:bg-accent/50 transition-colors">
                     <td className="px-5 py-3.5 font-medium text-foreground cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.firm_name}</td>
                     <td className="px-5 py-3.5 text-muted-foreground text-xs cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.contact_name || '—'}</td>
+                    <td className="px-5 py-3.5 cursor-pointer" onClick={() => setShowDetail(a.id)}>
+                      <div className="flex flex-wrap gap-1">
+                        {langs.map(l => (
+                          <span key={l} className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">{l}</span>
+                        ))}
+                      </div>
+                    </td>
                     <td className="px-5 py-3.5 font-mono text-xs tabular-nums cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.totalCases}</td>
                     <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-primary cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.activeCases}</td>
                     <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-violet-600 cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.settledCases}</td>
@@ -205,7 +227,9 @@ export default function AttorneysPage() {
                       </Button>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
+
               </tbody>
             </table>
           </div>
@@ -276,6 +300,24 @@ export default function AttorneysPage() {
                 <div><span className="text-muted-foreground">Phone:</span> <span className="font-mono text-sm">{selectedAttorney.phone}</span></div>
                 <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={selectedAttorney.status} /></div>
               </div>
+              <div className="border-t border-border pt-3">
+                <p className="text-sm font-medium mb-2">Languages Spoken</p>
+                <div className="flex flex-wrap gap-2">
+                  {LANGUAGES.map(lang => {
+                    const checked = ((selectedAttorney as any).languages_spoken || ['English']).includes(lang);
+                    return (
+                      <label key={lang} className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border cursor-pointer transition-colors ${checked ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/50 border-border text-muted-foreground'}`}>
+                        <Checkbox checked={checked} onCheckedChange={() => {
+                          const current: string[] = (selectedAttorney as any).languages_spoken || ['English'];
+                          const updated = checked ? current.filter(l => l !== lang) : [...current, lang];
+                          if (updated.length > 0) updateAttorney.mutate({ languages_spoken: updated });
+                        }} className="w-3 h-3" />
+                        {lang}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
               {linkedCases && linkedCases.length > 0 && (
                 <div>
                   <p className="text-sm font-semibold mb-2">Cases</p>
@@ -302,6 +344,25 @@ export default function AttorneysPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2"><Label className="text-sm font-medium">Contact</Label><Input value={form.contact_name} onChange={e => setForm(p => ({...p, contact_name: e.target.value}))} className="h-10" /></div>
               <div className="space-y-2"><Label className="text-sm font-medium">Email</Label><Input value={form.email} onChange={e => setForm(p => ({...p, email: e.target.value}))} className="h-10" /></div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Languages Spoken</Label>
+              <div className="flex flex-wrap gap-2">
+                {LANGUAGES.map(lang => {
+                  const checked = form.languages_spoken.includes(lang);
+                  return (
+                    <label key={lang} className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border cursor-pointer transition-colors ${checked ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/50 border-border text-muted-foreground'}`}>
+                      <Checkbox checked={checked} onCheckedChange={() => {
+                        setForm(p => ({
+                          ...p,
+                          languages_spoken: checked ? p.languages_spoken.filter(l => l !== lang) : [...p.languages_spoken, lang],
+                        }));
+                      }} className="w-3 h-3" />
+                      {lang}
+                    </label>
+                  );
+                })}
+              </div>
             </div>
             <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button><Button type="submit" disabled={addAttorney.isPending}>Add Attorney</Button></div>
           </form>

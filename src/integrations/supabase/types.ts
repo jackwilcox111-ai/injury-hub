@@ -247,6 +247,7 @@ export type Database = {
           email: string | null
           firm_name: string
           id: string
+          languages_spoken: string[]
           phone: string | null
           status: string
         }
@@ -256,6 +257,7 @@ export type Database = {
           email?: string | null
           firm_name: string
           id?: string
+          languages_spoken?: string[]
           phone?: string | null
           status?: string
         }
@@ -265,6 +267,7 @@ export type Database = {
           email?: string | null
           firm_name?: string
           id?: string
+          languages_spoken?: string[]
           phone?: string | null
           status?: string
         }
@@ -1523,6 +1526,7 @@ export type Database = {
           hipaa_baa_on_file: boolean | null
           id: string
           interpreter_available: boolean
+          languages_spoken: string[]
           locations: number | null
           name: string
           notes: string | null
@@ -1536,6 +1540,7 @@ export type Database = {
           hipaa_baa_on_file?: boolean | null
           id?: string
           interpreter_available?: boolean
+          languages_spoken?: string[]
           locations?: number | null
           name: string
           notes?: string | null
@@ -1549,6 +1554,7 @@ export type Database = {
           hipaa_baa_on_file?: boolean | null
           id?: string
           interpreter_available?: boolean
+          languages_spoken?: string[]
           locations?: number | null
           name?: string
           notes?: string | null
