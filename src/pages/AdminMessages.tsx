@@ -143,7 +143,7 @@ export default function AdminMessages() {
           </tr></thead>
           <tbody className="divide-y divide-border">
             {filtered?.map(m => (
-              <tr key={m.id} className="hover:bg-accent/30 transition-colors">
+              <tr key={m.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => setSelectedMessage(m)}>
                 <td className="px-4 py-3">
                   <span className="text-xs">{(m as any).profiles?.full_name || '—'}</span>
                   <Badge variant="outline" className="ml-2 text-[10px]">{m.recipient_role}</Badge>
