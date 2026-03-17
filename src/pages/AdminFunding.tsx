@@ -150,9 +150,10 @@ export default function AdminFunding() {
             <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Requested</th>
             <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Approved</th>
             <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Funder</th>
-            <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
-            <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Agreement</th>
-            <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Repayment</th>
+             <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
+             <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Agreement</th>
+             <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Repayment</th>
+             <th className="text-center px-4 py-3 text-xs font-medium text-muted-foreground">Edit</th>
           </tr></thead>
           <tbody className="divide-y divide-border">
             {filtered?.map(r => (
