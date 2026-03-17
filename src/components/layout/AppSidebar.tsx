@@ -2,7 +2,8 @@ import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FolderOpen, Stethoscope, Scale,
-  DollarSign, CalendarDays, Settings, LogOut, ShieldCheck
+  DollarSign, CalendarDays, Settings, LogOut, ShieldCheck,
+  BarChart3, Link2
 } from 'lucide-react';
 
 const navItems = [
