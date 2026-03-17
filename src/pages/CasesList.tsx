@@ -85,6 +85,24 @@ export default function CasesList() {
     return (c.patient_name?.toLowerCase().includes(s) || c.case_number?.toLowerCase().includes(s) || (c as any).attorneys?.firm_name?.toLowerCase().includes(s));
   }) || [];
 
+  const sorted = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'patient_name': return (a.patient_name || '').localeCompare(b.patient_name || '');
+        case 'case_number': return (a.case_number || '').localeCompare(b.case_number || '', undefined, { numeric: true });
+        case 'status': return (a.status || '').localeCompare(b.status || '');
+        case 'sol_date': {
+          if (!a.sol_date && !b.sol_date) return 0;
+          if (!a.sol_date) return 1;
+          if (!b.sol_date) return -1;
+          return a.sol_date.localeCompare(b.sol_date);
+        }
+        case 'lien_amount': return (Number(b.lien_amount) || 0) - (Number(a.lien_amount) || 0);
+        default: return new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime();
+      }
+    });
+  }, [filtered, sortBy]);
+
   if (isLoading) {
     return <div className="space-y-6"><div className="flex items-center justify-between"><Skeleton className="h-8 w-32" /><Skeleton className="h-10 w-32" /></div><div className="grid grid-cols-2 gap-4">{[1,2,3,4].map(i => <Skeleton key={i} className="h-44 rounded-xl" />)}</div></div>;
   }
