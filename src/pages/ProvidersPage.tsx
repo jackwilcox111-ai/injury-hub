@@ -394,6 +394,7 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
         <table className="w-full text-sm">
           <thead><tr className="border-b border-border bg-accent/50">
             <SortableHeader label="Provider" sortKey="name" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+            <SortableHeader label="Phone" sortKey="phone" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
             <SortableHeader label="Specialty" sortKey="specialty" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Languages / Interpreter</th>
             <SortableHeader label="Locations" sortKey="locations" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
