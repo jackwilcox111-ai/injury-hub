@@ -67,7 +67,7 @@ export default function ProvidersPage() {
       const { error } = await supabase.from('providers').insert({
         name: form.name, specialty: form.specialty || null, locations: form.locations,
         rating: form.rating || null, status: form.status, credentialing_expiry: form.credentialing_expiry || null,
-        hipaa_baa_on_file: form.hipaa_baa_on_file, notes: form.notes || null,
+        hipaa_baa_on_file: form.hipaa_baa_on_file, interpreter_available: form.interpreter_available, notes: form.notes || null,
       });
       if (error) throw error;
     },
