@@ -95,7 +95,12 @@ export default function ProviderPortal() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const uniqueCases = [...new Map(appointments?.map(a => [(a as any).cases?.id, (a as any).cases]).filter(([id]: any) => id)).values()] as any[];
+  const caseMap = new Map<string, any>();
+  appointments?.forEach(a => {
+    const c = (a as any).cases;
+    if (c?.id) caseMap.set(c.id, c);
+  });
+  const uniqueCases = [...caseMap.values()];
 
   const totalCharges = charges?.reduce((sum, c) => sum + (c.charge_amount || 0), 0) || 0;
   const totalPaid = charges?.reduce((sum, c) => sum + (c.paid_amount || 0), 0) || 0;
