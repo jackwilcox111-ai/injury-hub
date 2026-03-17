@@ -187,6 +187,7 @@ export default function AttorneysPage() {
               <thead><tr className="border-b border-border bg-accent/50">
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Firm</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Contact</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Languages</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Total</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Active</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Settled</th>
@@ -196,10 +197,19 @@ export default function AttorneysPage() {
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Settings</th>
               </tr></thead>
               <tbody className="divide-y divide-border">
-                {attorneys?.map(a => (
+                {attorneys?.map(a => {
+                  const langs: string[] = (a as any).languages_spoken || ['English'];
+                  return (
                   <tr key={a.id} className="hover:bg-accent/50 transition-colors">
                     <td className="px-5 py-3.5 font-medium text-foreground cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.firm_name}</td>
                     <td className="px-5 py-3.5 text-muted-foreground text-xs cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.contact_name || '—'}</td>
+                    <td className="px-5 py-3.5 cursor-pointer" onClick={() => setShowDetail(a.id)}>
+                      <div className="flex flex-wrap gap-1">
+                        {langs.map(l => (
+                          <span key={l} className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">{l}</span>
+                        ))}
+                      </div>
+                    </td>
                     <td className="px-5 py-3.5 font-mono text-xs tabular-nums cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.totalCases}</td>
                     <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-primary cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.activeCases}</td>
                     <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-violet-600 cursor-pointer" onClick={() => setShowDetail(a.id)}>{a.settledCases}</td>
