@@ -375,6 +375,7 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
         <thead><tr className="border-b border-border bg-accent/50">
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Provider</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Specialty</th>
+          <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Languages</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Locations</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Rating</th>
           <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Active Cases</th>
@@ -387,10 +388,18 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
           {providers?.map(p => {
             const daysToExpiry = p.credentialing_expiry ? differenceInDays(new Date(p.credentialing_expiry), new Date()) : null;
             const activeCases = caseCounts?.[p.id] || 0;
+            const langs: string[] = p.languages_spoken || ['English'];
             return (
               <tr key={p.id} className="hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => onSelect(p.id)}>
                 <td className="px-5 py-3.5 font-medium text-foreground">{p.name}</td>
                 <td className="px-5 py-3.5 text-muted-foreground text-xs">{p.specialty || '—'}</td>
+                <td className="px-5 py-3.5">
+                  <div className="flex flex-wrap gap-1">
+                    {langs.map(l => (
+                      <span key={l} className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">{l}</span>
+                    ))}
+                  </div>
+                </td>
                 <td className="px-5 py-3.5">
                   <span className="flex items-center gap-1 text-xs text-muted-foreground">
                     <MapPin className="w-3 h-3" /> {p.locations || 1}
