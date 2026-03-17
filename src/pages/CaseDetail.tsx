@@ -394,6 +394,17 @@ export default function CaseDetail() {
                   </Select>
                 </td>
                 <td className="px-5 py-3 text-xs text-muted-foreground max-w-[200px] truncate">{a.notes || '—'}</td>
+                {needsInterpreter && (
+                  <td className="px-5 py-3">
+                    {(a as any).interpreter_confirmed ? (
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                        <Languages className="w-3 h-3" /> Confirmed
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </td>
+                )}
               </tr>
             ))}
             {(!appointments || appointments.length === 0) && (
