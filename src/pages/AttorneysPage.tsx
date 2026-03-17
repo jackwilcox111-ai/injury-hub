@@ -72,7 +72,7 @@ export default function AttorneysPage() {
       });
       if (error) throw error;
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['attorneys'] }); setShowAdd(false); toast.success('Attorney added'); setForm({ firm_name: '', contact_name: '', email: '', phone: '' }); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['attorneys'] }); setShowAdd(false); toast.success('Attorney added'); setForm({ firm_name: '', contact_name: '', email: '', phone: '', languages_spoken: ['English'] }); },
     onError: (e: any) => toast.error(e.message),
   });
 
