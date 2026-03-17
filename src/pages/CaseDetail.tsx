@@ -285,7 +285,14 @@ export default function CaseDetail() {
         <div className="flex items-start justify-between mb-5">
           <div>
             <p className="text-xs font-mono text-primary font-medium">{c.case_number}</p>
-            <h2 className="font-display text-2xl text-foreground mt-1">{c.patient_name}</h2>
+            <div className="flex items-center gap-3 mt-1">
+              <h2 className="font-display text-2xl text-foreground">{c.patient_name}</h2>
+              {c.patient_phone && (
+                <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <Phone className="w-3.5 h-3.5" />{c.patient_phone}
+                </span>
+              )}
+            </div>
             <p className="text-sm text-muted-foreground mt-1">{c.specialty || '—'} · {(c as any).attorneys?.firm_name || 'No attorney'} · {(c as any).providers?.name || 'No provider'}</p>
           </div>
           <div className="flex items-center gap-2">
