@@ -182,7 +182,7 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
                         <SelectContent>{STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                       </Select>
                     ) : (
-                      <StatusBadge status={c.status} />
+                      <span className="text-xs text-muted-foreground">{c.status}</span>
                     )}
                   </td>
                 </tr>
