@@ -74,6 +74,7 @@ export type Database = {
           case_id: string
           created_at: string | null
           id: string
+          interpreter_confirmed: boolean
           notes: string | null
           provider_id: string | null
           scheduled_date: string | null
@@ -84,6 +85,7 @@ export type Database = {
           case_id: string
           created_at?: string | null
           id?: string
+          interpreter_confirmed?: boolean
           notes?: string | null
           provider_id?: string | null
           scheduled_date?: string | null
@@ -94,6 +96,7 @@ export type Database = {
           case_id?: string
           created_at?: string | null
           id?: string
+          interpreter_confirmed?: boolean
           notes?: string | null
           provider_id?: string | null
           scheduled_date?: string | null
@@ -1268,6 +1271,7 @@ export type Database = {
           hipaa_auth_signed: boolean | null
           id: string
           insurance_status: string | null
+          needs_interpreter: boolean
           preferred_language: string | null
           profile_id: string | null
           state: string | null
@@ -1286,6 +1290,7 @@ export type Database = {
           hipaa_auth_signed?: boolean | null
           id?: string
           insurance_status?: string | null
+          needs_interpreter?: boolean
           preferred_language?: string | null
           profile_id?: string | null
           state?: string | null
@@ -1304,6 +1309,7 @@ export type Database = {
           hipaa_auth_signed?: boolean | null
           id?: string
           insurance_status?: string | null
+          needs_interpreter?: boolean
           preferred_language?: string | null
           profile_id?: string | null
           state?: string | null
@@ -1516,6 +1522,7 @@ export type Database = {
           credentialing_expiry: string | null
           hipaa_baa_on_file: boolean | null
           id: string
+          interpreter_available: boolean
           locations: number | null
           name: string
           notes: string | null
@@ -1528,6 +1535,7 @@ export type Database = {
           credentialing_expiry?: string | null
           hipaa_baa_on_file?: boolean | null
           id?: string
+          interpreter_available?: boolean
           locations?: number | null
           name: string
           notes?: string | null
@@ -1540,6 +1548,7 @@ export type Database = {
           credentialing_expiry?: string | null
           hipaa_baa_on_file?: boolean | null
           id?: string
+          interpreter_available?: boolean
           locations?: number | null
           name?: string
           notes?: string | null
