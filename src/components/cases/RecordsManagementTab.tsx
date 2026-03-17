@@ -333,9 +333,15 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
               <div className="space-y-2"><Label>Received Date</Label><Input type="date" value={newRecord.received_date} onChange={e => setNewRecord(p => ({ ...p, received_date: e.target.value }))} /></div>
               <div className="space-y-2"><Label>Delivered to Attorney</Label><Input type="date" value={newRecord.delivered_to_attorney_date} onChange={e => setNewRecord(p => ({ ...p, delivered_to_attorney_date: e.target.value }))} /></div>
             </div>
+            <div className="space-y-2">
+              <Label>Upload Document</Label>
+              <Input type="file" accept=".pdf,.doc,.docx,.jpg,.png,.tiff" onChange={e => setRecordFile(e.target.files?.[0] || null)} />
+              <p className="text-xs text-muted-foreground">PDF, DOC, DOCX, JPG, PNG, or TIFF — max 20MB</p>
+            </div>
+            <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
-              <Button type="submit" disabled={addRecord.isPending}>Add</Button>
+              <Button type="submit" disabled={addRecord.isPending}>{addRecord.isPending ? 'Uploading...' : 'Add'}</Button>
             </div>
           </form>
         </DialogContent>
