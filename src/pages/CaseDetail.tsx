@@ -408,7 +408,7 @@ export default function CaseDetail() {
               </tr>
             ))}
             {(!appointments || appointments.length === 0) && (
-              <tr><td colSpan={5} className="px-5 py-12 text-center text-muted-foreground text-sm">No appointments yet</td></tr>
+              <tr><td colSpan={needsInterpreter ? 6 : 5} className="px-5 py-12 text-center text-muted-foreground text-sm">No appointments yet</td></tr>
             )}
           </tbody>
         </table>
