@@ -689,6 +689,34 @@ export default function CaseDetail() {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Edit Record Dialog */}
+      <Dialog open={showEditRecord} onOpenChange={v => { setShowEditRecord(v); if (!v) setEditRecord(null); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Edit Record</DialogTitle></DialogHeader>
+          {editRecord && (
+            <form onSubmit={e => { e.preventDefault(); updateRecord.mutate(editRecord); }} className="space-y-4">
+              <div className="space-y-2"><Label className="text-sm font-medium">Record Type</Label>
+                <Select value={editRecord.record_type || ''} onValueChange={v => setEditRecord((p: any) => ({...p, record_type: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{['Treatment Notes','Billing','Imaging','Surgical Report','Initial Evaluation','Progress Notes','Discharge Summary','X-rays','MRI Report','Other'].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent></Select>
+              </div>
+              <div className="space-y-2"><Label className="text-sm font-medium">Provider</Label>
+                <Select value={editRecord.provider_id || ''} onValueChange={v => setEditRecord((p: any) => ({...p, provider_id: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{allProviders?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label className="text-sm font-medium">Received Date</Label><Input type="date" value={editRecord.received_date || ''} onChange={e => setEditRecord((p: any) => ({...p, received_date: e.target.value}))} className="h-10" /></div>
+                <div className="space-y-2"><Label className="text-sm font-medium">Delivered to Attorney</Label><Input type="date" value={editRecord.delivered_to_attorney_date || ''} onChange={e => setEditRecord((p: any) => ({...p, delivered_to_attorney_date: e.target.value}))} className="h-10" /></div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox checked={editRecord.hipaa_auth_on_file || false} onCheckedChange={v => setEditRecord((p: any) => ({...p, hipaa_auth_on_file: !!v}))} id="edit-hipaa" />
+                <Label htmlFor="edit-hipaa" className="text-sm">HIPAA Authorization on file</Label>
+              </div>
+              <div className="space-y-2"><Label className="text-sm font-medium">Notes</Label><Textarea value={editRecord.notes || ''} onChange={e => setEditRecord((p: any) => ({...p, notes: e.target.value}))} /></div>
+              <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
+              <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowEditRecord(false)}>Cancel</Button><Button type="submit" disabled={updateRecord.isPending}>{updateRecord.isPending ? 'Saving...' : 'Save'}</Button></div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
