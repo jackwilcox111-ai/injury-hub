@@ -163,19 +163,19 @@ export function CasePipeline({ cases, isAdmin }: CasePipelineProps) {
                             </span>
                           )}
                         </div>
-                        <p className="text-[10px] text-muted-foreground truncate mt-0.5">{(c as any).attorneys?.firm_name || 'No attorney'}</p>
-                        <div className="flex items-center justify-between mt-1">
-                          {isAdmin && (
-                            <span className="text-[10px] font-mono text-emerald-600 tabular-nums">
-                              ${(c.lien_amount || 0).toLocaleString()}
-                            </span>
-                          )}
+                        <div className="flex items-center justify-between mt-0.5">
+                          <p className="text-[10px] text-muted-foreground truncate">{(c as any).attorneys?.firm_name || 'No attorney'}</p>
                           {c.updated_at && (
-                            <p className="text-[9px] text-muted-foreground ml-auto">
+                            <p className="text-[9px] text-muted-foreground shrink-0 ml-1">
                               {formatDistanceToNow(new Date(c.updated_at), { addSuffix: true })}
                             </p>
                           )}
                         </div>
+                        {isAdmin && (
+                          <span className="text-[10px] font-mono text-emerald-600 tabular-nums mt-0.5">
+                            ${(c.lien_amount || 0).toLocaleString()}
+                          </span>
+                        )}
                       </div>
                     );
                   })}
