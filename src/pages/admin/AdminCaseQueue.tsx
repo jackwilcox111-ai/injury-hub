@@ -23,7 +23,7 @@ export default function AdminCaseQueue() {
     queryKey: ['admin-case-queue'],
     queryFn: async () => {
       const { data } = await (supabase.from('cases') as any)
-        .select('*, marketer_profiles!cases_marketer_id_fkey(id, profiles!marketer_profiles_profile_id_fkey(full_name))')
+        .select('*, marketer_profiles!cases_marketer_id_fkey(id, profile_id, profiles!marketer_profiles_profile_id_fkey(id, full_name))')
         .in('status', ['Marketplace', 'Rejected'])
         .order('marketplace_submitted_at', { ascending: false });
       return data || [];
@@ -34,17 +34,19 @@ export default function AdminCaseQueue() {
   const approved = (cases || []).filter((c: any) => c.status === 'Marketplace' && c.quality_gate_passed);
   const rejected = (cases || []).filter((c: any) => c.status === 'Rejected');
 
+  const getMarketerProfileId = (c: any) => c?.marketer_profiles?.profile_id || c?.marketer_profiles?.profiles?.id;
+
   const approveMutation = useMutation({
     mutationFn: async (caseId: string) => {
       await (supabase.from('cases') as any).update({ quality_gate_passed: true }).eq('id', caseId);
       const c = (cases || []).find((cc: any) => cc.id === caseId);
-      if (c?.marketer_profiles?.id) {
-        const mp = c.marketer_profiles;
+      const recipientId = getMarketerProfileId(c);
+      if (recipientId) {
         await (supabase.from('notifications') as any).insert({
-          recipient_id: mp.profiles?.id,
+          recipient_id: recipientId,
           title: 'Case Approved',
           message: `Your case ${c.case_number} is now live in the attorney marketplace.`,
-          link: `/marketer/cases/${caseId}`,
+          link: `/marketer/cases`,
         });
       }
     },
@@ -53,7 +55,17 @@ export default function AdminCaseQueue() {
 
   const rejectMutation = useMutation({
     mutationFn: async () => {
+      const c = (cases || []).find((cc: any) => cc.id === rejectModal);
       await (supabase.from('cases') as any).update({ status: 'Rejected', notes: rejectReason }).eq('id', rejectModal);
+      const recipientId = getMarketerProfileId(c);
+      if (recipientId) {
+        await (supabase.from('notifications') as any).insert({
+          recipient_id: recipientId,
+          title: 'Case Not Approved',
+          message: `Your case ${c?.case_number} was not approved. Reason: ${rejectReason}`,
+          link: `/marketer/cases`,
+        });
+      }
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-case-queue'] }); setRejectModal(null); setRejectReason(''); toast.success('Case rejected'); },
   });
@@ -61,12 +73,13 @@ export default function AdminCaseQueue() {
   const requestInfo = useMutation({
     mutationFn: async () => {
       const c = (cases || []).find((cc: any) => cc.id === infoModal);
-      if (c?.marketer_profiles?.profiles?.id) {
+      const recipientId = getMarketerProfileId(c);
+      if (recipientId) {
         await (supabase.from('notifications') as any).insert({
-          recipient_id: c.marketer_profiles.profiles.id,
+          recipient_id: recipientId,
           title: 'Additional Info Requested',
-          message: `Admin requested info on case ${c.case_number}: ${infoMessage}`,
-          link: `/marketer/cases/${infoModal}`,
+          message: `Admin requested info on case ${c?.case_number}: ${infoMessage}`,
+          link: `/marketer/cases`,
         });
       }
     },

@@ -26,17 +26,31 @@ export default function AdminPayouts() {
     queryKey: ['admin-payouts'],
     queryFn: async () => {
       const { data } = await (supabase.from('marketer_payouts') as any)
-        .select('*, cases!marketer_payouts_case_id_fkey(case_number), marketer_profiles!marketer_payouts_marketer_id_fkey(company_name, profiles!marketer_profiles_profile_id_fkey(full_name)), approver:profiles!marketer_payouts_approved_by_fkey(full_name)')
+        .select('*, cases!marketer_payouts_case_id_fkey(case_number), marketer_profiles!marketer_payouts_marketer_id_fkey(profile_id, company_name, profiles!marketer_profiles_profile_id_fkey(full_name)), approver:profiles!marketer_payouts_approved_by_fkey(full_name)')
         .order('created_at', { ascending: false });
       return data || [];
     },
   });
+
+  const notifyMarketer = async (payout: any, title: string, message: string) => {
+    const recipientId = payout?.marketer_profiles?.profile_id;
+    if (recipientId) {
+      await (supabase.from('notifications') as any).insert({
+        recipient_id: recipientId,
+        title,
+        message,
+        link: '/marketer/earnings',
+      });
+    }
+  };
 
   const approve = useMutation({
     mutationFn: async (id: string) => {
       await (supabase.from('marketer_payouts') as any).update({
         status: 'Approved', approved_by: profile!.id, approved_at: new Date().toISOString(),
       }).eq('id', id);
+      const p = (payouts || []).find((pp: any) => pp.id === id);
+      if (p) await notifyMarketer(p, 'Payout Approved', `Your payout of $${Number(p.amount).toLocaleString()} for case ${p.cases?.case_number} has been approved.`);
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-payouts'] }); toast.success('Payout approved'); },
   });
@@ -46,6 +60,8 @@ export default function AdminPayouts() {
       await (supabase.from('marketer_payouts') as any).update({
         status: 'Paid', paid_at: new Date().toISOString(), payment_reference: payRef,
       }).eq('id', payId);
+      const p = (payouts || []).find((pp: any) => pp.id === payId);
+      if (p) await notifyMarketer(p, 'Payment Sent', `Your payment of $${Number(p.amount).toLocaleString()} for case ${p.cases?.case_number} has been sent.`);
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-payouts'] }); setPayId(null); setPayRef(''); toast.success('Marked as paid'); },
   });
@@ -53,6 +69,8 @@ export default function AdminPayouts() {
   const voidPayout = useMutation({
     mutationFn: async () => {
       await (supabase.from('marketer_payouts') as any).update({ status: 'Voided', notes: voidReason }).eq('id', voidId);
+      const p = (payouts || []).find((pp: any) => pp.id === voidId);
+      if (p) await notifyMarketer(p, 'Payout Voided', `Your payout of $${Number(p.amount).toLocaleString()} for case ${p.cases?.case_number} has been voided. Reason: ${voidReason}`);
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-payouts'] }); setVoidId(null); setVoidReason(''); toast.success('Payout voided'); },
   });
