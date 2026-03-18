@@ -217,7 +217,7 @@ export default function Dashboard() {
                             className={`group rounded-lg border p-3 cursor-pointer transition-all hover:shadow-md ${
                               isUrgentSol ? 'border-orange-200 bg-orange-50/40 hover:border-orange-300' :
                               c.flag ? 'border-red-200 bg-red-50/30 hover:border-red-300' :
-                              'border-border bg-background hover:border-primary/30'
+                              'border-border bg-card hover:border-primary/30'
                             }`}
                           >
                             <div className="flex items-start justify-between gap-1 mb-1.5">
