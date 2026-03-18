@@ -52,6 +52,16 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
     units: '1', charge_amount: '', billing_path: 'Lien', notes: '',
   });
 
+  const invalidateChargeDerivedQueries = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['charges', caseId] }),
+      queryClient.invalidateQueries({ queryKey: ['case-liens', caseId] }),
+      queryClient.invalidateQueries({ queryKey: ['case-detail', caseId] }),
+      queryClient.invalidateQueries({ queryKey: ['liens-full'] }),
+      queryClient.invalidateQueries({ queryKey: ['provider-liens'] }),
+    ]);
+  };
+
   const addMutation = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.from('charges').insert({
@@ -66,8 +76,8 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
       });
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['charges', caseId] });
+    onSuccess: async () => {
+      await invalidateChargeDerivedQueries();
       setShowAdd(false);
       setForm({ provider_id: '', service_date: '', cpt_code: '', cpt_description: '', units: '1', charge_amount: '', billing_path: 'Lien', notes: '' });
       toast.success('Charge added');
