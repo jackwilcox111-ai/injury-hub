@@ -254,7 +254,7 @@ export default function Dashboard() {
                         );
                       })}
                     </div>
-                  </ScrollArea>
+                  </div>
                 </div>
               );
             })}
