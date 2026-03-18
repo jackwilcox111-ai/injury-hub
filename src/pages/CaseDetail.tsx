@@ -846,6 +846,49 @@ export default function CaseDetail() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Settlement Modal */}
+      <Dialog open={showSettlementModal} onOpenChange={v => { setShowSettlementModal(v); if (!v) setSettlementAmount(''); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Settle Case</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Enter the final settlement amount to mark this case as settled.</p>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Final Settlement Amount ($)</Label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="e.g. 25000"
+                value={settlementAmount}
+                onChange={e => setSettlementAmount(e.target.value)}
+                className="h-10"
+                autoFocus
+              />
+            </div>
+            <div className="bg-accent/50 rounded-lg p-3 space-y-1 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Lien Amount</span>
+                <span className="font-mono tabular-nums">${Number(c.lien_amount || 0).toLocaleString()}</span>
+              </div>
+              {settlementAmount && !isNaN(parseFloat(settlementAmount)) && (
+                <div className="flex justify-between border-t border-border pt-1">
+                  <span className="text-foreground font-medium">Net to Client</span>
+                  <span className="font-mono font-semibold tabular-nums">
+                    ${(parseFloat(settlementAmount) - Number(c.lien_amount || 0)).toLocaleString()}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowSettlementModal(false)}>Cancel</Button>
+              <Button onClick={handleSettlementConfirm} disabled={updateCase.isPending}>
+                {updateCase.isPending ? 'Settling...' : 'Confirm Settlement'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
