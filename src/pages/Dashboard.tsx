@@ -156,13 +156,13 @@ export default function Dashboard() {
 
   const colgroup = (extraCols: number) => (
     <colgroup>
-      <col className="w-[110px]" />
-      <col className="w-[170px]" />
-      <col className="w-[150px]" />
-      <col className="w-[110px]" />
-      {isAdmin && <col className="w-[70px]" />}
-      <col className="w-[60px]" />
-      <col className="w-[100px]" />
+      <col className="w-[120px]" />
+      <col className="w-[180px]" />
+      <col className="w-[160px]" />
+      <col className="w-[120px]" />
+      {isAdmin && <col className="w-[80px]" />}
+      <col className="w-[70px]" />
+      <col className="w-[120px]" />
       {Array.from({ length: extraCols }).map((_, i) => <col key={i} />)}
     </colgroup>
   );
