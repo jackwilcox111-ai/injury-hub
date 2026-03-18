@@ -4,11 +4,12 @@ import {
   LayoutDashboard, FolderOpen, Stethoscope, Scale,
   DollarSign, CalendarDays, Settings, LogOut, ShieldCheck,
   BarChart3, Link2, CheckSquare, FileSignature, Video, Landmark, Banknote,
-  CreditCard, GitBranch, MessageCircle, Heart
+  CreditCard, GitBranch, MessageCircle, Heart, Megaphone, ClipboardCheck,
+  Percent, PlusCircle, ShoppingBag
 } from 'lucide-react';
 
 const navItems = [
-  // Admin / Care Manager — prioritized order
+  // Admin / Care Manager
   { title: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'care_manager'] as UserRole[] },
   { title: 'Messages', path: '/messages', icon: Video, roles: ['admin', 'care_manager'] as UserRole[] },
   { title: 'Tasks', path: '/tasks', icon: CheckSquare, roles: ['admin', 'care_manager'] as UserRole[] },
@@ -19,12 +20,17 @@ const navItems = [
   { title: 'Demand Letters', path: '/demand-letters', icon: FileSignature, roles: ['admin', 'care_manager'] as UserRole[] },
   { title: 'RCM', path: '/rcm', icon: Landmark, roles: ['admin'] as UserRole[] },
   { title: 'Funding', path: '/funding', icon: Banknote, roles: ['admin'] as UserRole[] },
+  { title: 'Marketers', path: '/admin/marketers', icon: Megaphone, roles: ['admin'] as UserRole[] },
+  { title: 'Case Queue', path: '/admin/case-queue', icon: ClipboardCheck, roles: ['admin'] as UserRole[] },
+  { title: 'Fee Structures', path: '/admin/fee-structures', icon: Percent, roles: ['admin'] as UserRole[] },
+  { title: 'Payouts', path: '/admin/payouts', icon: CreditCard, roles: ['admin'] as UserRole[] },
   { title: 'Reports', path: '/reports', icon: BarChart3, roles: ['admin'] as UserRole[] },
   { title: 'Referrals', path: '/referrals', icon: Link2, roles: ['admin'] as UserRole[] },
   { title: 'Calendar', path: '/calendar', icon: CalendarDays, roles: ['admin', 'care_manager', 'attorney', 'provider'] as UserRole[] },
   { title: 'Settings', path: '/settings', icon: Settings, roles: ['admin'] as UserRole[] },
   // Attorney sidebar
   { title: 'My Cases', path: '/attorney-portal', icon: Scale, roles: ['attorney'] as UserRole[] },
+  { title: 'Marketplace', path: '/attorney/marketplace', icon: ShoppingBag, roles: ['attorney'] as UserRole[] },
   // Provider sidebar
   { title: 'My Patients', path: '/provider-portal', icon: Stethoscope, roles: ['provider'] as UserRole[] },
   { title: 'RCM Billing', path: '/provider/rcm', icon: CreditCard, roles: ['provider'] as UserRole[] },
@@ -35,6 +41,12 @@ const navItems = [
   { title: 'Messages', path: '/patient/messages', icon: MessageCircle, roles: ['patient'] as UserRole[] },
   // Funder sidebar
   { title: 'Portfolio', path: '/funder/dashboard', icon: Banknote, roles: ['funder'] as UserRole[] },
+  // Marketer sidebar
+  { title: 'Dashboard', path: '/marketer/dashboard', icon: LayoutDashboard, roles: ['marketer'] as UserRole[] },
+  { title: 'Submit a Case', path: '/marketer/submit', icon: PlusCircle, roles: ['marketer'] as UserRole[] },
+  { title: 'My Cases', path: '/marketer/cases', icon: FolderOpen, roles: ['marketer'] as UserRole[] },
+  { title: 'Earnings', path: '/marketer/earnings', icon: DollarSign, roles: ['marketer'] as UserRole[] },
+  { title: 'Settings', path: '/marketer/settings', icon: Settings, roles: ['marketer'] as UserRole[] },
 ];
 
 const roleBadgeStyles: Record<string, string> = {
@@ -42,6 +54,7 @@ const roleBadgeStyles: Record<string, string> = {
   care_manager: 'bg-success/10 text-success',
   attorney: 'bg-warning/10 text-warning',
   provider: 'bg-settled/10 text-settled',
+  marketer: 'bg-primary/10 text-primary',
 };
 
 export function AppSidebar() {
