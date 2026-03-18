@@ -387,55 +387,8 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Outstanding Liens */}
-          {isAdmin && unpaidLiens && unpaidLiens.length > 0 && (
-            <div>
-              <div className="px-5 py-2 bg-accent/30 border-b border-border flex items-center gap-2">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Outstanding Liens</span>
-                <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-medium">{unpaidLiens.length}</span>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <colgroup>
-                    <col className="w-[110px]" />
-                    <col className="w-[170px]" />
-                    <col className="w-[160px]" />
-                    <col className="w-[120px]" />
-                    <col className="w-[120px]" />
-                    <col />
-                  </colgroup>
-                  <thead>
-                    <tr className="border-b border-border bg-accent/50">
-                      <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Case</th>
-                      <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Patient</th>
-                      <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
-                      <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Lien Amount</th>
-                      <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Reduction</th>
-                      <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Age</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {unpaidLiens.map((l: any) => (
-                      <tr
-                        key={l.id}
-                        onClick={() => l.case_id && navigate(`/cases/${l.case_id}`)}
-                        className="cursor-pointer hover:bg-accent/50 transition-colors"
-                      >
-                        <td className="px-5 py-3 font-mono text-xs text-primary font-medium">{l.cases?.case_number || '—'}</td>
-                        <td className="px-5 py-3 text-sm text-foreground">{l.cases?.patient_name || '—'}</td>
-                        <td className="px-5 py-3 text-xs text-muted-foreground">{l.providers?.name || '—'}</td>
-                        <td className="px-5 py-3"><FinancialValue value={l.amount} /></td>
-                        <td className="px-5 py-3"><FinancialValue value={l.reduction_amount} /></td>
-                        <td className="px-5 py-3 text-xs text-muted-foreground">
-                          {l.created_at ? formatDistanceToNow(new Date(l.created_at), { addSuffix: true }) : '—'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+
+
         </div>
       )}
 
