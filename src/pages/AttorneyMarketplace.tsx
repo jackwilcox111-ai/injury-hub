@@ -3,7 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -12,14 +11,9 @@ import { toast } from 'sonner';
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { ShoppingBag, ChevronDown, ChevronUp, CheckCircle, Info } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-
-const INJURY_TYPES = ['Soft Tissue', 'Orthopedic', 'TBI/Head Injury', 'Spine/Disc', 'Fracture', 'Neurological', 'Other'];
-const SEVERITY = ['Minor', 'Moderate', 'Severe'];
 
 export default function AttorneyMarketplace() {
   const { profile } = useAuth();
-  const navigate = useNavigate();
   const qc = useQueryClient();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [acceptCase, setAcceptCase] = useState<any>(null);
@@ -30,7 +24,7 @@ export default function AttorneyMarketplace() {
     queryKey: ['marketplace-cases'],
     queryFn: async () => {
       const { data } = await (supabase.from('cases') as any)
-        .select('id, case_number, specialty, accident_state, accident_date, notes, completeness_score, status, marketplace_submitted_at, marketer_consent_signed, marketer_consent_signed_at')
+        .select('id, case_number, specialty, accident_state, accident_date, notes, completeness_score, status, marketplace_submitted_at, marketer_consent_signed, marketer_consent_signed_at, marketer_id')
         .eq('status', 'Marketplace')
         .eq('quality_gate_passed', true)
         .order('marketplace_submitted_at', { ascending: false });
@@ -40,6 +34,7 @@ export default function AttorneyMarketplace() {
 
   const accept = useMutation({
     mutationFn: async (c: any) => {
+      // Update case
       await (supabase.from('cases') as any).update({
         status: 'Intake',
         attorney_id: profile!.firm_id,
@@ -47,29 +42,58 @@ export default function AttorneyMarketplace() {
       }).eq('id', c.id);
 
       // Create payout if fee structure exists
-      const { data: fees } = await (supabase.from('fee_structures') as any)
-        .select('*').eq('trigger_event', 'Case Accepted').eq('active', true);
-      if (fees && fees.length > 0) {
-        const fee = fees[0];
-        const caseForMarketer = await (supabase.from('cases') as any).select('marketer_id').eq('id', c.id).single();
-        if (caseForMarketer.data?.marketer_id) {
+      if (c.marketer_id) {
+        const { data: fees } = await (supabase.from('fee_structures') as any)
+          .select('*').eq('trigger_event', 'Case Accepted').eq('active', true);
+
+        if (fees && fees.length > 0) {
+          // Check for marketer-specific fee first, else use global
+          const specificFee = fees.find((f: any) => f.applies_to === 'Specific Marketer' && f.marketer_id === c.marketer_id);
+          const fee = specificFee || fees.find((f: any) => f.applies_to === 'All') || fees[0];
+
           await (supabase.from('marketer_payouts') as any).insert({
-            marketer_id: caseForMarketer.data.marketer_id,
+            marketer_id: c.marketer_id,
             case_id: c.id,
             trigger_event: 'Case Accepted',
             amount: fee.amount,
             status: 'Pending',
           });
         }
+
+        // Notify marketer
+        const { data: mp } = await (supabase.from('marketer_profiles') as any)
+          .select('profile_id').eq('id', c.marketer_id).single();
+        if (mp?.profile_id) {
+          await (supabase.from('notifications') as any).insert({
+            recipient_id: mp.profile_id,
+            title: 'Case Accepted',
+            message: `Your case ${c.case_number} has been accepted by a network attorney.`,
+            link: `/marketer/cases`,
+          });
+        }
       }
 
-      // Notifications
+      // Notify attorney (self)
       await (supabase.from('notifications') as any).insert({
-        title: 'Case Accepted',
-        message: `Case ${c.case_number} accepted. GHIN care coordination is now active.`,
         recipient_id: profile!.id,
+        title: 'Case Accepted',
+        message: `You have accepted case ${c.case_number}. GHIN care coordination is now active.`,
         link: `/attorney-portal`,
       });
+
+      // Notify admins
+      const { data: admins } = await supabase.from('profiles').select('id').eq('role', 'admin');
+      const { data: firm } = await supabase.from('attorneys').select('firm_name').eq('id', profile!.firm_id).single();
+      if (admins) {
+        await (supabase.from('notifications') as any).insert(
+          admins.map((a: any) => ({
+            recipient_id: a.id,
+            title: 'Marketplace Case Accepted',
+            message: `Case ${c.case_number} accepted by ${firm?.firm_name || 'an attorney'}.`,
+            link: `/cases`,
+          }))
+        );
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['marketplace-cases'] });
@@ -89,14 +113,6 @@ export default function AttorneyMarketplace() {
   const scorePill = (score: number) => {
     const cls = score < 60 ? 'bg-destructive/10 text-destructive' : score < 80 ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success';
     return <span className={`text-[10px] font-mono font-medium px-2 py-0.5 rounded-full ${cls}`}>{score}</span>;
-  };
-
-  const severityBadge = (specialty: string) => {
-    // Infer severity from specialty keywords
-    const s = specialty?.toLowerCase() || '';
-    if (s.includes('tbi') || s.includes('fracture') || s.includes('neurological')) return <Badge variant="destructive" className="text-[9px]">Severe</Badge>;
-    if (s.includes('orthopedic') || s.includes('spine')) return <Badge className="text-[9px] bg-warning/10 text-warning border-warning/20">Moderate</Badge>;
-    return <Badge variant="secondary" className="text-[9px]">Minor</Badge>;
   };
 
   if (isLoading) return <Skeleton className="h-96" />;
@@ -133,7 +149,7 @@ export default function AttorneyMarketplace() {
         {sorted.map((c: any) => (
           <div key={c.id} className="bg-card border border-border rounded-xl overflow-hidden">
             <div className="p-4 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="flex items-center gap-3 flex-1 min-w-0 flex-wrap">
                 <span className="font-mono text-xs text-primary">{c.case_number}</span>
                 <Badge variant="secondary" className="text-[10px]">{c.specialty || 'PI'}</Badge>
                 <Badge variant="outline" className="text-[10px]">{c.accident_state}</Badge>
