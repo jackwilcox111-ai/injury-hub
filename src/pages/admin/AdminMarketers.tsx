@@ -72,10 +72,18 @@ export default function AdminMarketers() {
       }
 
       await (supabase.from('marketer_applications') as any).update({ status: 'Approved' }).eq('id', app.id);
-      await (supabase.from('notifications') as any).insert({
-        title: 'Marketer Application Approved',
-        message: `${app.full_name} has been approved as a network marketer.`,
-      });
+
+      // Notify all admins
+      const { data: admins } = await supabase.from('profiles').select('id').eq('role', 'admin');
+      if (admins) {
+        await (supabase.from('notifications') as any).insert(
+          admins.map((a: any) => ({
+            recipient_id: a.id,
+            title: 'Marketer Application Approved',
+            message: `${app.full_name} has been approved as a network marketer.`,
+          }))
+        );
+      }
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['marketer-apps'] }); qc.invalidateQueries({ queryKey: ['marketer-profiles-admin'] }); toast.success('Marketer approved'); },
     onError: (e: any) => toast.error(e.message),
