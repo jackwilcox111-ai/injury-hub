@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { StatusBadge } from '@/components/global/StatusBadge';
 import { SoLCountdown } from '@/components/global/SoLCountdown';
-import { ProgressBar } from '@/components/global/ProgressBar';
+
 import { FlagBadge } from '@/components/global/FlagBadge';
 import { FinancialValue } from '@/components/global/FinancialValue';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -275,14 +275,10 @@ export default function Dashboard() {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              {colgroup(1)}
-              {tableHeaders(['Progress'])}
+              {colgroup(0)}
+              {tableHeaders([])}
               <tbody className="divide-y divide-border">
-                {flaggedCases.map(c => renderCaseRow(c,
-                  <td key="progress" className="px-5 py-3.5">
-                    <ProgressBar completed={c.appointments_completed || 0} total={c.appointments_total || 0} />
-                  </td>
-                ))}
+                {flaggedCases.map(c => renderCaseRow(c))}
               </tbody>
             </table>
           </div>
