@@ -138,42 +138,44 @@ export function CasePipeline({ cases, isAdmin }: CasePipelineProps) {
                       <div
                         key={c.id}
                         onClick={() => navigate(`/cases/${c.id}`)}
-                        className={`group rounded-lg border p-3 cursor-pointer transition-all hover:shadow-md ${
+                        className={`group rounded-lg border px-2.5 py-2 cursor-pointer transition-all hover:shadow-md ${
                           isUrgentSol ? 'border-orange-200 bg-orange-50/40 hover:border-orange-300' :
                           c.flag ? 'border-red-200 bg-red-50/30 hover:border-red-300' :
                           'border-border bg-card hover:border-primary/30'
                         }`}
                       >
-                        <div className="flex items-start justify-between gap-1 mb-1.5">
-                          <span className="font-mono text-[10px] text-primary font-medium leading-none">{c.case_number}</span>
-                          {c.flag && <FlagBadge flag={c.flag} />}
-                        </div>
-                        <p className="text-xs font-medium text-foreground leading-tight mb-1 truncate">{c.patient_name}</p>
-                        {c.patient_phone && (
-                          <span className="flex items-center gap-1 text-[10px] text-muted-foreground mb-1.5">
-                            <Phone className="w-2.5 h-2.5" />{c.patient_phone}
-                          </span>
-                        )}
-                        <p className="text-[10px] text-muted-foreground truncate mb-2">
-                          {(c as any).attorneys?.firm_name || 'No attorney'}
-                        </p>
                         <div className="flex items-center justify-between gap-1">
+                          <span className="font-mono text-[10px] text-primary font-medium leading-none">{c.case_number}</span>
+                          <div className="flex items-center gap-1">
+                            {isUrgentSol && (
+                              <span className="text-[9px] font-semibold text-orange-600 bg-orange-100 px-1.5 py-0.5 rounded-full">
+                                {solDays}d SoL
+                              </span>
+                            )}
+                            {c.flag && <FlagBadge flag={c.flag} />}
+                          </div>
+                        </div>
+                        <p className="text-xs font-medium text-foreground leading-tight mt-1 truncate">{c.patient_name}</p>
+                        <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted-foreground truncate">
+                          {c.patient_phone && (
+                            <span className="flex items-center gap-0.5">
+                              <Phone className="w-2.5 h-2.5 shrink-0" />{c.patient_phone}
+                            </span>
+                          )}
+                          <span className="truncate">{(c as any).attorneys?.firm_name || 'No attorney'}</span>
+                        </div>
+                        <div className="flex items-center justify-between mt-1">
                           {isAdmin && (
                             <span className="text-[10px] font-mono text-emerald-600 tabular-nums">
                               ${(c.lien_amount || 0).toLocaleString()}
                             </span>
                           )}
-                          {isUrgentSol && (
-                            <span className="text-[9px] font-semibold text-orange-600 bg-orange-100 px-1.5 py-0.5 rounded-full">
-                              {solDays}d SoL
-                            </span>
+                          {c.updated_at && (
+                            <p className="text-[9px] text-muted-foreground ml-auto">
+                              {formatDistanceToNow(new Date(c.updated_at), { addSuffix: true })}
+                            </p>
                           )}
                         </div>
-                        {c.updated_at && (
-                          <p className="text-[9px] text-muted-foreground mt-1.5">
-                            {formatDistanceToNow(new Date(c.updated_at), { addSuffix: true })}
-                          </p>
-                        )}
                       </div>
                     );
                   })}
