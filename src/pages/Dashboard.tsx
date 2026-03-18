@@ -177,7 +177,7 @@ export default function Dashboard() {
       </div>
 
       {/* Kanban Board */}
-      <div className="overflow-hidden">
+      <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
         <div className="px-5 py-3 border-b border-border">
           <h3 className="text-sm font-semibold text-foreground">Case Pipeline</h3>
         </div>
