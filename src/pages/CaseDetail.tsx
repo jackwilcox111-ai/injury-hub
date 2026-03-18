@@ -46,6 +46,10 @@ export default function CaseDetail() {
   const [showEditRecord, setShowEditRecord] = useState(false);
   const [editRecord, setEditRecord] = useState<any>(null);
   const [showAddLien, setShowAddLien] = useState(false);
+  const [showSettlementModal, setShowSettlementModal] = useState(false);
+  const [settlementAmount, setSettlementAmount] = useState('');
+  const [editingEstimate, setEditingEstimate] = useState(false);
+  const [estimateValue, setEstimateValue] = useState('');
   const [updateMsg, setUpdateMsg] = useState('');
   const [newAppt, setNewAppt] = useState({ provider_id: '', scheduled_date: '', specialty: '', notes: '', interpreter_confirmed: false });
   const [newRecord, setNewRecord] = useState({ record_type: '', provider_id: '', received_date: '', delivered_to_attorney_date: '', hipaa_auth_on_file: false, notes: '' });
@@ -260,11 +264,36 @@ export default function CaseDetail() {
     if (newIdx < currentIdx) {
       if (!confirm(`Moving this case back to ${newStatus}. Are you sure?`)) return;
     }
-    if (newStatus === 'Settled' && !caseData?.settlement_final) {
-      if (!confirm('No final settlement amount entered. Continue anyway?')) return;
+    if (newStatus === 'Settled') {
+      setSettlementAmount(caseData?.settlement_final?.toString() || '');
+      setShowSettlementModal(true);
+      return;
     }
     await updateCase.mutateAsync({ status: newStatus });
     await addUpdate.mutateAsync(`Status changed to ${newStatus} by ${profile?.full_name}`);
+  };
+
+  const handleSettlementConfirm = async () => {
+    const amount = parseFloat(settlementAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error('Please enter a valid settlement amount');
+      return;
+    }
+    await updateCase.mutateAsync({ status: 'Settled', settlement_final: amount });
+    await addUpdate.mutateAsync(`Case settled for $${amount.toLocaleString()} by ${profile?.full_name}`);
+    setShowSettlementModal(false);
+    setSettlementAmount('');
+  };
+
+  const handleEstimateSave = async () => {
+    const amount = estimateValue ? parseFloat(estimateValue) : null;
+    if (estimateValue && (isNaN(amount!) || amount! < 0)) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+    await updateCase.mutateAsync({ settlement_estimate: amount });
+    setEditingEstimate(false);
+    toast.success('Settlement estimate updated');
   };
 
   if (isLoading || !caseData) {
@@ -398,22 +427,63 @@ export default function CaseDetail() {
               <h3 className="text-sm font-semibold text-foreground">Financial Summary</h3>
             </div>
             <div className="space-y-3">
-              {[
-                { label: 'Lien Amount', value: c.lien_amount, color: 'text-emerald-600' },
-                { label: 'Est. Settlement', value: c.settlement_estimate, color: 'text-blue-600' },
-                { label: 'Final Settlement', value: c.settlement_final, color: 'text-violet-600' },
-              ].map(item => (
-                <div key={item.label} className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">{item.label}</span>
-                  <span className={`font-mono font-medium tabular-nums ${item.color}`}>
-                    {item.value != null ? `$${item.value.toLocaleString()}` : '—'}
-                  </span>
-                </div>
-              ))}
+              {/* Lien Amount - read-only, auto-calculated */}
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Lien Amount</span>
+                <span className="font-mono font-medium tabular-nums text-emerald-600">
+                  {c.lien_amount != null ? `$${Number(c.lien_amount).toLocaleString()}` : '—'}
+                </span>
+              </div>
+
+              {/* Est. Settlement - editable */}
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Est. Settlement</span>
+                {editingEstimate ? (
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-muted-foreground text-xs">$</span>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={estimateValue}
+                      onChange={e => setEstimateValue(e.target.value)}
+                      className="h-7 w-28 text-xs font-mono text-right"
+                      autoFocus
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') handleEstimateSave();
+                        if (e.key === 'Escape') setEditingEstimate(false);
+                      }}
+                    />
+                    <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={handleEstimateSave}>Save</Button>
+                    <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-muted-foreground" onClick={() => setEditingEstimate(false)}>✕</Button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => { setEstimateValue(c.settlement_estimate?.toString() || ''); setEditingEstimate(true); }}
+                    className="font-mono font-medium tabular-nums text-blue-600 hover:underline cursor-pointer bg-transparent border-none p-0"
+                  >
+                    {c.settlement_estimate != null ? `$${Number(c.settlement_estimate).toLocaleString()}` : 'Set estimate'}
+                  </button>
+                )}
+              </div>
+
+              {/* Final Settlement - read-only, set via settlement modal */}
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Final Settlement</span>
+                <span className="font-mono font-medium tabular-nums text-violet-600">
+                  {c.settlement_final != null ? `$${Number(c.settlement_final).toLocaleString()}` : '—'}
+                </span>
+              </div>
+
               <div className="border-t border-border pt-3 flex justify-between items-center text-sm">
                 <span className="text-foreground font-medium">Net to Client</span>
                 <span className="font-mono font-semibold text-foreground tabular-nums">
-                  {c.settlement_estimate && c.lien_amount != null ? `$${(c.settlement_estimate - c.lien_amount).toLocaleString()}` : '—'}
+                  {(() => {
+                    const settlement = c.settlement_final ?? c.settlement_estimate;
+                    return settlement != null && c.lien_amount != null
+                      ? `$${(Number(settlement) - Number(c.lien_amount)).toLocaleString()}`
+                      : '—';
+                  })()}
                 </span>
               </div>
             </div>
@@ -774,6 +844,49 @@ export default function CaseDetail() {
               <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowEditRecord(false)}>Cancel</Button><Button type="submit" disabled={updateRecord.isPending}>{updateRecord.isPending ? 'Saving...' : 'Save'}</Button></div>
             </form>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Settlement Modal */}
+      <Dialog open={showSettlementModal} onOpenChange={v => { setShowSettlementModal(v); if (!v) setSettlementAmount(''); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Settle Case</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Enter the final settlement amount to mark this case as settled.</p>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Final Settlement Amount ($)</Label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="e.g. 25000"
+                value={settlementAmount}
+                onChange={e => setSettlementAmount(e.target.value)}
+                className="h-10"
+                autoFocus
+              />
+            </div>
+            <div className="bg-accent/50 rounded-lg p-3 space-y-1 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Lien Amount</span>
+                <span className="font-mono tabular-nums">${Number(c.lien_amount || 0).toLocaleString()}</span>
+              </div>
+              {settlementAmount && !isNaN(parseFloat(settlementAmount)) && (
+                <div className="flex justify-between border-t border-border pt-1">
+                  <span className="text-foreground font-medium">Net to Client</span>
+                  <span className="font-mono font-semibold tabular-nums">
+                    ${(parseFloat(settlementAmount) - Number(c.lien_amount || 0)).toLocaleString()}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowSettlementModal(false)}>Cancel</Button>
+              <Button onClick={handleSettlementConfirm} disabled={updateCase.isPending}>
+                {updateCase.isPending ? 'Settling...' : 'Confirm Settlement'}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
