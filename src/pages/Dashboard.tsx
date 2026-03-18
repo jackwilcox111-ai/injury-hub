@@ -200,7 +200,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   {/* Cards */}
-                  <ScrollArea className="h-[420px]">
+                  <div>
                     <div className="p-2 space-y-2">
                       {columnCases.length === 0 && (
                         <div className="text-center py-8">
