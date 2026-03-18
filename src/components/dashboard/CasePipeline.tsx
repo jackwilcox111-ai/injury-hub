@@ -72,6 +72,7 @@ export function CasePipeline({ cases, isAdmin }: CasePipelineProps) {
     { value: 'case_number', label: 'Case Number' },
     { value: 'lien_amount', label: 'Lien Amount' },
     { value: 'sol_date', label: 'SoL Date' },
+    { value: 'attorney', label: 'Attorney' },
   ];
 
   return (
