@@ -10,15 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle, TrendingUp, FolderOpen, Plus, ArrowRight, Phone, Clock, FileWarning, Timer } from 'lucide-react';
 import { formatDistanceToNow, differenceInDays, differenceInCalendarDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
-
-
-const KANBAN_STATUSES = [
-  { key: 'Intake', label: 'Intake', dot: 'bg-blue-500' },
-  { key: 'Treatment Referrals Sent', label: 'Referrals Sent', dot: 'bg-cyan-500' },
-  { key: 'In Treatment', label: 'In Treatment', dot: 'bg-emerald-500' },
-  { key: 'Records Pending', label: 'Records Pending', dot: 'bg-amber-500' },
-  { key: 'Demand Prep', label: 'Demand Prep', dot: 'bg-indigo-500' },
-];
+import { CasePipeline } from '@/components/dashboard/CasePipeline';
 
 export default function Dashboard() {
   const { profile } = useAuth();
