@@ -10,10 +10,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle, TrendingUp, FolderOpen, Plus, ArrowRight, Phone, Clock, FileWarning, Timer } from 'lucide-react';
 import { formatDistanceToNow, differenceInDays, differenceInCalendarDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+
 
 const KANBAN_STATUSES = [
-  { key: 'Marketplace', label: 'Marketplace', dot: 'bg-purple-500' },
   { key: 'Intake', label: 'Intake', dot: 'bg-blue-500' },
   { key: 'Treatment Referrals Sent', label: 'Referrals Sent', dot: 'bg-cyan-500' },
   { key: 'In Treatment', label: 'In Treatment', dot: 'bg-emerald-500' },
@@ -183,7 +182,7 @@ export default function Dashboard() {
           <h3 className="text-sm font-semibold text-foreground">Case Pipeline</h3>
         </div>
         <div className="overflow-x-auto">
-          <div className="grid grid-cols-6 min-w-[1100px] divide-x divide-border">
+          <div className="grid grid-cols-5 min-w-[950px] divide-x divide-border">
             {KANBAN_STATUSES.map(col => {
               const columnCases = casesByStatus[col.key] || [];
               return (
@@ -201,7 +200,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   {/* Cards */}
-                  <ScrollArea className="h-[420px]">
+                  <div>
                     <div className="p-2 space-y-2">
                       {columnCases.length === 0 && (
                         <div className="text-center py-8">
@@ -218,7 +217,7 @@ export default function Dashboard() {
                             className={`group rounded-lg border p-3 cursor-pointer transition-all hover:shadow-md ${
                               isUrgentSol ? 'border-orange-200 bg-orange-50/40 hover:border-orange-300' :
                               c.flag ? 'border-red-200 bg-red-50/30 hover:border-red-300' :
-                              'border-border bg-background hover:border-primary/30'
+                              'border-border bg-card hover:border-primary/30'
                             }`}
                           >
                             <div className="flex items-start justify-between gap-1 mb-1.5">
@@ -255,7 +254,7 @@ export default function Dashboard() {
                         );
                       })}
                     </div>
-                  </ScrollArea>
+                  </div>
                 </div>
               );
             })}
