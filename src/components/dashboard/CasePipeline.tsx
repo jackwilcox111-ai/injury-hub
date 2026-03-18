@@ -155,15 +155,15 @@ export function CasePipeline({ cases, isAdmin }: CasePipelineProps) {
                             {c.flag && <FlagBadge flag={c.flag} />}
                           </div>
                         </div>
-                        <p className="text-xs font-medium text-foreground leading-tight mt-1 truncate">{c.patient_name}</p>
-                        <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted-foreground truncate">
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <p className="text-xs font-medium text-foreground leading-tight truncate">{c.patient_name}</p>
                           {c.patient_phone && (
-                            <span className="flex items-center gap-0.5">
-                              <Phone className="w-2.5 h-2.5 shrink-0" />{c.patient_phone}
+                            <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground shrink-0">
+                              <Phone className="w-2.5 h-2.5" />{c.patient_phone}
                             </span>
                           )}
-                          <span className="truncate">{(c as any).attorneys?.firm_name || 'No attorney'}</span>
                         </div>
+                        <p className="text-[10px] text-muted-foreground truncate mt-0.5">{(c as any).attorneys?.firm_name || 'No attorney'}</p>
                         <div className="flex items-center justify-between mt-1">
                           {isAdmin && (
                             <span className="text-[10px] font-mono text-emerald-600 tabular-nums">
