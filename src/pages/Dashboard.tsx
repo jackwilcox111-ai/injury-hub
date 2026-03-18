@@ -42,19 +42,7 @@ export default function Dashboard() {
     },
   });
 
-  const { data: unpaidLiens } = useQuery({
-    queryKey: ['dashboard-unpaid-liens'],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('liens')
-        .select('*, cases!liens_case_id_fkey(case_number, patient_name, status, attorney_id, attorneys!cases_attorney_id_fkey(firm_name)), providers!liens_provider_id_fkey(name)')
-        .eq('status', 'Active')
-        .gt('amount', 0)
-        .order('created_at', { ascending: true })
-        .limit(20);
-      return data || [];
-    },
-  });
+
 
   const { data: providerCount } = useQuery({
     queryKey: ['provider-count'],
