@@ -155,11 +155,18 @@ export function CasePipeline({ cases, isAdmin }: CasePipelineProps) {
                             {c.flag && <FlagBadge flag={c.flag} />}
                           </div>
                         </div>
-                        <div className="flex items-center gap-1.5 mt-1">
-                          <p className="text-xs font-medium text-foreground leading-tight truncate">{c.patient_name}</p>
-                          {c.patient_phone && (
-                            <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground shrink-0">
-                              <Phone className="w-2.5 h-2.5" />{c.patient_phone}
+                        <div className="flex items-center justify-between gap-1 mt-1">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <p className="text-xs font-medium text-foreground leading-tight truncate">{c.patient_name}</p>
+                            {c.patient_phone && (
+                              <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground shrink-0">
+                                <Phone className="w-2.5 h-2.5" />{c.patient_phone}
+                              </span>
+                            )}
+                          </div>
+                          {isAdmin && (
+                            <span className="text-[10px] font-mono text-emerald-600 tabular-nums shrink-0">
+                              ${(c.lien_amount || 0).toLocaleString()}
                             </span>
                           )}
                         </div>
@@ -171,11 +178,6 @@ export function CasePipeline({ cases, isAdmin }: CasePipelineProps) {
                             </p>
                           )}
                         </div>
-                        {isAdmin && (
-                          <span className="text-[10px] font-mono text-emerald-600 tabular-nums mt-0.5">
-                            ${(c.lien_amount || 0).toLocaleString()}
-                          </span>
-                        )}
                       </div>
                     );
                   })}
