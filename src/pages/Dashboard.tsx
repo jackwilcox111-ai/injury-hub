@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const KANBAN_STATUSES = [
-  { key: 'Marketplace', label: 'Marketplace', dot: 'bg-purple-500' },
   { key: 'Intake', label: 'Intake', dot: 'bg-blue-500' },
   { key: 'Treatment Referrals Sent', label: 'Referrals Sent', dot: 'bg-cyan-500' },
   { key: 'In Treatment', label: 'In Treatment', dot: 'bg-emerald-500' },
