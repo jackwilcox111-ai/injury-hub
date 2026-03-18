@@ -282,7 +282,7 @@ export default function Dashboard() {
         <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
           <div className="px-5 py-3 border-b border-border flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-red-500" />
-            <h3 className="text-sm font-semibold text-foreground">Flagged Cases</h3>
+            <h3 className="text-sm font-semibold text-foreground">Cases Requiring Attention</h3>
             <span className="text-[10px] bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-medium ml-1">{flaggedCases.length}</span>
           </div>
           <div className="overflow-x-auto">
