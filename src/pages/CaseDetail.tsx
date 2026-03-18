@@ -264,11 +264,36 @@ export default function CaseDetail() {
     if (newIdx < currentIdx) {
       if (!confirm(`Moving this case back to ${newStatus}. Are you sure?`)) return;
     }
-    if (newStatus === 'Settled' && !caseData?.settlement_final) {
-      if (!confirm('No final settlement amount entered. Continue anyway?')) return;
+    if (newStatus === 'Settled') {
+      setSettlementAmount(caseData?.settlement_final?.toString() || '');
+      setShowSettlementModal(true);
+      return;
     }
     await updateCase.mutateAsync({ status: newStatus });
     await addUpdate.mutateAsync(`Status changed to ${newStatus} by ${profile?.full_name}`);
+  };
+
+  const handleSettlementConfirm = async () => {
+    const amount = parseFloat(settlementAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error('Please enter a valid settlement amount');
+      return;
+    }
+    await updateCase.mutateAsync({ status: 'Settled', settlement_final: amount });
+    await addUpdate.mutateAsync(`Case settled for $${amount.toLocaleString()} by ${profile?.full_name}`);
+    setShowSettlementModal(false);
+    setSettlementAmount('');
+  };
+
+  const handleEstimateSave = async () => {
+    const amount = estimateValue ? parseFloat(estimateValue) : null;
+    if (estimateValue && (isNaN(amount!) || amount! < 0)) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+    await updateCase.mutateAsync({ settlement_estimate: amount });
+    setEditingEstimate(false);
+    toast.success('Settlement estimate updated');
   };
 
   if (isLoading || !caseData) {
