@@ -156,13 +156,13 @@ export default function Dashboard() {
 
   const colgroup = (extraCols: number) => (
     <colgroup>
-      <col className="w-[110px]" />
-      <col className="w-[170px]" />
-      <col className="w-[150px]" />
-      <col className="w-[110px]" />
-      {isAdmin && <col className="w-[70px]" />}
-      <col className="w-[60px]" />
-      <col className="w-[100px]" />
+      <col className="w-[120px]" />
+      <col className="w-[180px]" />
+      <col className="w-[160px]" />
+      <col className="w-[120px]" />
+      {isAdmin && <col className="w-[80px]" />}
+      <col className="w-[70px]" />
+      <col className="w-[120px]" />
       {Array.from({ length: extraCols }).map((_, i) => <col key={i} />)}
     </colgroup>
   );
@@ -282,7 +282,7 @@ export default function Dashboard() {
         <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
           <div className="px-5 py-3 border-b border-border flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-red-500" />
-            <h3 className="text-sm font-semibold text-foreground">Flagged Cases</h3>
+            <h3 className="text-sm font-semibold text-foreground">Cases Requiring Attention</h3>
             <span className="text-[10px] bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-medium ml-1">{flaggedCases.length}</span>
           </div>
           <div className="overflow-x-auto">
