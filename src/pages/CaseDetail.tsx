@@ -305,9 +305,17 @@ export default function CaseDetail() {
 
   return (
     <div className="space-y-6">
-      <Button variant="ghost" size="sm" onClick={() => navigate('/cases')} className="text-muted-foreground -ml-2">
-        <ArrowLeft className="w-4 h-4 mr-1" /> Cases
-      </Button>
+      <div className="flex items-center gap-1 text-sm text-muted-foreground -ml-2">
+        <Button variant="link" size="sm" onClick={() => navigate('/dashboard')} className="text-muted-foreground px-1">
+          Dashboard
+        </Button>
+        <span>/</span>
+        <Button variant="link" size="sm" onClick={() => navigate('/cases')} className="text-muted-foreground px-1">
+          Cases
+        </Button>
+        <span>/</span>
+        <span className="text-foreground font-medium">{caseData?.case_number}</span>
+      </div>
 
       {/* Case Header */}
       <div className="bg-card border border-border rounded-xl p-6 shadow-card">
