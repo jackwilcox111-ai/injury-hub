@@ -319,11 +319,11 @@ export default function Dashboard() {
       )}
 
       {/* Section 4: Pending Records & Liens */}
-      {((pendingRecords && pendingRecords.length > 0) || (unpaidLiens && unpaidLiens.length > 0)) && (
+      {((pendingRecords && pendingRecords.length > 0)) && (
         <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
           <div className="px-5 py-3 border-b border-border flex items-center gap-2">
             <FileWarning className="w-4 h-4 text-violet-500" />
-            <h3 className="text-sm font-semibold text-foreground">Pending Records & Outstanding Liens</h3>
+            <h3 className="text-sm font-semibold text-foreground">Pending Records</h3>
           </div>
 
           {/* Pending Records */}
