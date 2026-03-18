@@ -14,7 +14,7 @@ const KANBAN_STATUSES = [
   { key: 'Demand Prep', label: 'Demand Prep' },
 ];
 
-type SortField = 'patient_name' | 'updated_at' | 'lien_amount' | 'sol_date' | 'case_number';
+type SortField = 'patient_name' | 'updated_at' | 'lien_amount' | 'sol_date' | 'case_number' | 'attorney';
 type SortDir = 'asc' | 'desc';
 
 interface CasePipelineProps {
@@ -43,8 +43,8 @@ export function CasePipeline({ cases, isAdmin }: CasePipelineProps) {
 
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
-      let aVal = a[sortField];
-      let bVal = b[sortField];
+      let aVal: any = sortField === 'attorney' ? (a as any).attorneys?.firm_name : a[sortField];
+      let bVal: any = sortField === 'attorney' ? (b as any).attorneys?.firm_name : b[sortField];
       if (sortField === 'updated_at' || sortField === 'sol_date') {
         aVal = aVal ? new Date(aVal).getTime() : 0;
         bVal = bVal ? new Date(bVal).getTime() : 0;
@@ -72,6 +72,7 @@ export function CasePipeline({ cases, isAdmin }: CasePipelineProps) {
     { value: 'case_number', label: 'Case Number' },
     { value: 'lien_amount', label: 'Lien Amount' },
     { value: 'sol_date', label: 'SoL Date' },
+    { value: 'attorney', label: 'Attorney' },
   ];
 
   return (
