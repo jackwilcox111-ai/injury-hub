@@ -4,13 +4,22 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { StatusBadge } from '@/components/global/StatusBadge';
 import { SoLCountdown } from '@/components/global/SoLCountdown';
-
 import { FlagBadge } from '@/components/global/FlagBadge';
 import { FinancialValue } from '@/components/global/FinancialValue';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertTriangle, TrendingUp, Stethoscope, FolderOpen, Plus, ArrowRight, Phone, Clock, FileWarning, Scale, Timer } from 'lucide-react';
+import { AlertTriangle, TrendingUp, FolderOpen, Plus, ArrowRight, Phone, Clock, FileWarning, Timer } from 'lucide-react';
 import { formatDistanceToNow, differenceInDays, differenceInCalendarDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
+const KANBAN_STATUSES = [
+  { key: 'Marketplace', label: 'Marketplace', dot: 'bg-purple-500' },
+  { key: 'Intake', label: 'Intake', dot: 'bg-blue-500' },
+  { key: 'Treatment Referrals Sent', label: 'Referrals Sent', dot: 'bg-cyan-500' },
+  { key: 'In Treatment', label: 'In Treatment', dot: 'bg-emerald-500' },
+  { key: 'Records Pending', label: 'Records Pending', dot: 'bg-amber-500' },
+  { key: 'Demand Prep', label: 'Demand Prep', dot: 'bg-indigo-500' },
+];
 
 export default function Dashboard() {
   const { profile } = useAuth();
@@ -42,8 +51,6 @@ export default function Dashboard() {
     },
   });
 
-
-
   const { data: providerCount } = useQuery({
     queryKey: ['provider-count'],
     queryFn: async () => {
@@ -58,21 +65,14 @@ export default function Dashboard() {
   const intakeCases = activeCases.filter(c => c.status === 'Intake');
   const inTreatment = activeCases.filter(c => c.status === 'In Treatment');
 
-  // SoL Alerts: cases with SoL date within 180 days
   const now = new Date();
-  const solAlertCases = activeCases
-    .filter(c => {
-      if (!c.sol_date) return false;
-      const daysLeft = differenceInCalendarDays(new Date(c.sol_date), now);
-      return daysLeft > 0 && daysLeft <= 180;
-    })
-    .sort((a, b) => {
-      const dA = differenceInCalendarDays(new Date(a.sol_date!), now);
-      const dB = differenceInCalendarDays(new Date(b.sol_date!), now);
-      return dA - dB;
-    });
+  const solAlertCases = activeCases.filter(c => {
+    if (!c.sol_date) return false;
+    const daysLeft = differenceInCalendarDays(new Date(c.sol_date), now);
+    return daysLeft > 0 && daysLeft <= 180;
+  });
 
-  // Stale cases: no update in 14+ days, not settled
+  // Stale cases: no update in 14+ days
   const staleCases = activeCases
     .filter(c => {
       if (!c.updated_at) return true;
@@ -81,22 +81,20 @@ export default function Dashboard() {
     .sort((a, b) => {
       const dA = a.updated_at ? new Date(a.updated_at).getTime() : 0;
       const dB = b.updated_at ? new Date(b.updated_at).getTime() : 0;
-      return dA - dB; // oldest first
+      return dA - dB;
     });
-
-  const getSolTier = (solDate: string) => {
-    const days = differenceInCalendarDays(new Date(solDate), now);
-    if (days <= 30) return { label: 'CRITICAL', color: 'bg-red-100 text-red-700 border-red-200' };
-    if (days <= 60) return { label: 'HIGH', color: 'bg-orange-100 text-orange-700 border-orange-200' };
-    if (days <= 90) return { label: 'WARNING', color: 'bg-amber-100 text-amber-700 border-amber-200' };
-    return { label: 'MONITOR', color: 'bg-yellow-50 text-yellow-700 border-yellow-200' };
-  };
 
   const getStaleLabel = (updatedAt: string | null) => {
     if (!updatedAt) return { label: 'Never updated', days: 999 };
     const days = differenceInDays(now, new Date(updatedAt));
     return { label: `${days}d inactive`, days };
   };
+
+  // Group cases by status for Kanban
+  const casesByStatus = KANBAN_STATUSES.reduce((acc, col) => {
+    acc[col.key] = activeCases.filter(c => c.status === col.key);
+    return acc;
+  }, {} as Record<string, typeof activeCases>);
 
   if (isLoading) {
     return (
@@ -112,65 +110,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
-  // Shared table row renderer
-  const renderCaseRow = (c: any, extra?: React.ReactNode) => (
-    <tr
-      key={c.id}
-      onClick={() => navigate(`/cases/${c.id}`)}
-      className="cursor-pointer hover:bg-accent/50 transition-colors"
-    >
-      <td className="px-5 py-3.5 font-mono text-xs text-primary font-medium">{c.case_number}</td>
-      <td className="px-5 py-3.5">
-        <div>
-          <p className="text-sm font-medium text-foreground">{c.patient_name}</p>
-          {c.patient_phone && (
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Phone className="w-3 h-3" />{c.patient_phone}
-            </span>
-          )}
-        </div>
-      </td>
-      <td className="px-5 py-3.5 text-muted-foreground text-xs">{c.attorneys?.firm_name || '—'}</td>
-      <td className="px-5 py-3.5 whitespace-nowrap"><StatusBadge status={c.status || ''} /></td>
-      {isAdmin && <td className="px-5 py-3.5"><FinancialValue value={c.lien_amount} /></td>}
-      <td className="px-5 py-3.5">
-        <SoLCountdown sol_date={c.sol_date} sol_period_days={c.sol_period_days} accident_state={c.accident_state} />
-      </td>
-      <td className="px-5 py-3.5 whitespace-nowrap">{c.flag ? <FlagBadge flag={c.flag} /> : <span className="text-xs text-muted-foreground">—</span>}</td>
-      {extra}
-    </tr>
-  );
-
-  const colgroup = (extraCols: number) => (
-    <colgroup>
-      <col className="w-[120px]" />
-      <col className="w-[180px]" />
-      <col className="w-[160px]" />
-      <col className="w-[120px]" />
-      {isAdmin && <col className="w-[80px]" />}
-      <col className="w-[70px]" />
-      <col className="w-[120px]" />
-      {Array.from({ length: extraCols }).map((_, i) => <col key={i} />)}
-    </colgroup>
-  );
-
-  const tableHeaders = (extras: string[]) => (
-    <thead>
-      <tr className="border-b border-border bg-accent/50">
-        <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Case</th>
-        <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Patient</th>
-        <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Attorney</th>
-        <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
-        {isAdmin && <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Lien</th>}
-        <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">SoL</th>
-        <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Alert</th>
-        {extras.map(h => (
-          <th key={h} className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">{h}</th>
-        ))}
-      </tr>
-    </thead>
-  );
 
   return (
     <div className="space-y-6">
@@ -238,54 +177,93 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Section 1: SoL Countdown Alerts */}
-      {solAlertCases.length > 0 && (
-        <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
-          <div className="px-5 py-3 border-b border-border flex items-center gap-2">
-            <Timer className="w-4 h-4 text-orange-500" />
-            <h3 className="text-sm font-semibold text-foreground">Statute of Limitations — Approaching Deadlines</h3>
-            <span className="text-[10px] bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full font-medium ml-1">{solAlertCases.length}</span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              {colgroup(1)}
-              {tableHeaders(['Urgency'])}
-              <tbody className="divide-y divide-border">
-                {solAlertCases.map(c => {
-                  const tier = getSolTier(c.sol_date!);
-                  return renderCaseRow(c,
-                    <td key="urgency" className="px-5 py-3.5 whitespace-nowrap">
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${tier.color}`}>{tier.label}</span>
-                    </td>
-                  );
-                })}
-              </tbody>
-            </table>
+      {/* Kanban Board */}
+      <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
+        <div className="px-5 py-3 border-b border-border">
+          <h3 className="text-sm font-semibold text-foreground">Case Pipeline</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <div className="grid grid-cols-6 min-w-[1100px] divide-x divide-border">
+            {KANBAN_STATUSES.map(col => {
+              const columnCases = casesByStatus[col.key] || [];
+              return (
+                <div key={col.key} className="flex flex-col">
+                  {/* Column header */}
+                  <div className="px-3 py-3 border-b border-border bg-accent/30">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${col.dot}`} />
+                        <span className="text-xs font-semibold text-foreground">{col.label}</span>
+                      </div>
+                      <span className="text-[10px] font-medium text-muted-foreground bg-background border border-border rounded-full px-2 py-0.5 tabular-nums">
+                        {columnCases.length}
+                      </span>
+                    </div>
+                  </div>
+                  {/* Cards */}
+                  <ScrollArea className="h-[420px]">
+                    <div className="p-2 space-y-2">
+                      {columnCases.length === 0 && (
+                        <div className="text-center py-8">
+                          <p className="text-[11px] text-muted-foreground">No cases</p>
+                        </div>
+                      )}
+                      {columnCases.map(c => {
+                        const solDays = c.sol_date ? differenceInCalendarDays(new Date(c.sol_date), now) : null;
+                        const isUrgentSol = solDays !== null && solDays > 0 && solDays <= 180;
+                        return (
+                          <div
+                            key={c.id}
+                            onClick={() => navigate(`/cases/${c.id}`)}
+                            className={`group rounded-lg border p-3 cursor-pointer transition-all hover:shadow-md ${
+                              isUrgentSol ? 'border-orange-200 bg-orange-50/40 hover:border-orange-300' :
+                              c.flag ? 'border-red-200 bg-red-50/30 hover:border-red-300' :
+                              'border-border bg-background hover:border-primary/30'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-1 mb-1.5">
+                              <span className="font-mono text-[10px] text-primary font-medium leading-none">{c.case_number}</span>
+                              {c.flag && <FlagBadge flag={c.flag} />}
+                            </div>
+                            <p className="text-xs font-medium text-foreground leading-tight mb-1 truncate">{c.patient_name}</p>
+                            {c.patient_phone && (
+                              <span className="flex items-center gap-1 text-[10px] text-muted-foreground mb-1.5">
+                                <Phone className="w-2.5 h-2.5" />{c.patient_phone}
+                              </span>
+                            )}
+                            <p className="text-[10px] text-muted-foreground truncate mb-2">
+                              {(c as any).attorneys?.firm_name || 'No attorney'}
+                            </p>
+                            <div className="flex items-center justify-between gap-1">
+                              {isAdmin && (
+                                <span className="text-[10px] font-mono text-emerald-600 tabular-nums">
+                                  ${(c.lien_amount || 0).toLocaleString()}
+                                </span>
+                              )}
+                              {isUrgentSol && (
+                                <span className="text-[9px] font-semibold text-orange-600 bg-orange-100 px-1.5 py-0.5 rounded-full">
+                                  {solDays}d SoL
+                                </span>
+                              )}
+                            </div>
+                            {c.updated_at && (
+                              <p className="text-[9px] text-muted-foreground mt-1.5">
+                                {formatDistanceToNow(new Date(c.updated_at), { addSuffix: true })}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </ScrollArea>
+                </div>
+              );
+            })}
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Section 2: Cases Requiring Attention (flagged) */}
-      {flaggedCases.length > 0 && (
-        <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
-          <div className="px-5 py-3 border-b border-border flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-red-500" />
-            <h3 className="text-sm font-semibold text-foreground">Cases Requiring Attention</h3>
-            <span className="text-[10px] bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-medium ml-1">{flaggedCases.length}</span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              {colgroup(0)}
-              {tableHeaders([])}
-              <tbody className="divide-y divide-border">
-                {flaggedCases.map(c => renderCaseRow(c))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Section 3: Stale / Inactive Cases */}
+      {/* Stale Cases */}
       {staleCases.length > 0 && (
         <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
           <div className="px-5 py-3 border-b border-border flex items-center gap-2">
@@ -295,17 +273,57 @@ export default function Dashboard() {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              {colgroup(1)}
-              {tableHeaders(['Inactive'])}
+              <colgroup>
+                <col className="w-[120px]" />
+                <col className="w-[180px]" />
+                <col className="w-[160px]" />
+                <col className="w-[120px]" />
+                {isAdmin && <col className="w-[80px]" />}
+                <col className="w-[70px]" />
+                <col className="w-[120px]" />
+                <col />
+              </colgroup>
+              <thead>
+                <tr className="border-b border-border bg-accent/50">
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Case</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Patient</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Attorney</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
+                  {isAdmin && <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Lien</th>}
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">SoL</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Alert</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Inactive</th>
+                </tr>
+              </thead>
               <tbody className="divide-y divide-border">
                 {staleCases.map(c => {
                   const stale = getStaleLabel(c.updated_at);
-                  return renderCaseRow(c,
-                    <td key="inactive" className="px-5 py-3.5 whitespace-nowrap">
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
-                        stale.days >= 30 ? 'bg-red-100 text-red-700 border-red-200' : 'bg-amber-100 text-amber-700 border-amber-200'
-                      }`}>{stale.label}</span>
-                    </td>
+                  return (
+                    <tr key={c.id} onClick={() => navigate(`/cases/${c.id}`)} className="cursor-pointer hover:bg-accent/50 transition-colors">
+                      <td className="px-5 py-3.5 font-mono text-xs text-primary font-medium">{c.case_number}</td>
+                      <td className="px-5 py-3.5">
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{c.patient_name}</p>
+                          {c.patient_phone && (
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Phone className="w-3 h-3" />{c.patient_phone}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5 text-muted-foreground text-xs">{(c as any).attorneys?.firm_name || '—'}</td>
+                      <td className="px-5 py-3.5 whitespace-nowrap"><StatusBadge status={c.status || ''} /></td>
+                      {isAdmin && <td className="px-5 py-3.5"><FinancialValue value={c.lien_amount} /></td>}
+                      <td className="px-5 py-3.5">
+                        <SoLCountdown sol_date={c.sol_date} sol_period_days={c.sol_period_days} accident_state={c.accident_state} />
+                      </td>
+                      <td className="px-5 py-3.5 whitespace-nowrap">{c.flag ? <FlagBadge flag={c.flag} /> : <span className="text-xs text-muted-foreground">—</span>}</td>
+                      <td className="px-5 py-3.5 whitespace-nowrap">
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                          stale.days >= 30 ? 'bg-red-100 text-red-700 border-red-200' : 'bg-amber-100 text-amber-700 border-amber-200'
+                        }`}>{stale.label}</span>
+                      </td>
+                    </tr>
                   );
                 })}
               </tbody>
@@ -314,77 +332,65 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Section 4: Pending Records & Liens */}
-      {((pendingRecords && pendingRecords.length > 0)) && (
+      {/* Pending Records */}
+      {pendingRecords && pendingRecords.length > 0 && (
         <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
           <div className="px-5 py-3 border-b border-border flex items-center gap-2">
             <FileWarning className="w-4 h-4 text-violet-500" />
             <h3 className="text-sm font-semibold text-foreground">Pending Records</h3>
+            <span className="text-[10px] bg-violet-50 text-violet-600 px-2 py-0.5 rounded-full font-medium">{pendingRecords.length}</span>
           </div>
-
-          {/* Pending Records */}
-          {pendingRecords && pendingRecords.length > 0 && (
-            <div>
-              <div className="px-5 py-2 bg-accent/30 border-b border-border flex items-center gap-2">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Awaiting Records</span>
-                <span className="text-[10px] bg-violet-50 text-violet-600 px-2 py-0.5 rounded-full font-medium">{pendingRecords.length}</span>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <colgroup>
-                    <col className="w-[110px]" />
-                    <col className="w-[170px]" />
-                    <col className="w-[160px]" />
-                    <col className="w-[140px]" />
-                    <col className="w-[140px]" />
-                    <col />
-                  </colgroup>
-                  <thead>
-                    <tr className="border-b border-border bg-accent/50">
-                      <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Case</th>
-                      <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Patient</th>
-                      <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
-                      <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Record Type</th>
-                      <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Requested</th>
-                      <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Waiting</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {pendingRecords.map((r: any) => (
-                      <tr
-                        key={r.id}
-                        onClick={() => r.case_id && navigate(`/cases/${r.case_id}`)}
-                        className="cursor-pointer hover:bg-accent/50 transition-colors"
-                      >
-                        <td className="px-5 py-3 font-mono text-xs text-primary font-medium">{r.cases?.case_number || '—'}</td>
-                        <td className="px-5 py-3 text-sm text-foreground">{r.cases?.patient_name || '—'}</td>
-                        <td className="px-5 py-3 text-xs text-muted-foreground">{r.providers?.name || '—'}</td>
-                        <td className="px-5 py-3 text-xs text-muted-foreground">{r.record_type || '—'}</td>
-                        <td className="px-5 py-3 text-xs text-muted-foreground">
-                          {r.created_at ? formatDistanceToNow(new Date(r.created_at), { addSuffix: true }) : '—'}
-                        </td>
-                        <td className="px-5 py-3 whitespace-nowrap">
-                          {r.created_at && (() => {
-                            const days = differenceInDays(now, new Date(r.created_at));
-                            return (
-                              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
-                                days >= 30 ? 'bg-red-100 text-red-700 border-red-200' :
-                                days >= 14 ? 'bg-amber-100 text-amber-700 border-amber-200' :
-                                'bg-muted text-muted-foreground border-border'
-                              }`}>{days}d</span>
-                            );
-                          })()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-
-
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <colgroup>
+                <col className="w-[110px]" />
+                <col className="w-[170px]" />
+                <col className="w-[160px]" />
+                <col className="w-[140px]" />
+                <col className="w-[140px]" />
+                <col />
+              </colgroup>
+              <thead>
+                <tr className="border-b border-border bg-accent/50">
+                  <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Case</th>
+                  <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Patient</th>
+                  <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
+                  <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Record Type</th>
+                  <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Requested</th>
+                  <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Waiting</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {pendingRecords.map((r: any) => (
+                  <tr
+                    key={r.id}
+                    onClick={() => r.case_id && navigate(`/cases/${r.case_id}`)}
+                    className="cursor-pointer hover:bg-accent/50 transition-colors"
+                  >
+                    <td className="px-5 py-3 font-mono text-xs text-primary font-medium">{r.cases?.case_number || '—'}</td>
+                    <td className="px-5 py-3 text-sm text-foreground">{r.cases?.patient_name || '—'}</td>
+                    <td className="px-5 py-3 text-xs text-muted-foreground">{r.providers?.name || '—'}</td>
+                    <td className="px-5 py-3 text-xs text-muted-foreground">{r.record_type || '—'}</td>
+                    <td className="px-5 py-3 text-xs text-muted-foreground">
+                      {r.created_at ? formatDistanceToNow(new Date(r.created_at), { addSuffix: true }) : '—'}
+                    </td>
+                    <td className="px-5 py-3 whitespace-nowrap">
+                      {r.created_at && (() => {
+                        const days = differenceInDays(now, new Date(r.created_at));
+                        return (
+                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                            days >= 30 ? 'bg-red-100 text-red-700 border-red-200' :
+                            days >= 14 ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                            'bg-muted text-muted-foreground border-border'
+                          }`}>{days}d</span>
+                        );
+                      })()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
