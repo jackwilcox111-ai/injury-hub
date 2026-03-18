@@ -81,11 +81,6 @@ export default function Dashboard() {
     return { label: `${days}d inactive`, days };
   };
 
-  // Group cases by status for Kanban
-  const casesByStatus = KANBAN_STATUSES.reduce((acc, col) => {
-    acc[col.key] = activeCases.filter(c => c.status === col.key);
-    return acc;
-  }, {} as Record<string, typeof activeCases>);
 
   if (isLoading) {
     return (
