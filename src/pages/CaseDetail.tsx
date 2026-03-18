@@ -46,6 +46,10 @@ export default function CaseDetail() {
   const [showEditRecord, setShowEditRecord] = useState(false);
   const [editRecord, setEditRecord] = useState<any>(null);
   const [showAddLien, setShowAddLien] = useState(false);
+  const [showSettlementModal, setShowSettlementModal] = useState(false);
+  const [settlementAmount, setSettlementAmount] = useState('');
+  const [editingEstimate, setEditingEstimate] = useState(false);
+  const [estimateValue, setEstimateValue] = useState('');
   const [updateMsg, setUpdateMsg] = useState('');
   const [newAppt, setNewAppt] = useState({ provider_id: '', scheduled_date: '', specialty: '', notes: '', interpreter_confirmed: false });
   const [newRecord, setNewRecord] = useState({ record_type: '', provider_id: '', received_date: '', delivered_to_attorney_date: '', hipaa_auth_on_file: false, notes: '' });
