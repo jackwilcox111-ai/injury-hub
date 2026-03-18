@@ -182,7 +182,7 @@ export default function Dashboard() {
           <h3 className="text-sm font-semibold text-foreground">Case Pipeline</h3>
         </div>
         <div className="overflow-x-auto">
-          <div className="grid grid-cols-6 min-w-[1100px] divide-x divide-border">
+          <div className="grid grid-cols-5 min-w-[950px] divide-x divide-border">
             {KANBAN_STATUSES.map(col => {
               const columnCases = casesByStatus[col.key] || [];
               return (
