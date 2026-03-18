@@ -462,16 +462,23 @@ export type Database = {
           accident_state: string | null
           attorney_id: string | null
           case_number: string
+          completeness_score: number | null
           created_at: string | null
           flag: string | null
           id: string
           lien_amount: number
+          marketer_consent_signed: boolean | null
+          marketer_consent_signed_at: string | null
+          marketer_id: string | null
+          marketplace_accepted_at: string | null
+          marketplace_submitted_at: string | null
           notes: string | null
           opened_date: string
           patient_email: string | null
           patient_name: string
           patient_phone: string | null
           provider_id: string | null
+          quality_gate_passed: boolean | null
           settlement_estimate: number | null
           settlement_final: number | null
           sol_date: string | null
@@ -485,16 +492,23 @@ export type Database = {
           accident_state?: string | null
           attorney_id?: string | null
           case_number?: string
+          completeness_score?: number | null
           created_at?: string | null
           flag?: string | null
           id?: string
           lien_amount?: number
+          marketer_consent_signed?: boolean | null
+          marketer_consent_signed_at?: string | null
+          marketer_id?: string | null
+          marketplace_accepted_at?: string | null
+          marketplace_submitted_at?: string | null
           notes?: string | null
           opened_date?: string
           patient_email?: string | null
           patient_name: string
           patient_phone?: string | null
           provider_id?: string | null
+          quality_gate_passed?: boolean | null
           settlement_estimate?: number | null
           settlement_final?: number | null
           sol_date?: string | null
@@ -508,16 +522,23 @@ export type Database = {
           accident_state?: string | null
           attorney_id?: string | null
           case_number?: string
+          completeness_score?: number | null
           created_at?: string | null
           flag?: string | null
           id?: string
           lien_amount?: number
+          marketer_consent_signed?: boolean | null
+          marketer_consent_signed_at?: string | null
+          marketer_id?: string | null
+          marketplace_accepted_at?: string | null
+          marketplace_submitted_at?: string | null
           notes?: string | null
           opened_date?: string
           patient_email?: string | null
           patient_name?: string
           patient_phone?: string | null
           provider_id?: string | null
+          quality_gate_passed?: boolean | null
           settlement_estimate?: number | null
           settlement_final?: number | null
           sol_date?: string | null
@@ -532,6 +553,13 @@ export type Database = {
             columns: ["attorney_id"]
             isOneToOne: false
             referencedRelation: "attorneys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cases_marketer_id_fkey"
+            columns: ["marketer_id"]
+            isOneToOne: false
+            referencedRelation: "marketer_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -762,6 +790,50 @@ export type Database = {
             columns: ["uploader_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fee_structures: {
+        Row: {
+          active: boolean | null
+          amount: number
+          applies_to: string
+          created_at: string | null
+          id: string
+          is_percentage: boolean | null
+          marketer_id: string | null
+          name: string
+          trigger_event: string
+        }
+        Insert: {
+          active?: boolean | null
+          amount: number
+          applies_to?: string
+          created_at?: string | null
+          id?: string
+          is_percentage?: boolean | null
+          marketer_id?: string | null
+          name: string
+          trigger_event: string
+        }
+        Update: {
+          active?: boolean | null
+          amount?: number
+          applies_to?: string
+          created_at?: string | null
+          id?: string
+          is_percentage?: boolean | null
+          marketer_id?: string | null
+          name?: string
+          trigger_event?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_structures_marketer_id_fkey"
+            columns: ["marketer_id"]
+            isOneToOne: false
+            referencedRelation: "marketer_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1163,6 +1235,184 @@ export type Database = {
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketer_applications: {
+        Row: {
+          company_name: string | null
+          created_at: string | null
+          email: string
+          experience_detail: string | null
+          full_name: string
+          geographic_focus: string[]
+          id: string
+          marketing_channels: string[]
+          notes: string | null
+          phone: string
+          pi_experience: boolean | null
+          status: string
+          tos_agreed: boolean | null
+          tos_agreed_at: string | null
+        }
+        Insert: {
+          company_name?: string | null
+          created_at?: string | null
+          email: string
+          experience_detail?: string | null
+          full_name: string
+          geographic_focus?: string[]
+          id?: string
+          marketing_channels?: string[]
+          notes?: string | null
+          phone: string
+          pi_experience?: boolean | null
+          status?: string
+          tos_agreed?: boolean | null
+          tos_agreed_at?: string | null
+        }
+        Update: {
+          company_name?: string | null
+          created_at?: string | null
+          email?: string
+          experience_detail?: string | null
+          full_name?: string
+          geographic_focus?: string[]
+          id?: string
+          marketing_channels?: string[]
+          notes?: string | null
+          phone?: string
+          pi_experience?: boolean | null
+          status?: string
+          tos_agreed?: boolean | null
+          tos_agreed_at?: string | null
+        }
+        Relationships: []
+      }
+      marketer_payouts: {
+        Row: {
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          case_id: string
+          created_at: string | null
+          id: string
+          marketer_id: string
+          notes: string | null
+          paid_at: string | null
+          payment_reference: string | null
+          status: string
+          trigger_event: string
+        }
+        Insert: {
+          amount: number
+          approved_at?: string | null
+          approved_by?: string | null
+          case_id: string
+          created_at?: string | null
+          id?: string
+          marketer_id: string
+          notes?: string | null
+          paid_at?: string | null
+          payment_reference?: string | null
+          status?: string
+          trigger_event: string
+        }
+        Update: {
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          case_id?: string
+          created_at?: string | null
+          id?: string
+          marketer_id?: string
+          notes?: string | null
+          paid_at?: string | null
+          payment_reference?: string | null
+          status?: string
+          trigger_event?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketer_payouts_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketer_payouts_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketer_payouts_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketer_payouts_marketer_id_fkey"
+            columns: ["marketer_id"]
+            isOneToOne: false
+            referencedRelation: "marketer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketer_profiles: {
+        Row: {
+          active: boolean | null
+          company_name: string | null
+          created_at: string | null
+          flag_reason: string | null
+          flagged: boolean | null
+          geographic_focus: string[]
+          id: string
+          marketing_channels: string[]
+          payout_details: Json | null
+          payout_method: string | null
+          pi_experience: boolean | null
+          profile_id: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          company_name?: string | null
+          created_at?: string | null
+          flag_reason?: string | null
+          flagged?: boolean | null
+          geographic_focus?: string[]
+          id?: string
+          marketing_channels?: string[]
+          payout_details?: Json | null
+          payout_method?: string | null
+          pi_experience?: boolean | null
+          profile_id?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          company_name?: string | null
+          created_at?: string | null
+          flag_reason?: string | null
+          flagged?: boolean | null
+          geographic_focus?: string[]
+          id?: string
+          marketing_channels?: string[]
+          payout_details?: Json | null
+          payout_method?: string | null
+          pi_experience?: boolean | null
+          profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketer_profiles_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
