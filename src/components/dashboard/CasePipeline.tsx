@@ -14,7 +14,7 @@ const KANBAN_STATUSES = [
   { key: 'Demand Prep', label: 'Demand Prep' },
 ];
 
-type SortField = 'patient_name' | 'updated_at' | 'lien_amount' | 'sol_date' | 'case_number';
+type SortField = 'patient_name' | 'updated_at' | 'lien_amount' | 'sol_date' | 'case_number' | 'attorney';
 type SortDir = 'asc' | 'desc';
 
 interface CasePipelineProps {
