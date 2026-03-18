@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { StatusBadge } from '@/components/global/StatusBadge';
 import { SoLCountdown } from '@/components/global/SoLCountdown';
-import { ProgressBar } from '@/components/global/ProgressBar';
+
 import { FlagBadge } from '@/components/global/FlagBadge';
 import { FinancialValue } from '@/components/global/FinancialValue';
 import { Skeleton } from '@/components/ui/skeleton';
