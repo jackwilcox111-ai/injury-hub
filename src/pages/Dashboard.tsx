@@ -188,17 +188,14 @@ export default function Dashboard() {
               return (
                 <div key={col.key} className="flex flex-col">
                   {/* Column header */}
-                  <div className="px-3 py-3 border-b border-border bg-accent/30">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full ${col.dot}`} />
-                        <span className="text-xs font-semibold text-foreground">{col.label}</span>
-                      </div>
-                      <span className="text-[10px] font-medium text-muted-foreground bg-background border border-border rounded-full px-2 py-0.5 tabular-nums">
-                        {columnCases.length}
-                      </span>
-                    </div>
-                  </div>
+                   <div className="px-3 py-2.5 border-b border-border bg-accent/50">
+                     <div className="flex items-center justify-between">
+                       <span className="text-xs font-medium text-muted-foreground">{col.label}</span>
+                       <span className="text-[10px] font-medium text-muted-foreground tabular-nums">
+                         {columnCases.length}
+                       </span>
+                     </div>
+                   </div>
                   {/* Cards */}
                   <div>
                     <div className="p-2 space-y-2">
