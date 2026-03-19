@@ -722,11 +722,6 @@ export default function CaseDetail() {
           <PatientEngagementTab caseId={id!} />
         </TabsContent>
 
-        {isAdmin && (
-          <TabsContent value="ai" className="p-5">
-            <AIToolsTab caseId={id!} caseData={c} records={records || []} appointments={appointments || []} liens={liens || []} />
-          </TabsContent>
-        )}
 
         <TabsContent value="sol-alerts" className="p-5">
           <SoLAlertsTab caseId={id!} />

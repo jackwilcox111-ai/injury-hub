@@ -183,12 +183,7 @@ export default function AdminMessages() {
               </Select>
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs">Script</Label>
-                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={generateScript} disabled={generating}>
-                  <Sparkles className="w-3 h-3 mr-1" /> {generating ? 'Generating...' : 'AI Generate'}
-                </Button>
-              </div>
+              <Label className="text-xs">Script</Label>
               <Textarea value={script} onChange={e => setScript(e.target.value)} rows={6} placeholder="Write your message..." />
               <p className="text-[10px] text-muted-foreground">{script.split(/\s+/).filter(Boolean).length} words · ~{Math.ceil(script.split(/\s+/).filter(Boolean).length / 150)} min read</p>
             </div>
