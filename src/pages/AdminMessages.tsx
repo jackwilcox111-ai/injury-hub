@@ -71,21 +71,6 @@ export default function AdminMessages() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const generateScript = async () => {
-    if (!caseId) { toast.error('Select a case first'); return; }
-    setGenerating(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-message-script', {
-        body: { case_id: caseId, message_type: messageType, recipient_role: recipientRole },
-      });
-      if (error) throw error;
-      setScript(data.script || '');
-    } catch (e: any) {
-      toast.error(e.message || 'Failed to generate script');
-    } finally {
-      setGenerating(false);
-    }
-  };
 
   if (isLoading) return <div className="space-y-6"><h2 className="font-display text-2xl">Messages</h2><Skeleton className="h-96 rounded-xl" /></div>;
 
