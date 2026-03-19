@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { SessionTimeoutProvider } from "@/components/global/SessionTimeoutProvider";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
@@ -87,6 +88,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <SessionTimeoutProvider>
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<LandingPage />} />
@@ -147,6 +149,7 @@ const App = () => (
 
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </SessionTimeoutProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

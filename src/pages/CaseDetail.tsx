@@ -2,7 +2,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { logPHIAccess } from '@/lib/audit-logger';
+import { PHIBanner } from '@/components/global/PHIBanner';
+
 import { StatusBadge } from '@/components/global/StatusBadge';
 import { SoLCountdown } from '@/components/global/SoLCountdown';
 import { ProgressBar } from '@/components/global/ProgressBar';
@@ -57,7 +60,6 @@ export default function CaseDetail() {
   const [editRecordFile, setEditRecordFile] = useState<File | null>(null);
   const [newLien, setNewLien] = useState({ provider_id: '', amount: 0, status: 'Active', reduction_amount: 0, payment_date: '', notes: '' });
 
-  // Fetch patient profile to check interpreter needs
   const { data: patientProfile } = useQuery({
     queryKey: ['patient-profile-for-case', id],
     queryFn: async () => {
@@ -76,6 +78,13 @@ export default function CaseDetail() {
       return data;
     },
   });
+
+  // HIPAA audit log: track PHI access
+  useEffect(() => {
+    if (id && caseData) {
+      logPHIAccess({ action: 'view', resource_type: 'case', resource_id: id, metadata: { case_number: caseData.case_number } });
+    }
+  }, [id, caseData?.case_number]);
 
   const { data: appointments } = useQuery({
     queryKey: ['case-appointments', id],
@@ -303,8 +312,10 @@ export default function CaseDetail() {
   const c = caseData;
   const solDays = c.sol_date ? Math.ceil((new Date(c.sol_date).getTime() - Date.now()) / 86400000) : null;
 
+
   return (
     <div className="space-y-6">
+      <PHIBanner />
       <div className="flex items-center gap-1 text-sm text-muted-foreground -ml-2">
         <Button variant="link" size="sm" onClick={() => navigate('/dashboard')} className="text-muted-foreground px-1">
           Dashboard

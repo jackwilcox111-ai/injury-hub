@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { Plus, Search, ArrowUpDown } from 'lucide-react';
+import { PHIBanner } from '@/components/global/PHIBanner';
 
 const statuses = ['All', 'Intake', 'In Treatment', 'Records Pending', 'Demand Prep', 'Settled'];
 const specialties = ['Pain Management', 'Physical Therapy', 'Orthopedic', 'Chiropractic', 'Surgical Center', 'Diagnostics', 'Other'];
@@ -109,6 +110,7 @@ export default function CasesList() {
 
   return (
     <div className="space-y-6">
+      <PHIBanner />
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-display text-2xl text-foreground">Cases</h2>

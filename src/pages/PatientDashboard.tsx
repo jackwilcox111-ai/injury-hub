@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { format, formatDistanceToNow, differenceInHours } from 'date-fns';
 import { Activity, Calendar, Heart, FileText, CheckCircle, HelpCircle, Bell, DollarSign } from 'lucide-react';
 import { generateICS } from '@/lib/ics-generator';
+import { PHIBanner } from '@/components/global/PHIBanner';
 
 const MOODS = ['Great', 'Good', 'OK', 'Poor', 'Terrible'];
 
@@ -160,6 +161,7 @@ export default function PatientDashboard() {
 
   return (
     <div className="space-y-6">
+      <PHIBanner compact />
       <div>
         <h2 className="font-display text-2xl text-foreground">Welcome, {profile?.full_name?.split(' ')[0]}</h2>
         <p className="text-sm text-muted-foreground mt-0.5">Case {caseData.case_number} — {caseData.status}</p>

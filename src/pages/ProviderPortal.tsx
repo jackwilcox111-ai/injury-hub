@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { PHIBanner } from '@/components/global/PHIBanner';
 import { Calendar, FileText, DollarSign, Plus, Users, Building2, Link2, MessageCircle, Upload } from 'lucide-react';
 import { ProviderMetrics } from '@/components/provider/ProviderMetrics';
 import { ProviderProfileTab } from '@/components/provider/ProviderProfileTab';
@@ -130,6 +131,7 @@ export default function ProviderPortal() {
 
   return (
     <div className="space-y-6">
+      <PHIBanner />
       <div>
         <h2 className="font-display text-xl">Provider Portal</h2>
         <p className="text-sm text-muted-foreground">Manage your patients, appointments, charges, and records.</p>
