@@ -27,7 +27,7 @@ import { InsuranceEligibilityTab } from '@/components/cases/InsuranceEligibility
 import { BillingChargesTab } from '@/components/cases/BillingChargesTab';
 import { RecordsManagementTab } from '@/components/cases/RecordsManagementTab';
 import { WorkPlanTab } from '@/components/cases/WorkPlanTab';
-import { AIToolsTab } from '@/components/cases/AIToolsTab';
+
 import { PatientEngagementTab } from '@/components/cases/PatientEngagementTab';
 import { SoLAlertsTab } from '@/components/cases/SoLAlertsTab';
 import { PolicyDetailsTab } from '@/components/cases/PolicyDetailsTab';
