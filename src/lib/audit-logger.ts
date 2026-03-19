@@ -15,7 +15,7 @@ export async function logPHIAccess(entry: AuditEntry) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    await supabase.from('audit_logs').insert({
+    await (supabase.from('audit_logs') as any).insert({
       user_id: user.id,
       action: entry.action,
       resource_type: entry.resource_type,
