@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { format, formatDistanceToNow, differenceInHours } from 'date-fns';
 import { Activity, Calendar, Heart, FileText, CheckCircle, HelpCircle, Bell, DollarSign } from 'lucide-react';
 import { generateICS } from '@/lib/ics-generator';
+import { PHIBanner } from '@/components/global/PHIBanner';
 
 const MOODS = ['Great', 'Good', 'OK', 'Poor', 'Terrible'];
 
