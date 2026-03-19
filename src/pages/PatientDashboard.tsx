@@ -161,6 +161,7 @@ export default function PatientDashboard() {
 
   return (
     <div className="space-y-6">
+      <PHIBanner compact />
       <div>
         <h2 className="font-display text-2xl text-foreground">Welcome, {profile?.full_name?.split(' ')[0]}</h2>
         <p className="text-sm text-muted-foreground mt-0.5">Case {caseData.case_number} — {caseData.status}</p>
