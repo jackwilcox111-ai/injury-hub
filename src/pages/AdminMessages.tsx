@@ -29,7 +29,7 @@ export default function AdminMessages() {
   const [caseId, setCaseId] = useState('');
   const [messageType, setMessageType] = useState('Status Update');
   const [script, setScript] = useState('');
-  const [generating, setGenerating] = useState(false);
+  
 
   const { data: messages, isLoading } = useQuery({
     queryKey: ['admin-video-messages'],
