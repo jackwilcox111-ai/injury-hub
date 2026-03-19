@@ -2240,56 +2240,6 @@ export type Database = {
           status: string | null
           updated_at: string | null
         }
-        Insert: {
-          accident_date?: string | null
-          accident_state?: string | null
-          appointments_completed?: never
-          appointments_total?: never
-          attorney_id?: string | null
-          case_number?: string | null
-          created_at?: string | null
-          flag?: string | null
-          id?: string | null
-          lien_amount?: number | null
-          notes?: string | null
-          opened_date?: string | null
-          patient_email?: string | null
-          patient_name?: string | null
-          patient_phone?: string | null
-          provider_id?: string | null
-          settlement_estimate?: number | null
-          settlement_final?: number | null
-          sol_date?: string | null
-          sol_period_days?: number | null
-          specialty?: string | null
-          status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          accident_date?: string | null
-          accident_state?: string | null
-          appointments_completed?: never
-          appointments_total?: never
-          attorney_id?: string | null
-          case_number?: string | null
-          created_at?: string | null
-          flag?: string | null
-          id?: string | null
-          lien_amount?: number | null
-          notes?: string | null
-          opened_date?: string | null
-          patient_email?: string | null
-          patient_name?: string | null
-          patient_phone?: string | null
-          provider_id?: string | null
-          settlement_estimate?: number | null
-          settlement_final?: number | null
-          sol_date?: string | null
-          sol_period_days?: number | null
-          specialty?: string | null
-          status?: string | null
-          updated_at?: string | null
-        }
         Relationships: [
           {
             foreignKeyName: "cases_attorney_id_fkey"
