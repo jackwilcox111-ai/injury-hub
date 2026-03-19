@@ -61,6 +61,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "ai_summaries_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "ai_summaries_generated_by_fkey"
             columns: ["generated_by"]
             isOneToOne: false
@@ -116,6 +123,13 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
             referencedColumns: ["id"]
           },
           {
@@ -384,6 +398,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "case_tasks_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "case_tasks_workplan_template_id_fkey"
             columns: ["workplan_template_id"]
             isOneToOne: false
@@ -441,6 +462,13 @@ export type Database = {
             referencedRelation: "cases_with_counts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "case_timelines_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
+            referencedColumns: ["id"]
+          },
         ]
       }
       case_updates: {
@@ -485,6 +513,13 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_updates_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
             referencedColumns: ["id"]
           },
         ]
@@ -669,6 +704,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "charges_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "charges_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
@@ -751,6 +793,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "demand_letters_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "demand_letters_generated_by_fkey"
             columns: ["generated_by"]
             isOneToOne: false
@@ -816,6 +865,13 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
             referencedColumns: ["id"]
           },
           {
@@ -1043,6 +1099,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "funding_requests_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "funding_requests_funder_id_fkey"
             columns: ["funder_id"]
             isOneToOne: false
@@ -1139,6 +1202,13 @@ export type Database = {
             referencedRelation: "cases_with_counts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "insurance_colossus_data_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: true
+            referencedRelation: "marketplace_cases"
+            referencedColumns: ["id"]
+          },
         ]
       }
       insurance_eligibility: {
@@ -1206,6 +1276,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "insurance_eligibility_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "insurance_eligibility_verified_by_fkey"
             columns: ["verified_by"]
             isOneToOne: false
@@ -1261,6 +1338,13 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "liens_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
             referencedColumns: ["id"]
           },
           {
@@ -1386,6 +1470,13 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketer_payouts_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
             referencedColumns: ["id"]
           },
           {
@@ -1535,6 +1626,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "patient_checkins_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "patient_checkins_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
@@ -1614,6 +1712,13 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_profiles_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
             referencedColumns: ["id"]
           },
           {
@@ -1705,6 +1810,13 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: true
             referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policy_details_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: true
+            referencedRelation: "marketplace_cases"
             referencedColumns: ["id"]
           },
         ]
@@ -1933,6 +2045,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "rcm_cases_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "rcm_cases_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
@@ -1991,6 +2110,13 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "records_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
             referencedColumns: ["id"]
           },
           {
@@ -2100,6 +2226,13 @@ export type Database = {
             referencedRelation: "cases_with_counts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "sol_alerts_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
+            referencedColumns: ["id"]
+          },
         ]
       }
       video_messages: {
@@ -2167,6 +2300,13 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_messages_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
             referencedColumns: ["id"]
           },
           {
@@ -2256,6 +2396,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      marketplace_cases: {
+        Row: {
+          accident_date: string | null
+          accident_state: string | null
+          case_number: string | null
+          completeness_score: number | null
+          created_at: string | null
+          id: string | null
+          lien_amount: number | null
+          marketplace_submitted_at: string | null
+          quality_gate_passed: boolean | null
+          sol_date: string | null
+          specialty: string | null
+          status: string | null
+        }
+        Insert: {
+          accident_date?: string | null
+          accident_state?: string | null
+          case_number?: string | null
+          completeness_score?: number | null
+          created_at?: string | null
+          id?: string | null
+          lien_amount?: number | null
+          marketplace_submitted_at?: string | null
+          quality_gate_passed?: boolean | null
+          sol_date?: string | null
+          specialty?: string | null
+          status?: string | null
+        }
+        Update: {
+          accident_date?: string | null
+          accident_state?: string | null
+          case_number?: string | null
+          completeness_score?: number | null
+          created_at?: string | null
+          id?: string | null
+          lien_amount?: number | null
+          marketplace_submitted_at?: string | null
+          quality_gate_passed?: boolean | null
+          sol_date?: string | null
+          specialty?: string | null
+          status?: string | null
+        }
+        Relationships: []
       }
     }
     Functions: {
