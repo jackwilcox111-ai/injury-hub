@@ -131,6 +131,7 @@ export default function ProviderPortal() {
 
   return (
     <div className="space-y-6">
+      <PHIBanner />
       <div>
         <h2 className="font-display text-xl">Provider Portal</h2>
         <p className="text-sm text-muted-foreground">Manage your patients, appointments, charges, and records.</p>

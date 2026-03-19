@@ -110,6 +110,7 @@ export default function CasesList() {
 
   return (
     <div className="space-y-6">
+      <PHIBanner />
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-display text-2xl text-foreground">Cases</h2>
