@@ -5,7 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { logPHIAccess } from '@/lib/audit-logger';
 import { PHIBanner } from '@/components/global/PHIBanner';
-import { useState } from 'react';
+
 import { StatusBadge } from '@/components/global/StatusBadge';
 import { SoLCountdown } from '@/components/global/SoLCountdown';
 import { ProgressBar } from '@/components/global/ProgressBar';
