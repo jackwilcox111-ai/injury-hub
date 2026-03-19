@@ -29,7 +29,7 @@ export default function AdminMessages() {
   const [caseId, setCaseId] = useState('');
   const [messageType, setMessageType] = useState('Status Update');
   const [script, setScript] = useState('');
-  const [generating, setGenerating] = useState(false);
+  
 
   const { data: messages, isLoading } = useQuery({
     queryKey: ['admin-video-messages'],
@@ -71,21 +71,6 @@ export default function AdminMessages() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const generateScript = async () => {
-    if (!caseId) { toast.error('Select a case first'); return; }
-    setGenerating(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-message-script', {
-        body: { case_id: caseId, message_type: messageType, recipient_role: recipientRole },
-      });
-      if (error) throw error;
-      setScript(data.script || '');
-    } catch (e: any) {
-      toast.error(e.message || 'Failed to generate script');
-    } finally {
-      setGenerating(false);
-    }
-  };
 
   if (isLoading) return <div className="space-y-6"><h2 className="font-display text-2xl">Messages</h2><Skeleton className="h-96 rounded-xl" /></div>;
 
@@ -198,12 +183,7 @@ export default function AdminMessages() {
               </Select>
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs">Script</Label>
-                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={generateScript} disabled={generating}>
-                  <Sparkles className="w-3 h-3 mr-1" /> {generating ? 'Generating...' : 'AI Generate'}
-                </Button>
-              </div>
+              <Label className="text-xs">Script</Label>
               <Textarea value={script} onChange={e => setScript(e.target.value)} rows={6} placeholder="Write your message..." />
               <p className="text-[10px] text-muted-foreground">{script.split(/\s+/).filter(Boolean).length} words · ~{Math.ceil(script.split(/\s+/).filter(Boolean).length / 150)} min read</p>
             </div>

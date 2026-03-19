@@ -20,14 +20,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { ArrowLeft, AlertTriangle, Clock, FileText, DollarSign, Activity, Send, ShieldCheck, Brain, Heart, Bell, ListTodo, FileSignature, GitBranch, Radar, Shield, Languages, Info, Phone } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Clock, FileText, DollarSign, Activity, Send, ShieldCheck, Heart, Bell, ListTodo, FileSignature, GitBranch, Radar, Shield, Languages, Info, Phone } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, formatDistanceToNow } from 'date-fns';
 import { InsuranceEligibilityTab } from '@/components/cases/InsuranceEligibilityTab';
 import { BillingChargesTab } from '@/components/cases/BillingChargesTab';
 import { RecordsManagementTab } from '@/components/cases/RecordsManagementTab';
 import { WorkPlanTab } from '@/components/cases/WorkPlanTab';
-import { AIToolsTab } from '@/components/cases/AIToolsTab';
+
 import { PatientEngagementTab } from '@/components/cases/PatientEngagementTab';
 import { SoLAlertsTab } from '@/components/cases/SoLAlertsTab';
 import { PolicyDetailsTab } from '@/components/cases/PolicyDetailsTab';
@@ -665,7 +665,7 @@ export default function CaseDetail() {
           <TabsTrigger value="records" className="text-xs gap-1.5"><FileText className="w-3.5 h-3.5" /> Records</TabsTrigger>
           <TabsTrigger value="workplan" className="text-xs gap-1.5"><ListTodo className="w-3.5 h-3.5" /> Work Plan</TabsTrigger>
           <TabsTrigger value="engagement" className="text-xs gap-1.5"><Heart className="w-3.5 h-3.5" /> Engagement</TabsTrigger>
-          {isAdmin && <TabsTrigger value="ai" className="text-xs gap-1.5"><Brain className="w-3.5 h-3.5" /> AI Tools</TabsTrigger>}
+          
           <TabsTrigger value="sol-alerts" className="text-xs gap-1.5"><Bell className="w-3.5 h-3.5" /> SoL Alerts</TabsTrigger>
           <TabsTrigger value="policy" className="text-xs gap-1.5"><Shield className="w-3.5 h-3.5" /> Policy</TabsTrigger>
           <TabsTrigger value="timeline" className="text-xs gap-1.5"><GitBranch className="w-3.5 h-3.5" /> Timeline</TabsTrigger>
@@ -722,11 +722,6 @@ export default function CaseDetail() {
           <PatientEngagementTab caseId={id!} />
         </TabsContent>
 
-        {isAdmin && (
-          <TabsContent value="ai" className="p-5">
-            <AIToolsTab caseId={id!} caseData={c} records={records || []} appointments={appointments || []} liens={liens || []} />
-          </TabsContent>
-        )}
 
         <TabsContent value="sol-alerts" className="p-5">
           <SoLAlertsTab caseId={id!} />
