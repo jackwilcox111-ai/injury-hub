@@ -306,8 +306,16 @@ export default function CaseDetail() {
   const c = caseData;
   const solDays = c.sol_date ? Math.ceil((new Date(c.sol_date).getTime() - Date.now()) / 86400000) : null;
 
+  // Audit log: track PHI access
+  useEffect(() => {
+    if (id && caseData) {
+      logPHIAccess({ action: 'view', resource_type: 'case', resource_id: id, metadata: { case_number: caseData.case_number } });
+    }
+  }, [id, caseData?.case_number]);
+
   return (
     <div className="space-y-6">
+      <PHIBanner />
       <div className="flex items-center gap-1 text-sm text-muted-foreground -ml-2">
         <Button variant="link" size="sm" onClick={() => navigate('/dashboard')} className="text-muted-foreground px-1">
           Dashboard
