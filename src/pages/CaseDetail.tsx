@@ -60,7 +60,13 @@ export default function CaseDetail() {
   const [editRecordFile, setEditRecordFile] = useState<File | null>(null);
   const [newLien, setNewLien] = useState({ provider_id: '', amount: 0, status: 'Active', reduction_amount: 0, payment_date: '', notes: '' });
 
-  // Fetch patient profile to check interpreter needs
+  // HIPAA audit log: track PHI access
+  useEffect(() => {
+    if (id && caseData) {
+      logPHIAccess({ action: 'view', resource_type: 'case', resource_id: id, metadata: { case_number: caseData.case_number } });
+    }
+  }, [id, caseData?.case_number]);
+
   const { data: patientProfile } = useQuery({
     queryKey: ['patient-profile-for-case', id],
     queryFn: async () => {
