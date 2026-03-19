@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { PHIBanner } from '@/components/global/PHIBanner';
 import { Calendar, FileText, DollarSign, Plus, Users, Building2, Link2, MessageCircle, Upload } from 'lucide-react';
 import { ProviderMetrics } from '@/components/provider/ProviderMetrics';
 import { ProviderProfileTab } from '@/components/provider/ProviderProfileTab';
