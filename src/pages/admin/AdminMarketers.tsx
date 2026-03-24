@@ -193,6 +193,7 @@ export default function AdminMarketers() {
         <TabsList>
           <TabsTrigger value="applications">Applications {pendingApps.length > 0 && <Badge variant="destructive" className="ml-1.5 text-[9px] h-4 px-1.5">{pendingApps.length}</Badge>}</TabsTrigger>
           <TabsTrigger value="active">Active Marketers</TabsTrigger>
+          <TabsTrigger value="fees">Fee Structures</TabsTrigger>
         </TabsList>
 
         <TabsContent value="applications" className="mt-4">
