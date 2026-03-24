@@ -17,7 +17,7 @@ const navItems = [
   { title: 'Attorneys', path: '/attorneys', icon: Scale, roles: ['admin'] as UserRole[] },
   { title: 'Providers', path: '/providers', icon: Stethoscope, roles: ['admin', 'care_manager'] as UserRole[] },
   { title: 'Liens & Settlements', path: '/liens', icon: DollarSign, roles: ['admin'] as UserRole[] },
-  { title: 'Demand Letters', path: '/demand-letters', icon: FileSignature, roles: ['admin', 'care_manager'] as UserRole[] },
+  
   { title: 'RCM', path: '/rcm', icon: Landmark, roles: ['admin'] as UserRole[] },
   { title: 'Funding', path: '/funding', icon: Banknote, roles: ['admin'] as UserRole[] },
   { title: 'Marketers', path: '/admin/marketers', icon: Megaphone, roles: ['admin'] as UserRole[] },
