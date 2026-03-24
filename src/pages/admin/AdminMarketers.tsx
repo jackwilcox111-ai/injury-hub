@@ -262,7 +262,86 @@ export default function AdminMarketers() {
             </div>
           </div>
         </TabsContent>
+        <TabsContent value="fees" className="mt-4">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-muted-foreground">Configure commission and referral fee structures for marketers.</p>
+            <Button size="sm" onClick={openNewFee}><Plus className="w-4 h-4 mr-1.5" />New Fee Structure</Button>
+          </div>
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="border-b border-border">
+                  <th className="text-left px-4 py-2 text-xs text-muted-foreground">Name</th>
+                  <th className="text-left px-4 py-2 text-xs text-muted-foreground">Trigger</th>
+                  <th className="text-right px-4 py-2 text-xs text-muted-foreground">Amount</th>
+                  <th className="text-left px-4 py-2 text-xs text-muted-foreground">Applies To</th>
+                  <th className="text-left px-4 py-2 text-xs text-muted-foreground">Active</th>
+                  <th className="text-right px-4 py-2 text-xs text-muted-foreground">Edit</th>
+                </tr></thead>
+                <tbody>
+                  {(fees || []).map((f: any) => (
+                    <tr key={f.id} className="border-b border-border">
+                      <td className="px-4 py-2 font-medium">{f.name}</td>
+                      <td className="px-4 py-2"><Badge variant="secondary" className="text-[10px]">{f.trigger_event}</Badge></td>
+                      <td className="px-4 py-2 text-right font-mono">{f.is_percentage ? `${f.amount}%` : `$${Number(f.amount).toLocaleString()}`}</td>
+                      <td className="px-4 py-2 text-xs">{f.applies_to}</td>
+                      <td className="px-4 py-2"><Switch checked={f.active} onCheckedChange={v => toggleFeeActive.mutate({ id: f.id, active: v })} /></td>
+                      <td className="px-4 py-2 text-right"><Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => openFeeEdit(f)}>Edit</Button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </TabsContent>
       </Tabs>
+
+      {/* Fee Structure Modal */}
+      <Dialog open={feeModal} onOpenChange={v => !v && setFeeModal(false)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>{feeEditId ? 'Edit' : 'New'} Fee Structure</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2"><Label>Name</Label><Input value={feeForm.name} onChange={e => setFeeForm(p => ({ ...p, name: e.target.value }))} /></div>
+            <div className="space-y-2">
+              <Label>Trigger Event</Label>
+              <Select value={feeForm.trigger_event} onValueChange={v => setFeeForm(p => ({ ...p, trigger_event: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Case Accepted">Case Accepted</SelectItem>
+                  <SelectItem value="Case Settled">Case Settled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch checked={feeForm.is_percentage} onCheckedChange={v => setFeeForm(p => ({ ...p, is_percentage: v }))} />
+              <Label>{feeForm.is_percentage ? 'Percentage' : 'Flat Amount'}</Label>
+            </div>
+            <div className="space-y-2"><Label>{feeForm.is_percentage ? 'Percentage' : 'Amount ($)'}</Label><Input type="number" value={feeForm.amount} onChange={e => setFeeForm(p => ({ ...p, amount: e.target.value }))} /></div>
+            <div className="space-y-2">
+              <Label>Applies To</Label>
+              <Select value={feeForm.applies_to} onValueChange={v => setFeeForm(p => ({ ...p, applies_to: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Marketers</SelectItem>
+                  <SelectItem value="Specific Marketer">Specific Marketer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {feeForm.applies_to === 'Specific Marketer' && (
+              <div className="space-y-2">
+                <Label>Marketer</Label>
+                <Select value={feeForm.marketer_id} onValueChange={v => setFeeForm(p => ({ ...p, marketer_id: v }))}>
+                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    {(profiles || []).map((m: any) => <SelectItem key={m.id} value={m.id}>{m.profiles?.full_name || m.company_name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <Button onClick={() => saveFee.mutate()} disabled={saveFee.isPending} className="w-full">{saveFee.isPending ? 'Saving...' : 'Save'}</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Reject Modal */}
       <Dialog open={!!rejectId} onOpenChange={v => !v && setRejectId(null)}>

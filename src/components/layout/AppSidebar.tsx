@@ -22,7 +22,7 @@ const navItems = [
   { title: 'Funding', path: '/funding', icon: Banknote, roles: ['admin'] as UserRole[] },
   { title: 'Marketers', path: '/admin/marketers', icon: Megaphone, roles: ['admin'] as UserRole[] },
   { title: 'Case Queue', path: '/admin/case-queue', icon: ClipboardCheck, roles: ['admin'] as UserRole[] },
-  { title: 'Fee Structures', path: '/admin/fee-structures', icon: Percent, roles: ['admin'] as UserRole[] },
+  
   { title: 'Payouts', path: '/admin/payouts', icon: CreditCard, roles: ['admin'] as UserRole[] },
   { title: 'Reports', path: '/reports', icon: BarChart3, roles: ['admin'] as UserRole[] },
   { title: 'Referrals', path: '/referrals', icon: Link2, roles: ['admin'] as UserRole[] },

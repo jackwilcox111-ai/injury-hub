@@ -119,7 +119,7 @@ const App = () => (
             <Route path="/funding" element={<RequireAuth roles={['admin']}><AppLayout><AdminFunding /></AppLayout></RequireAuth>} />
             <Route path="/admin/marketers" element={<RequireAuth roles={['admin']}><AppLayout><AdminMarketers /></AppLayout></RequireAuth>} />
             <Route path="/admin/case-queue" element={<RequireAuth roles={['admin']}><AppLayout><AdminCaseQueue /></AppLayout></RequireAuth>} />
-            <Route path="/admin/fee-structures" element={<RequireAuth roles={['admin']}><AppLayout><AdminFeeStructures /></AppLayout></RequireAuth>} />
+            <Route path="/admin/fee-structures" element={<Navigate to="/admin/marketers" replace />} />
             <Route path="/admin/payouts" element={<RequireAuth roles={['admin']}><AppLayout><AdminPayouts /></AppLayout></RequireAuth>} />
 
             {/* Attorney portal */}
