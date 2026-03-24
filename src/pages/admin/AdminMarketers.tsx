@@ -10,7 +10,10 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Users, Clock, ShoppingBag, DollarSign, Check, X, Flag } from 'lucide-react';
+import { Users, Clock, ShoppingBag, DollarSign, Check, X, Flag, Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function AdminMarketers() {
   const qc = useQueryClient();
