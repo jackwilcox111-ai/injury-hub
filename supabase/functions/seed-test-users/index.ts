@@ -144,6 +144,29 @@ Deno.serve(async (req) => {
       });
     }
 
+    // 7. Marketer
+    const marketerId = await createTestUser(
+      "marketer@carelink.test",
+      "Test1234!",
+      "Jake Marketer",
+      "marketer"
+    );
+
+    const { data: existingMarketer } = await supabaseAdmin
+      .from("marketer_profiles")
+      .select("id")
+      .eq("profile_id", marketerId)
+      .maybeSingle();
+
+    if (!existingMarketer) {
+      await supabaseAdmin.from("marketer_profiles").insert({
+        profile_id: marketerId,
+        company_name: "Leads Pro LLC",
+        marketing_channels: ["Social Media", "Google Ads"],
+        geographic_focus: ["FL", "TX"],
+        pi_experience: true,
+      });
+    }
     return new Response(JSON.stringify({ success: true, accounts: results }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
