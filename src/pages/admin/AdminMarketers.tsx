@@ -113,6 +113,57 @@ export default function AdminMarketers() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['marketer-profiles-admin'] }); setFlagModal(null); setFlagReason(''); toast.success('Marketer flagged'); },
   });
 
+  // Fee structures state & queries
+  const [feeModal, setFeeModal] = useState(false);
+  const [feeEditId, setFeeEditId] = useState<string | null>(null);
+  const [feeForm, setFeeForm] = useState({ name: '', trigger_event: 'Case Accepted', amount: '', is_percentage: false, applies_to: 'All', marketer_id: '', active: true });
+
+  const { data: fees } = useQuery({
+    queryKey: ['fee-structures'],
+    queryFn: async () => {
+      const { data } = await (supabase.from('fee_structures') as any).select('*').order('created_at', { ascending: false });
+      return data || [];
+    },
+  });
+
+  const saveFee = useMutation({
+    mutationFn: async () => {
+      const payload = {
+        name: feeForm.name, trigger_event: feeForm.trigger_event,
+        amount: parseFloat(feeForm.amount), is_percentage: feeForm.is_percentage,
+        applies_to: feeForm.applies_to,
+        marketer_id: feeForm.applies_to === 'Specific Marketer' ? feeForm.marketer_id || null : null,
+        active: feeForm.active,
+      };
+      if (feeEditId) {
+        await (supabase.from('fee_structures') as any).update(payload).eq('id', feeEditId);
+      } else {
+        await (supabase.from('fee_structures') as any).insert(payload);
+      }
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['fee-structures'] }); setFeeModal(false); setFeeEditId(null); toast.success('Fee structure saved'); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const toggleFeeActive = useMutation({
+    mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
+      await (supabase.from('fee_structures') as any).update({ active }).eq('id', id);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['fee-structures'] }),
+  });
+
+  const openFeeEdit = (fee: any) => {
+    setFeeForm({ name: fee.name, trigger_event: fee.trigger_event, amount: String(fee.amount), is_percentage: fee.is_percentage, applies_to: fee.applies_to, marketer_id: fee.marketer_id || '', active: fee.active });
+    setFeeEditId(fee.id);
+    setFeeModal(true);
+  };
+
+  const openNewFee = () => {
+    setFeeForm({ name: '', trigger_event: 'Case Accepted', amount: '', is_percentage: false, applies_to: 'All', marketer_id: '', active: true });
+    setFeeEditId(null);
+    setFeeModal(true);
+  };
+
   const pendingApps = (apps || []).filter((a: any) => a.status === 'Pending');
   const activeMarketers = (profiles || []).length;
 
