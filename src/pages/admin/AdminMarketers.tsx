@@ -10,7 +10,10 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Users, Clock, ShoppingBag, DollarSign, Check, X, Flag } from 'lucide-react';
+import { Users, Clock, ShoppingBag, DollarSign, Check, X, Flag, Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function AdminMarketers() {
   const qc = useQueryClient();
@@ -110,6 +113,57 @@ export default function AdminMarketers() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['marketer-profiles-admin'] }); setFlagModal(null); setFlagReason(''); toast.success('Marketer flagged'); },
   });
 
+  // Fee structures state & queries
+  const [feeModal, setFeeModal] = useState(false);
+  const [feeEditId, setFeeEditId] = useState<string | null>(null);
+  const [feeForm, setFeeForm] = useState({ name: '', trigger_event: 'Case Accepted', amount: '', is_percentage: false, applies_to: 'All', marketer_id: '', active: true });
+
+  const { data: fees } = useQuery({
+    queryKey: ['fee-structures'],
+    queryFn: async () => {
+      const { data } = await (supabase.from('fee_structures') as any).select('*').order('created_at', { ascending: false });
+      return data || [];
+    },
+  });
+
+  const saveFee = useMutation({
+    mutationFn: async () => {
+      const payload = {
+        name: feeForm.name, trigger_event: feeForm.trigger_event,
+        amount: parseFloat(feeForm.amount), is_percentage: feeForm.is_percentage,
+        applies_to: feeForm.applies_to,
+        marketer_id: feeForm.applies_to === 'Specific Marketer' ? feeForm.marketer_id || null : null,
+        active: feeForm.active,
+      };
+      if (feeEditId) {
+        await (supabase.from('fee_structures') as any).update(payload).eq('id', feeEditId);
+      } else {
+        await (supabase.from('fee_structures') as any).insert(payload);
+      }
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['fee-structures'] }); setFeeModal(false); setFeeEditId(null); toast.success('Fee structure saved'); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const toggleFeeActive = useMutation({
+    mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
+      await (supabase.from('fee_structures') as any).update({ active }).eq('id', id);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['fee-structures'] }),
+  });
+
+  const openFeeEdit = (fee: any) => {
+    setFeeForm({ name: fee.name, trigger_event: fee.trigger_event, amount: String(fee.amount), is_percentage: fee.is_percentage, applies_to: fee.applies_to, marketer_id: fee.marketer_id || '', active: fee.active });
+    setFeeEditId(fee.id);
+    setFeeModal(true);
+  };
+
+  const openNewFee = () => {
+    setFeeForm({ name: '', trigger_event: 'Case Accepted', amount: '', is_percentage: false, applies_to: 'All', marketer_id: '', active: true });
+    setFeeEditId(null);
+    setFeeModal(true);
+  };
+
   const pendingApps = (apps || []).filter((a: any) => a.status === 'Pending');
   const activeMarketers = (profiles || []).length;
 
@@ -139,6 +193,7 @@ export default function AdminMarketers() {
         <TabsList>
           <TabsTrigger value="applications">Applications {pendingApps.length > 0 && <Badge variant="destructive" className="ml-1.5 text-[9px] h-4 px-1.5">{pendingApps.length}</Badge>}</TabsTrigger>
           <TabsTrigger value="active">Active Marketers</TabsTrigger>
+          <TabsTrigger value="fees">Fee Structures</TabsTrigger>
         </TabsList>
 
         <TabsContent value="applications" className="mt-4">
@@ -207,7 +262,86 @@ export default function AdminMarketers() {
             </div>
           </div>
         </TabsContent>
+        <TabsContent value="fees" className="mt-4">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-muted-foreground">Configure commission and referral fee structures for marketers.</p>
+            <Button size="sm" onClick={openNewFee}><Plus className="w-4 h-4 mr-1.5" />New Fee Structure</Button>
+          </div>
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="border-b border-border">
+                  <th className="text-left px-4 py-2 text-xs text-muted-foreground">Name</th>
+                  <th className="text-left px-4 py-2 text-xs text-muted-foreground">Trigger</th>
+                  <th className="text-right px-4 py-2 text-xs text-muted-foreground">Amount</th>
+                  <th className="text-left px-4 py-2 text-xs text-muted-foreground">Applies To</th>
+                  <th className="text-left px-4 py-2 text-xs text-muted-foreground">Active</th>
+                  <th className="text-right px-4 py-2 text-xs text-muted-foreground">Edit</th>
+                </tr></thead>
+                <tbody>
+                  {(fees || []).map((f: any) => (
+                    <tr key={f.id} className="border-b border-border">
+                      <td className="px-4 py-2 font-medium">{f.name}</td>
+                      <td className="px-4 py-2"><Badge variant="secondary" className="text-[10px]">{f.trigger_event}</Badge></td>
+                      <td className="px-4 py-2 text-right font-mono">{f.is_percentage ? `${f.amount}%` : `$${Number(f.amount).toLocaleString()}`}</td>
+                      <td className="px-4 py-2 text-xs">{f.applies_to}</td>
+                      <td className="px-4 py-2"><Switch checked={f.active} onCheckedChange={v => toggleFeeActive.mutate({ id: f.id, active: v })} /></td>
+                      <td className="px-4 py-2 text-right"><Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => openFeeEdit(f)}>Edit</Button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </TabsContent>
       </Tabs>
+
+      {/* Fee Structure Modal */}
+      <Dialog open={feeModal} onOpenChange={v => !v && setFeeModal(false)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>{feeEditId ? 'Edit' : 'New'} Fee Structure</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2"><Label>Name</Label><Input value={feeForm.name} onChange={e => setFeeForm(p => ({ ...p, name: e.target.value }))} /></div>
+            <div className="space-y-2">
+              <Label>Trigger Event</Label>
+              <Select value={feeForm.trigger_event} onValueChange={v => setFeeForm(p => ({ ...p, trigger_event: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Case Accepted">Case Accepted</SelectItem>
+                  <SelectItem value="Case Settled">Case Settled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch checked={feeForm.is_percentage} onCheckedChange={v => setFeeForm(p => ({ ...p, is_percentage: v }))} />
+              <Label>{feeForm.is_percentage ? 'Percentage' : 'Flat Amount'}</Label>
+            </div>
+            <div className="space-y-2"><Label>{feeForm.is_percentage ? 'Percentage' : 'Amount ($)'}</Label><Input type="number" value={feeForm.amount} onChange={e => setFeeForm(p => ({ ...p, amount: e.target.value }))} /></div>
+            <div className="space-y-2">
+              <Label>Applies To</Label>
+              <Select value={feeForm.applies_to} onValueChange={v => setFeeForm(p => ({ ...p, applies_to: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Marketers</SelectItem>
+                  <SelectItem value="Specific Marketer">Specific Marketer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {feeForm.applies_to === 'Specific Marketer' && (
+              <div className="space-y-2">
+                <Label>Marketer</Label>
+                <Select value={feeForm.marketer_id} onValueChange={v => setFeeForm(p => ({ ...p, marketer_id: v }))}>
+                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    {(profiles || []).map((m: any) => <SelectItem key={m.id} value={m.id}>{m.profiles?.full_name || m.company_name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <Button onClick={() => saveFee.mutate()} disabled={saveFee.isPending} className="w-full">{saveFee.isPending ? 'Saving...' : 'Save'}</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Reject Modal */}
       <Dialog open={!!rejectId} onOpenChange={v => !v && setRejectId(null)}>
