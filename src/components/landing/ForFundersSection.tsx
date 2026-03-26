@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
+import fundersImage from '@/assets/funders-section.jpg';
 
 export function ForFundersSection() {
   const navigate = useNavigate();
@@ -15,18 +16,35 @@ export function ForFundersSection() {
           <h2 className="text-3xl font-display font-bold text-foreground mb-3">Invest in PI Medical Liens</h2>
           <p className="text-muted-foreground max-w-lg mx-auto text-sm leading-relaxed">Case-level underwriting data, portfolio visibility, and settlement repayment tracking — all in one platform.</p>
         </div>
-        <div className="grid md:grid-cols-3 gap-px bg-border rounded-xl overflow-hidden max-w-3xl mx-auto mb-10">
-          {[
-            { title: 'Case Underwriting', desc: 'Anonymized case data with specialty, SoL, and treatment progress.' },
-            { title: 'Portfolio Visibility', desc: 'Real-time view of deployed capital and active investments.' },
-            { title: 'Settlement Tracking', desc: 'Automated repayment tracking when cases settle.' },
-          ].map((item, i) => (
-            <div key={i} className="bg-card p-6 hover:bg-accent/30 transition-colors duration-300">
-              <h4 className="font-semibold text-sm text-foreground mb-2">{item.title}</h4>
-              <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
+
+        <div className="grid md:grid-cols-2 gap-10 items-center max-w-5xl mx-auto mb-10">
+          {/* Image */}
+          <div className="rounded-2xl overflow-hidden shadow-2xl shadow-foreground/10">
+            <img
+              src={fundersImage}
+              alt="Financial analytics dashboard showing portfolio data"
+              className="w-full h-[320px] object-cover"
+              loading="lazy"
+              width={1280}
+              height={800}
+            />
+          </div>
+
+          {/* Feature cards */}
+          <div className="space-y-4">
+            {[
+              { title: 'Case Underwriting', desc: 'Anonymized case data with specialty, SoL, and treatment progress.' },
+              { title: 'Portfolio Visibility', desc: 'Real-time view of deployed capital and active investments.' },
+              { title: 'Settlement Tracking', desc: 'Automated repayment tracking when cases settle.' },
+            ].map((item, i) => (
+              <div key={i} className="bg-card border border-border rounded-xl p-5 hover:bg-accent/30 transition-colors duration-300">
+                <h4 className="font-semibold text-sm text-foreground mb-1.5">{item.title}</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
+
         <div className="text-center">
           <Button variant="outline" onClick={() => navigate('/funder/join')} className="gap-2 rounded-lg">
             Become a Network Funder <ChevronRight className="w-4 h-4" />
