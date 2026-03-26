@@ -58,7 +58,7 @@ function RequireAuth({ children, roles }: { children: ReactNode; roles?: string[
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground font-mono text-sm">Loading...</p></div>;
   if (!session) return <Navigate to="/login" replace />;
   if (roles && profile && !roles.includes(profile.role)) {
-    if (profile.role === 'attorney') return <Navigate to="/attorney-portal" replace />;
+    if (profile.role === 'attorney') return <Navigate to="/dashboard" replace />;
     if (profile.role === 'provider') return <Navigate to="/provider-portal" replace />;
     if (profile.role === 'patient') return <Navigate to="/patient/dashboard" replace />;
     if (profile.role === 'funder') return <Navigate to="/funder/dashboard" replace />;
@@ -72,7 +72,7 @@ function AuthRedirect() {
   const { session, profile, loading } = useAuth();
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground font-mono text-sm">Loading...</p></div>;
   if (!session) return <Navigate to="/login" replace />;
-  if (profile?.role === 'attorney') return <Navigate to="/attorney-portal" replace />;
+  if (profile?.role === 'attorney') return <Navigate to="/dashboard" replace />;
   if (profile?.role === 'provider') return <Navigate to="/provider-portal" replace />;
   if (profile?.role === 'patient') return <Navigate to="/patient/dashboard" replace />;
   if (profile?.role === 'funder') return <Navigate to="/funder/dashboard" replace />;
@@ -111,7 +111,7 @@ const App = () => (
             <Route path="/calendar" element={<RequireAuth><AppLayout><CalendarPage /></AppLayout></RequireAuth>} />
             <Route path="/reports" element={<RequireAuth roles={['admin']}><AppLayout><ReportingDashboard /></AppLayout></RequireAuth>} />
             <Route path="/referrals" element={<RequireAuth roles={['admin']}><AppLayout><ReferralTracking /></AppLayout></RequireAuth>} />
-            <Route path="/tasks" element={<RequireAuth roles={['admin','care_manager']}><AppLayout><TaskDashboard /></AppLayout></RequireAuth>} />
+            <Route path="/tasks" element={<RequireAuth roles={['admin','care_manager','attorney']}><AppLayout><TaskDashboard /></AppLayout></RequireAuth>} />
             <Route path="/settings" element={<RequireAuth roles={['admin']}><AppLayout><SettingsPage /></AppLayout></RequireAuth>} />
             <Route path="/demand-letters" element={<RequireAuth roles={['admin','care_manager']}><AppLayout><AdminDemandLetters /></AppLayout></RequireAuth>} />
             <Route path="/messages" element={<RequireAuth roles={['admin','care_manager']}><AppLayout><AdminMessages /></AppLayout></RequireAuth>} />
