@@ -264,12 +264,6 @@ export default function FindProvider() {
                       </div>
                     )}
 
-                    {p.phone && (
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Phone className="w-3 h-3 shrink-0" />
-                        <a href={`tel:${p.phone}`} className="hover:text-foreground">{p.phone}</a>
-                      </div>
-                    )}
 
                     <div className="flex gap-3 pt-1">
                       {directionsUrl && (
