@@ -137,6 +137,7 @@ export default function FindProvider() {
       {/* Map */}
       <section className="max-w-5xl mx-auto px-4 md:px-6 mb-6">
         <ProviderMapView
+          ref={mapRef}
           providers={filtered}
           activeId={activeId}
           onSelectProvider={handleSelectProvider}
