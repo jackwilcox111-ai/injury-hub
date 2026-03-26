@@ -64,7 +64,7 @@ export default function AttorneyJoin() {
             <CheckCircle className="w-8 h-8 text-primary" />
           </div>
           <h2 className="text-2xl font-display font-bold text-foreground">Partnership Application Received</h2>
-          <p className="text-muted-foreground text-sm">Thank you. A CareLink partnership coordinator will be in touch within 1 business day.</p>
+          <p className="text-muted-foreground text-sm">Thank you. A Got Hurt Injury Network partnership coordinator will be in touch within 1 business day.</p>
         </div>
       </PublicLayout>
     );
@@ -75,7 +75,7 @@ export default function AttorneyJoin() {
       <div className="max-w-2xl mx-auto px-6 py-16">
         <div className="mb-10">
           <span className="text-xs font-medium uppercase tracking-widest text-primary mb-3 block">Attorney Partnership</span>
-          <h2 className="text-3xl font-display font-bold text-foreground mb-2">Partner with CareLink</h2>
+          <h2 className="text-3xl font-display font-bold text-foreground mb-2">Partner with Got Hurt Injury Network</h2>
           <p className="text-sm text-muted-foreground">Register your firm to access coordinated PI medical care.</p>
         </div>
 
@@ -96,7 +96,7 @@ export default function AttorneyJoin() {
               <div className="space-y-2"><Label>Bar Number</Label><Input value={form.bar_number} onChange={e => set('bar_number', e.target.value)} /></div>
               <div className="space-y-2"><Label>Monthly PI Case Volume</Label><Input type="number" min={0} value={form.pi_case_volume_monthly} onChange={e => set('pi_case_volume_monthly', e.target.value)} /></div>
               <div className="space-y-2">
-                <Label>How did you hear about CareLink?</Label>
+                <Label>How did you hear about Got Hurt Injury Network?</Label>
                 <Select value={form.referral_source} onValueChange={v => set('referral_source', v)}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>{REFERRAL_SOURCES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
@@ -105,7 +105,7 @@ export default function AttorneyJoin() {
             </div>
           </div>
           <Button type="submit" disabled={loading} className="w-full h-11 rounded-lg">
-            {loading ? 'Submitting...' : 'Partner with CareLink'}
+            {loading ? 'Submitting...' : 'Partner with Got Hurt Injury Network'}
           </Button>
         </form>
       </div>
