@@ -23,7 +23,7 @@ export function CtaSection() {
         <div className="w-12 h-px bg-primary mx-auto mb-8" />
         <h2 className="text-3xl md:text-4xl font-display font-bold text-primary-foreground mb-4">Ready to Get Started?</h2>
         <p className="text-primary-foreground/60 mb-10 text-base max-w-md mx-auto leading-relaxed">
-          Whether you're injured, a provider, an attorney, or a funder — there's a place for you in the CareLink network.
+          Whether you're injured, a provider, an attorney, or a funder — there's a place for you in the Got Hurt Injury Network.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <Button size="lg" onClick={() => navigate('/get-started')} className="gap-2 h-12 px-7 rounded-lg bg-primary-foreground text-foreground hover:bg-primary-foreground/90 shadow-lg shadow-primary/20">

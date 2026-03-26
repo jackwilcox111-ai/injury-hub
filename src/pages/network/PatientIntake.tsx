@@ -185,7 +185,7 @@ export default function PatientIntake() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>How did you hear about CareLink?</Label>
+                <Label>How did you hear about Got Hurt Injury Network?</Label>
                 <Select value={referralSource} onValueChange={setReferralSource}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>{REFERRAL_SOURCES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
@@ -204,19 +204,19 @@ export default function PatientIntake() {
             <div className="bg-card border border-border rounded-xl p-6 space-y-3">
               <h4 className="font-semibold text-sm text-foreground">HIPAA Authorization</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                I authorize CareLink to use and disclose my protected health information (PHI) for purposes of coordinating medical treatment related to my personal injury case. This includes sharing information with treating medical providers, my legal representative, and care coordinators within the CareLink network. This authorization remains in effect until my case is resolved or I revoke it in writing.
+                I authorize Got Hurt Injury Network to use and disclose my protected health information (PHI) for purposes of coordinating medical treatment related to my personal injury case. This includes sharing information with treating medical providers, my legal representative, and care coordinators within the Got Hurt Injury Network network. This authorization remains in effect until my case is resolved or I revoke it in writing.
               </p>
               <div className="flex items-start gap-3 pt-2">
                 <Checkbox checked={hipaaConsent} onCheckedChange={v => setHipaaConsent(!!v)} id="hipaa" />
                 <Label htmlFor="hipaa" className="text-sm leading-relaxed">
-                  I authorize CareLink to coordinate my medical care and share necessary health information with treating providers and my legal representative. *
+                  I authorize Got Hurt Injury Network to coordinate my medical care and share necessary health information with treating providers and my legal representative. *
                 </Label>
               </div>
             </div>
             <div className="bg-card border border-border rounded-xl p-6 space-y-3">
               <h4 className="font-semibold text-sm text-foreground">Assignment of Benefits</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                By using CareLink's medical care coordination services, you acknowledge that treatment will be provided on a medical lien basis. This means that payment for your medical treatment will be deferred and made from the proceeds of any settlement or judgment in your personal injury case.
+                By using Got Hurt Injury Network's medical care coordination services, you acknowledge that treatment will be provided on a medical lien basis. This means that payment for your medical treatment will be deferred and made from the proceeds of any settlement or judgment in your personal injury case.
               </p>
               <div className="flex items-start gap-3 pt-2">
                 <Checkbox checked={aobConsent} onCheckedChange={v => setAobConsent(!!v)} id="aob" />

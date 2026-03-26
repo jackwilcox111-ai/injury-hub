@@ -72,7 +72,7 @@ export default function ProviderRCM() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-display text-xl text-foreground flex items-center gap-2"><CreditCard className="w-5 h-5 text-primary" /> RCM Billing</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">Your claims managed by CareLink</p>
+          <p className="text-sm text-muted-foreground mt-0.5">Your claims managed by Got Hurt Injury Network</p>
         </div>
         <Button size="sm" onClick={() => setShowAdd(true)}><Plus className="w-3.5 h-3.5 mr-1" /> Submit Claim</Button>
       </div>

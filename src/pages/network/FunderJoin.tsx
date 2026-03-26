@@ -89,7 +89,7 @@ export default function FunderJoin() {
           </div>
           <div className="space-y-2"><Label>Experience / Notes</Label><Textarea value={form.experience} onChange={e => set('experience', e.target.value)} rows={3} placeholder="Tell us about your lending experience..." /></div>
           <div className="space-y-2">
-            <Label>How did you hear about CareLink?</Label>
+            <Label>How did you hear about Got Hurt Injury Network?</Label>
             <Select value={form.referral_source} onValueChange={v => set('referral_source', v)}>
               <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
               <SelectContent>

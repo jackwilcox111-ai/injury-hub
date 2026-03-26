@@ -66,7 +66,7 @@ export default function ProviderJoin() {
         <div className="mb-10">
           <span className="text-xs font-medium uppercase tracking-widest text-success mb-3 block">Provider Network</span>
           <h2 className="text-3xl font-display font-bold text-foreground mb-2">Join the Network</h2>
-          <p className="text-sm text-muted-foreground">Apply to treat PI patients on lien through CareLink.</p>
+          <p className="text-sm text-muted-foreground">Apply to treat PI patients on lien through Got Hurt Injury Network.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -96,7 +96,7 @@ export default function ProviderJoin() {
           </div>
 
           <div className="space-y-2">
-            <Label>How did you hear about CareLink?</Label>
+            <Label>How did you hear about Got Hurt Injury Network?</Label>
             <Select value={form.referral_source} onValueChange={v => set('referral_source', v)}>
               <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
               <SelectContent>
@@ -113,7 +113,7 @@ export default function ProviderJoin() {
             <div className="flex items-start gap-3">
               <Checkbox checked={form.hipaa_baa_agreed} onCheckedChange={v => set('hipaa_baa_agreed', !!v)} id="baa" />
               <Label htmlFor="baa" className="text-sm leading-relaxed">
-                I agree to execute a HIPAA Business Associate Agreement with CareLink *
+                I agree to execute a HIPAA Business Associate Agreement with Got Hurt Injury Network *
               </Label>
             </div>
           </div>

@@ -19,7 +19,7 @@ export function ForProvidersSection() {
               {[
                 { icon: Shield, label: 'Pre-screened patients', desc: 'Referred by attorneys with active PI cases.' },
                 { icon: Clock, label: 'Lien-basis treatment', desc: 'No collections, no denials. Payment at settlement.' },
-                { icon: FileCheck, label: 'Payment coordination', desc: 'CareLink handles lien tracking and settlement distribution.' },
+                { icon: FileCheck, label: 'Payment coordination', desc: 'Got Hurt Injury Network handles lien tracking and settlement distribution.' },
               ].map((item, i) => (
                 <div key={i} className="flex gap-4">
                   <div className="w-9 h-9 rounded-lg bg-success/8 flex items-center justify-center shrink-0 mt-0.5">
