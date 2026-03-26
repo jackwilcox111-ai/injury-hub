@@ -50,7 +50,7 @@ export function ForAttorneysSection() {
               ))}
             </div>
             <Button className="mt-8 gap-2 rounded-lg" onClick={() => navigate('/attorney/join')}>
-              Partner with CareLink <ChevronRight className="w-4 h-4" />
+              Partner with Got Hurt <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
         </div>

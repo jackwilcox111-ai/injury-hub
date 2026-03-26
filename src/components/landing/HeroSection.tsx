@@ -25,7 +25,7 @@ export function HeroSection() {
               <span className="text-primary">Zero Upfront Cost.</span>
             </h1>
             <p className="text-base md:text-lg text-muted-foreground mb-10 max-w-lg leading-relaxed">
-              CareLink connects accident victims with top medical providers, experienced PI attorneys, and case funding — all on lien.
+              Got Hurt Injury Network connects accident victims with top medical providers, experienced PI attorneys, and case funding — all on lien.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button size="lg" onClick={() => navigate('/get-started')} className="gap-2 text-sm h-12 px-7 rounded-lg shadow-lg shadow-primary/20">
