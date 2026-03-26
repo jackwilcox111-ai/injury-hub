@@ -127,6 +127,15 @@ export default function FindProvider() {
         </div>
       </section>
 
+      {/* Map */}
+      <section className="max-w-5xl mx-auto px-4 md:px-6 mb-6">
+        <ProviderMapView
+          providers={filtered}
+          activeId={activeId}
+          onSelectProvider={handleSelectProvider}
+        />
+      </section>
+
       {/* Search & Filters */}
       <section className="max-w-5xl mx-auto px-4 md:px-6">
         <div className="space-y-3 mb-6">
