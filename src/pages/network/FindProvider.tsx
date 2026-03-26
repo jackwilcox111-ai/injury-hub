@@ -1,8 +1,8 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { PublicLayout } from '@/components/layout/PublicLayout';
-import { ProviderMapView } from '@/components/provider-map/ProviderMap';
+import { ProviderMapView, ProviderMapHandle } from '@/components/provider-map/ProviderMap';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -43,10 +43,7 @@ export default function FindProvider() {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
-
-  const handleSelectProvider = useCallback((id: string) => {
-    setActiveId(id);
-  }, []);
+  const mapRef = useRef<ProviderMapHandle>(null);
 
   const { data: providers, isLoading } = useQuery({
     queryKey: ['provider-directory'],
@@ -60,6 +57,16 @@ export default function FindProvider() {
       return (data || []) as ProviderData[];
     },
   });
+
+  const handleSelectProvider = useCallback((id: string) => {
+    setActiveId(id);
+    const p = (providers || []).find(x => x.id === id);
+    if (p?.latitude && p?.longitude) {
+      mapRef.current?.flyTo(p.latitude, p.longitude);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [providers]);
+
 
   const filtered = useMemo(() => {
     let result = [...(providers || [])];
@@ -130,6 +137,7 @@ export default function FindProvider() {
       {/* Map */}
       <section className="max-w-5xl mx-auto px-4 md:px-6 mb-6">
         <ProviderMapView
+          ref={mapRef}
           providers={filtered}
           activeId={activeId}
           onSelectProvider={handleSelectProvider}
@@ -228,7 +236,13 @@ export default function FindProvider() {
                   : null;
 
                 return (
-                  <div key={p.id} className="border border-border rounded-xl p-4 bg-card hover:shadow-md transition-shadow space-y-3">
+                  <div
+                    key={p.id}
+                    onClick={() => handleSelectProvider(p.id)}
+                    className={`border rounded-xl p-4 bg-card hover:shadow-md transition-all space-y-3 cursor-pointer ${
+                      activeId === p.id ? 'border-primary ring-2 ring-primary/20 shadow-md' : 'border-border'
+                    }`}
+                  >
                     <div>
                       <h3 className="font-display font-semibold text-sm text-foreground">{p.name}</h3>
                       <div className="flex items-center gap-2 mt-1.5 flex-wrap">
