@@ -9,13 +9,13 @@ import {
 } from 'lucide-react';
 
 const navItems = [
-  // Admin / Care Manager
-  { title: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'care_manager'] as UserRole[] },
-  { title: 'Messages', path: '/messages', icon: Video, roles: ['admin', 'care_manager'] as UserRole[] },
-  { title: 'Tasks', path: '/tasks', icon: CheckSquare, roles: ['admin', 'care_manager'] as UserRole[] },
-  { title: 'Cases', path: '/cases', icon: FolderOpen, roles: ['admin', 'care_manager'] as UserRole[] },
+  // Admin / Care Manager / Attorney
+  { title: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'care_manager', 'attorney'] as UserRole[] },
+  { title: 'Messages', path: '/messages', icon: Video, roles: ['admin', 'care_manager', 'attorney'] as UserRole[] },
+  { title: 'Tasks', path: '/tasks', icon: CheckSquare, roles: ['admin', 'care_manager', 'attorney'] as UserRole[] },
+  { title: 'Cases', path: '/cases', icon: FolderOpen, roles: ['admin', 'care_manager', 'attorney'] as UserRole[] },
   { title: 'Attorneys', path: '/attorneys', icon: Scale, roles: ['admin'] as UserRole[] },
-  { title: 'Providers', path: '/providers', icon: Stethoscope, roles: ['admin', 'care_manager'] as UserRole[] },
+  { title: 'Providers', path: '/providers', icon: Stethoscope, roles: ['admin', 'care_manager', 'attorney'] as UserRole[] },
   { title: 'Liens & Settlements', path: '/liens', icon: DollarSign, roles: ['admin'] as UserRole[] },
   
   { title: 'RCM', path: '/rcm', icon: Landmark, roles: ['admin'] as UserRole[] },
@@ -28,8 +28,7 @@ const navItems = [
   { title: 'Referrals', path: '/referrals', icon: Link2, roles: ['admin'] as UserRole[] },
   { title: 'Calendar', path: '/calendar', icon: CalendarDays, roles: ['admin', 'care_manager', 'attorney', 'provider'] as UserRole[] },
   { title: 'Settings', path: '/settings', icon: Settings, roles: ['admin'] as UserRole[] },
-  // Attorney sidebar
-  { title: 'My Cases', path: '/attorney-portal', icon: Scale, roles: ['attorney'] as UserRole[] },
+  // Attorney extras
   { title: 'Marketplace', path: '/attorney/marketplace', icon: ShoppingBag, roles: ['attorney'] as UserRole[] },
   // Provider sidebar
   { title: 'My Patients', path: '/provider-portal', icon: Stethoscope, roles: ['provider'] as UserRole[] },
