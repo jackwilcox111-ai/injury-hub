@@ -2003,49 +2003,79 @@ export type Database = {
       }
       providers: {
         Row: {
+          accepting_patients: boolean | null
+          address_city: string | null
+          address_state: string | null
+          address_street: string | null
+          address_zip: string | null
           created_at: string | null
           credentialing_expiry: string | null
           hipaa_baa_on_file: boolean | null
           id: string
           interpreter_available: boolean
           languages_spoken: string[]
+          latitude: number | null
+          listed_on_map: boolean | null
           locations: number | null
+          logo_url: string | null
+          longitude: number | null
           name: string
           notes: string | null
           phone: string | null
           rating: number | null
           specialty: string | null
           status: string
+          website_url: string | null
         }
         Insert: {
+          accepting_patients?: boolean | null
+          address_city?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
           created_at?: string | null
           credentialing_expiry?: string | null
           hipaa_baa_on_file?: boolean | null
           id?: string
           interpreter_available?: boolean
           languages_spoken?: string[]
+          latitude?: number | null
+          listed_on_map?: boolean | null
           locations?: number | null
+          logo_url?: string | null
+          longitude?: number | null
           name: string
           notes?: string | null
           phone?: string | null
           rating?: number | null
           specialty?: string | null
           status?: string
+          website_url?: string | null
         }
         Update: {
+          accepting_patients?: boolean | null
+          address_city?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
           created_at?: string | null
           credentialing_expiry?: string | null
           hipaa_baa_on_file?: boolean | null
           id?: string
           interpreter_available?: boolean
           languages_spoken?: string[]
+          latitude?: number | null
+          listed_on_map?: boolean | null
           locations?: number | null
+          logo_url?: string | null
+          longitude?: number | null
           name?: string
           notes?: string | null
           phone?: string | null
           rating?: number | null
           specialty?: string | null
           status?: string
+          website_url?: string | null
         }
         Relationships: []
       }
@@ -2576,6 +2606,27 @@ export type Database = {
         Returns: number
       }
       next_case_number: { Args: never; Returns: string }
+      providers_within_radius: {
+        Args: { radius_miles?: number; search_lat: number; search_lng: number }
+        Returns: {
+          accepting_patients: boolean
+          address_city: string
+          address_state: string
+          address_street: string
+          address_zip: string
+          distance_miles: number
+          id: string
+          languages_spoken: string[]
+          latitude: number
+          logo_url: string
+          longitude: number
+          name: string
+          phone: string
+          rating: number
+          specialty: string
+          website_url: string
+        }[]
+      }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
