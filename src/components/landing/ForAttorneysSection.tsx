@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Heart, FileCheck, DollarSign, Scale, ChevronRight } from 'lucide-react';
+import { Heart, FileCheck, DollarSign, ChevronRight } from 'lucide-react';
+import attorneysImage from '@/assets/attorneys-section.jpg';
 
 export function ForAttorneysSection() {
   const navigate = useNavigate();
@@ -10,19 +11,25 @@ export function ForAttorneysSection() {
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary/[0.03] rounded-full blur-3xl" />
 
       <div className="max-w-6xl mx-auto px-6 relative z-10">
-        <div className="grid md:grid-cols-5 gap-16 items-center">
-          <div className="md:col-span-2 order-2 md:order-1">
-            <div className="bg-background border border-border rounded-xl p-8 shadow-lg shadow-foreground/[0.03]">
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 rounded-2xl bg-primary/8 flex items-center justify-center mx-auto">
-                  <Scale className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="font-display text-lg font-bold text-foreground">Attorney Partnerships</h3>
-                <p className="text-sm text-muted-foreground">Care coordination · Records delivery · Lien management</p>
+        <div className="grid md:grid-cols-2 gap-14 items-center">
+          <div className="order-2 md:order-1 hidden md:block">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-foreground/10">
+              <img
+                src={attorneysImage}
+                alt="Attorney reviewing case documents in a modern office"
+                className="w-full h-[420px] object-cover"
+                loading="lazy"
+                width={896}
+                height={1152}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/10 to-transparent" />
+              {/* Info overlay */}
+              <div className="absolute bottom-0 inset-x-0 bg-card/90 backdrop-blur-md border-t border-border/40 p-5">
+                <p className="text-sm font-semibold text-foreground text-center">Care coordination · Records delivery · Lien management</p>
               </div>
             </div>
           </div>
-          <div className="md:col-span-3 order-1 md:order-2">
+          <div className="order-1 md:order-2">
             <span className="text-xs font-medium uppercase tracking-widest text-primary mb-3 block">For Attorneys</span>
             <h2 className="text-3xl font-display font-bold text-foreground mb-6">The Care Coordination Partner Your Clients Need</h2>
             <div className="space-y-5">
