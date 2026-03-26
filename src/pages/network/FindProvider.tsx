@@ -42,6 +42,11 @@ export default function FindProvider() {
   const [sortBy, setSortBy] = useState<'name' | 'specialty'>('name');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const handleSelectProvider = useCallback((id: string) => {
+    setActiveId(id);
+  }, []);
 
   const { data: providers, isLoading } = useQuery({
     queryKey: ['provider-directory'],
