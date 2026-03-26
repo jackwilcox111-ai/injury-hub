@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, MapPin, Phone, Navigation, ExternalLink, SlidersHorizontal, X } from 'lucide-react';
+import { Search, MapPin, Navigation, ExternalLink, SlidersHorizontal, X } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { getSpecialtyColor, SPECIALTIES } from '@/lib/specialties';
 
