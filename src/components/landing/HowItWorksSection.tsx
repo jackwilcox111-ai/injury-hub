@@ -2,9 +2,9 @@ import { Heart, Users, Stethoscope, DollarSign } from 'lucide-react';
 
 const steps = [
   { icon: Heart, title: "You're Injured", desc: "No health insurance? No problem. We connect you to care immediately.", num: '01' },
-  { icon: Users, title: "CareLink Coordinates", desc: "We assign your case a care manager who handles everything.", num: '02' },
+  { icon: Users, title: "Got Hurt Coordinates", desc: "We assign your case a care manager who handles everything.", num: '02' },
   { icon: Stethoscope, title: "Providers Treat You", desc: "On a medical lien — no upfront payment required.", num: '03' },
-  { icon: DollarSign, title: "Paid at Settlement", desc: "Providers and CareLink are paid when your case settles.", num: '04' },
+  { icon: DollarSign, title: "Paid at Settlement", desc: "Providers and Got Hurt Injury Network are paid when your case settles.", num: '04' },
 ];
 
 export function HowItWorksSection() {
