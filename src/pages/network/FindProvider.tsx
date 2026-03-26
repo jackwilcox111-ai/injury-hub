@@ -43,10 +43,16 @@ export default function FindProvider() {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const mapRef = useRef<ProviderMapHandle>(null);
 
   const handleSelectProvider = useCallback((id: string) => {
     setActiveId(id);
-  }, []);
+    const p = (providers || []).find(x => x.id === id);
+    if (p?.latitude && p?.longitude) {
+      mapRef.current?.flyTo(p.latitude, p.longitude);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [providers]);
 
   const { data: providers, isLoading } = useQuery({
     queryKey: ['provider-directory'],
