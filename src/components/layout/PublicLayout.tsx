@@ -46,6 +46,7 @@ export function PublicNav() {
       {mobileOpen && (
         <div className="md:hidden bg-card border-t border-border px-6 py-4 space-y-3">
           <a href="/#how-it-works" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setMobileOpen(false)}>How It Works</a>
+          <Link to="/find-providers" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setMobileOpen(false)}>Find a Provider</Link>
           <a href="/#providers" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setMobileOpen(false)}>Providers</a>
           <a href="/#attorneys" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setMobileOpen(false)}>Attorneys</a>
           <a href="/#funders" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setMobileOpen(false)}>Funders</a>
