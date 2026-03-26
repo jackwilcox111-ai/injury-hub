@@ -78,7 +78,7 @@ export const ProviderMapView = forwardRef<ProviderMapHandle, Props>(
         const accepting = p.accepting_patients !== false;
 
         const marker = L.marker([p.latitude!, p.longitude!], { icon })
-          .bindPopup(`<div style="min-width:180px"><strong>${p.name}</strong><br/>${p.specialty ? `<span style="font-size:11px;color:${color}">${p.specialty}</span><br/>` : ''}<span style="font-size:11px;color:${accepting ? '#16a34a' : '#6b7280'}">${accepting ? '✓ Accepting Patients' : '✗ Not Accepting'}</span><br/>${address ? `<span style="font-size:11px">${address}</span><br/>` : ''}${p.phone ? `<span style="font-size:11px">${p.phone}</span>` : ''}</div>`)
+          .bindPopup(`<div style="min-width:180px"><strong>${p.name}</strong><br/>${p.specialty ? `<span style="font-size:11px;color:${color}">${p.specialty}</span><br/>` : ''}<span style="font-size:11px;color:${accepting ? '#16a34a' : '#6b7280'}">${accepting ? '✓ Accepting Patients' : '✗ Not Accepting'}</span><br/>${address ? `<span style="font-size:11px">${address}</span>` : ''}</div>`)
           .on('click', () => onSelectProvider(p.id));
 
         markersRef.current!.addLayer(marker);

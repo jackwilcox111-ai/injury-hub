@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, MapPin, Phone, Navigation, ExternalLink, SlidersHorizontal, X } from 'lucide-react';
+import { Search, MapPin, Navigation, ExternalLink, SlidersHorizontal, X } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { getSpecialtyColor, SPECIALTIES } from '@/lib/specialties';
 
@@ -264,12 +264,6 @@ export default function FindProvider() {
                       </div>
                     )}
 
-                    {p.phone && (
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Phone className="w-3 h-3 shrink-0" />
-                        <a href={`tel:${p.phone}`} className="hover:text-foreground">{p.phone}</a>
-                      </div>
-                    )}
 
                     <div className="flex gap-3 pt-1">
                       {directionsUrl && (
