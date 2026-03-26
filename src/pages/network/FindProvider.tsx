@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { PublicLayout } from '@/components/layout/PublicLayout';
+import { ProviderMapView } from '@/components/provider-map/ProviderMap';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -41,6 +42,11 @@ export default function FindProvider() {
   const [sortBy, setSortBy] = useState<'name' | 'specialty'>('name');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const handleSelectProvider = useCallback((id: string) => {
+    setActiveId(id);
+  }, []);
 
   const { data: providers, isLoading } = useQuery({
     queryKey: ['provider-directory'],
@@ -119,6 +125,15 @@ export default function FindProvider() {
             All providers accept lien-based treatment — no upfront cost to patients.
           </p>
         </div>
+      </section>
+
+      {/* Map */}
+      <section className="max-w-5xl mx-auto px-4 md:px-6 mb-6">
+        <ProviderMapView
+          providers={filtered}
+          activeId={activeId}
+          onSelectProvider={handleSelectProvider}
+        />
       </section>
 
       {/* Search & Filters */}
