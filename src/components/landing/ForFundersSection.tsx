@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ChevronRight } from 'lucide-react';
+import { Search, BarChart3, Receipt, ChevronRight } from 'lucide-react';
 import fundersImage from '@/assets/funders-section.jpg';
 
 export function ForFundersSection() {
@@ -8,47 +8,55 @@ export function ForFundersSection() {
 
   return (
     <section id="funders" className="py-24 relative overflow-hidden">
-      <div className="absolute top-10 right-0 w-80 h-80 bg-settled/[0.04] rounded-full blur-3xl" />
+      <div className="absolute -top-20 -right-40 w-[500px] h-[500px] rounded-full bg-settled/[0.03] blur-3xl" />
 
       <div className="max-w-6xl mx-auto px-6 relative z-10">
-        <div className="text-center mb-14">
-          <span className="text-xs font-medium uppercase tracking-widest text-settled mb-3 block">For Funders</span>
-          <h2 className="text-3xl font-display font-bold text-foreground mb-3">Invest in PI Medical Liens</h2>
-          <p className="text-muted-foreground max-w-lg mx-auto text-sm leading-relaxed">Case-level underwriting data, portfolio visibility, and settlement repayment tracking — all in one platform.</p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-10 items-center max-w-5xl mx-auto mb-10">
-          {/* Image */}
-          <div className="rounded-2xl overflow-hidden shadow-2xl shadow-foreground/10">
-            <img
-              src={fundersImage}
-              alt="Financial analytics dashboard showing portfolio data"
-              className="w-full h-[320px] object-cover"
-              loading="lazy"
-              width={1280}
-              height={800}
-            />
+        <div className="grid md:grid-cols-2 gap-14 items-center">
+          <div>
+            <span className="text-xs font-medium uppercase tracking-widest text-settled mb-3 block">For Funders</span>
+            <h2 className="text-3xl font-display font-bold text-foreground mb-6">Invest in PI Medical Liens</h2>
+            <div className="space-y-5">
+              {[
+                { icon: Search, label: 'Case Underwriting', desc: 'Anonymized case data with specialty, SoL, and treatment progress.' },
+                { icon: BarChart3, label: 'Portfolio Visibility', desc: 'Real-time view of deployed capital and active investments.' },
+                { icon: Receipt, label: 'Settlement Tracking', desc: 'Automated repayment tracking when cases settle.' },
+              ].map((item, i) => (
+                <div key={i} className="flex gap-4">
+                  <div className="w-9 h-9 rounded-lg bg-settled/8 flex items-center justify-center shrink-0 mt-0.5">
+                    <item.icon className="w-4 h-4 text-settled" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{item.label}</p>
+                    <p className="text-sm text-muted-foreground mt-0.5">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Button className="mt-8 gap-2 rounded-lg" variant="outline" onClick={() => navigate('/funder/join')}>
+              Become a Network Funder <ChevronRight className="w-4 h-4" />
+            </Button>
           </div>
-
-          {/* Feature cards */}
-          <div className="space-y-4">
-            {[
-              { title: 'Case Underwriting', desc: 'Anonymized case data with specialty, SoL, and treatment progress.' },
-              { title: 'Portfolio Visibility', desc: 'Real-time view of deployed capital and active investments.' },
-              { title: 'Settlement Tracking', desc: 'Automated repayment tracking when cases settle.' },
-            ].map((item, i) => (
-              <div key={i} className="bg-card border border-border rounded-xl p-5 hover:bg-accent/30 transition-colors duration-300">
-                <h4 className="font-semibold text-sm text-foreground mb-1.5">{item.title}</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+          <div className="hidden md:block">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-foreground/10">
+              <img
+                src={fundersImage}
+                alt="Financial analytics dashboard showing portfolio data"
+                className="w-full h-[420px] object-cover"
+                loading="lazy"
+                width={1280}
+                height={800}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/10 to-transparent" />
+              {/* Stats overlay */}
+              <div className="absolute bottom-0 inset-x-0 bg-card/90 backdrop-blur-md border-t border-border/40 p-5">
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div><p className="font-mono-data text-xl font-semibold text-foreground">$2.4M</p><p className="text-[11px] text-muted-foreground">Capital Deployed</p></div>
+                  <div><p className="font-mono-data text-xl font-semibold text-foreground">87%</p><p className="text-[11px] text-muted-foreground">Recovery Rate</p></div>
+                  <div><p className="font-mono-data text-xl font-semibold text-foreground">14mo</p><p className="text-[11px] text-muted-foreground">Avg Duration</p></div>
+                </div>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-
-        <div className="text-center">
-          <Button variant="outline" onClick={() => navigate('/funder/join')} className="gap-2 rounded-lg">
-            Become a Network Funder <ChevronRight className="w-4 h-4" />
-          </Button>
         </div>
       </div>
     </section>
