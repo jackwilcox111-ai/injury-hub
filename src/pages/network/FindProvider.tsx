@@ -236,7 +236,13 @@ export default function FindProvider() {
                   : null;
 
                 return (
-                  <div key={p.id} className="border border-border rounded-xl p-4 bg-card hover:shadow-md transition-shadow space-y-3">
+                  <div
+                    key={p.id}
+                    onClick={() => handleSelectProvider(p.id)}
+                    className={`border rounded-xl p-4 bg-card hover:shadow-md transition-all space-y-3 cursor-pointer ${
+                      activeId === p.id ? 'border-primary ring-2 ring-primary/20 shadow-md' : 'border-border'
+                    }`}
+                  >
                     <div>
                       <h3 className="font-display font-semibold text-sm text-foreground">{p.name}</h3>
                       <div className="flex items-center gap-2 mt-1.5 flex-wrap">
