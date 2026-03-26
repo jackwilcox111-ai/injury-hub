@@ -21,6 +21,7 @@ export function PublicNav() {
         <div className="hidden md:flex items-center gap-8">
           <div className="flex items-center gap-6 text-[13px] font-medium text-muted-foreground">
             <a href="/#how-it-works" className="hover:text-foreground transition-colors">How It Works</a>
+            <Link to="/find-providers" className="hover:text-foreground transition-colors">Find a Provider</Link>
             <a href="/#providers" className="hover:text-foreground transition-colors">Providers</a>
             <a href="/#attorneys" className="hover:text-foreground transition-colors">Attorneys</a>
             <a href="/#funders" className="hover:text-foreground transition-colors">Funders</a>
