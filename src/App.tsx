@@ -49,6 +49,7 @@ import MarketerCases from "./pages/marketer/MarketerCases";
 import MarketerCaseDetail from "./pages/marketer/MarketerCaseDetail";
 import MarketerEarnings from "./pages/marketer/MarketerEarnings";
 import MarketerSettings from "./pages/marketer/MarketerSettings";
+import FindProvider from "./pages/network/FindProvider";
 import { ReactNode } from "react";
 
 const queryClient = new QueryClient();
@@ -98,6 +99,7 @@ const App = () => (
             <Route path="/funder/join" element={<FunderJoin />} />
             <Route path="/marketer/join" element={<MarketerJoin />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/find-providers" element={<FindProvider />} />
             <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Admin / Care Manager / Attorney portal routes */}
