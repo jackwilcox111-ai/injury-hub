@@ -20,7 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { ArrowLeft, AlertTriangle, Clock, FileText, DollarSign, Activity, Send, ShieldCheck, Heart, Bell, ListTodo, FileSignature, GitBranch, Radar, Shield, Languages, Info, Phone } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Clock, FileText, DollarSign, Activity, Send, ShieldCheck, Heart, Bell, ListTodo, FileSignature, GitBranch, Radar, Shield, Languages, Info, Phone, MessageCircle } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, formatDistanceToNow } from 'date-fns';
 import { InsuranceEligibilityTab } from '@/components/cases/InsuranceEligibilityTab';
@@ -34,6 +34,7 @@ import { PolicyDetailsTab } from '@/components/cases/PolicyDetailsTab';
 import { TimelineTab } from '@/components/cases/TimelineTab';
 import { ColossusTab } from '@/components/cases/ColossusTab';
 import { DemandLettersTab } from '@/components/cases/DemandLettersTab';
+import { CaseMessagesTab } from '@/components/cases/CaseMessagesTab';
 
 const caseStatuses = ['Intake', 'In Treatment', 'Records Pending', 'Demand Prep', 'Settled'];
 const flagOptions = [{ value: 'none', label: 'None' }, { value: 'noshow', label: 'No-Show Risk' }, { value: 'records', label: 'Records Due' }, { value: 'urgent', label: 'Urgent' }];
@@ -670,6 +671,7 @@ export default function CaseDetail() {
           <TabsTrigger value="policy" className="text-xs gap-1.5"><Shield className="w-3.5 h-3.5" /> Policy</TabsTrigger>
           <TabsTrigger value="timeline" className="text-xs gap-1.5"><GitBranch className="w-3.5 h-3.5" /> Timeline</TabsTrigger>
           {isAdmin && <TabsTrigger value="colossus" className="text-xs gap-1.5"><Radar className="w-3.5 h-3.5" /> Colossus</TabsTrigger>}
+          <TabsTrigger value="messages" className="text-xs gap-1.5"><MessageCircle className="w-3.5 h-3.5" /> Messages</TabsTrigger>
           <TabsTrigger value="demand" className="text-xs gap-1.5"><FileSignature className="w-3.5 h-3.5" /> Demand Letters</TabsTrigger>
         </TabsList>
 
@@ -740,6 +742,10 @@ export default function CaseDetail() {
             <ColossusTab caseId={id!} />
           </TabsContent>
         )}
+
+        <TabsContent value="messages" className="p-5">
+          <CaseMessagesTab caseId={id!} patientName={c.patient_name} attorneyId={c.attorney_id} providerId={c.provider_id} />
+        </TabsContent>
 
         <TabsContent value="demand" className="p-5">
           <DemandLettersTab caseId={id!} />
