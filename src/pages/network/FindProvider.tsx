@@ -1,8 +1,8 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { PublicLayout } from '@/components/layout/PublicLayout';
-import { ProviderMapView } from '@/components/provider-map/ProviderMap';
+import { ProviderMapView, ProviderMapHandle } from '@/components/provider-map/ProviderMap';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
