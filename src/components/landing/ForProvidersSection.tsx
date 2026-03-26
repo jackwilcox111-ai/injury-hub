@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Shield, Clock, FileCheck, Stethoscope, ChevronRight } from 'lucide-react';
+import providersImage from '@/assets/providers-section.jpg';
 
 export function ForProvidersSection() {
   const navigate = useNavigate();
@@ -10,8 +11,8 @@ export function ForProvidersSection() {
       <div className="absolute -top-20 -right-40 w-[500px] h-[500px] rounded-full bg-success/[0.03] blur-3xl" />
 
       <div className="max-w-6xl mx-auto px-6 relative z-10">
-        <div className="grid md:grid-cols-5 gap-16 items-center">
-          <div className="md:col-span-3">
+        <div className="grid md:grid-cols-2 gap-14 items-center">
+          <div>
             <span className="text-xs font-medium uppercase tracking-widest text-success mb-3 block">For Providers</span>
             <h2 className="text-3xl font-display font-bold text-foreground mb-6">Grow Your Practice with PI Patients</h2>
             <div className="space-y-5">
@@ -35,14 +36,20 @@ export function ForProvidersSection() {
               Join the Provider Network <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
-          <div className="md:col-span-2">
-            <div className="bg-card border border-border rounded-xl p-8 shadow-lg shadow-foreground/[0.03]">
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 rounded-2xl bg-success/8 flex items-center justify-center mx-auto">
-                  <Stethoscope className="w-8 h-8 text-success" />
-                </div>
-                <h3 className="font-display text-lg font-bold text-foreground">Provider Network</h3>
-                <div className="grid grid-cols-3 gap-4 pt-2">
+          <div className="hidden md:block">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-foreground/10">
+              <img
+                src={providersImage}
+                alt="Medical providers consulting in a modern clinic"
+                className="w-full h-[420px] object-cover"
+                loading="lazy"
+                width={896}
+                height={1152}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/10 to-transparent" />
+              {/* Stats overlay */}
+              <div className="absolute bottom-0 inset-x-0 bg-card/90 backdrop-blur-md border-t border-border/40 p-5">
+                <div className="grid grid-cols-3 gap-4 text-center">
                   <div><p className="font-mono-data text-xl font-semibold text-foreground">6</p><p className="text-[11px] text-muted-foreground">Specialties</p></div>
                   <div><p className="font-mono-data text-xl font-semibold text-foreground">21+</p><p className="text-[11px] text-muted-foreground">Locations</p></div>
                   <div><p className="font-mono-data text-xl font-semibold text-foreground">4.8</p><p className="text-[11px] text-muted-foreground">Avg Rating</p></div>
