@@ -67,18 +67,6 @@ export default function FindProvider() {
     }
   }, [providers]);
 
-  const { data: providers, isLoading } = useQuery({
-    queryKey: ['provider-directory'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('providers')
-        .select('id, name, specialty, phone, languages_spoken, rating, address_street, address_city, address_state, address_zip, latitude, longitude, accepting_patients, logo_url, website_url')
-        .eq('status', 'Active')
-        .eq('listed_on_map', true);
-      if (error) throw error;
-      return (data || []) as ProviderData[];
-    },
-  });
 
   const filtered = useMemo(() => {
     let result = [...(providers || [])];
