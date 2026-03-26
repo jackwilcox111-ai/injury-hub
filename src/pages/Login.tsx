@@ -49,7 +49,7 @@ export default function Login() {
             <span className="text-primary-foreground font-display font-bold text-2xl">CL</span>
           </div>
           <h1 className="font-display text-4xl font-bold text-primary-foreground leading-tight">
-            CareLink
+            Got Hurt Injury Network
           </h1>
           <p className="text-primary-foreground/70 mt-4 text-sm leading-relaxed">
             Personal injury medical care coordination platform.
@@ -72,7 +72,7 @@ export default function Login() {
             <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mx-auto mb-4">
               <span className="text-primary-foreground font-display font-bold text-lg">CL</span>
             </div>
-            <h1 className="font-display text-2xl font-bold text-foreground">CareLink</h1>
+            <h1 className="font-display text-2xl font-bold text-foreground">Got Hurt Injury Network</h1>
           </div>
 
           <div className="mb-8">
@@ -80,7 +80,7 @@ export default function Login() {
               {showForgot ? 'Reset Password' : 'Welcome back'}
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              {showForgot ? 'Enter your email to receive a reset link.' : 'Sign in to the CareLink portal.'}
+              {showForgot ? 'Enter your email to receive a reset link.' : 'Sign in to the Got Hurt Injury Network portal.'}
             </p>
           </div>
 

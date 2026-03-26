@@ -77,7 +77,7 @@ export function AppSidebar() {
           </div>
           <div>
             <h1 className="font-display text-sm font-bold tracking-tight text-foreground leading-none">
-              CareLink
+              Got Hurt Injury Network
             </h1>
             <p className="text-[10px] text-primary font-medium mt-0.5">Care Coordination</p>
           </div>

@@ -10,7 +10,7 @@ export function generateICS(params: {
   return [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//GHIN//CareLink//EN',
+    'PRODID:-//GHIN//Got Hurt Injury Network//EN',
     'BEGIN:VEVENT',
     `DTSTART:${fmt(start)}`,
     `DTEND:${fmt(end)}`,

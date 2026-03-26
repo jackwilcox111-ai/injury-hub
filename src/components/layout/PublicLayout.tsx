@@ -14,7 +14,7 @@ export function PublicNav() {
           <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
             <span className="text-primary-foreground font-display font-bold text-sm">CL</span>
           </div>
-          <span className="font-display text-base font-bold tracking-tight text-foreground">CareLink</span>
+          <span className="font-display text-base font-bold tracking-tight text-foreground">Got Hurt Injury Network</span>
         </Link>
 
         {/* Desktop */}
@@ -70,7 +70,7 @@ export function PublicFooter() {
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                 <span className="text-primary-foreground font-display font-bold text-xs">CL</span>
               </div>
-              <span className="font-display text-sm font-bold text-primary-foreground">CareLink</span>
+              <span className="font-display text-sm font-bold text-primary-foreground">Got Hurt Injury Network</span>
             </div>
             <p className="text-sm max-w-sm leading-relaxed">
               Coordinated personal injury medical care. Connecting patients, providers, attorneys, and funders — all on one platform.
@@ -89,7 +89,7 @@ export function PublicFooter() {
           </div>
         </div>
         <div className="border-t border-primary-foreground/10 mt-12 pt-6 text-xs text-center text-primary-foreground/40">
-          © {new Date().getFullYear()} CareLink. All rights reserved.
+          © {new Date().getFullYear()} Got Hurt Injury Network. All rights reserved.
         </div>
       </div>
     </footer>

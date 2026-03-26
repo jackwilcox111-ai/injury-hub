@@ -51,7 +51,7 @@ export default function ResetPassword() {
             {isInvite ? 'Set Your Password' : 'Reset Password'}
           </h1>
           {isInvite && (
-            <p className="text-sm text-muted-foreground mt-2">Welcome to CareLink! Please create a password to complete your account setup.</p>
+            <p className="text-sm text-muted-foreground mt-2">Welcome to Got Hurt Injury Network! Please create a password to complete your account setup.</p>
           )}
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
