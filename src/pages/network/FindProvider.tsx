@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, MapPin, Navigation, ExternalLink, SlidersHorizontal, X } from 'lucide-react';
+import { Search, MapPin, ExternalLink, SlidersHorizontal, X } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { getSpecialtyColor, SPECIALTIES } from '@/lib/specialties';
 
@@ -243,18 +243,15 @@ export default function FindProvider() {
                       activeId === p.id ? 'border-primary ring-2 ring-primary/20 shadow-md' : 'border-border'
                     }`}
                   >
-                    <div>
-                      <h3 className="font-display font-semibold text-sm text-foreground">{p.name}</h3>
-                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                        {p.specialty && (
-                          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: color }}>
-                            {p.specialty}
-                          </span>
-                        )}
-                        <Badge variant="outline" className={`text-[10px] ${accepting ? 'border-green-300 bg-green-50 text-green-700' : 'border-gray-300 bg-gray-50 text-gray-500'}`}>
-                          {accepting ? 'Accepting Patients' : 'Not Accepting'}
-                        </Badge>
-                      </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {p.specialty && (
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: color }}>
+                          {p.specialty}
+                        </span>
+                      )}
+                      <Badge variant="outline" className={`text-[10px] ${accepting ? 'border-green-300 bg-green-50 text-green-700' : 'border-gray-300 bg-gray-50 text-gray-500'}`}>
+                        {accepting ? 'Accepting Patients' : 'Not Accepting'}
+                      </Badge>
                     </div>
 
                     {address && (
@@ -264,19 +261,13 @@ export default function FindProvider() {
                       </div>
                     )}
 
-
-                    <div className="flex gap-3 pt-1">
-                      {directionsUrl && (
-                        <a href={directionsUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline">
-                          <Navigation className="w-3 h-3" /> Directions
-                        </a>
-                      )}
-                      {p.website_url && (
+                    {p.website_url && (
+                      <div className="pt-1">
                         <a href={p.website_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline">
                           <ExternalLink className="w-3 h-3" /> Website
                         </a>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
