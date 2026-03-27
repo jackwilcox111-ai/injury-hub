@@ -191,27 +191,26 @@ const features = [
     ),
   },
   {
-    icon: MessageCircle,
-    title: 'Secure Messaging & Communication',
-    description: 'HIPAA-compliant messaging between all parties — patients, providers, attorneys, and care managers. Threaded conversations tied to cases with read receipts and file sharing.',
-    tags: ['All Roles'],
-    color: 'hsl(var(--primary))',
+    icon: FolderOpen,
+    title: 'Records Management',
+    description: 'Centralized document storage with role-based visibility controls. Upload, organize, and share medical records, legal documents, and billing files — all tracked with audit trails.',
+    tags: ['Admin', 'Provider'],
+    color: 'hsl(var(--warning))',
     mockUI: (
       <div className="mt-4 space-y-1.5">
         {[
-          { from: 'Care Manager', msg: 'Records received from ortho...', time: '2m ago', unread: true },
-          { from: 'Attorney Office', msg: 'Policy limits confirmed at $100K', time: '1h ago', unread: false },
-          { from: 'Patient', msg: 'Completed MRI appointment today', time: '3h ago', unread: false },
-        ].map(m => (
-          <div key={m.from} className="flex items-start gap-2 bg-accent/30 rounded-md px-2.5 py-1.5">
-            <div className={`w-1.5 h-1.5 rounded-full mt-1 shrink-0 ${m.unread ? 'bg-primary' : 'bg-transparent'}`} />
+          { name: 'MRI Report - Lumbar', type: 'Medical', date: 'Mar 12' },
+          { name: 'Police Report #4821', type: 'Legal', date: 'Mar 8' },
+          { name: 'Insurance VOB', type: 'Billing', date: 'Mar 5' },
+          { name: 'Surgical Notes', type: 'Medical', date: 'Feb 28' },
+        ].map(d => (
+          <div key={d.name} className="flex items-center gap-2 bg-accent/30 rounded-md px-2.5 py-1.5">
+            <FolderOpen className="w-3 h-3 text-warning shrink-0" />
             <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <span className="text-[9px] font-medium text-foreground">{m.from}</span>
-                <span className="text-[7px] text-muted-foreground">{m.time}</span>
-              </div>
-              <p className="text-[8px] text-muted-foreground truncate">{m.msg}</p>
+              <span className="text-[9px] text-foreground/80 truncate block">{d.name}</span>
             </div>
+            <span className="text-[7px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{d.type}</span>
+            <span className="text-[7px] text-muted-foreground">{d.date}</span>
           </div>
         ))}
       </div>
