@@ -22,6 +22,7 @@ import ProviderPortal from "./pages/ProviderPortal";
 import ReportingDashboard from "./pages/ReportingDashboard";
 import ReferralTracking from "./pages/ReferralTracking";
 import TaskDashboard from "./pages/TaskDashboard";
+import RecordsBills from "./pages/RecordsBills";
 import PatientDashboard from "./pages/PatientDashboard";
 import NotFound from "./pages/NotFound";
 import LandingPage from "./pages/network/LandingPage";
@@ -120,6 +121,7 @@ const App = () => (
             <Route path="/reports" element={<RequireAuth roles={['admin']}><AppLayout><ReportingDashboard /></AppLayout></RequireAuth>} />
             <Route path="/referrals" element={<RequireAuth roles={['admin']}><AppLayout><ReferralTracking /></AppLayout></RequireAuth>} />
             <Route path="/tasks" element={<RequireAuth roles={['admin','care_manager','attorney']}><AppLayout><TaskDashboard /></AppLayout></RequireAuth>} />
+            <Route path="/records-bills" element={<RequireAuth roles={['admin','care_manager','provider']}><AppLayout><RecordsBills /></AppLayout></RequireAuth>} />
             <Route path="/settings" element={<RequireAuth roles={['admin']}><AppLayout><SettingsPage /></AppLayout></RequireAuth>} />
             <Route path="/demand-letters" element={<RequireAuth roles={['admin','care_manager','attorney']}><AppLayout><AdminDemandLetters /></AppLayout></RequireAuth>} />
             <Route path="/messages" element={<RequireAuth roles={['admin','care_manager','attorney']}><AppLayout><AdminMessages /></AppLayout></RequireAuth>} />

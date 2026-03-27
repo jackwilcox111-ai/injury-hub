@@ -12,6 +12,7 @@ import { ProgressBar } from '@/components/global/ProgressBar';
 import { FlagBadge } from '@/components/global/FlagBadge';
 import { FinancialValue } from '@/components/global/FinancialValue';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,7 +21,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { ArrowLeft, AlertTriangle, Clock, FileText, DollarSign, Activity, Send, ShieldCheck, Heart, Bell, ListTodo, FileSignature, GitBranch, Radar, Shield, Languages, Info, Phone, MessageCircle } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Clock, FileText, DollarSign, Activity, Send, ShieldCheck, Heart, Bell, ListTodo, FileSignature, GitBranch, Radar, Shield, Languages, Info, Phone, MessageCircle, FolderOpen, Download } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, formatDistanceToNow } from 'date-fns';
 import { InsuranceEligibilityTab } from '@/components/cases/InsuranceEligibilityTab';
@@ -35,6 +36,52 @@ import { TimelineTab } from '@/components/cases/TimelineTab';
 import { ColossusTab } from '@/components/cases/ColossusTab';
 import { DemandLettersTab } from '@/components/cases/DemandLettersTab';
 import { CaseMessagesTab } from '@/components/cases/CaseMessagesTab';
+
+function RecordsBillsDump({ caseId }: { caseId: string }) {
+  const { data: docs, isLoading } = useQuery({
+    queryKey: ['case-docs-dump', caseId],
+    queryFn: async () => {
+      const { data } = await supabase.from('documents')
+        .select('*')
+        .eq('case_id', caseId)
+        .order('created_at', { ascending: false });
+      return data || [];
+    },
+  });
+
+  const handleDownload = async (storagePath: string) => {
+    const { data, error } = await supabase.storage.from('documents').createSignedUrl(storagePath, 60);
+    if (error) { toast.error('Could not generate download link'); return; }
+    window.open(data.signedUrl, '_blank');
+  };
+
+  if (isLoading) return <Skeleton className="h-40 rounded-xl" />;
+
+  return (
+    <div className="space-y-3">
+      <h3 className="text-sm font-semibold text-foreground">All Documents</h3>
+      <table className="w-full text-sm">
+        <thead><tr className="border-b border-border bg-accent/50">
+          <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">File</th>
+          <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Type</th>
+          <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Uploaded</th>
+          <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Actions</th>
+        </tr></thead>
+        <tbody className="divide-y divide-border">
+          {docs?.map(d => (
+            <tr key={d.id} className="hover:bg-accent/30 transition-colors">
+              <td className="px-4 py-2.5 text-xs flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 text-muted-foreground" />{d.file_name}</td>
+              <td className="px-4 py-2.5"><Badge variant="outline" className="text-[10px]">{d.document_type}</Badge></td>
+              <td className="px-4 py-2.5 font-mono text-xs">{d.created_at ? format(new Date(d.created_at), 'MMM d, yyyy') : '—'}</td>
+              <td className="px-4 py-2.5"><Button size="sm" variant="ghost" className="h-7 text-[10px]" onClick={() => handleDownload(d.storage_path)}><Download className="w-3 h-3 mr-1" /> Download</Button></td>
+            </tr>
+          ))}
+          {(!docs || docs.length === 0) && <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground text-sm">No documents</td></tr>}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 const caseStatuses = ['Intake', 'In Treatment', 'Records Pending', 'Demand Prep', 'Settled'];
 const flagOptions = [{ value: 'none', label: 'None' }, { value: 'noshow', label: 'No-Show Risk' }, { value: 'records', label: 'Records Due' }, { value: 'urgent', label: 'Urgent' }];
@@ -673,6 +720,7 @@ export default function CaseDetail() {
           {isAdmin && <TabsTrigger value="colossus" className="text-xs gap-1.5"><Radar className="w-3.5 h-3.5" /> Colossus</TabsTrigger>}
           <TabsTrigger value="messages" className="text-xs gap-1.5"><MessageCircle className="w-3.5 h-3.5" /> Messages</TabsTrigger>
           <TabsTrigger value="demand" className="text-xs gap-1.5"><FileSignature className="w-3.5 h-3.5" /> Demand Letters</TabsTrigger>
+          <TabsTrigger value="docs-dump" className="text-xs gap-1.5"><FolderOpen className="w-3.5 h-3.5" /> Records & Bills</TabsTrigger>
         </TabsList>
 
         <TabsContent value="activity" className="p-5">
@@ -749,6 +797,10 @@ export default function CaseDetail() {
 
         <TabsContent value="demand" className="p-5">
           <DemandLettersTab caseId={id!} />
+        </TabsContent>
+
+        <TabsContent value="docs-dump" className="p-5">
+          <RecordsBillsDump caseId={id!} />
         </TabsContent>
       </Tabs>
 
