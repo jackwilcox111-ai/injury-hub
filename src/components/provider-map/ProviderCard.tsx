@@ -48,8 +48,7 @@ export function ProviderCard({ provider, isActive, onClick, onHover }: Props) {
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mt-1.5">
-            {provider.specialty && (
+          <div className="flex items-center gap-2">
             {provider.specialty && (
               <span
                 className="text-[10px] font-medium px-2 py-0.5 rounded-full text-white"
@@ -71,7 +70,7 @@ export function ProviderCard({ provider, isActive, onClick, onHover }: Props) {
           </div>
         </div>
         {provider.distance_miles != null && (
-          <span className="text-xs font-mono text-muted-foreground whitespace-nowrap flex items-center gap-1">
+          <span className="text-xs font-mono text-muted-foreground whitespace-nowrap">
             {provider.distance_miles.toFixed(1)} mi
           </span>
         )}
@@ -81,13 +80,6 @@ export function ProviderCard({ provider, isActive, onClick, onHover }: Props) {
         <div className="flex items-center gap-1.5 mt-2.5 text-xs text-muted-foreground">
           <MapPin className="w-3 h-3 shrink-0" />
           <span className="truncate">{address}</span>
-        </div>
-      )}
-
-      {provider.phone && (
-        <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
-          <Phone className="w-3 h-3 shrink-0" />
-          <span>{provider.phone}</span>
         </div>
       )}
 
