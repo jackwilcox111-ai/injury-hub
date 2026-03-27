@@ -12,7 +12,6 @@ import { StatusBadge } from '@/components/global/StatusBadge';
 import { toast } from 'sonner';
 import { ShieldCheck, Plus, CheckCircle2 } from 'lucide-react';
 
-const INSURANCE_TYPES = ['None', 'PIP', 'MedPay', 'Health Insurance', 'Medicare', 'Medicaid'];
 const PRIMARY_BILLING_PATHS = ['Lien', 'PIP', 'MedPay'];
 const SECONDARY_BILLING_PATHS = ['None', 'Lien', 'PIP', 'MedPay'];
 
@@ -35,7 +34,6 @@ export function InsuranceEligibilityTab({ caseId }: { caseId: string }) {
   });
 
   const [form, setForm] = useState({
-    insurance_type: 'None',
     primary_billing_path: 'Lien',
     secondary_billing_path: 'None',
     policy_number: '',
@@ -48,7 +46,6 @@ export function InsuranceEligibilityTab({ caseId }: { caseId: string }) {
     mutationFn: async () => {
       const { error } = await supabase.from('insurance_eligibility').insert({
         case_id: caseId,
-        insurance_type: form.insurance_type,
         primary_billing_path: form.primary_billing_path,
         secondary_billing_path: form.secondary_billing_path === 'None' ? null : form.secondary_billing_path,
         policy_number: form.policy_number || null,
@@ -61,7 +58,7 @@ export function InsuranceEligibilityTab({ caseId }: { caseId: string }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['insurance-eligibility', caseId] });
       setShowAdd(false);
-      setForm({ insurance_type: 'None', primary_billing_path: 'Lien', secondary_billing_path: 'None', policy_number: '', carrier_name: '', coverage_limit: '', notes: '' });
+      setForm({ primary_billing_path: 'Lien', secondary_billing_path: 'None', policy_number: '', carrier_name: '', coverage_limit: '', notes: '' });
       toast.success('Insurance record added');
     },
     onError: (e: any) => toast.error(e.message),
@@ -125,7 +122,7 @@ export function InsuranceEligibilityTab({ caseId }: { caseId: string }) {
                        2° {e.secondary_billing_path}
                      </span>
                    )}
-                   <span className="text-sm font-medium text-foreground">{e.insurance_type}</span>
+                   
                  </div>
                 <div className="flex items-center gap-2">
                   {e.verified ? (
@@ -165,20 +162,6 @@ export function InsuranceEligibilityTab({ caseId }: { caseId: string }) {
         <DialogContent>
           <DialogHeader><DialogTitle>Add Insurance Record</DialogTitle></DialogHeader>
           <form onSubmit={ev => { ev.preventDefault(); addMutation.mutate(); }} className="space-y-4">
-            <div className="space-y-2">
-              <Label>Insurance Type</Label>
-              <Select value={form.insurance_type} onValueChange={v => {
-                setForm(f => ({
-                  ...f,
-                  insurance_type: v,
-                  primary_billing_path: v === 'PIP' ? 'PIP' : v === 'MedPay' ? 'MedPay' : v === 'None' ? 'Lien' : f.primary_billing_path,
-                  secondary_billing_path: (v === 'PIP' || v === 'MedPay') ? 'Lien' : 'None',
-                }));
-              }}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{INSURANCE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Primary Billing Path</Label>
