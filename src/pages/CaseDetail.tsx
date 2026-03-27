@@ -966,6 +966,14 @@ export default function CaseDetail() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <SendReferralDialog
+        open={showReferral}
+        onOpenChange={setShowReferral}
+        caseId={id!}
+        patientCity={patientProfile?.city}
+        patientState={patientProfile?.state}
+      />
     </div>
   );
 }
