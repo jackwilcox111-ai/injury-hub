@@ -51,6 +51,8 @@ import MarketerEarnings from "./pages/marketer/MarketerEarnings";
 import MarketerSettings from "./pages/marketer/MarketerSettings";
 import FindProvider from "./pages/network/FindProvider";
 import DemoPage from "./pages/network/DemoPage";
+import ResourcesPage from "./pages/network/ResourcesPage";
+import ResourceDetail from "./pages/network/ResourceDetail";
 import { ReactNode } from "react";
 
 const queryClient = new QueryClient();
@@ -102,6 +104,8 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/find-providers" element={<FindProvider />} />
             <Route path="/demo" element={<DemoPage />} />
+            <Route path="/resources" element={<ResourcesPage />} />
+            <Route path="/resources/:slug" element={<ResourceDetail />} />
             <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Admin / Care Manager / Attorney portal routes */}
