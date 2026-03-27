@@ -29,7 +29,6 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);
-  const [showUpload, setShowUpload] = useState(false);
   const [uploading, setUploading] = useState(false);
   const isAdminOrCM = profile?.role === 'admin' || profile?.role === 'care_manager';
 
@@ -180,11 +179,6 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
           <h3 className="text-sm font-semibold text-foreground">Records Pipeline</h3>
         </div>
         <div className="flex items-center gap-2">
-          {isAdminOrCM && (
-            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowUpload(true)}>
-              <Upload className="w-3.5 h-3.5 mr-1" /> Upload
-            </Button>
-          )}
           {isAdminOrCM && missingTypes.length > 0 && (
             <Button size="sm" variant="outline" className="h-8 text-xs text-amber-600 border-amber-200 hover:bg-amber-50"
               onClick={() => requestAllMissing.mutate(missingTypes)} disabled={requestAllMissing.isPending}>
@@ -301,18 +295,6 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
           </table>
         </div>
       )}
-
-      {/* Upload Dialog */}
-      <Dialog open={showUpload} onOpenChange={setShowUpload}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Upload Document</DialogTitle></DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Upload medical records, billing docs, or other case files.</p>
-            <Input type="file" onChange={handleFileUpload} disabled={uploading} accept=".pdf,.doc,.docx,.jpg,.png,.tiff" />
-            {uploading && <p className="text-xs text-muted-foreground">Uploading...</p>}
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Add Record Dialog */}
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
