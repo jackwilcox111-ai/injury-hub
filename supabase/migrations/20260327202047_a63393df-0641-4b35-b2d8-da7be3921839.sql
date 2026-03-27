@@ -1,0 +1,1 @@
+ALTER TABLE public.charges ADD COLUMN document_id uuid REFERENCES public.documents(id) ON DELETE SET NULL DEFAULT NULL;

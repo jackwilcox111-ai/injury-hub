@@ -648,6 +648,7 @@ export type Database = {
           cpt_code: string
           cpt_description: string | null
           created_at: string | null
+          document_id: string | null
           id: string
           notes: string | null
           paid_amount: number | null
@@ -664,6 +665,7 @@ export type Database = {
           cpt_code: string
           cpt_description?: string | null
           created_at?: string | null
+          document_id?: string | null
           id?: string
           notes?: string | null
           paid_amount?: number | null
@@ -680,6 +682,7 @@ export type Database = {
           cpt_code?: string
           cpt_description?: string | null
           created_at?: string | null
+          document_id?: string | null
           id?: string
           notes?: string | null
           paid_amount?: number | null
@@ -708,6 +711,13 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "marketplace_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "charges_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
             referencedColumns: ["id"]
           },
           {
