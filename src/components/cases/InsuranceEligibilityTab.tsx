@@ -13,7 +13,8 @@ import { toast } from 'sonner';
 import { ShieldCheck, Plus, CheckCircle2 } from 'lucide-react';
 
 const INSURANCE_TYPES = ['None', 'PIP', 'MedPay', 'Health Insurance', 'Medicare', 'Medicaid'];
-const BILLING_PATHS = ['Lien Only', 'PIP Primary', 'MedPay Primary', 'Dual Path'];
+const PRIMARY_BILLING_PATHS = ['Lien', 'PIP', 'MedPay'];
+const SECONDARY_BILLING_PATHS = ['None', 'Lien', 'PIP', 'MedPay'];
 
 export function InsuranceEligibilityTab({ caseId }: { caseId: string }) {
   const { user, profile } = useAuth();
@@ -35,7 +36,8 @@ export function InsuranceEligibilityTab({ caseId }: { caseId: string }) {
 
   const [form, setForm] = useState({
     insurance_type: 'None',
-    billing_path: 'Lien Only',
+    primary_billing_path: 'Lien',
+    secondary_billing_path: 'None',
     policy_number: '',
     carrier_name: '',
     coverage_limit: '',
@@ -47,7 +49,8 @@ export function InsuranceEligibilityTab({ caseId }: { caseId: string }) {
       const { error } = await supabase.from('insurance_eligibility').insert({
         case_id: caseId,
         insurance_type: form.insurance_type,
-        billing_path: form.billing_path,
+        primary_billing_path: form.primary_billing_path,
+        secondary_billing_path: form.secondary_billing_path === 'None' ? null : form.secondary_billing_path,
         policy_number: form.policy_number || null,
         carrier_name: form.carrier_name || null,
         coverage_limit: form.coverage_limit ? Number(form.coverage_limit) : null,
@@ -58,7 +61,7 @@ export function InsuranceEligibilityTab({ caseId }: { caseId: string }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['insurance-eligibility', caseId] });
       setShowAdd(false);
-      setForm({ insurance_type: 'None', billing_path: 'Lien Only', policy_number: '', carrier_name: '', coverage_limit: '', notes: '' });
+      setForm({ insurance_type: 'None', primary_billing_path: 'Lien', secondary_billing_path: 'None', policy_number: '', carrier_name: '', coverage_limit: '', notes: '' });
       toast.success('Insurance record added');
     },
     onError: (e: any) => toast.error(e.message),
@@ -82,9 +85,8 @@ export function InsuranceEligibilityTab({ caseId }: { caseId: string }) {
 
   const billingPathColor = (path: string) => {
     switch (path) {
-      case 'PIP Primary': return 'bg-blue-50 text-blue-700 border-blue-200';
-      case 'MedPay Primary': return 'bg-violet-50 text-violet-700 border-violet-200';
-      case 'Dual Path': return 'bg-amber-50 text-amber-700 border-amber-200';
+      case 'PIP': return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'MedPay': return 'bg-violet-50 text-violet-700 border-violet-200';
       default: return 'bg-muted text-muted-foreground border-border';
     }
   };
@@ -115,11 +117,16 @@ export function InsuranceEligibilityTab({ caseId }: { caseId: string }) {
             <div key={e.id} className="bg-card border border-border rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${billingPathColor(e.billing_path)}`}>
-                    {e.billing_path}
-                  </span>
-                  <span className="text-sm font-medium text-foreground">{e.insurance_type}</span>
-                </div>
+                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${billingPathColor(e.primary_billing_path)}`}>
+                     1° {e.primary_billing_path}
+                   </span>
+                   {e.secondary_billing_path && (
+                     <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${billingPathColor(e.secondary_billing_path)}`}>
+                       2° {e.secondary_billing_path}
+                     </span>
+                   )}
+                   <span className="text-sm font-medium text-foreground">{e.insurance_type}</span>
+                 </div>
                 <div className="flex items-center gap-2">
                   {e.verified ? (
                     <span className="flex items-center gap-1 text-xs text-emerald-600">
@@ -158,25 +165,33 @@ export function InsuranceEligibilityTab({ caseId }: { caseId: string }) {
         <DialogContent>
           <DialogHeader><DialogTitle>Add Insurance Record</DialogTitle></DialogHeader>
           <form onSubmit={ev => { ev.preventDefault(); addMutation.mutate(); }} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Insurance Type</Label>
+              <Select value={form.insurance_type} onValueChange={v => {
+                setForm(f => ({
+                  ...f,
+                  insurance_type: v,
+                  primary_billing_path: v === 'PIP' ? 'PIP' : v === 'MedPay' ? 'MedPay' : v === 'None' ? 'Lien' : f.primary_billing_path,
+                  secondary_billing_path: (v === 'PIP' || v === 'MedPay') ? 'Lien' : 'None',
+                }));
+              }}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{INSURANCE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Insurance Type</Label>
-                <Select value={form.insurance_type} onValueChange={v => {
-                  setForm(f => ({
-                    ...f,
-                    insurance_type: v,
-                    billing_path: v === 'PIP' ? 'PIP Primary' : v === 'MedPay' ? 'MedPay Primary' : v === 'None' ? 'Lien Only' : f.billing_path,
-                  }));
-                }}>
+                <Label>Primary Billing Path</Label>
+                <Select value={form.primary_billing_path} onValueChange={v => setForm(f => ({ ...f, primary_billing_path: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{INSURANCE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                  <SelectContent>{PRIMARY_BILLING_PATHS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Billing Path</Label>
-                <Select value={form.billing_path} onValueChange={v => setForm(f => ({ ...f, billing_path: v }))}>
+                <Label>Secondary Billing Path</Label>
+                <Select value={form.secondary_billing_path} onValueChange={v => setForm(f => ({ ...f, secondary_billing_path: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{BILLING_PATHS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                  <SelectContent>{SECONDARY_BILLING_PATHS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
             </div>
