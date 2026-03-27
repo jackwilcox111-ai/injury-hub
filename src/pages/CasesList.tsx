@@ -31,7 +31,7 @@ export default function CasesList() {
   const isAdmin = profile?.role === 'admin';
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
-  const [viewMode, setViewMode] = useState<'table' | 'kanban'>('kanban');
+  const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
   const [showNew, setShowNew] = useState(false);
   const [newCase, setNewCase] = useState({
     patient_name: '', accident_date: '', accident_state: '', sol_period_days: 730,
