@@ -632,7 +632,7 @@ export default function CaseDetail() {
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Document</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Received</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Delivered to Attorney</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">HIPAA</th>
+            
           </tr></thead>
           <tbody className="divide-y divide-border">
             {records?.map(r => {
@@ -658,7 +658,7 @@ export default function CaseDetail() {
                   </td>
                   <td className="px-5 py-3 font-mono text-xs">{r.received_date || '—'}</td>
                   <td className="px-5 py-3 font-mono text-xs">{r.delivered_to_attorney_date || '—'}</td>
-                  <td className="px-5 py-3 text-xs">{r.hipaa_auth_on_file ? <span className="text-emerald-600">✓ On file</span> : <span className="text-destructive">✗ Missing</span>}</td>
+                  
                 </tr>
               );
             })}
