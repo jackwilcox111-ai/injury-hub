@@ -13,8 +13,8 @@ export function MissionBanner() {
           width={1920}
           height={768}
         />
-        <div className="absolute inset-0 bg-foreground/85" />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-primary/10" />
+        <div className="absolute inset-0 bg-foreground/50" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-primary/10 to-primary/20" />
       </div>
 
       <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
