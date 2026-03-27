@@ -160,7 +160,7 @@ export default function CasesList() {
                 <SortableHeader label="Lien" sortKey="lien_amount" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 <SortableHeader label="SoL" sortKey="sol_date" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Alert</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Progress</th>
+                
               </tr>
             </thead>
             <tbody>
@@ -195,9 +195,6 @@ export default function CasesList() {
                   </td>
                   <td className="px-5 py-3.5">
                     <FlagBadge flag={c.flag} />
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <ProgressBar completed={c.appointments_completed || 0} total={c.appointments_total || 0} />
                   </td>
                 </tr>
               ))}
