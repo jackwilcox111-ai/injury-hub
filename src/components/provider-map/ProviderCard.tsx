@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Phone, Navigation } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { getSpecialtyColor } from '@/lib/specialties';
 
 export interface ProviderMapData {
@@ -48,8 +48,8 @@ export function ProviderCard({ provider, isActive, onClick, onHover }: Props) {
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <h3 className="font-display font-semibold text-sm text-foreground truncate">{provider.name}</h3>
           <div className="flex items-center gap-2 mt-1.5">
+            {provider.specialty && (
             {provider.specialty && (
               <span
                 className="text-[10px] font-medium px-2 py-0.5 rounded-full text-white"
@@ -72,7 +72,6 @@ export function ProviderCard({ provider, isActive, onClick, onHover }: Props) {
         </div>
         {provider.distance_miles != null && (
           <span className="text-xs font-mono text-muted-foreground whitespace-nowrap flex items-center gap-1">
-            <Navigation className="w-3 h-3" />
             {provider.distance_miles.toFixed(1)} mi
           </span>
         )}
