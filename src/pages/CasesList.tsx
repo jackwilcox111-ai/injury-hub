@@ -31,7 +31,6 @@ export default function CasesList() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showNew, setShowNew] = useState(false);
-  const [sortBy, setSortBy] = useState('updated_at');
   const [newCase, setNewCase] = useState({
     patient_name: '', accident_date: '', accident_state: '', sol_period_days: 730,
     patient_phone: '', patient_email: '', attorney_id: '', specialty: '',
@@ -82,32 +81,18 @@ export default function CasesList() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const filtered = cases?.filter(c => {
-    if (!search) return true;
-    const s = search.toLowerCase();
-    return (c.patient_name?.toLowerCase().includes(s) || c.case_number?.toLowerCase().includes(s) || (c as any).attorneys?.firm_name?.toLowerCase().includes(s));
-  }) || [];
-
-  const sorted = useMemo(() => {
-    return [...filtered].sort((a, b) => {
-      switch (sortBy) {
-        case 'patient_name': return (a.patient_name || '').localeCompare(b.patient_name || '');
-        case 'case_number': return (a.case_number || '').localeCompare(b.case_number || '', undefined, { numeric: true });
-        case 'status': return (a.status || '').localeCompare(b.status || '');
-        case 'sol_date': {
-          if (!a.sol_date && !b.sol_date) return 0;
-          if (!a.sol_date) return 1;
-          if (!b.sol_date) return -1;
-          return a.sol_date.localeCompare(b.sol_date);
-        }
-        case 'lien_amount': return (Number(b.lien_amount) || 0) - (Number(a.lien_amount) || 0);
-        default: return new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime();
-      }
+  const filtered = useMemo(() => {
+    return (cases || []).filter(c => {
+      if (!search) return true;
+      const s = search.toLowerCase();
+      return (c.patient_name?.toLowerCase().includes(s) || c.case_number?.toLowerCase().includes(s) || (c as any).attorneys?.firm_name?.toLowerCase().includes(s));
     });
-  }, [filtered, sortBy]);
+  }, [cases, search]);
+
+  const { sortedData: sorted, sortConfig, requestSort } = useSortableTable(filtered, { key: 'updated_at', direction: 'desc' });
 
   if (isLoading) {
-    return <div className="space-y-6"><div className="flex items-center justify-between"><Skeleton className="h-8 w-32" /><Skeleton className="h-10 w-32" /></div><div className="grid grid-cols-2 gap-4">{[1,2,3,4].map(i => <Skeleton key={i} className="h-44 rounded-xl" />)}</div></div>;
+    return <div className="space-y-6"><div className="flex items-center justify-between"><Skeleton className="h-8 w-32" /><Skeleton className="h-10 w-32" /></div><Skeleton className="h-96 rounded-xl" /></div>;
   }
 
   return (
@@ -124,91 +109,84 @@ export default function CasesList() {
       </div>
 
       {/* Search + Filters */}
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by patient, case #, or attorney..." className="pl-9 h-10" />
-          </div>
-          <div className="flex gap-1 bg-card border border-border rounded-lg p-1">
-            {statuses.map(s => (
-              <button
-                key={s}
-                onClick={() => setStatusFilter(s)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${statusFilter === s ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[180px] h-10">
-              <ArrowUpDown className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
-              <SelectValue placeholder="Sort by..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="updated_at">Recently Updated</SelectItem>
-              <SelectItem value="patient_name">Patient Name</SelectItem>
-              <SelectItem value="case_number">Case Number</SelectItem>
-              <SelectItem value="status">Status</SelectItem>
-              <SelectItem value="sol_date">SoL Date</SelectItem>
-              <SelectItem value="lien_amount">Lien Amount</SelectItem>
-            </SelectContent>
-          </Select>
+      <div className="flex items-center gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by patient, case #, or attorney..." className="pl-9 h-10" />
         </div>
+        <div className="flex gap-1 bg-card border border-border rounded-lg p-1">
+          {statuses.map(s => (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${statusFilter === s ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
 
-      {/* Case Cards */}
+      {/* Cases Table */}
       {sorted.length === 0 ? (
         <div className="bg-card border border-border rounded-xl p-16 text-center">
           <p className="text-sm text-muted-foreground">No cases found</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {sorted.map(c => (
-            <button
-              key={c.id}
-              onClick={() => navigate(`/cases/${c.id}`)}
-              className="bg-card border border-border rounded-xl p-5 text-left shadow-card hover:shadow-card-hover hover:border-primary/30 transition-all group"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <p className="text-[11px] font-mono text-primary font-medium">{c.case_number}</p>
-                  <p className="text-sm font-semibold text-foreground mt-0.5 group-hover:text-primary transition-colors">{c.patient_name}</p>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <FlagBadge flag={c.flag} />
-                  <StatusBadge status={c.status || ''} />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-y-2 text-xs mb-4">
-                <div>
-                  <span className="text-muted-foreground">Specialty: </span>
-                  <span className="text-foreground font-medium">{c.specialty || '—'}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Attorney: </span>
-                  <span className="text-foreground font-medium">{(c as any).attorneys?.firm_name || '—'}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Provider: </span>
-                  <span className="text-foreground font-medium">{(c as any).providers?.name || '—'}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Phone: </span>
-                  <span className="text-foreground font-medium">{c.patient_phone || '—'}</span>
-                </div>
-                {isAdmin && (
-                  <div>
-                    <span className="text-muted-foreground">Lien: </span>
+        <div className="bg-card border border-border rounded-xl overflow-hidden shadow-card">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-accent/50">
+                <SortableHeader label="Case" sortKey="case_number" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+                <SortableHeader label="Patient" sortKey="patient_name" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+                <SortableHeader label="Attorney" sortKey="attorneys.firm_name" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+                <SortableHeader label="Status" sortKey="status" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+                <SortableHeader label="Lien" sortKey="lien_amount" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+                <SortableHeader label="SoL" sortKey="sol_date" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Alert</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Progress</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map(c => (
+                <tr
+                  key={c.id}
+                  onClick={() => navigate(`/cases/${c.id}`)}
+                  className="border-b border-border last:border-0 hover:bg-accent/30 cursor-pointer transition-colors"
+                >
+                  <td className="px-5 py-3.5">
+                    <span className="text-[11px] font-mono text-primary font-medium">{c.case_number}</span>
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <div>
+                      <p className="font-semibold text-foreground text-sm">{c.patient_name}</p>
+                      {c.patient_phone && (
+                        <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                          <Phone className="w-3 h-3" /> {c.patient_phone}
+                        </p>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-5 py-3.5 text-xs text-foreground">{(c as any).attorneys?.firm_name || '—'}</td>
+                  <td className="px-5 py-3.5">
+                    <StatusBadge status={c.status || ''} />
+                  </td>
+                  <td className="px-5 py-3.5">
                     <FinancialValue value={c.lien_amount} />
-                  </div>
-                )}
-              </div>
-              <div className="flex items-center justify-between pt-3 border-t border-border">
-                <SoLCountdown sol_date={c.sol_date} sol_period_days={c.sol_period_days} accident_state={c.accident_state} />
-                <ProgressBar completed={c.appointments_completed || 0} total={c.appointments_total || 0} />
-              </div>
-            </button>
-          ))}
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <SoLCountdown sol_date={c.sol_date} sol_period_days={c.sol_period_days} accident_state={c.accident_state} />
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <FlagBadge flag={c.flag} />
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <ProgressBar completed={c.appointments_completed || 0} total={c.appointments_total || 0} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
