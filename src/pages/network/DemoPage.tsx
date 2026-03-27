@@ -17,16 +17,20 @@ const features = [
     tags: ['Admin', 'Care Manager'],
     color: 'hsl(var(--primary))',
     mockUI: (
-      <div className="flex gap-2 mt-4">
-        {['Intake', 'Referrals Sent', 'In Treatment', 'Records Pending', 'Demand Prep'].map((col, i) => (
-          <div key={col} className="flex-1 rounded-lg bg-accent/40 p-2">
-            <p className="text-[8px] font-bold text-foreground/70 mb-1.5 uppercase tracking-wider">{col}</p>
-            {Array.from({ length: 3 - Math.floor(i / 2) }).map((_, j) => (
-              <div key={j} className="bg-card rounded-md p-1.5 mb-1 border border-border/50 shadow-sm">
-                <div className="h-1.5 w-3/4 bg-muted-foreground/20 rounded mb-1" />
-                <div className="h-1 w-1/2 bg-muted-foreground/10 rounded" />
-              </div>
-            ))}
+      <div className="mt-4 space-y-1.5">
+        {[
+          { stage: 'Intake', count: 12, pct: 100 },
+          { stage: 'Referrals Sent', count: 8, pct: 67 },
+          { stage: 'In Treatment', count: 15, pct: 100 },
+          { stage: 'Records Pending', count: 6, pct: 50 },
+          { stage: 'Demand Prep', count: 4, pct: 33 },
+        ].map(s => (
+          <div key={s.stage} className="flex items-center gap-2">
+            <span className="text-[8px] font-medium text-muted-foreground w-20 truncate">{s.stage}</span>
+            <div className="flex-1 h-2 bg-accent/50 rounded-full overflow-hidden">
+              <div className="h-full bg-primary/60 rounded-full" style={{ width: `${s.pct}%` }} />
+            </div>
+            <span className="text-[9px] font-mono font-medium text-foreground w-5 text-right">{s.count}</span>
           </div>
         ))}
       </div>
