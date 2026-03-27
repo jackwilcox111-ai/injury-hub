@@ -111,7 +111,8 @@ export default function Dashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div className={`grid gap-5 ${isAdmin ? 'grid-cols-4' : 'grid-cols-3'}`}>
+      <div className="grid gap-5 grid-cols-4">
+        {/* Active Cases — includes flagged count */}
         <div className="bg-card border border-border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-shadow cursor-pointer" onClick={() => navigate('/cases')}>
           <div className="flex items-center justify-between mb-3">
             <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -124,22 +125,23 @@ export default function Dashboard() {
           <div className="flex gap-3 mt-3 text-[11px]">
             <span className="text-blue-600">{intakeCases.length} intake</span>
             <span className="text-emerald-600">{inTreatment.length} treating</span>
+            {flaggedCases.length > 0 && <span className="text-red-600">{flaggedCases.length} flagged</span>}
           </div>
         </div>
 
-        {isAdmin && (
-          <div className="bg-card border border-border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-shadow cursor-pointer" onClick={() => navigate('/liens')}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
-                <TrendingUp className="w-[18px] h-[18px] text-emerald-600" />
-              </div>
-              <ArrowRight className="w-4 h-4 text-muted-foreground" />
+        {/* Total Lien Exposure */}
+        <div className="bg-card border border-border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-shadow cursor-pointer" onClick={() => navigate('/liens')}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <TrendingUp className="w-[18px] h-[18px] text-emerald-600" />
             </div>
-            <p className="text-2xl font-semibold text-foreground tabular-nums">${totalLien.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Total Lien Exposure</p>
+            <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </div>
-        )}
+          <p className="text-2xl font-semibold text-foreground tabular-nums">${totalLien.toLocaleString()}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Total Lien Exposure</p>
+        </div>
 
+        {/* SoL Approaching — records & bills */}
         <div className={`bg-card border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-shadow ${solAlertCases.length > 0 ? 'border-orange-200 bg-orange-50/30' : 'border-border'}`}>
           <div className="flex items-center justify-between mb-3">
             <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${solAlertCases.length > 0 ? 'bg-orange-100' : 'bg-emerald-50'}`}>
@@ -148,9 +150,10 @@ export default function Dashboard() {
             {solAlertCases.length > 0 && <span className="text-[10px] font-semibold text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">At risk</span>}
           </div>
           <p className="text-2xl font-semibold text-foreground tabular-nums">{solAlertCases.length}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">SoL Approaching</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Records & Bills Due</p>
         </div>
 
+        {/* Flagged Cases — no-show risks */}
         <div className={`bg-card border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-shadow ${flaggedCases.length > 0 ? 'border-red-200 bg-red-50/30' : 'border-border'}`}>
           <div className="flex items-center justify-between mb-3">
             <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${flaggedCases.length > 0 ? 'bg-red-100' : 'bg-emerald-50'}`}>
@@ -159,7 +162,7 @@ export default function Dashboard() {
             {flaggedCases.length > 0 && <span className="text-[10px] font-semibold text-red-600 bg-red-100 px-2 py-0.5 rounded-full">Action needed</span>}
           </div>
           <p className="text-2xl font-semibold text-foreground tabular-nums">{flaggedCases.length}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">Flagged Cases</p>
+          <p className="text-xs text-muted-foreground mt-0.5">No-Show Risks</p>
         </div>
       </div>
 
