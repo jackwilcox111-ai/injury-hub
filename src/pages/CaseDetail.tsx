@@ -94,6 +94,7 @@ export default function CaseDetail() {
   const queryClient = useQueryClient();
   const isAdmin = profile?.role === 'admin';
   const [showAddAppt, setShowAddAppt] = useState(false);
+  const [showReferral, setShowReferral] = useState(false);
   const [showAddRecord, setShowAddRecord] = useState(false);
   const [showEditRecord, setShowEditRecord] = useState(false);
   const [editRecord, setEditRecord] = useState<any>(null);
@@ -112,7 +113,7 @@ export default function CaseDetail() {
   const { data: patientProfile } = useQuery({
     queryKey: ['patient-profile-for-case', id],
     queryFn: async () => {
-      const { data } = await supabase.from('patient_profiles').select('needs_interpreter').eq('case_id', id!).maybeSingle();
+      const { data } = await supabase.from('patient_profiles').select('needs_interpreter, city, state').eq('case_id', id!).maybeSingle();
       return data;
     },
   });
