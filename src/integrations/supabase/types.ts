@@ -1301,7 +1301,6 @@ export type Database = {
       insurance_eligibility: {
         Row: {
           amount_used: number | null
-          billing_path: string
           carrier_name: string | null
           case_id: string
           coverage_limit: number | null
@@ -1310,6 +1309,8 @@ export type Database = {
           insurance_type: string
           notes: string | null
           policy_number: string | null
+          primary_billing_path: string
+          secondary_billing_path: string | null
           updated_at: string | null
           verified: boolean | null
           verified_at: string | null
@@ -1317,7 +1318,6 @@ export type Database = {
         }
         Insert: {
           amount_used?: number | null
-          billing_path?: string
           carrier_name?: string | null
           case_id: string
           coverage_limit?: number | null
@@ -1326,6 +1326,8 @@ export type Database = {
           insurance_type?: string
           notes?: string | null
           policy_number?: string | null
+          primary_billing_path?: string
+          secondary_billing_path?: string | null
           updated_at?: string | null
           verified?: boolean | null
           verified_at?: string | null
@@ -1333,7 +1335,6 @@ export type Database = {
         }
         Update: {
           amount_used?: number | null
-          billing_path?: string
           carrier_name?: string | null
           case_id?: string
           coverage_limit?: number | null
@@ -1342,6 +1343,8 @@ export type Database = {
           insurance_type?: string
           notes?: string | null
           policy_number?: string | null
+          primary_billing_path?: string
+          secondary_billing_path?: string | null
           updated_at?: string | null
           verified?: boolean | null
           verified_at?: string | null
