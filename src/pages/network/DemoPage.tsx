@@ -99,35 +99,6 @@ const features = [
     ),
   },
   {
-    icon: FileSignature,
-    title: 'AI Demand Letter Generation',
-    description: 'Generate comprehensive demand letters powered by AI with Colossus-factor scoring, medical specials calculation, and multi-version drafting with attorney review workflows.',
-    tags: ['Admin', 'Attorney'],
-    color: 'hsl(var(--destructive))',
-    mockUI: (
-      <div className="mt-4 rounded-lg border border-border/50 bg-card p-3">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-5 h-5 rounded bg-primary/10 flex items-center justify-center">
-            <FileSignature className="w-3 h-3 text-primary" />
-          </div>
-          <div>
-            <div className="h-1.5 w-24 bg-muted-foreground/20 rounded" />
-            <div className="h-1 w-16 bg-muted-foreground/10 rounded mt-0.5" />
-          </div>
-        </div>
-        <div className="space-y-1">
-          {[100, 95, 80, 70, 90].map((w, i) => (
-            <div key={i} className="h-1 rounded bg-muted-foreground/10" style={{ width: `${w}%` }} />
-          ))}
-        </div>
-        <div className="flex gap-1.5 mt-2.5">
-          <div className="px-2 py-0.5 rounded text-[7px] bg-primary/10 text-primary font-medium">Draft v3</div>
-          <div className="px-2 py-0.5 rounded text-[7px] bg-warning/10 text-warning font-medium">Under Review</div>
-        </div>
-      </div>
-    ),
-  },
-  {
     icon: Banknote,
     title: 'Funding & Lien Management',
     description: 'Track funding requests, lien amounts, settlement estimates, and payment disbursements. Full financial lifecycle visibility from treatment through resolution.',
