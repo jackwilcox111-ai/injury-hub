@@ -12,6 +12,7 @@ import { ProgressBar } from '@/components/global/ProgressBar';
 import { FlagBadge } from '@/components/global/FlagBadge';
 import { FinancialValue } from '@/components/global/FinancialValue';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
