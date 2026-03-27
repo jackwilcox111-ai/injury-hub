@@ -13,7 +13,7 @@ import { FileText, Plus, CheckCircle2, Clock, AlertCircle, Send, Upload } from '
 const SPECIALTY_RECORDS: Record<string, string[]> = {
   'Pain Management': ['Initial Evaluation', 'Treatment Notes', 'Injection Records', 'Imaging', 'Billing'],
   'Chiropractic': ['Initial Evaluation', 'Treatment Notes', 'X-rays', 'Billing'],
-  'Physical Therapy': ['Initial Evaluation', 'Progress Notes', 'Discharge Summary', 'Billing'],
+  'Physical Therapy': ['Initial Evaluation', 'Progress Notes', 'Billing'],
   'Orthopedic': ['Initial Evaluation', 'Surgical Report', 'Imaging', 'Post-Op Notes', 'Billing'],
   'Imaging/MRI': ['MRI Report', 'X-ray Report', 'CT Report', 'Billing'],
   'Surgery Consultation': ['Consultation Notes', 'Pre-Op Evaluation', 'Surgical Report', 'Anesthesia Records', 'Billing'],
@@ -278,7 +278,7 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
               <Select value={newRecord.record_type} onValueChange={v => setNewRecord(p => ({ ...p, record_type: v }))}>
                 <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
                 <SelectContent>
-                  {['Treatment Notes', 'Billing', 'Imaging', 'Surgical Report', 'Initial Evaluation', 'Progress Notes', 'Discharge Summary', 'X-rays', 'MRI Report', 'Other'].map(t =>
+                  {['Treatment Notes', 'Billing', 'Imaging', 'Surgical Report', 'Initial Evaluation', 'Progress Notes', 'X-rays', 'MRI Report', 'Other'].map(t =>
                     <SelectItem key={t} value={t}>{t}</SelectItem>
                   )}
                 </SelectContent>
