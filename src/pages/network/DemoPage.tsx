@@ -198,7 +198,7 @@ const rolePortals = [
   { role: 'Attorney', icon: Scale, description: 'Case oversight, demand letters, settlement worksheets, and marketplace access', color: 'hsl(var(--warning))' },
   { role: 'Funder', icon: Banknote, description: 'Portfolio management, case underwriting, and settlement recovery tracking', color: 'hsl(var(--success))' },
   { role: 'Marketer', icon: Megaphone, description: 'Case submission, referral tracking, earnings dashboard, and compliance tools', color: 'hsl(var(--primary))' },
-  { role: 'Admin', icon: LayoutDashboard, description: 'Full operational control with pipeline management, reporting, and network oversight', color: 'hsl(var(--destructive))' },
+  { role: 'Case Management', icon: LayoutDashboard, description: 'Full operational control with pipeline management, reporting, and network oversight', color: 'hsl(var(--destructive))' },
 ];
 
 export default function DemoPage() {
