@@ -36,6 +36,52 @@ import { ColossusTab } from '@/components/cases/ColossusTab';
 import { DemandLettersTab } from '@/components/cases/DemandLettersTab';
 import { CaseMessagesTab } from '@/components/cases/CaseMessagesTab';
 
+function RecordsBillsDump({ caseId }: { caseId: string }) {
+  const { data: docs, isLoading } = useQuery({
+    queryKey: ['case-docs-dump', caseId],
+    queryFn: async () => {
+      const { data } = await supabase.from('documents')
+        .select('*')
+        .eq('case_id', caseId)
+        .order('created_at', { ascending: false });
+      return data || [];
+    },
+  });
+
+  const handleDownload = async (storagePath: string) => {
+    const { data, error } = await supabase.storage.from('documents').createSignedUrl(storagePath, 60);
+    if (error) { toast.error('Could not generate download link'); return; }
+    window.open(data.signedUrl, '_blank');
+  };
+
+  if (isLoading) return <Skeleton className="h-40 rounded-xl" />;
+
+  return (
+    <div className="space-y-3">
+      <h3 className="text-sm font-semibold text-foreground">All Documents</h3>
+      <table className="w-full text-sm">
+        <thead><tr className="border-b border-border bg-accent/50">
+          <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">File</th>
+          <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Type</th>
+          <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Uploaded</th>
+          <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Actions</th>
+        </tr></thead>
+        <tbody className="divide-y divide-border">
+          {docs?.map(d => (
+            <tr key={d.id} className="hover:bg-accent/30 transition-colors">
+              <td className="px-4 py-2.5 text-xs flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 text-muted-foreground" />{d.file_name}</td>
+              <td className="px-4 py-2.5"><Badge variant="outline" className="text-[10px]">{d.document_type}</Badge></td>
+              <td className="px-4 py-2.5 font-mono text-xs">{d.created_at ? format(new Date(d.created_at), 'MMM d, yyyy') : '—'}</td>
+              <td className="px-4 py-2.5"><Button size="sm" variant="ghost" className="h-7 text-[10px]" onClick={() => handleDownload(d.storage_path)}><Download className="w-3 h-3 mr-1" /> Download</Button></td>
+            </tr>
+          ))}
+          {(!docs || docs.length === 0) && <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground text-sm">No documents</td></tr>}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 const caseStatuses = ['Intake', 'In Treatment', 'Records Pending', 'Demand Prep', 'Settled'];
 const flagOptions = [{ value: 'none', label: 'None' }, { value: 'noshow', label: 'No-Show Risk' }, { value: 'records', label: 'Records Due' }, { value: 'urgent', label: 'Urgent' }];
 
