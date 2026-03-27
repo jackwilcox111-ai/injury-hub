@@ -69,7 +69,7 @@ export default function LiensPage() {
           case_number: (l as any).cases?.case_number, patient: (l as any).cases?.patient_name,
           provider: (l as any).providers?.name, amount: l.amount, reduction: l.reduction_amount,
           net: l.amount - l.reduction_amount, status: l.status,
-        })) || [], 'carelink-liens.csv')}>
+        })) || [], 'gothurt-liens.csv')}>
           <Download className="w-4 h-4 mr-1.5" /> Export CSV
         </Button>
       </div>

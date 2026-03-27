@@ -81,7 +81,7 @@ export function PublicFooter() {
           </div>
           <div className="space-y-3">
             <p className="text-primary-foreground/90 font-medium text-xs uppercase tracking-widest">Contact</p>
-            <p className="text-sm">info@carelink.com</p>
+            <p className="text-sm">info@gothurtinjurynetwork.com</p>
             <p className="text-sm">800-729-1570</p>
           </div>
         </div>
