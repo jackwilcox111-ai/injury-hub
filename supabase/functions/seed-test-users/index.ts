@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
 
     // 1. Admin (may already exist)
     await createTestUser(
-      "admin@carelink.test",
+      "admin@gothurt.test",
       "Test1234!",
       "Admin User",
       "admin"
@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
 
     // 2. Care Manager
     await createTestUser(
-      "cm@carelink.test",
+      "cm@gothurt.test",
       "Test1234!",
       "Sarah Chen",
       "care_manager"
@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
 
     // 3. Attorney - linked to Rivera & Associates
     await createTestUser(
-      "attorney@carelink.test",
+      "attorney@gothurt.test",
       "Test1234!",
       "Maria Rivera",
       "attorney",
@@ -82,7 +82,7 @@ Deno.serve(async (req) => {
 
     // 4. Provider - linked to Tampa Bay Pain Specialists
     await createTestUser(
-      "provider@carelink.test",
+      "provider@gothurt.test",
       "Test1234!",
       "Dr. Tampa Pain",
       "provider",
@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
 
     // 5. Patient - create and link to case GHN-2026-001
     const patientId = await createTestUser(
-      "patient@carelink.test",
+      "patient@gothurt.test",
       "Test1234!",
       "Maria Santos",
       "patient"
@@ -119,7 +119,7 @@ Deno.serve(async (req) => {
 
     // 6. Funder - create funder profile too
     const funderId = await createTestUser(
-      "funder@carelink.test",
+      "funder@gothurt.test",
       "Test1234!",
       "Capital Funding LLC",
       "funder"
@@ -137,7 +137,7 @@ Deno.serve(async (req) => {
         profile_id: funderId,
         company_name: "Capital Funding LLC",
         contact_name: "Test Funder",
-        email: "funder@carelink.test",
+        email: "funder@gothurt.test",
         funding_capacity_min: 5000,
         funding_capacity_max: 100000,
         accredited_investor: true,
@@ -146,7 +146,7 @@ Deno.serve(async (req) => {
 
     // 7. Marketer
     const marketerId = await createTestUser(
-      "marketer@carelink.test",
+      "marketer@gothurt.test",
       "Test1234!",
       "Jake Marketer",
       "marketer"

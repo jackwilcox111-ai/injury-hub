@@ -95,7 +95,7 @@ export default function Login() {
                   onChange={e => setEmail(e.target.value)}
                   required
                   className="h-11"
-                  placeholder="admin@carelink.com"
+                  placeholder="admin@gothurtinjurynetwork.com"
                 />
               </div>
               <div className="space-y-2">
