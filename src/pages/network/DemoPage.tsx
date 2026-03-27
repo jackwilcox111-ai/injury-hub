@@ -216,6 +216,84 @@ const features = [
       </div>
     ),
   },
+  {
+    icon: MessageCircle,
+    title: 'Communication & Messaging',
+    description: 'HIPAA-compliant messaging between patients, attorneys, providers, and care managers. Threaded conversations tied to cases with read receipts and role-based delivery.',
+    tags: ['All Roles'],
+    color: 'hsl(var(--primary))',
+    mockUI: (
+      <div className="mt-4 space-y-1.5">
+        {[
+          { from: 'Care Manager', msg: 'Records received from ortho...', time: '2m ago', unread: true },
+          { from: 'Attorney Office', msg: 'Policy limits confirmed at $100K', time: '1h ago', unread: false },
+          { from: 'Patient', msg: 'Completed MRI appointment today', time: '3h ago', unread: false },
+        ].map(m => (
+          <div key={m.from} className="flex items-start gap-2 bg-accent/30 rounded-md px-2.5 py-1.5">
+            <div className={`w-1.5 h-1.5 rounded-full mt-1 shrink-0 ${m.unread ? 'bg-primary' : 'bg-transparent'}`} />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-medium text-foreground">{m.from}</span>
+                <span className="text-[7px] text-muted-foreground">{m.time}</span>
+              </div>
+              <p className="text-[8px] text-muted-foreground truncate">{m.msg}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    icon: CalendarDays,
+    title: 'Appointment Scheduling',
+    description: 'Centralized calendar for managing patient appointments across the provider network. Track scheduling, interpreter needs, specialty referrals, and no-show follow-ups.',
+    tags: ['Admin', 'Provider'],
+    color: 'hsl(var(--settled))',
+    mockUI: (
+      <div className="mt-4">
+        <div className="grid grid-cols-7 gap-0.5">
+          {['M','T','W','T','F','S','S'].map(d => (
+            <div key={d} className="text-[7px] text-center text-muted-foreground font-medium py-0.5">{d}</div>
+          ))}
+          {Array.from({ length: 28 }).map((_, i) => {
+            const hasAppt = [3, 7, 10, 14, 17, 21, 24].includes(i);
+            const isToday = i === 14;
+            return (
+              <div key={i} className={`text-[8px] text-center py-1 rounded ${isToday ? 'bg-primary text-primary-foreground font-bold' : hasAppt ? 'bg-settled/15 text-settled font-medium' : 'text-muted-foreground/60'}`}>
+                {i + 1}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    ),
+  },
+  {
+    icon: GitBranch,
+    title: 'Patient Treatment Timeline',
+    description: 'Visual timeline tracking every milestone — from accident date through treatment, records collection, and settlement. Patients and attorneys see real-time progress at a glance.',
+    tags: ['Patient', 'Attorney'],
+    color: 'hsl(var(--primary))',
+    mockUI: (
+      <div className="mt-4 relative pl-4">
+        <div className="absolute left-[7px] top-1 bottom-1 w-px bg-border" />
+        {[
+          { label: 'Accident Reported', date: 'Jan 15', done: true },
+          { label: 'Initial Consultation', date: 'Jan 22', done: true },
+          { label: 'MRI Completed', date: 'Feb 8', done: true },
+          { label: 'Surgery Scheduled', date: 'Mar 20', done: false },
+        ].map(e => (
+          <div key={e.label} className="flex items-start gap-2 mb-2 relative">
+            <div className={`w-2.5 h-2.5 rounded-full border-2 shrink-0 -ml-4 mt-0.5 ${e.done ? 'bg-primary border-primary' : 'bg-card border-muted-foreground/30'}`} />
+            <div className="flex-1">
+              <span className="text-[9px] text-foreground/80 font-medium">{e.label}</span>
+              <span className="text-[7px] text-muted-foreground ml-1.5">{e.date}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    ),
+  },
 ];
 
 const rolePortals = [
