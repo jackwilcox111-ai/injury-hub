@@ -15,8 +15,10 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Plus, Search, ArrowUpDown } from 'lucide-react';
+import { Plus, Search, Phone } from 'lucide-react';
 import { PHIBanner } from '@/components/global/PHIBanner';
+import { SortableHeader } from '@/components/global/SortableHeader';
+import { useSortableTable } from '@/hooks/use-sortable-table';
 
 const statuses = ['All', 'Intake', 'Referrals Sent', 'In Treatment', 'Records Pending', 'Demand Prep', 'Settled'];
 const specialties = ['Pain Management', 'Physical Therapy', 'Orthopedic', 'Chiropractic', 'Surgical Center', 'Diagnostics', 'Other'];
