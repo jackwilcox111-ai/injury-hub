@@ -18,7 +18,7 @@ import { toast } from 'sonner';
 import { Plus, Search, ArrowUpDown } from 'lucide-react';
 import { PHIBanner } from '@/components/global/PHIBanner';
 
-const statuses = ['All', 'Intake', 'In Treatment', 'Records Pending', 'Demand Prep', 'Settled'];
+const statuses = ['All', 'Intake', 'Referrals Sent', 'In Treatment', 'Records Pending', 'Demand Prep', 'Settled'];
 const specialties = ['Pain Management', 'Physical Therapy', 'Orthopedic', 'Chiropractic', 'Surgical Center', 'Diagnostics', 'Other'];
 
 export default function CasesList() {
