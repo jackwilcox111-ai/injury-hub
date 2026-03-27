@@ -15,10 +15,11 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Plus, Search, Phone } from 'lucide-react';
+import { Plus, Search, Phone, LayoutGrid, Table2 } from 'lucide-react';
 import { PHIBanner } from '@/components/global/PHIBanner';
 import { SortableHeader } from '@/components/global/SortableHeader';
 import { useSortableTable } from '@/hooks/use-sortable-table';
+import { CasePipeline } from '@/components/dashboard/CasePipeline';
 
 const statuses = ['All', 'Intake', 'Referrals Sent', 'In Treatment', 'Records Pending', 'Demand Prep', 'Settled'];
 const specialties = ['Pain Management', 'Physical Therapy', 'Orthopedic', 'Chiropractic', 'Surgical Center', 'Diagnostics', 'Other'];
@@ -30,6 +31,7 @@ export default function CasesList() {
   const isAdmin = profile?.role === 'admin';
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [viewMode, setViewMode] = useState<'table' | 'kanban'>('kanban');
   const [showNew, setShowNew] = useState(false);
   const [newCase, setNewCase] = useState({
     patient_name: '', accident_date: '', accident_state: '', sol_period_days: 730,
@@ -103,29 +105,43 @@ export default function CasesList() {
           <h2 className="font-display text-2xl text-foreground">Cases</h2>
           <p className="text-sm text-muted-foreground mt-0.5">{cases?.length || 0} total cases</p>
         </div>
-        <Button onClick={() => setShowNew(true)}>
-          <Plus className="w-4 h-4 mr-1.5" /> New Case
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex bg-card border border-border rounded-lg p-0.5">
+            <button onClick={() => setViewMode('kanban')} className={`p-1.5 rounded-md transition-all ${viewMode === 'kanban' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`} title="Kanban view">
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button onClick={() => setViewMode('table')} className={`p-1.5 rounded-md transition-all ${viewMode === 'table' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`} title="Table view">
+              <Table2 className="w-4 h-4" />
+            </button>
+          </div>
+          <Button onClick={() => setShowNew(true)}>
+            <Plus className="w-4 h-4 mr-1.5" /> New Case
+          </Button>
+        </div>
       </div>
 
-      {/* Search + Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by patient, case #, or attorney..." className="pl-9 h-10" />
-        </div>
-        <div className="flex gap-1 bg-card border border-border rounded-lg p-1">
-          {statuses.map(s => (
-            <button
-              key={s}
-              onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${statusFilter === s ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      </div>
+      {viewMode === 'kanban' ? (
+        <CasePipeline cases={cases || []} isAdmin={isAdmin} />
+      ) : (
+        <>
+          {/* Search + Filters */}
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by patient, case #, or attorney..." className="pl-9 h-10" />
+            </div>
+            <div className="flex gap-1 bg-card border border-border rounded-lg p-1">
+              {statuses.map(s => (
+                <button
+                  key={s}
+                  onClick={() => setStatusFilter(s)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${statusFilter === s ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
 
       {/* Cases Table */}
       {sorted.length === 0 ? (
@@ -188,6 +204,8 @@ export default function CasesList() {
             </tbody>
           </table>
         </div>
+      )}
+        </>
       )}
 
       {/* New Case Modal */}
