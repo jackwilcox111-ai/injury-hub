@@ -29,7 +29,6 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const isAdminOrCM = profile?.role === 'admin' || profile?.role === 'care_manager';
 
   const { data: records, isLoading } = useQuery({
@@ -131,33 +130,6 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
     },
     onError: (e: any) => toast.error(e.message),
   });
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const path = `${caseId}/${Date.now()}-${file.name}`;
-      const { error: uploadError } = await supabase.storage.from('documents').upload(path, file);
-      if (uploadError) throw uploadError;
-      const { error: dbError } = await supabase.from('documents').insert({
-        case_id: caseId,
-        file_name: file.name,
-        storage_path: path,
-        document_type: 'Medical Record',
-        uploader_id: profile?.id,
-        visible_to: ['admin', 'care_manager', 'attorney'],
-      });
-      if (dbError) throw dbError;
-      queryClient.invalidateQueries({ queryKey: ['case-documents', caseId] });
-      toast.success('Document uploaded');
-      setShowUpload(false);
-    } catch (err: any) {
-      toast.error(err.message || 'Upload failed');
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const downloadDoc = async (storagePath: string, fileName: string) => {
     const { data, error } = await supabase.storage.from('documents').createSignedUrl(storagePath, 300);
