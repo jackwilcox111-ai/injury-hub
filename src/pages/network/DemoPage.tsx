@@ -2,6 +2,7 @@ import { PublicLayout } from '@/components/layout/PublicLayout';
 import { Button } from '@/components/ui/button';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
+import demoDashboard from '@/assets/demo-dashboard.png';
 import {
   LayoutDashboard, FolderOpen, Stethoscope, Scale, DollarSign,
   FileSignature, BarChart3, ShieldCheck, Users, Banknote,
@@ -337,6 +338,26 @@ export default function DemoPage() {
             <Button size="lg" variant="outline" onClick={() => navigate('/login')} className="text-sm h-11 px-6">
               Log In
             </Button>
+          </div>
+
+          {/* Dashboard Screenshot */}
+          <div className="mt-12 max-w-4xl mx-auto">
+            <div className="rounded-xl overflow-hidden shadow-2xl border border-border/50 bg-card">
+              <div className="flex items-center gap-1.5 px-4 py-2.5 bg-muted/50 border-b border-border/50">
+                <div className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
+                <div className="w-2.5 h-2.5 rounded-full bg-warning/60" />
+                <div className="w-2.5 h-2.5 rounded-full bg-success/60" />
+                <span className="text-[10px] text-muted-foreground ml-2 font-mono">Got Hurt Injury Network — Dashboard</span>
+              </div>
+              <img
+                src={demoDashboard}
+                alt="Got Hurt Injury Network admin dashboard showing case pipeline, active cases, and stale case alerts"
+                className="w-full h-auto"
+                loading="lazy"
+                width={1952}
+                height={1247}
+              />
+            </div>
           </div>
         </div>
       </section>
