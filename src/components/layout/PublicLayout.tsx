@@ -50,6 +50,8 @@ export function PublicNav() {
           <a href="/#providers" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setMobileOpen(false)}>Providers</a>
           <a href="/#attorneys" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setMobileOpen(false)}>Attorneys</a>
           <a href="/#funders" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setMobileOpen(false)}>Funders</a>
+          <Link to="/demo" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setMobileOpen(false)}>Demo</Link>
+          <Link to="/resources" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setMobileOpen(false)}>Resources</Link>
           <div className="flex gap-2 pt-2">
             <Button variant="outline" size="sm" onClick={() => { navigate('/login'); setMobileOpen(false); }} className="flex-1">Log In</Button>
             <Button size="sm" onClick={() => { navigate('/get-started'); setMobileOpen(false); }} className="flex-1">Get Started</Button>
