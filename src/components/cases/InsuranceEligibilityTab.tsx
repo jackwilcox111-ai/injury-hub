@@ -13,7 +13,6 @@ import { toast } from 'sonner';
 import { ShieldCheck, Plus, CheckCircle2 } from 'lucide-react';
 
 const PRIMARY_BILLING_PATHS = ['Lien', 'PIP', 'MedPay'];
-const PRIMARY_BILLING_PATHS = ['Lien', 'PIP', 'MedPay'];
 const SECONDARY_BILLING_PATHS = ['None', 'Lien', 'PIP', 'MedPay'];
 
 export function InsuranceEligibilityTab({ caseId }: { caseId: string }) {
