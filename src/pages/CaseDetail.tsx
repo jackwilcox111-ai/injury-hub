@@ -36,6 +36,7 @@ import { TimelineTab } from '@/components/cases/TimelineTab';
 import { ColossusTab } from '@/components/cases/ColossusTab';
 import { DemandLettersTab } from '@/components/cases/DemandLettersTab';
 import { CaseMessagesTab } from '@/components/cases/CaseMessagesTab';
+import { SendReferralDialog } from '@/components/cases/SendReferralDialog';
 
 function RecordsBillsDump({ caseId }: { caseId: string }) {
   const { data: docs, isLoading } = useQuery({
@@ -93,6 +94,7 @@ export default function CaseDetail() {
   const queryClient = useQueryClient();
   const isAdmin = profile?.role === 'admin';
   const [showAddAppt, setShowAddAppt] = useState(false);
+  const [showReferral, setShowReferral] = useState(false);
   const [showAddRecord, setShowAddRecord] = useState(false);
   const [showEditRecord, setShowEditRecord] = useState(false);
   const [editRecord, setEditRecord] = useState<any>(null);
@@ -111,7 +113,7 @@ export default function CaseDetail() {
   const { data: patientProfile } = useQuery({
     queryKey: ['patient-profile-for-case', id],
     queryFn: async () => {
-      const { data } = await supabase.from('patient_profiles').select('needs_interpreter').eq('case_id', id!).maybeSingle();
+      const { data } = await supabase.from('patient_profiles').select('needs_interpreter, city, state').eq('case_id', id!).maybeSingle();
       return data;
     },
   });
@@ -388,6 +390,9 @@ export default function CaseDetail() {
                   <Phone className="w-3.5 h-3.5" />{c.patient_phone}
                 </span>
               )}
+              <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => setShowReferral(true)}>
+                <Send className="w-3 h-3" /> Send Referral
+              </Button>
             </div>
             <p className="text-sm text-muted-foreground mt-1">{c.specialty || '—'} · {(c as any).attorneys?.firm_name || 'No attorney'} · {(c as any).providers?.name || 'No provider'}</p>
           </div>
@@ -961,6 +966,14 @@ export default function CaseDetail() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <SendReferralDialog
+        open={showReferral}
+        onOpenChange={setShowReferral}
+        caseId={id!}
+        patientCity={patientProfile?.city}
+        patientState={patientProfile?.state}
+      />
     </div>
   );
 }

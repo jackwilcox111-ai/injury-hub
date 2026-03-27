@@ -2303,6 +2303,71 @@ export type Database = {
           },
         ]
       }
+      referrals: {
+        Row: {
+          case_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          provider_id: string
+          referred_by: string | null
+          specialty: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          case_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          provider_id: string
+          referred_by?: string | null
+          specialty?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          case_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          provider_id?: string
+          referred_by?: string | null
+          specialty?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sol_alerts: {
         Row: {
           acknowledged: boolean | null
