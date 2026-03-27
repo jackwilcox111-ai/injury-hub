@@ -1,0 +1,352 @@
+import { PublicLayout } from '@/components/layout/PublicLayout';
+import { Button } from '@/components/ui/button';
+import { Helmet } from 'react-helmet-async';
+import { useNavigate } from 'react-router-dom';
+import {
+  LayoutDashboard, FolderOpen, Stethoscope, Scale, DollarSign,
+  FileSignature, BarChart3, ShieldCheck, Users, Banknote,
+  CheckSquare, MessageCircle, CalendarDays, GitBranch, ArrowRight,
+  Megaphone, CreditCard, ClipboardCheck
+} from 'lucide-react';
+
+const features = [
+  {
+    icon: LayoutDashboard,
+    title: 'Kanban Case Pipeline',
+    description: 'Visual drag-and-drop pipeline tracking every case from intake through demand prep. Five-stage workflow with real-time status updates, urgency flags, and SoL countdowns.',
+    tags: ['Admin', 'Care Manager'],
+    color: 'hsl(var(--primary))',
+    mockUI: (
+      <div className="flex gap-2 mt-4">
+        {['Intake', 'Referrals Sent', 'In Treatment', 'Records Pending', 'Demand Prep'].map((col, i) => (
+          <div key={col} className="flex-1 rounded-lg bg-accent/40 p-2">
+            <p className="text-[8px] font-bold text-foreground/70 mb-1.5 uppercase tracking-wider">{col}</p>
+            {Array.from({ length: 3 - Math.floor(i / 2) }).map((_, j) => (
+              <div key={j} className="bg-card rounded-md p-1.5 mb-1 border border-border/50 shadow-sm">
+                <div className="h-1.5 w-3/4 bg-muted-foreground/20 rounded mb-1" />
+                <div className="h-1 w-1/2 bg-muted-foreground/10 rounded" />
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    icon: FolderOpen,
+    title: 'Comprehensive Case Detail',
+    description: 'Deep case profiles with tabbed views: billing charges, insurance eligibility, policy details, Colossus scoring, medical records, demand letters, and patient engagement — all in one place.',
+    tags: ['Admin', 'Attorney'],
+    color: 'hsl(var(--warning))',
+    mockUI: (
+      <div className="mt-4 rounded-lg border border-border/50 bg-card overflow-hidden">
+        <div className="flex border-b border-border/50">
+          {['Overview', 'Billing', 'Insurance', 'Records', 'Demand'].map((tab, i) => (
+            <div key={tab} className={`px-3 py-1.5 text-[8px] font-medium ${i === 0 ? 'bg-primary/10 text-primary border-b-2 border-primary' : 'text-muted-foreground'}`}>
+              {tab}
+            </div>
+          ))}
+        </div>
+        <div className="p-2.5 space-y-1.5">
+          {[75, 60, 45, 80].map((w, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <div className="h-1.5 w-16 bg-muted-foreground/15 rounded" />
+              <div className="h-1.5 rounded bg-muted-foreground/10" style={{ width: `${w}%` }} />
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+  },
+  {
+    icon: Stethoscope,
+    title: 'Provider Network Management',
+    description: 'Manage your medical provider network with credentialing tracking, lien management, patient assignments, RCM billing, and interactive map-based directory for public discovery.',
+    tags: ['Admin', 'Provider'],
+    color: 'hsl(var(--settled))',
+    mockUI: (
+      <div className="mt-4 grid grid-cols-3 gap-1.5">
+        {[
+          { label: 'Active Providers', val: '32' },
+          { label: 'Avg Rating', val: '4.7★' },
+          { label: 'Specialties', val: '8' },
+        ].map(s => (
+          <div key={s.label} className="bg-accent/40 rounded-lg p-2 text-center">
+            <p className="text-sm font-bold text-foreground">{s.val}</p>
+            <p className="text-[7px] text-muted-foreground">{s.label}</p>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    icon: Scale,
+    title: 'Attorney Portal & Marketplace',
+    description: 'Customizable attorney dashboards with configurable visibility settings. Built-in case marketplace lets attorneys discover and accept pre-qualified cases that match their criteria.',
+    tags: ['Attorney'],
+    color: 'hsl(var(--warning))',
+    mockUI: (
+      <div className="mt-4 space-y-1.5">
+        {['Case Timeline', 'Medical Specials', 'Policy Limits', 'Demand Letters', 'Settlement Worksheet'].map((item, i) => (
+          <div key={item} className="flex items-center justify-between bg-accent/30 rounded-md px-2.5 py-1.5">
+            <span className="text-[9px] text-foreground/80">{item}</span>
+            <div className={`w-6 h-3 rounded-full ${i < 3 ? 'bg-primary' : 'bg-muted-foreground/20'}`}>
+              <div className={`w-2.5 h-2.5 rounded-full bg-white mt-[1px] ${i < 3 ? 'ml-auto mr-[1px]' : 'ml-[1px]'}`} />
+            </div>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    icon: FileSignature,
+    title: 'AI Demand Letter Generation',
+    description: 'Generate comprehensive demand letters powered by AI with Colossus-factor scoring, medical specials calculation, and multi-version drafting with attorney review workflows.',
+    tags: ['Admin', 'Attorney'],
+    color: 'hsl(var(--destructive))',
+    mockUI: (
+      <div className="mt-4 rounded-lg border border-border/50 bg-card p-3">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-5 h-5 rounded bg-primary/10 flex items-center justify-center">
+            <FileSignature className="w-3 h-3 text-primary" />
+          </div>
+          <div>
+            <div className="h-1.5 w-24 bg-muted-foreground/20 rounded" />
+            <div className="h-1 w-16 bg-muted-foreground/10 rounded mt-0.5" />
+          </div>
+        </div>
+        <div className="space-y-1">
+          {[100, 95, 80, 70, 90].map((w, i) => (
+            <div key={i} className="h-1 rounded bg-muted-foreground/10" style={{ width: `${w}%` }} />
+          ))}
+        </div>
+        <div className="flex gap-1.5 mt-2.5">
+          <div className="px-2 py-0.5 rounded text-[7px] bg-primary/10 text-primary font-medium">Draft v3</div>
+          <div className="px-2 py-0.5 rounded text-[7px] bg-warning/10 text-warning font-medium">Under Review</div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    icon: Banknote,
+    title: 'Funding & Lien Management',
+    description: 'Track funding requests, lien amounts, settlement estimates, and payment disbursements. Full financial lifecycle visibility from treatment through resolution.',
+    tags: ['Admin', 'Funder'],
+    color: 'hsl(var(--success))',
+    mockUI: (
+      <div className="mt-4">
+        <div className="flex items-end gap-1 h-16">
+          {[40, 55, 35, 70, 60, 80, 45, 65, 75, 50, 85, 70].map((h, i) => (
+            <div key={i} className="flex-1 rounded-t" style={{ height: `${h}%`, backgroundColor: i >= 9 ? 'hsl(var(--primary))' : 'hsl(var(--primary) / 0.2)' }} />
+          ))}
+        </div>
+        <div className="flex justify-between mt-1.5">
+          <span className="text-[7px] text-muted-foreground">Jan</span>
+          <span className="text-[7px] text-muted-foreground">Dec</span>
+        </div>
+      </div>
+    ),
+  },
+  {
+    icon: BarChart3,
+    title: 'Reporting & Analytics',
+    description: 'Executive-level dashboards with case volume trends, settlement analytics, provider performance metrics, and revenue cycle tracking across the entire network.',
+    tags: ['Admin'],
+    color: 'hsl(var(--primary))',
+    mockUI: (
+      <div className="mt-4 grid grid-cols-2 gap-1.5">
+        {[
+          { label: 'Total Cases', val: '1,247' },
+          { label: 'Avg Settlement', val: '$34.2K' },
+          { label: 'Recovery Rate', val: '87%' },
+          { label: 'Demand Sent', val: '312' },
+        ].map(s => (
+          <div key={s.label} className="bg-accent/40 rounded-lg p-2">
+            <p className="text-xs font-bold text-foreground">{s.val}</p>
+            <p className="text-[7px] text-muted-foreground">{s.label}</p>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    icon: Megaphone,
+    title: 'Marketer Channel',
+    description: 'Independent marketers submit cases, track referral status, and earn commissions with transparent payout tracking. Built-in compliance with consent verification.',
+    tags: ['Marketer', 'Admin'],
+    color: 'hsl(var(--primary))',
+    mockUI: (
+      <div className="mt-4 space-y-1.5">
+        {[
+          { step: 'Submit Case', status: 'Complete', color: 'bg-success' },
+          { step: 'Quality Review', status: 'Complete', color: 'bg-success' },
+          { step: 'Case Accepted', status: 'In Progress', color: 'bg-warning' },
+          { step: 'Payout Issued', status: 'Pending', color: 'bg-muted-foreground/30' },
+        ].map((s, i) => (
+          <div key={s.step} className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${s.color}`} />
+            <span className="text-[9px] text-foreground/80 flex-1">{s.step}</span>
+            <span className="text-[7px] text-muted-foreground">{s.status}</span>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    icon: ShieldCheck,
+    title: 'HIPAA-Compliant Security',
+    description: 'Role-based access control, audit logging, session timeout protection, and PHI safeguards built into every layer. Document visibility controls ensure data is only seen by authorized parties.',
+    tags: ['All Roles'],
+    color: 'hsl(var(--success))',
+    mockUI: (
+      <div className="mt-4 space-y-1.5">
+        {[
+          { label: 'Role-Based Access', icon: Users },
+          { label: 'Audit Trail', icon: ClipboardCheck },
+          { label: 'Session Timeouts', icon: CalendarDays },
+          { label: 'Encrypted Storage', icon: ShieldCheck },
+        ].map(s => (
+          <div key={s.label} className="flex items-center gap-2 bg-accent/30 rounded-md px-2.5 py-1.5">
+            <s.icon className="w-3 h-3 text-success" />
+            <span className="text-[9px] text-foreground/80">{s.label}</span>
+            <CheckSquare className="w-2.5 h-2.5 text-success ml-auto" />
+          </div>
+        ))}
+      </div>
+    ),
+  },
+];
+
+const rolePortals = [
+  { role: 'Patient', icon: Users, description: 'Personal dashboard, treatment timeline, secure messaging, and appointment tracking', color: 'hsl(var(--primary))' },
+  { role: 'Provider', icon: Stethoscope, description: 'Patient management, RCM billing, lien tracking, and document management', color: 'hsl(var(--settled))' },
+  { role: 'Attorney', icon: Scale, description: 'Case oversight, demand letters, settlement worksheets, and marketplace access', color: 'hsl(var(--warning))' },
+  { role: 'Funder', icon: Banknote, description: 'Portfolio management, case underwriting, and settlement recovery tracking', color: 'hsl(var(--success))' },
+  { role: 'Marketer', icon: Megaphone, description: 'Case submission, referral tracking, earnings dashboard, and compliance tools', color: 'hsl(var(--primary))' },
+  { role: 'Admin', icon: LayoutDashboard, description: 'Full operational control with pipeline management, reporting, and network oversight', color: 'hsl(var(--destructive))' },
+];
+
+export default function DemoPage() {
+  const navigate = useNavigate();
+
+  return (
+    <PublicLayout>
+      <Helmet>
+        <title>Platform Demo | Got Hurt Injury Network</title>
+        <meta name="description" content="See how the Got Hurt Injury Network platform coordinates personal injury care with powerful tools for case management, provider networks, and settlement tracking." />
+      </Helmet>
+
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.04] via-transparent to-transparent" />
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/[0.03] rounded-full blur-3xl" />
+        <div className="max-w-5xl mx-auto px-6 py-16 md:py-24 text-center relative">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-6">
+            <LayoutDashboard className="w-3.5 h-3.5" />
+            Platform Overview
+          </div>
+          <h1 className="text-3xl md:text-5xl font-display font-extrabold text-foreground mb-5 leading-tight">
+            The Command Center for<br />Personal Injury Care
+          </h1>
+          <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
+            See how Got Hurt coordinates every stakeholder — patients, providers, attorneys, funders, and marketers — through a single intelligent platform. Here's what powers the network behind the scenes.
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            <Button size="lg" onClick={() => navigate('/get-started')} className="text-sm h-11 px-6">
+              Get Started <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+            <Button size="lg" variant="outline" onClick={() => navigate('/login')} className="text-sm h-11 px-6">
+              Log In
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Role Portals Overview */}
+      <section className="max-w-5xl mx-auto px-6 pb-16">
+        <div className="text-center mb-10">
+          <h2 className="text-xl md:text-2xl font-display font-bold text-foreground mb-3">
+            One Platform, Six Dedicated Portals
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+            Every stakeholder gets a tailored experience with role-specific tools and dashboards.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {rolePortals.map(p => (
+            <div key={p.role} className="border border-border rounded-xl p-4 bg-card hover:shadow-md transition-shadow">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style={{ backgroundColor: `${p.color}15` }}>
+                <p.icon className="w-4.5 h-4.5" style={{ color: p.color }} />
+              </div>
+              <h3 className="font-display font-bold text-sm text-foreground mb-1">{p.role} Portal</h3>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">{p.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Feature Deep Dives */}
+      <section className="bg-accent/30 border-y border-border/50">
+        <div className="max-w-5xl mx-auto px-6 py-16">
+          <div className="text-center mb-12">
+            <h2 className="text-xl md:text-2xl font-display font-bold text-foreground mb-3">
+              Inside the Platform
+            </h2>
+            <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+              Powerful tools designed specifically for the personal injury workflow.
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {features.map((f, i) => (
+              <div
+                key={f.title}
+                className="border border-border rounded-xl p-5 bg-card hover:shadow-lg transition-all duration-200 group"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${f.color}12` }}>
+                    <f.icon className="w-5 h-5" style={{ color: f.color }} />
+                  </div>
+                  <div className="flex gap-1">
+                    {f.tags.map(tag => (
+                      <span key={tag} className="text-[8px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <h3 className="font-display font-bold text-sm text-foreground mb-1.5">{f.title}</h3>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">{f.description}</p>
+                {f.mockUI}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="max-w-5xl mx-auto px-6 py-16 text-center">
+        <h2 className="text-xl md:text-2xl font-display font-bold text-foreground mb-3">
+          Ready to See It in Action?
+        </h2>
+        <p className="text-sm text-muted-foreground max-w-lg mx-auto mb-8">
+          Join the Got Hurt Injury Network today. Whether you're a patient seeking care, a provider looking to grow your practice, or an attorney building your caseload — we're ready.
+        </p>
+        <div className="flex items-center justify-center gap-3 flex-wrap">
+          <Button size="lg" onClick={() => navigate('/get-started')} className="text-sm h-11 px-6">
+            Get Started as a Patient
+          </Button>
+          <Button size="lg" variant="outline" onClick={() => navigate('/provider/join')} className="text-sm h-11 px-6">
+            Join as a Provider
+          </Button>
+          <Button size="lg" variant="outline" onClick={() => navigate('/attorney/join')} className="text-sm h-11 px-6">
+            Join as an Attorney
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground mt-6">
+          Questions? Call us at <a href="tel:800-729-1570" className="text-primary font-medium hover:underline">800-729-1570</a>
+        </p>
+      </section>
+    </PublicLayout>
+  );
+}
