@@ -29,7 +29,7 @@ export function CtaSection() {
           <Button size="lg" onClick={() => navigate('/get-started')} className="gap-2 h-12 px-7 rounded-lg bg-primary-foreground text-foreground hover:bg-primary-foreground/90 shadow-lg shadow-primary/20">
             I Need Care <ArrowRight className="w-4 h-4" />
           </Button>
-          <Button size="lg" variant="outline" onClick={() => navigate('/login')} className="gap-2 h-12 px-7 rounded-lg border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
+          <Button size="lg" variant="outline" onClick={() => navigate('/login')} className="gap-2 h-12 px-7 rounded-lg border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary-foreground">
             Sign In
           </Button>
         </div>
