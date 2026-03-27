@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,31 +8,17 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { DollarSign, Plus } from 'lucide-react';
-
-const COMMON_CPT = [
-  { code: '99213', desc: 'Office Visit — Established (Moderate)' },
-  { code: '99214', desc: 'Office Visit — Established (High)' },
-  { code: '99203', desc: 'Office Visit — New (Moderate)' },
-  { code: '97140', desc: 'Manual Therapy' },
-  { code: '97110', desc: 'Therapeutic Exercise' },
-  { code: '97112', desc: 'Neuromuscular Re-education' },
-  { code: '72148', desc: 'MRI Lumbar Spine w/o Contrast' },
-  { code: '72141', desc: 'MRI Cervical Spine w/o Contrast' },
-  { code: '20610', desc: 'Injection — Major Joint' },
-  { code: '64483', desc: 'Epidural Steroid Injection — Lumbar' },
-  { code: '27447', desc: 'Total Knee Replacement' },
-  { code: '98940', desc: 'Chiropractic Manipulation — Spinal (1-2 regions)' },
-  { code: '98941', desc: 'Chiropractic Manipulation — Spinal (3-4 regions)' },
-];
+import { DollarSign, Plus, FileText, Upload, X } from 'lucide-react';
 
 const BILLING_PATHS = ['Lien', 'PIP', 'MedPay', 'Insurance'];
 const STATUSES = ['Pending', 'Submitted', 'Paid', 'Denied', 'Adjusted'];
 
 export function BillingChargesTab({ caseId, providers }: { caseId: string; providers: { id: string; name: string }[] }) {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isAdminOrCM = profile?.role === 'admin' || profile?.role === 'care_manager';
 
   const { data: charges, isLoading } = useQuery({
@@ -40,7 +26,7 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
     queryFn: async () => {
       const { data } = await supabase
         .from('charges')
-        .select('*, providers(name)')
+        .select('*, providers(name), documents(file_name, storage_path)')
         .eq('case_id', caseId)
         .order('service_date', { ascending: false });
       return data || [];
@@ -48,8 +34,8 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
   });
 
   const [form, setForm] = useState({
-    provider_id: '', service_date: '', cpt_code: '', cpt_description: '',
-    units: '1', charge_amount: '', billing_path: 'Lien', notes: '',
+    provider_id: '', service_date: '', description: '',
+    units: '1', charge_amount: '', billing_path: 'Lien',
   });
 
   const invalidateChargeDerivedQueries = async () => {
@@ -64,22 +50,49 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
 
   const addMutation = useMutation({
     mutationFn: async () => {
+      let documentId: string | null = null;
+
+      // Upload file first if selected
+      if (selectedFile) {
+        const filePath = `charges/${caseId}/${Date.now()}_${selectedFile.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from('documents')
+          .upload(filePath, selectedFile);
+        if (uploadError) throw uploadError;
+
+        const { data: docData, error: docError } = await supabase
+          .from('documents')
+          .insert({
+            case_id: caseId,
+            file_name: selectedFile.name,
+            storage_path: filePath,
+            document_type: 'bill',
+            uploader_id: user?.id,
+          })
+          .select('id')
+          .single();
+        if (docError) throw docError;
+        documentId = docData.id;
+      }
+
       const { error } = await supabase.from('charges').insert({
         case_id: caseId,
         provider_id: form.provider_id || null,
         service_date: form.service_date,
-        cpt_code: form.cpt_code,
-        cpt_description: form.cpt_description || null,
+        cpt_code: form.description || 'BILL',
+        cpt_description: form.description || null,
         units: Number(form.units) || 1,
         charge_amount: Number(form.charge_amount) || 0,
         billing_path: form.billing_path,
+        document_id: documentId,
       });
       if (error) throw error;
     },
     onSuccess: async () => {
       await invalidateChargeDerivedQueries();
       setShowAdd(false);
-      setForm({ provider_id: '', service_date: '', cpt_code: '', cpt_description: '', units: '1', charge_amount: '', billing_path: 'Lien', notes: '' });
+      setSelectedFile(null);
+      setForm({ provider_id: '', service_date: '', description: '', units: '1', charge_amount: '', billing_path: 'Lien' });
       toast.success('Charge added');
     },
     onError: (e: any) => toast.error(e.message),
@@ -94,11 +107,15 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
     onError: (e: any) => toast.error(e.message),
   });
 
+  const viewDocument = async (storagePath: string) => {
+    const { data } = await supabase.storage.from('documents').createSignedUrl(storagePath, 300);
+    if (data?.signedUrl) window.open(data.signedUrl, '_blank');
+  };
+
   const totalCharges = charges?.reduce((s, c: any) => s + Number(c.charge_amount || 0), 0) || 0;
   const totalPaid = charges?.reduce((s, c: any) => s + Number(c.paid_amount || 0), 0) || 0;
   const totalAR = totalCharges - totalPaid;
 
-  // Per-provider summary
   const providerSummary = charges?.reduce((acc: any, c: any) => {
     const name = c.providers?.name || 'Unknown';
     if (!acc[name]) acc[name] = { charges: 0, paid: 0, count: 0 };
@@ -107,11 +124,6 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
     acc[name].count++;
     return acc;
   }, {}) || {};
-
-  const selectCpt = (code: string) => {
-    const match = COMMON_CPT.find(c => c.code === code);
-    setForm(f => ({ ...f, cpt_code: code, cpt_description: match?.desc || '' }));
-  };
 
   return (
     <div className="space-y-4">
@@ -168,23 +180,33 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
           <table className="w-full text-sm">
             <thead><tr className="border-b border-border bg-accent/50">
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Date</th>
-              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">CPT</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Description</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Path</th>
               <th className="text-right px-4 py-2.5 text-xs font-medium text-muted-foreground">Amount</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Bill</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Status</th>
             </tr></thead>
             <tbody className="divide-y divide-border">
               {charges.map((c: any) => (
                 <tr key={c.id} className="hover:bg-accent/30 transition-colors">
                   <td className="px-4 py-2.5 font-mono-data text-xs">{c.service_date}</td>
-                  <td className="px-4 py-2.5">
-                    <span className="text-xs font-medium text-foreground">{c.cpt_code}</span>
-                    {c.cpt_description && <p className="text-[10px] text-muted-foreground truncate max-w-[180px]">{c.cpt_description}</p>}
-                  </td>
+                  <td className="px-4 py-2.5 text-xs text-foreground truncate max-w-[200px]">{c.cpt_description || c.cpt_code}</td>
                   <td className="px-4 py-2.5 text-xs">{c.providers?.name || '—'}</td>
                   <td className="px-4 py-2.5 text-xs text-muted-foreground">{c.billing_path}</td>
                   <td className="px-4 py-2.5 text-right font-mono-data text-xs tabular-nums">${Number(c.charge_amount).toLocaleString()}</td>
+                  <td className="px-4 py-2.5">
+                    {c.documents?.storage_path ? (
+                      <button
+                        onClick={() => viewDocument(c.documents.storage_path)}
+                        className="text-primary hover:underline flex items-center gap-1 text-xs"
+                      >
+                        <FileText className="w-3 h-3" /> View
+                      </button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </td>
                   <td className="px-4 py-2.5">
                     {isAdminOrCM ? (
                       <Select value={c.status} onValueChange={v => updateStatus.mutate({ id: c.id, status: v })}>
@@ -207,32 +229,8 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Add Charge</DialogTitle></DialogHeader>
           <form onSubmit={ev => { ev.preventDefault(); addMutation.mutate(); }} className="space-y-4">
-            {/* CPT Quick-Select Chips */}
-            <div className="space-y-2">
-              <Label>Quick-Select CPT</Label>
-              <div className="flex flex-wrap gap-1.5">
-                {COMMON_CPT.map(c => (
-                  <button
-                    key={c.code}
-                    type="button"
-                    onClick={() => selectCpt(c.code)}
-                    className={`text-[11px] px-2 py-1 rounded-md border transition-colors ${
-                      form.cpt_code === c.code ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border text-foreground hover:bg-accent'
-                    }`}
-                  >
-                    {c.code}
-                  </button>
-                ))}
-              </div>
-            </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>CPT Code *</Label><Input value={form.cpt_code} onChange={e => setForm(f => ({ ...f, cpt_code: e.target.value }))} required /></div>
               <div className="space-y-2"><Label>Service Date *</Label><Input type="date" value={form.service_date} onChange={e => setForm(f => ({ ...f, service_date: e.target.value }))} required /></div>
-            </div>
-            <div className="space-y-2"><Label>Description</Label><Input value={form.cpt_description} onChange={e => setForm(f => ({ ...f, cpt_description: e.target.value }))} /></div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2"><Label>Amount ($) *</Label><Input type="number" value={form.charge_amount} onChange={e => setForm(f => ({ ...f, charge_amount: e.target.value }))} required /></div>
-              <div className="space-y-2"><Label>Units</Label><Input type="number" value={form.units} onChange={e => setForm(f => ({ ...f, units: e.target.value }))} /></div>
               <div className="space-y-2">
                 <Label>Billing Path</Label>
                 <Select value={form.billing_path} onValueChange={v => setForm(f => ({ ...f, billing_path: v }))}>
@@ -241,6 +239,11 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
                 </Select>
               </div>
             </div>
+            <div className="space-y-2"><Label>Description</Label><Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="e.g. Office visit, MRI, Injection..." /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2"><Label>Amount ($) *</Label><Input type="number" value={form.charge_amount} onChange={e => setForm(f => ({ ...f, charge_amount: e.target.value }))} required /></div>
+              <div className="space-y-2"><Label>Units</Label><Input type="number" value={form.units} onChange={e => setForm(f => ({ ...f, units: e.target.value }))} /></div>
+            </div>
             <div className="space-y-2">
               <Label>Provider</Label>
               <Select value={form.provider_id} onValueChange={v => setForm(f => ({ ...f, provider_id: v }))}>
@@ -248,9 +251,38 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
                 <SelectContent>{providers.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
               </Select>
             </div>
+
+            {/* Document Upload */}
+            <div className="space-y-2">
+              <Label>Attach Bill (PDF)</Label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,application/pdf"
+                className="hidden"
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) setSelectedFile(file);
+                }}
+              />
+              {selectedFile ? (
+                <div className="flex items-center gap-2 bg-accent/30 rounded-lg px-3 py-2">
+                  <FileText className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-xs text-foreground truncate flex-1">{selectedFile.name}</span>
+                  <button type="button" onClick={() => { setSelectedFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }} className="text-muted-foreground hover:text-foreground">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <Button type="button" variant="outline" className="w-full h-9 text-xs" onClick={() => fileInputRef.current?.click()}>
+                  <Upload className="w-3.5 h-3.5 mr-1.5" /> Choose PDF...
+                </Button>
+              )}
+            </div>
+
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
-              <Button type="submit" disabled={addMutation.isPending || !form.cpt_code || !form.service_date}>Add Charge</Button>
+              <Button type="submit" disabled={addMutation.isPending || !form.service_date}>Add Charge</Button>
             </div>
           </form>
         </DialogContent>
