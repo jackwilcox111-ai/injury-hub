@@ -210,7 +210,7 @@ export default function AttorneyPortal() {
             <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground">Patient</th>
             <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground">Status</th>
             <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground">SoL</th>
-            <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground">Progress</th>
+            
             {cadence === 'Weekly' && <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground">Weekly</th>}
           </tr></thead>
           <tbody>
@@ -224,7 +224,7 @@ export default function AttorneyPortal() {
                 <td className="px-4 py-3 text-foreground">{c.patient_name}</td>
                 <td className="px-4 py-3"><StatusBadge status={c.status || ''} /></td>
                 <td className="px-4 py-3"><SoLCountdown sol_date={c.sol_date} /></td>
-                <td className="px-4 py-3"><ProgressBar completed={c.appointments_completed || 0} total={c.appointments_total || 0} /></td>
+                
                 {cadence === 'Weekly' && (
                   <td className="px-4 py-3">
                     <Button size="sm" variant="ghost" className="text-[10px] h-6" onClick={e => { e.stopPropagation(); setWeeklyModal(c.id); }}>
