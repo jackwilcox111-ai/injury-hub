@@ -1,6 +1,6 @@
 import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
-import logo from '@/assets/logo.png';
+
 import {
   LayoutDashboard, FolderOpen, Stethoscope, Scale,
   DollarSign, CalendarDays, Settings, LogOut, ShieldCheck,
@@ -73,7 +73,9 @@ export function AppSidebar() {
       {/* Logo */}
       <div className="px-5 py-5 border-b border-sidebar-border">
         <div className="flex items-center gap-2.5">
-          <img src={logo} alt="Got Hurt Injury Network" className="w-8 h-8 object-contain" />
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <span className="text-primary-foreground font-display font-bold text-xs">GH</span>
+          </div>
           <div>
             <h1 className="font-display text-sm font-bold tracking-tight text-foreground leading-none">
               Got Hurt Injury Network

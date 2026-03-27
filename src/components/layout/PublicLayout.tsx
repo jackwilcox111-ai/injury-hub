@@ -2,7 +2,7 @@ import { ReactNode, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
-import logo from '@/assets/logo.png';
+
 
 export function PublicNav() {
   const navigate = useNavigate();
@@ -12,7 +12,6 @@ export function PublicNav() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-card/90 backdrop-blur-lg border-b border-border/60">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5">
-          <img src={logo} alt="Got Hurt Injury Network" className="w-9 h-9 object-contain" />
           <span className="font-display text-base font-bold tracking-tight text-foreground">Got Hurt Injury Network</span>
         </Link>
 
@@ -66,7 +65,6 @@ export function PublicFooter() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2.5 mb-4">
-              <img src={logo} alt="Got Hurt Injury Network" className="w-8 h-8 object-contain" />
               <span className="font-display text-sm font-bold text-primary-foreground">Got Hurt Injury Network</span>
             </div>
             <p className="text-sm max-w-sm leading-relaxed">
