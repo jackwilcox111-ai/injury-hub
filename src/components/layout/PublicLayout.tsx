@@ -23,6 +23,7 @@ export function PublicNav() {
             <a href="/#providers" className="hover:text-foreground transition-colors">Providers</a>
             <a href="/#attorneys" className="hover:text-foreground transition-colors">Attorneys</a>
             <a href="/#funders" className="hover:text-foreground transition-colors">Funders</a>
+            <Link to="/demo" className="hover:text-foreground transition-colors">Demo</Link>
           </div>
           <div className="flex items-center gap-2.5">
             <Button variant="ghost" size="sm" onClick={() => navigate('/login')} className="text-[13px] font-medium">
