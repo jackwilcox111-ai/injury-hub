@@ -40,12 +40,6 @@ const navItems = [
   { title: 'Messages', path: '/patient/messages', icon: MessageCircle, roles: ['patient'] as UserRole[] },
   // Funder sidebar
   { title: 'Portfolio', path: '/funder/dashboard', icon: Banknote, roles: ['funder'] as UserRole[] },
-  // Marketer sidebar
-  { title: 'Dashboard', path: '/marketer/dashboard', icon: LayoutDashboard, roles: ['marketer'] as UserRole[] },
-  { title: 'Submit a Case', path: '/marketer/submit', icon: PlusCircle, roles: ['marketer'] as UserRole[] },
-  { title: 'My Cases', path: '/marketer/cases', icon: FolderOpen, roles: ['marketer'] as UserRole[] },
-  { title: 'Earnings', path: '/marketer/earnings', icon: DollarSign, roles: ['marketer'] as UserRole[] },
-  { title: 'Settings', path: '/marketer/settings', icon: Settings, roles: ['marketer'] as UserRole[] },
 ];
 
 const roleBadgeStyles: Record<string, string> = {
