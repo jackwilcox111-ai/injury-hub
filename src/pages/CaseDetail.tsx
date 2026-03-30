@@ -39,6 +39,7 @@ import { CaseMessagesTab } from '@/components/cases/CaseMessagesTab';
 import { SendReferralDialog } from '@/components/cases/SendReferralDialog';
 import { ProviderReferralsModule } from '@/components/cases/ProviderReferralsModule';
 import { CaseTimelineSidebar } from '@/components/cases/CaseTimelineSidebar';
+import { CaseProgressStepper } from '@/components/cases/CaseProgressStepper';
 
 
 function RecordsBillsDump({ caseId }: { caseId: string }) {
