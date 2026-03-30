@@ -218,35 +218,15 @@ export default function CasesList() {
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle className="font-display text-lg">New Case</DialogTitle></DialogHeader>
           <form onSubmit={e => { e.preventDefault(); createCase.mutate(); }} className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Client Name *</Label>
-              <Input value={newCase.patient_name} onChange={e => setNewCase(p => ({...p, patient_name: e.target.value}))} required className="h-10" />
-            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Date of Loss *</Label>
-                <Input type="date" value={newCase.accident_date} onChange={e => setNewCase(p => ({...p, accident_date: e.target.value}))} required className="h-10" />
+                <Label className="text-sm font-medium">First Name *</Label>
+                <Input value={newCase.first_name} onChange={e => setNewCase(p => ({...p, first_name: e.target.value}))} required className="h-10" />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">State *</Label>
-                <Select value={newCase.accident_state} onValueChange={v => setNewCase(p => ({...p, accident_state: v}))}>
-                  <SelectTrigger className="h-10"><SelectValue placeholder="Select state..." /></SelectTrigger>
-                  <SelectContent>
-                    {US_STATES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <Label className="text-sm font-medium">Last Name *</Label>
+                <Input value={newCase.last_name} onChange={e => setNewCase(p => ({...p, last_name: e.target.value}))} required className="h-10" />
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Case Type</Label>
-              <Select value={newCase.case_type} onValueChange={v => setNewCase(p => ({...p, case_type: v}))}>
-                <SelectTrigger className="h-10"><SelectValue placeholder="Select case type..." /></SelectTrigger>
-                <SelectContent>
-                  {['Personal Injury', 'Motor Vehicle Collision', 'Malpractice', 'Wrongful Death', 'Slip & Fall', 'Product Liability', 'Workers Compensation', 'Other'].map(t => (
-                    <SelectItem key={t} value={t}>{t}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -256,6 +236,73 @@ export default function CasesList() {
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Client Email *</Label>
                 <Input type="email" value={newCase.patient_email} onChange={e => setNewCase(p => ({...p, patient_email: e.target.value}))} required className="h-10" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Date of Loss *</Label>
+                <Input type="date" value={newCase.accident_date} onChange={e => setNewCase(p => ({...p, accident_date: e.target.value}))} required className="h-10" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Request Date *</Label>
+                <Input type="date" value={newCase.request_date} onChange={e => setNewCase(p => ({...p, request_date: e.target.value}))} required className="h-10" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Preferred Language *</Label>
+                <Select value={newCase.preferred_language} onValueChange={v => setNewCase(p => ({...p, preferred_language: v}))}>
+                  <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {LANGUAGES.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Urgent</Label>
+                <Select value={newCase.urgent ? 'Yes' : 'No'} onValueChange={v => setNewCase(p => ({...p, urgent: v === 'Yes'}))}>
+                  <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="No">No</SelectItem>
+                    <SelectItem value="Yes">Yes</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">State *</Label>
+                <Select value={newCase.accident_state} onValueChange={v => setNewCase(p => ({...p, accident_state: v}))}>
+                  <SelectTrigger className="h-10"><SelectValue placeholder="Select state..." /></SelectTrigger>
+                  <SelectContent>
+                    {US_STATES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Case Type</Label>
+                <Select value={newCase.case_type} onValueChange={v => setNewCase(p => ({...p, case_type: v}))}>
+                  <SelectTrigger className="h-10"><SelectValue placeholder="Select case type..." /></SelectTrigger>
+                  <SelectContent>
+                    {['Personal Injury', 'Motor Vehicle Collision', 'Malpractice', 'Wrongful Death', 'Slip & Fall', 'Product Liability', 'Workers Compensation', 'Other'].map(t => (
+                      <SelectItem key={t} value={t}>{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Law Firm Website *</Label>
+              <Input value={newCase.law_firm_website} onChange={e => setNewCase(p => ({...p, law_firm_website: e.target.value}))} required className="h-10" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Case Manager Email *</Label>
+                <Input type="email" value={newCase.case_manager_email} onChange={e => setNewCase(p => ({...p, case_manager_email: e.target.value}))} required className="h-10" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Case Manager Phone *</Label>
+                <Input value={newCase.case_manager_phone} onChange={e => setNewCase(p => ({...p, case_manager_phone: e.target.value}))} required className="h-10" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
