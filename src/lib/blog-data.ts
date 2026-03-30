@@ -14,7 +14,7 @@ export const BLOG_CATEGORIES = [
   { value: 'patients', label: 'For Patients' },
   { value: 'providers', label: 'For Providers' },
   { value: 'attorneys', label: 'For Attorneys' },
-  { value: 'marketers', label: 'For Marketers' },
+  
   { value: 'general', label: 'Industry Insights' },
 ] as const;
 
