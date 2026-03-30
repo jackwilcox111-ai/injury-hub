@@ -1,0 +1,2 @@
+ALTER TABLE public.cases DROP CONSTRAINT cases_status_check;
+ALTER TABLE public.cases ADD CONSTRAINT cases_status_check CHECK (status = ANY (ARRAY['Intake'::text, 'Referrals Sent'::text, 'In Treatment'::text, 'Records Pending'::text, 'Demand Prep'::text, 'Settled'::text]));
