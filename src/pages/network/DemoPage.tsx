@@ -279,7 +279,7 @@ const rolePortals = [
   { role: 'Provider', icon: Stethoscope, description: 'Patient management, RCM billing, lien tracking, and document management', color: 'hsl(var(--settled))' },
   { role: 'Attorney', icon: Scale, description: 'Case oversight, demand letters, settlement worksheets, and marketplace access', color: 'hsl(var(--warning))' },
   { role: 'Funder', icon: Banknote, description: 'Portfolio management, case underwriting, and settlement recovery tracking', color: 'hsl(var(--success))' },
-  { role: 'Marketer', icon: Megaphone, description: 'Case submission, referral tracking, earnings dashboard, and compliance tools', color: 'hsl(var(--primary))' },
+  
   { role: 'Case Management', icon: LayoutDashboard, description: 'Full operational control with pipeline management, reporting, and network oversight', color: 'hsl(var(--destructive))' },
 ];
 
