@@ -7,7 +7,7 @@ import {
   LayoutDashboard, FolderOpen, Stethoscope, Scale, DollarSign,
   FileSignature, BarChart3, ShieldCheck, Users, Banknote,
   CheckSquare, MessageCircle, CalendarDays, GitBranch, ArrowRight,
-  Megaphone, CreditCard, ClipboardCheck
+  CreditCard, ClipboardCheck
 } from 'lucide-react';
 
 const features = [
