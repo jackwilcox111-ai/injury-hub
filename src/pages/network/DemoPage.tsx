@@ -146,29 +146,6 @@ const features = [
     ),
   },
   {
-    icon: Megaphone,
-    title: 'Marketer Channel',
-    description: 'Independent marketers submit cases, track referral status, and earn commissions with transparent payout tracking. Built-in compliance with consent verification.',
-    tags: ['Marketer', 'Admin'],
-    color: 'hsl(var(--primary))',
-    mockUI: (
-      <div className="mt-4 space-y-1.5">
-        {[
-          { step: 'Submit Case', status: 'Complete', color: 'bg-success' },
-          { step: 'Quality Review', status: 'Complete', color: 'bg-success' },
-          { step: 'Case Accepted', status: 'In Progress', color: 'bg-warning' },
-          { step: 'Payout Issued', status: 'Pending', color: 'bg-muted-foreground/30' },
-        ].map((s, i) => (
-          <div key={s.step} className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${s.color}`} />
-            <span className="text-[9px] text-foreground/80 flex-1">{s.step}</span>
-            <span className="text-[7px] text-muted-foreground">{s.status}</span>
-          </div>
-        ))}
-      </div>
-    ),
-  },
-  {
     icon: ShieldCheck,
     title: 'HIPAA-Compliant Security',
     description: 'Role-based access control, audit logging, session timeout protection, and PHI safeguards built into every layer. Document visibility controls ensure data is only seen by authorized parties.',
