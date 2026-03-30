@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { Plus, Search, Phone, LayoutGrid, Table2 } from 'lucide-react';
 import { PHIBanner } from '@/components/global/PHIBanner';
+import { US_STATES } from '@/lib/us-states';
 import { SortableHeader } from '@/components/global/SortableHeader';
 import { useSortableTable } from '@/hooks/use-sortable-table';
 import { CasePipeline } from '@/components/dashboard/CasePipeline';
@@ -34,7 +35,7 @@ export default function CasesList() {
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
   const [showNew, setShowNew] = useState(false);
   const [newCase, setNewCase] = useState({
-    patient_name: '', accident_date: '', accident_state: '', sol_period_days: 730,
+    patient_name: '', accident_date: '', accident_state: '', case_type: '',
     patient_phone: '', patient_email: '', attorney_id: '', specialty: '',
   });
 
@@ -64,7 +65,6 @@ export default function CasesList() {
         patient_name: newCase.patient_name,
         accident_date: newCase.accident_date || null,
         accident_state: newCase.accident_state || null,
-        sol_period_days: newCase.sol_period_days,
         patient_phone: newCase.patient_phone || null,
         patient_email: newCase.patient_email || null,
         attorney_id: newCase.attorney_id || null,
@@ -78,7 +78,7 @@ export default function CasesList() {
       toast.success(`Case ${data.case_number} created`);
       queryClient.invalidateQueries({ queryKey: ['cases-list'] });
       setShowNew(false);
-      setNewCase({ patient_name: '', accident_date: '', accident_state: '', sol_period_days: 730, patient_phone: '', patient_email: '', attorney_id: '', specialty: '' });
+      setNewCase({ patient_name: '', accident_date: '', accident_state: '', case_type: '', patient_phone: '', patient_email: '', attorney_id: '', specialty: '' });
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -211,23 +211,34 @@ export default function CasesList() {
           <DialogHeader><DialogTitle className="font-display text-lg">New Case</DialogTitle></DialogHeader>
           <form onSubmit={e => { e.preventDefault(); createCase.mutate(); }} className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Patient Name *</Label>
+              <Label className="text-sm font-medium">Client Name *</Label>
               <Input value={newCase.patient_name} onChange={e => setNewCase(p => ({...p, patient_name: e.target.value}))} required className="h-10" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Accident Date *</Label>
+                <Label className="text-sm font-medium">Date of Loss *</Label>
                 <Input type="date" value={newCase.accident_date} onChange={e => setNewCase(p => ({...p, accident_date: e.target.value}))} required className="h-10" />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Accident State *</Label>
-                <Input value={newCase.accident_state} onChange={e => setNewCase(p => ({...p, accident_state: e.target.value}))} placeholder="FL" required className="h-10" />
+                <Label className="text-sm font-medium">State *</Label>
+                <Select value={newCase.accident_state} onValueChange={v => setNewCase(p => ({...p, accident_state: v}))}>
+                  <SelectTrigger className="h-10"><SelectValue placeholder="Select state..." /></SelectTrigger>
+                  <SelectContent>
+                    {US_STATES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm font-medium">SoL Period (days)</Label>
-              <Input type="number" value={newCase.sol_period_days} onChange={e => setNewCase(p => ({...p, sol_period_days: Number(e.target.value)}))} className="h-10" />
-              <p className="text-xs text-muted-foreground">FL/TX/CA/GA = 730, NY = 1095. Confirm with legal counsel.</p>
+              <Label className="text-sm font-medium">Case Type</Label>
+              <Select value={newCase.case_type} onValueChange={v => setNewCase(p => ({...p, case_type: v}))}>
+                <SelectTrigger className="h-10"><SelectValue placeholder="Select case type..." /></SelectTrigger>
+                <SelectContent>
+                  {['Personal Injury', 'Motor Vehicle Collision', 'Malpractice', 'Wrongful Death', 'Slip & Fall', 'Product Liability', 'Workers Compensation', 'Other'].map(t => (
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
