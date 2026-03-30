@@ -113,6 +113,7 @@ export function InsuranceEligibilityTab({ caseId }: { caseId: string }) {
           <table className="w-full text-xs">
             <thead>
               <tr className="bg-muted/50 text-muted-foreground">
+                <th className="w-8 text-center px-3 py-2 font-medium">#</th>
                 <th className="text-left px-3 py-2 font-medium">Billing Path</th>
                 <th className="text-left px-3 py-2 font-medium">Carrier</th>
                 <th className="text-left px-3 py-2 font-medium">Policy #</th>
@@ -122,39 +123,57 @@ export function InsuranceEligibilityTab({ caseId }: { caseId: string }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {eligibility.map((e: any) => (
-                <tr key={e.id} className="bg-card hover:bg-muted/30 transition-colors">
-                  <td className="px-3 py-2">
-                    <div className="flex items-center gap-1.5">
+              {eligibility.flatMap((e: any, idx: number) => {
+                const rows = [];
+                const rowNum = rows.length;
+                // Primary billing path row
+                rows.push(
+                  <tr key={`${e.id}-primary`} className="bg-card hover:bg-muted/30 transition-colors">
+                    <td className="px-3 py-2 text-center text-muted-foreground">{idx * 2 + 1}</td>
+                    <td className="px-3 py-2">
                       <span className={`font-medium px-1.5 py-0.5 rounded-full border ${billingPathColor(e.primary_billing_path)}`}>
-                        1° {e.primary_billing_path}
+                        {e.primary_billing_path}
                       </span>
-                      {e.secondary_billing_path && (
-                        <span className={`font-medium px-1.5 py-0.5 rounded-full border ${billingPathColor(e.secondary_billing_path)}`}>
-                          2° {e.secondary_billing_path}
+                    </td>
+                    <td className="px-3 py-2 text-foreground">{e.carrier_name || '—'}</td>
+                    <td className="px-3 py-2 font-mono text-foreground">{e.policy_number || '—'}</td>
+                    <td className="px-3 py-2 text-right font-mono text-foreground tabular-nums">{e.coverage_limit ? `$${Number(e.coverage_limit).toLocaleString()}` : '—'}</td>
+                    <td className="px-3 py-2 text-muted-foreground max-w-[200px] truncate">{e.notes || '—'}</td>
+                    <td className="px-3 py-2 text-right">
+                      {e.verified ? (
+                        <span className="flex items-center justify-end gap-1 text-emerald-600">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Verified
                         </span>
+                      ) : isAdminOrCM ? (
+                        <Button size="sm" variant="ghost" className="h-6 text-xs text-primary px-2" onClick={() => verifyMutation.mutate(e.id)}>
+                          Verify
+                        </Button>
+                      ) : (
+                        <span className="text-amber-600">Unverified</span>
                       )}
-                    </div>
-                  </td>
-                  <td className="px-3 py-2 text-foreground">{e.carrier_name || '—'}</td>
-                  <td className="px-3 py-2 font-mono text-foreground">{e.policy_number || '—'}</td>
-                  <td className="px-3 py-2 text-right font-mono text-foreground tabular-nums">{e.coverage_limit ? `$${Number(e.coverage_limit).toLocaleString()}` : '—'}</td>
-                  <td className="px-3 py-2 text-muted-foreground max-w-[200px] truncate">{e.notes || '—'}</td>
-                  <td className="px-3 py-2 text-right">
-                    {e.verified ? (
-                      <span className="flex items-center justify-end gap-1 text-emerald-600">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Verified
-                      </span>
-                    ) : isAdminOrCM ? (
-                      <Button size="sm" variant="ghost" className="h-6 text-xs text-primary px-2" onClick={() => verifyMutation.mutate(e.id)}>
-                        Verify
-                      </Button>
-                    ) : (
-                      <span className="text-amber-600">Unverified</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                  </tr>
+                );
+                // Secondary billing path row (if exists)
+                if (e.secondary_billing_path) {
+                  rows.push(
+                    <tr key={`${e.id}-secondary`} className="bg-card hover:bg-muted/30 transition-colors">
+                      <td className="px-3 py-2 text-center text-muted-foreground">{idx * 2 + 2}</td>
+                      <td className="px-3 py-2">
+                        <span className={`font-medium px-1.5 py-0.5 rounded-full border ${billingPathColor(e.secondary_billing_path)}`}>
+                          {e.secondary_billing_path}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 text-muted-foreground">—</td>
+                      <td className="px-3 py-2 text-muted-foreground">—</td>
+                      <td className="px-3 py-2 text-muted-foreground">—</td>
+                      <td className="px-3 py-2 text-muted-foreground">—</td>
+                      <td className="px-3 py-2"></td>
+                    </tr>
+                  );
+                }
+                return rows;
+              })}
             </tbody>
           </table>
         </div>
