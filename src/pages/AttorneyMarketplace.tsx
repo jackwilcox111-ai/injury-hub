@@ -41,39 +41,6 @@ export default function AttorneyMarketplace() {
         marketplace_accepted_at: new Date().toISOString(),
       }).eq('id', c.id);
 
-      // Create payout if fee structure exists
-      if (c.marketer_id) {
-        const { data: fees } = await (supabase.from('fee_structures') as any)
-          .select('*').eq('trigger_event', 'Case Accepted').eq('active', true);
-
-        if (fees && fees.length > 0) {
-          // Check for marketer-specific fee first, else use global
-          const specificFee = fees.find((f: any) => f.applies_to === 'Specific Marketer' && f.marketer_id === c.marketer_id);
-          const fee = specificFee || fees.find((f: any) => f.applies_to === 'All') || fees[0];
-
-          await (supabase.from('marketer_payouts') as any).insert({
-            marketer_id: c.marketer_id,
-            case_id: c.id,
-            trigger_event: 'Case Accepted',
-            amount: fee.amount,
-            status: 'Pending',
-          });
-        }
-
-        // Notify marketer
-        const { data: mp } = await (supabase.from('marketer_profiles') as any)
-          .select('profile_id').eq('id', c.marketer_id).single();
-        if (mp?.profile_id) {
-          await (supabase.from('notifications') as any).insert({
-            recipient_id: mp.profile_id,
-            title: 'Case Accepted',
-            message: `Your case ${c.case_number} has been accepted by a network attorney.`,
-            link: `/marketer/cases`,
-          });
-        }
-      }
-
-      // Notify attorney (self)
       await (supabase.from('notifications') as any).insert({
         recipient_id: profile!.id,
         title: 'Case Accepted',
