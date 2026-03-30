@@ -54,6 +54,7 @@ import FindProvider from "./pages/network/FindProvider";
 import DemoPage from "./pages/network/DemoPage";
 import ResourcesPage from "./pages/network/ResourcesPage";
 import ResourceDetail from "./pages/network/ResourceDetail";
+import ReferralAccept from "./pages/network/ReferralAccept";
 import { ReactNode } from "react";
 
 const queryClient = new QueryClient();
@@ -108,6 +109,7 @@ const App = () => (
             <Route path="/resources" element={<ResourcesPage />} />
             <Route path="/resources/:slug" element={<ResourceDetail />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/referral/accept" element={<ReferralAccept />} />
 
             {/* Admin / Care Manager / Attorney portal routes */}
             <Route path="/home" element={<AuthRedirect />} />

@@ -37,6 +37,8 @@ import { ColossusTab } from '@/components/cases/ColossusTab';
 import { DemandLettersTab } from '@/components/cases/DemandLettersTab';
 import { CaseMessagesTab } from '@/components/cases/CaseMessagesTab';
 import { SendReferralDialog } from '@/components/cases/SendReferralDialog';
+import { ProviderReferralsModule } from '@/components/cases/ProviderReferralsModule';
+import { CaseTimelineSidebar } from '@/components/cases/CaseTimelineSidebar';
 
 function RecordsBillsDump({ caseId }: { caseId: string }) {
   const { data: docs, isLoading } = useQuery({
@@ -573,55 +575,69 @@ export default function CaseDetail() {
         )}
       </div>
 
-      {/* Appointments Table */}
-      <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
-        <div className="px-5 py-4 border-b border-border flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Appointments</h3>
-          <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => {
-            if (c.status === 'Settled') { toast.error('Cannot add appointments to a settled case.'); return; }
-            setShowAddAppt(true);
-          }}>+ Appointment</Button>
-        </div>
-        <table className="w-full text-sm">
-          <thead><tr className="border-b border-border bg-accent/50">
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Date</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Provider</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Specialty</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Notes</th>
-            {needsInterpreter && <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Interpreter</th>}
-          </tr></thead>
-          <tbody className="divide-y divide-border">
-            {appointments?.map(a => (
-              <tr key={a.id} className="hover:bg-accent/30 transition-colors">
-                <td className="px-5 py-3 font-mono text-xs">{a.scheduled_date ? format(new Date(a.scheduled_date), 'MMM d, yyyy HH:mm') : '—'}</td>
-                <td className="px-5 py-3 text-xs font-medium">{(a as any).providers?.name || '—'}</td>
-                <td className="px-5 py-3 text-xs text-muted-foreground">{a.specialty || '—'}</td>
-                <td className="px-5 py-3">
-                  <Select value={a.status} onValueChange={v => updateApptStatus.mutate({ apptId: a.id, status: v })}>
-                    <SelectTrigger className="h-7 text-xs w-28"><SelectValue /></SelectTrigger>
-                    <SelectContent>{['Scheduled','Completed','No-Show','Cancelled'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                  </Select>
-                </td>
-                <td className="px-5 py-3 text-xs text-muted-foreground max-w-[200px] truncate">{a.notes || '—'}</td>
-                {needsInterpreter && (
-                  <td className="px-5 py-3">
-                    {(a as any).interpreter_confirmed ? (
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
-                        <Languages className="w-3 h-3" /> Confirmed
-                      </span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
+      {/* Provider Referrals */}
+      <ProviderReferralsModule caseId={id!} onSendReferral={() => setShowReferral(true)} />
+
+      {/* Two-column: Appointments + Timeline */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Appointments Table */}
+        <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
+          <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground">Appointments</h3>
+            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => {
+              if (c.status === 'Settled') { toast.error('Cannot add appointments to a settled case.'); return; }
+              setShowAddAppt(true);
+            }}>+ Appointment</Button>
+          </div>
+          <table className="w-full text-sm">
+            <thead><tr className="border-b border-border bg-accent/50">
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Date</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Status</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Notes</th>
+              {needsInterpreter && <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Interp.</th>}
+            </tr></thead>
+            <tbody className="divide-y divide-border">
+              {appointments?.map(a => (
+                <tr key={a.id} className="hover:bg-accent/30 transition-colors">
+                  <td className="px-4 py-2.5 font-mono text-[11px]">{a.scheduled_date ? format(new Date(a.scheduled_date), 'MMM d, yyyy') : '—'}</td>
+                  <td className="px-4 py-2.5 text-xs font-medium">{(a as any).providers?.name || '—'}</td>
+                  <td className="px-4 py-2.5">
+                    <Select value={a.status} onValueChange={v => updateApptStatus.mutate({ apptId: a.id, status: v })}>
+                      <SelectTrigger className="h-7 text-xs w-24"><SelectValue /></SelectTrigger>
+                      <SelectContent>{['Scheduled','Completed','No-Show','Cancelled'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                    </Select>
                   </td>
-                )}
-              </tr>
-            ))}
-            {(!appointments || appointments.length === 0) && (
-              <tr><td colSpan={needsInterpreter ? 6 : 5} className="px-5 py-12 text-center text-muted-foreground text-sm">No appointments yet</td></tr>
-            )}
-          </tbody>
-        </table>
+                  <td className="px-4 py-2.5 text-xs text-muted-foreground max-w-[120px] truncate">{a.notes || '—'}</td>
+                  {needsInterpreter && (
+                    <td className="px-4 py-2.5">
+                      {(a as any).interpreter_confirmed ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full">
+                          <Languages className="w-3 h-3" /> ✓
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </td>
+                  )}
+                </tr>
+              ))}
+              {(!appointments || appointments.length === 0) && (
+                <tr><td colSpan={needsInterpreter ? 5 : 4} className="px-4 py-12 text-center text-muted-foreground text-sm">No appointments yet</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Case Timeline Sidebar */}
+        <CaseTimelineSidebar
+          caseId={id!}
+          onViewFullTimeline={() => {
+            // Scroll to tabs and select timeline
+            const tabsEl = document.querySelector('[data-value="timeline"]');
+            if (tabsEl) (tabsEl as HTMLElement).click();
+          }}
+        />
       </div>
 
       {/* Records */}
@@ -971,6 +987,7 @@ export default function CaseDetail() {
         open={showReferral}
         onOpenChange={setShowReferral}
         caseId={id!}
+        caseNumber={c.case_number}
         patientCity={patientProfile?.city}
         patientState={patientProfile?.state}
       />
