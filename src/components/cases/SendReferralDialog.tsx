@@ -57,8 +57,11 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
     enabled: open,
   });
 
-  const specialties = [...new Set(providers?.map(p => p.specialty).filter(Boolean) || [])].sort();
-  const filteredProviders = specialty ? providers?.filter(p => p.specialty === specialty) : providers;
+  const specialties = useMemo(() => {
+    if (isAttorney) return [...SPECIALTIES];
+    return [...new Set(providers?.map(p => p.specialty).filter(Boolean) || [])].sort();
+  }, [isAttorney, providers]);
+
 
   // Attorney flow: create a task for the care manager
   const createTask = useMutation({
