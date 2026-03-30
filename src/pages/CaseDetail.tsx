@@ -649,6 +649,9 @@ export default function CaseDetail() {
           <WorkPlanTab caseId={id!} caseStatus={c.status || ''} />
         </TabsContent>
 
+        <TabsContent value="policy" className="p-5">
+          <PolicyDetailsTab caseId={id!} />
+
       </Tabs>
 
       {/* Modals */}
