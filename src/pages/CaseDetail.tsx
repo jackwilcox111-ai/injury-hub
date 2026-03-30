@@ -406,7 +406,12 @@ export default function CaseDetail() {
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-4">
+        {/* Pipeline Progress Stepper */}
+        <div className="mb-5">
+          <CaseProgressStepper currentStatus={c.status || ''} />
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Status</Label>
             <Select value={c.status || ''} onValueChange={handleStatusChange}>
