@@ -53,16 +53,7 @@ export default function AdminCaseQueue() {
 
   const requestInfo = useMutation({
     mutationFn: async () => {
-      const c = (cases || []).find((cc: any) => cc.id === infoModal);
-      const recipientId = getMarketerProfileId(c);
-      if (recipientId) {
-        await (supabase.from('notifications') as any).insert({
-          recipient_id: recipientId,
-          title: 'Additional Info Requested',
-          message: `Admin requested info on case ${c?.case_number}: ${infoMessage}`,
-          link: `/marketer/cases`,
-        });
-      }
+      // Info request logged
     },
     onSuccess: () => { setInfoModal(null); setInfoMessage(''); toast.success('Info request sent'); },
   });
