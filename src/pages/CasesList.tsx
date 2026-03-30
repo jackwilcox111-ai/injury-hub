@@ -19,6 +19,7 @@ import { Plus, Search, Phone, LayoutGrid, Table2 } from 'lucide-react';
 import { PHIBanner } from '@/components/global/PHIBanner';
 import { US_STATES } from '@/lib/us-states';
 import { SortableHeader } from '@/components/global/SortableHeader';
+import { LANGUAGES } from '@/lib/languages';
 import { useSortableTable } from '@/hooks/use-sortable-table';
 import { CasePipeline } from '@/components/dashboard/CasePipeline';
 
@@ -35,8 +36,10 @@ export default function CasesList() {
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
   const [showNew, setShowNew] = useState(false);
   const [newCase, setNewCase] = useState({
-    patient_name: '', accident_date: '', accident_state: '', case_type: '',
+    first_name: '', last_name: '', accident_date: '', accident_state: '', case_type: '',
     patient_phone: '', patient_email: '', attorney_id: '', specialty: '',
+    request_date: new Date().toISOString().split('T')[0], preferred_language: 'English',
+    urgent: false, law_firm_website: '', case_manager_email: '', case_manager_phone: '',
   });
 
   const { data: cases, isLoading } = useQuery({
@@ -62,13 +65,19 @@ export default function CasesList() {
   const createCase = useMutation({
     mutationFn: async () => {
       const insertData: any = {
-        patient_name: newCase.patient_name,
+        patient_name: `${newCase.first_name} ${newCase.last_name}`.trim(),
         accident_date: newCase.accident_date || null,
         accident_state: newCase.accident_state || null,
         patient_phone: newCase.patient_phone || null,
         patient_email: newCase.patient_email || null,
         attorney_id: newCase.attorney_id || null,
         specialty: newCase.specialty || null,
+        request_date: newCase.request_date || null,
+        preferred_language: newCase.preferred_language || 'English',
+        urgent: newCase.urgent,
+        law_firm_website: newCase.law_firm_website || null,
+        case_manager_email: newCase.case_manager_email || null,
+        case_manager_phone: newCase.case_manager_phone || null,
       };
       const { data, error } = await supabase.from('cases').insert(insertData).select('case_number').single();
       if (error) throw error;
@@ -78,7 +87,7 @@ export default function CasesList() {
       toast.success(`Case ${data.case_number} created`);
       queryClient.invalidateQueries({ queryKey: ['cases-list'] });
       setShowNew(false);
-      setNewCase({ patient_name: '', accident_date: '', accident_state: '', case_type: '', patient_phone: '', patient_email: '', attorney_id: '', specialty: '' });
+      setNewCase({ first_name: '', last_name: '', accident_date: '', accident_state: '', case_type: '', patient_phone: '', patient_email: '', attorney_id: '', specialty: '', request_date: new Date().toISOString().split('T')[0], preferred_language: 'English', urgent: false, law_firm_website: '', case_manager_email: '', case_manager_phone: '' });
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -210,35 +219,15 @@ export default function CasesList() {
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle className="font-display text-lg">New Case</DialogTitle></DialogHeader>
           <form onSubmit={e => { e.preventDefault(); createCase.mutate(); }} className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Client Name *</Label>
-              <Input value={newCase.patient_name} onChange={e => setNewCase(p => ({...p, patient_name: e.target.value}))} required className="h-10" />
-            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Date of Loss *</Label>
-                <Input type="date" value={newCase.accident_date} onChange={e => setNewCase(p => ({...p, accident_date: e.target.value}))} required className="h-10" />
+                <Label className="text-sm font-medium">First Name *</Label>
+                <Input value={newCase.first_name} onChange={e => setNewCase(p => ({...p, first_name: e.target.value}))} required className="h-10" />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">State *</Label>
-                <Select value={newCase.accident_state} onValueChange={v => setNewCase(p => ({...p, accident_state: v}))}>
-                  <SelectTrigger className="h-10"><SelectValue placeholder="Select state..." /></SelectTrigger>
-                  <SelectContent>
-                    {US_STATES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <Label className="text-sm font-medium">Last Name *</Label>
+                <Input value={newCase.last_name} onChange={e => setNewCase(p => ({...p, last_name: e.target.value}))} required className="h-10" />
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Case Type</Label>
-              <Select value={newCase.case_type} onValueChange={v => setNewCase(p => ({...p, case_type: v}))}>
-                <SelectTrigger className="h-10"><SelectValue placeholder="Select case type..." /></SelectTrigger>
-                <SelectContent>
-                  {['Personal Injury', 'Motor Vehicle Collision', 'Malpractice', 'Wrongful Death', 'Slip & Fall', 'Product Liability', 'Workers Compensation', 'Other'].map(t => (
-                    <SelectItem key={t} value={t}>{t}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -248,6 +237,73 @@ export default function CasesList() {
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Client Email *</Label>
                 <Input type="email" value={newCase.patient_email} onChange={e => setNewCase(p => ({...p, patient_email: e.target.value}))} required className="h-10" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Date of Loss *</Label>
+                <Input type="date" value={newCase.accident_date} onChange={e => setNewCase(p => ({...p, accident_date: e.target.value}))} required className="h-10" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Request Date *</Label>
+                <Input type="date" value={newCase.request_date} onChange={e => setNewCase(p => ({...p, request_date: e.target.value}))} required className="h-10" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Preferred Language *</Label>
+                <Select value={newCase.preferred_language} onValueChange={v => setNewCase(p => ({...p, preferred_language: v}))}>
+                  <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {LANGUAGES.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Urgent</Label>
+                <Select value={newCase.urgent ? 'Yes' : 'No'} onValueChange={v => setNewCase(p => ({...p, urgent: v === 'Yes'}))}>
+                  <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="No">No</SelectItem>
+                    <SelectItem value="Yes">Yes</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">State *</Label>
+                <Select value={newCase.accident_state} onValueChange={v => setNewCase(p => ({...p, accident_state: v}))}>
+                  <SelectTrigger className="h-10"><SelectValue placeholder="Select state..." /></SelectTrigger>
+                  <SelectContent>
+                    {US_STATES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Case Type</Label>
+                <Select value={newCase.case_type} onValueChange={v => setNewCase(p => ({...p, case_type: v}))}>
+                  <SelectTrigger className="h-10"><SelectValue placeholder="Select case type..." /></SelectTrigger>
+                  <SelectContent>
+                    {['Personal Injury', 'Motor Vehicle Collision', 'Malpractice', 'Wrongful Death', 'Slip & Fall', 'Product Liability', 'Workers Compensation', 'Other'].map(t => (
+                      <SelectItem key={t} value={t}>{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Law Firm Website *</Label>
+              <Input value={newCase.law_firm_website} onChange={e => setNewCase(p => ({...p, law_firm_website: e.target.value}))} required className="h-10" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Case Manager Email *</Label>
+                <Input type="email" value={newCase.case_manager_email} onChange={e => setNewCase(p => ({...p, case_manager_email: e.target.value}))} required className="h-10" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Case Manager Phone *</Label>
+                <Input value={newCase.case_manager_phone} onChange={e => setNewCase(p => ({...p, case_manager_phone: e.target.value}))} required className="h-10" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">

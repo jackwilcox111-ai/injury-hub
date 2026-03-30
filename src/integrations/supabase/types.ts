@@ -529,11 +529,14 @@ export type Database = {
           accident_date: string | null
           accident_state: string | null
           attorney_id: string | null
+          case_manager_email: string | null
+          case_manager_phone: string | null
           case_number: string
           completeness_score: number | null
           created_at: string | null
           flag: string | null
           id: string
+          law_firm_website: string | null
           lien_amount: number
           marketer_consent_signed: boolean | null
           marketer_consent_signed_at: string | null
@@ -545,8 +548,10 @@ export type Database = {
           patient_email: string | null
           patient_name: string
           patient_phone: string | null
+          preferred_language: string | null
           provider_id: string | null
           quality_gate_passed: boolean | null
+          request_date: string | null
           settlement_estimate: number | null
           settlement_final: number | null
           sol_date: string | null
@@ -554,16 +559,20 @@ export type Database = {
           specialty: string | null
           status: string
           updated_at: string | null
+          urgent: boolean | null
         }
         Insert: {
           accident_date?: string | null
           accident_state?: string | null
           attorney_id?: string | null
+          case_manager_email?: string | null
+          case_manager_phone?: string | null
           case_number?: string
           completeness_score?: number | null
           created_at?: string | null
           flag?: string | null
           id?: string
+          law_firm_website?: string | null
           lien_amount?: number
           marketer_consent_signed?: boolean | null
           marketer_consent_signed_at?: string | null
@@ -575,8 +584,10 @@ export type Database = {
           patient_email?: string | null
           patient_name: string
           patient_phone?: string | null
+          preferred_language?: string | null
           provider_id?: string | null
           quality_gate_passed?: boolean | null
+          request_date?: string | null
           settlement_estimate?: number | null
           settlement_final?: number | null
           sol_date?: string | null
@@ -584,16 +595,20 @@ export type Database = {
           specialty?: string | null
           status?: string
           updated_at?: string | null
+          urgent?: boolean | null
         }
         Update: {
           accident_date?: string | null
           accident_state?: string | null
           attorney_id?: string | null
+          case_manager_email?: string | null
+          case_manager_phone?: string | null
           case_number?: string
           completeness_score?: number | null
           created_at?: string | null
           flag?: string | null
           id?: string
+          law_firm_website?: string | null
           lien_amount?: number
           marketer_consent_signed?: boolean | null
           marketer_consent_signed_at?: string | null
@@ -605,8 +620,10 @@ export type Database = {
           patient_email?: string | null
           patient_name?: string
           patient_phone?: string | null
+          preferred_language?: string | null
           provider_id?: string | null
           quality_gate_passed?: boolean | null
+          request_date?: string | null
           settlement_estimate?: number | null
           settlement_final?: number | null
           sol_date?: string | null
@@ -614,6 +631,7 @@ export type Database = {
           specialty?: string | null
           status?: string
           updated_at?: string | null
+          urgent?: boolean | null
         }
         Relationships: [
           {
