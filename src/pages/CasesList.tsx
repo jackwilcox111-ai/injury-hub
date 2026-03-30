@@ -64,13 +64,19 @@ export default function CasesList() {
   const createCase = useMutation({
     mutationFn: async () => {
       const insertData: any = {
-        patient_name: newCase.patient_name,
+        patient_name: `${newCase.first_name} ${newCase.last_name}`.trim(),
         accident_date: newCase.accident_date || null,
         accident_state: newCase.accident_state || null,
         patient_phone: newCase.patient_phone || null,
         patient_email: newCase.patient_email || null,
         attorney_id: newCase.attorney_id || null,
         specialty: newCase.specialty || null,
+        request_date: newCase.request_date || null,
+        preferred_language: newCase.preferred_language || 'English',
+        urgent: newCase.urgent,
+        law_firm_website: newCase.law_firm_website || null,
+        case_manager_email: newCase.case_manager_email || null,
+        case_manager_phone: newCase.case_manager_phone || null,
       };
       const { data, error } = await supabase.from('cases').insert(insertData).select('case_number').single();
       if (error) throw error;
