@@ -109,52 +109,54 @@ export function InsuranceEligibilityTab({ caseId }: { caseId: string }) {
           No insurance eligibility records. {isAdminOrCM && 'Add one to determine the billing path.'}
         </div>
       ) : (
-        <div className="space-y-3">
-          {eligibility.map((e: any) => (
-            <div key={e.id} className="bg-card border border-border rounded-xl p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${billingPathColor(e.primary_billing_path)}`}>
-                     1° {e.primary_billing_path}
-                   </span>
-                   {e.secondary_billing_path && (
-                     <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${billingPathColor(e.secondary_billing_path)}`}>
-                       2° {e.secondary_billing_path}
-                     </span>
-                   )}
-                   
-                 </div>
-                <div className="flex items-center gap-2">
-                  {e.verified ? (
-                    <span className="flex items-center gap-1 text-xs text-emerald-600">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Verified
-                    </span>
-                  ) : isAdminOrCM ? (
-                    <Button size="sm" variant="ghost" className="h-7 text-xs text-primary" onClick={() => verifyMutation.mutate(e.id)}>
-                      Verify
-                    </Button>
-                  ) : (
-                    <span className="text-xs text-amber-600">Unverified</span>
-                  )}
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-4 text-xs">
-                <div>
-                  <span className="text-muted-foreground">Carrier</span>
-                  <p className="font-medium text-foreground">{e.carrier_name || '—'}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Policy #</span>
-                  <p className="font-mono-data text-foreground">{e.policy_number || '—'}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Coverage Limit</span>
-                  <p className="font-mono-data text-foreground">{e.coverage_limit ? `$${Number(e.coverage_limit).toLocaleString()}` : '—'}</p>
-                </div>
-              </div>
-              {e.notes && <p className="text-xs text-muted-foreground">{e.notes}</p>}
-            </div>
-          ))}
+        <div className="border border-border rounded-xl overflow-hidden">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="bg-muted/50 text-muted-foreground">
+                <th className="text-left px-3 py-2 font-medium">Billing Path</th>
+                <th className="text-left px-3 py-2 font-medium">Carrier</th>
+                <th className="text-left px-3 py-2 font-medium">Policy #</th>
+                <th className="text-right px-3 py-2 font-medium">Coverage Limit</th>
+                <th className="text-left px-3 py-2 font-medium">Notes</th>
+                <th className="text-right px-3 py-2 font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {eligibility.map((e: any) => (
+                <tr key={e.id} className="bg-card hover:bg-muted/30 transition-colors">
+                  <td className="px-3 py-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`font-medium px-1.5 py-0.5 rounded-full border ${billingPathColor(e.primary_billing_path)}`}>
+                        1° {e.primary_billing_path}
+                      </span>
+                      {e.secondary_billing_path && (
+                        <span className={`font-medium px-1.5 py-0.5 rounded-full border ${billingPathColor(e.secondary_billing_path)}`}>
+                          2° {e.secondary_billing_path}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-3 py-2 text-foreground">{e.carrier_name || '—'}</td>
+                  <td className="px-3 py-2 font-mono text-foreground">{e.policy_number || '—'}</td>
+                  <td className="px-3 py-2 text-right font-mono text-foreground tabular-nums">{e.coverage_limit ? `$${Number(e.coverage_limit).toLocaleString()}` : '—'}</td>
+                  <td className="px-3 py-2 text-muted-foreground max-w-[200px] truncate">{e.notes || '—'}</td>
+                  <td className="px-3 py-2 text-right">
+                    {e.verified ? (
+                      <span className="flex items-center justify-end gap-1 text-emerald-600">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Verified
+                      </span>
+                    ) : isAdminOrCM ? (
+                      <Button size="sm" variant="ghost" className="h-6 text-xs text-primary px-2" onClick={() => verifyMutation.mutate(e.id)}>
+                        Verify
+                      </Button>
+                    ) : (
+                      <span className="text-amber-600">Unverified</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
