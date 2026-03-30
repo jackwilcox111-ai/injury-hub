@@ -74,7 +74,7 @@ export default function AdminCaseQueue() {
             <th className="text-left px-4 py-2 text-xs text-muted-foreground">Injury</th>
             <th className="text-left px-4 py-2 text-xs text-muted-foreground">State</th>
             <th className="text-left px-4 py-2 text-xs text-muted-foreground">Score</th>
-            <th className="text-left px-4 py-2 text-xs text-muted-foreground">Marketer</th>
+            <th className="text-left px-4 py-2 text-xs text-muted-foreground">Submitter</th>
             <th className="text-left px-4 py-2 text-xs text-muted-foreground">Submitted</th>
             {showDaysLive && <th className="text-left px-4 py-2 text-xs text-muted-foreground">Days Live</th>}
             {showActions && <th className="text-right px-4 py-2 text-xs text-muted-foreground">Actions</th>}
