@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
 import { Send, MapPin, CheckSquare } from 'lucide-react';
+import { SPECIALTIES } from '@/lib/specialties';
 
 interface Props {
   open: boolean;
