@@ -63,6 +63,8 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
   }, [isAttorney, providers]);
 
 
+  const filteredProviders = specialty ? providers?.filter(p => p.specialty === specialty) : providers;
+
   // Attorney flow: create a task for the care manager
   const createTask = useMutation({
     mutationFn: async () => {
