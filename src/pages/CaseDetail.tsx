@@ -796,9 +796,6 @@ export default function CaseDetail() {
           <PolicyDetailsTab caseId={id!} />
         </TabsContent>
 
-        <TabsContent value="timeline" className="p-5">
-          <TimelineTab caseId={id!} isAdmin={isAdmin} />
-        </TabsContent>
 
         {isAdmin && (
           <TabsContent value="colossus" className="p-5">
