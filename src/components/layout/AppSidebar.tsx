@@ -47,7 +47,7 @@ const roleBadgeStyles: Record<string, string> = {
   care_manager: 'bg-success/10 text-success',
   attorney: 'bg-warning/10 text-warning',
   provider: 'bg-settled/10 text-settled',
-  marketer: 'bg-primary/10 text-primary',
+  
 };
 
 export function AppSidebar() {

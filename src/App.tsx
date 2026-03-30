@@ -139,13 +139,6 @@ const App = () => (
             {/* Funder portal */}
             <Route path="/funder/dashboard" element={<RequireAuth roles={['funder']}><AppLayout><FunderDashboard /></AppLayout></RequireAuth>} />
 
-            {/* Marketer portal */}
-            <Route path="/marketer/dashboard" element={<RequireAuth roles={['marketer']}><AppLayout><MarketerDashboard /></AppLayout></RequireAuth>} />
-            <Route path="/marketer/submit" element={<RequireAuth roles={['marketer']}><AppLayout><MarketerSubmit /></AppLayout></RequireAuth>} />
-            <Route path="/marketer/cases" element={<RequireAuth roles={['marketer']}><AppLayout><MarketerCases /></AppLayout></RequireAuth>} />
-            <Route path="/marketer/cases/:id" element={<RequireAuth roles={['marketer']}><AppLayout><MarketerCaseDetail /></AppLayout></RequireAuth>} />
-            <Route path="/marketer/earnings" element={<RequireAuth roles={['marketer']}><AppLayout><MarketerEarnings /></AppLayout></RequireAuth>} />
-            <Route path="/marketer/settings" element={<RequireAuth roles={['marketer']}><AppLayout><MarketerSettings /></AppLayout></RequireAuth>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
