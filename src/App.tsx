@@ -93,7 +93,7 @@ const App = () => (
             <Route path="/provider/join" element={<ProviderJoin />} />
             <Route path="/attorney/join" element={<AttorneyJoin />} />
             <Route path="/funder/join" element={<FunderJoin />} />
-            <Route path="/marketer/join" element={<MarketerJoin />} />
+            
             <Route path="/login" element={<Login />} />
             <Route path="/find-providers" element={<FindProvider />} />
             <Route path="/demo" element={<DemoPage />} />
