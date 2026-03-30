@@ -35,7 +35,7 @@ export default function CasesList() {
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
   const [showNew, setShowNew] = useState(false);
   const [newCase, setNewCase] = useState({
-    patient_name: '', accident_date: '', accident_state: '', sol_period_days: 730,
+    patient_name: '', accident_date: '', accident_state: '', case_type: '',
     patient_phone: '', patient_email: '', attorney_id: '', specialty: '',
   });
 
