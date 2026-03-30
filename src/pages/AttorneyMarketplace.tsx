@@ -24,7 +24,7 @@ export default function AttorneyMarketplace() {
     queryKey: ['marketplace-cases'],
     queryFn: async () => {
       const { data } = await (supabase.from('cases') as any)
-        .select('id, case_number, specialty, accident_state, accident_date, notes, completeness_score, status, marketplace_submitted_at, marketer_consent_signed, marketer_consent_signed_at, marketer_id')
+        .select('id, case_number, specialty, accident_state, accident_date, notes, completeness_score, status, marketplace_submitted_at')
         .eq('status', 'Marketplace')
         .eq('quality_gate_passed', true)
         .order('marketplace_submitted_at', { ascending: false });
