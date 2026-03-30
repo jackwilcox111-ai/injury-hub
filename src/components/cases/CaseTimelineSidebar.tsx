@@ -91,14 +91,16 @@ export function CaseTimelineSidebar({ caseId, onViewFullTimeline }: Props) {
         </div>
       )}
 
-      <div className="px-5 py-3 border-t border-border">
-        <button
-          onClick={onViewFullTimeline}
-          className="text-xs text-primary hover:underline font-medium"
-        >
-          View Full Timeline →
-        </button>
-      </div>
+      {onViewFullTimeline && (
+        <div className="px-5 py-3 border-t border-border">
+          <button
+            onClick={onViewFullTimeline}
+            className="text-xs text-primary hover:underline font-medium"
+          >
+            View Full Timeline →
+          </button>
+        </div>
+      )}
     </div>
   );
 }
