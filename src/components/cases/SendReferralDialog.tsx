@@ -152,7 +152,7 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
                   {selectedProviderData.address_city}, {selectedProviderData.address_state}
                 </p>
               )}
-              {selectedProviderData.email && <p className="text-xs text-muted-foreground">✉ {selectedProviderData.email}</p>}
+              
               {selectedProviderData.phone && <p className="text-xs text-muted-foreground">☎ {selectedProviderData.phone}</p>}
               <p className="text-xs">
                 {selectedProviderData.accepting_patients !== false
