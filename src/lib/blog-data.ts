@@ -2,7 +2,7 @@ export interface BlogPost {
   slug: string;
   title: string;
   excerpt: string;
-  category: 'patients' | 'providers' | 'attorneys' | 'marketers' | 'general';
+  category: 'patients' | 'providers' | 'attorneys' | 'general';
   readTime: string;
   publishedAt: string;
   author: string;
@@ -14,7 +14,7 @@ export const BLOG_CATEGORIES = [
   { value: 'patients', label: 'For Patients' },
   { value: 'providers', label: 'For Providers' },
   { value: 'attorneys', label: 'For Attorneys' },
-  { value: 'marketers', label: 'For Marketers' },
+  
   { value: 'general', label: 'Industry Insights' },
 ] as const;
 
@@ -22,7 +22,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
   patients: 'bg-primary/10 text-primary',
   providers: 'bg-settled/10 text-settled',
   attorneys: 'bg-warning/10 text-warning',
-  marketers: 'bg-destructive/10 text-destructive',
+  
   general: 'bg-muted text-muted-foreground',
 };
 
@@ -268,50 +268,6 @@ Colossus is a claims evaluation software used by major insurance carriers to ass
 ## How Got Hurt Helps
 
 Our platform tracks Colossus-relevant factors automatically, giving attorneys a clear picture of estimated case value throughout the treatment lifecycle.`,
-  },
-  {
-    slug: 'marketer-guide-pi-referrals',
-    title: 'The Marketer\'s Guide to Personal Injury Referrals',
-    excerpt: 'Learn how independent marketers can earn commissions by connecting injured individuals with the Got Hurt Injury Network — ethically and compliantly.',
-    category: 'marketers',
-    readTime: '5 min read',
-    publishedAt: '2026-03-05',
-    author: 'Got Hurt Team',
-    content: `## What Is a PI Marketer?
-
-Independent marketers help connect injured individuals with medical care and legal representation. When done ethically, this service fills a critical gap — many accident victims don't know where to turn for help.
-
-## How the Got Hurt Marketer Program Works
-
-### 1. Apply and Get Approved
-Complete our application process. We verify your background and ensure compliance with applicable regulations.
-
-### 2. Submit Cases
-When you encounter someone who's been injured, submit their information through our secure portal. Consent verification is built into the process.
-
-### 3. Track Progress
-Monitor your submitted cases through your marketer dashboard. See real-time status updates as cases move through the pipeline.
-
-### 4. Earn Commissions
-When cases meet qualifying milestones, commissions are calculated and paid according to your fee structure.
-
-## Compliance Is Non-Negotiable
-
-- **Written consent** is required for every case submission
-- **No solicitation** at accident scenes or hospitals
-- **Transparent fee structures** — no hidden arrangements
-- **Audit trail** — every interaction is logged
-
-## Marketing Channels That Work
-
-- Community outreach and education
-- Digital advertising (compliant with bar association rules)
-- Referral partnerships with auto body shops, towing companies
-- Social media awareness campaigns
-
-## Ready to Join?
-
-Apply to become a Got Hurt marketer and start earning while helping injured individuals access the care they need.`,
   },
   {
     slug: 'florida-personal-injury-statute-limitations',
@@ -964,7 +920,7 @@ Our platform provides the documented treatment foundation that supports strong d
     slug: 'marketing-compliance-pi-referrals',
     title: 'Staying Compliant: Legal Guidelines for PI Marketing',
     excerpt: 'Personal injury marketing is heavily regulated. Understand the rules to protect yourself and your business while generating legitimate referrals.',
-    category: 'marketers',
+    category: 'general',
     readTime: '5 min read',
     publishedAt: '2026-02-22',
     author: 'Got Hurt Team',
@@ -1020,7 +976,7 @@ Our marketer program includes built-in compliance checks, consent verification, 
     slug: 'digital-marketing-strategies-pi',
     title: 'Digital Marketing Strategies for Personal Injury Lead Generation',
     excerpt: 'Learn proven digital marketing approaches that generate qualified PI leads while maintaining compliance with advertising regulations.',
-    category: 'marketers',
+    category: 'general',
     readTime: '6 min read',
     publishedAt: '2026-02-02',
     author: 'Got Hurt Team',
@@ -1086,7 +1042,7 @@ Our marketer program provides the infrastructure to convert leads into submitted
     slug: 'building-referral-partnerships-pi',
     title: 'Building Referral Partnerships: Beyond Digital Marketing for PI Leads',
     excerpt: 'Digital marketing isn\'t the only way to generate PI referrals. Strategic partnerships with complementary businesses create reliable lead pipelines.',
-    category: 'marketers',
+    category: 'general',
     readTime: '4 min read',
     publishedAt: '2026-01-15',
     author: 'Got Hurt Team',
@@ -1809,7 +1765,7 @@ The Got Hurt network includes providers experienced in treating serious motorcyc
     slug: 'marketer-tracking-attribution-pi',
     title: 'Lead Tracking and Attribution for PI Marketers: Proving Your Value',
     excerpt: 'Successful PI marketers track every lead from first contact to settlement. Learn the metrics that matter and tools to prove your ROI.',
-    category: 'marketers',
+    category: 'general',
     readTime: '5 min read',
     publishedAt: '2025-12-18',
     author: 'Got Hurt Team',

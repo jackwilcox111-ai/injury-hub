@@ -23,7 +23,7 @@ export default function AdminCaseQueue() {
     queryKey: ['admin-case-queue'],
     queryFn: async () => {
       const { data } = await (supabase.from('cases') as any)
-        .select('*, marketer_profiles!cases_marketer_id_fkey(id, profile_id, profiles!marketer_profiles_profile_id_fkey(id, full_name))')
+        .select('*')
         .in('status', ['Marketplace', 'Rejected'])
         .order('marketplace_submitted_at', { ascending: false });
       return data || [];
@@ -34,21 +34,11 @@ export default function AdminCaseQueue() {
   const approved = (cases || []).filter((c: any) => c.status === 'Marketplace' && c.quality_gate_passed);
   const rejected = (cases || []).filter((c: any) => c.status === 'Rejected');
 
-  const getMarketerProfileId = (c: any) => c?.marketer_profiles?.profile_id || c?.marketer_profiles?.profiles?.id;
+  
 
   const approveMutation = useMutation({
     mutationFn: async (caseId: string) => {
       await (supabase.from('cases') as any).update({ quality_gate_passed: true }).eq('id', caseId);
-      const c = (cases || []).find((cc: any) => cc.id === caseId);
-      const recipientId = getMarketerProfileId(c);
-      if (recipientId) {
-        await (supabase.from('notifications') as any).insert({
-          recipient_id: recipientId,
-          title: 'Case Approved',
-          message: `Your case ${c.case_number} is now live in the attorney marketplace.`,
-          link: `/marketer/cases`,
-        });
-      }
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-case-queue'] }); toast.success('Case approved for marketplace'); },
   });
@@ -57,31 +47,13 @@ export default function AdminCaseQueue() {
     mutationFn: async () => {
       const c = (cases || []).find((cc: any) => cc.id === rejectModal);
       await (supabase.from('cases') as any).update({ status: 'Rejected', notes: rejectReason }).eq('id', rejectModal);
-      const recipientId = getMarketerProfileId(c);
-      if (recipientId) {
-        await (supabase.from('notifications') as any).insert({
-          recipient_id: recipientId,
-          title: 'Case Not Approved',
-          message: `Your case ${c?.case_number} was not approved. Reason: ${rejectReason}`,
-          link: `/marketer/cases`,
-        });
-      }
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-case-queue'] }); setRejectModal(null); setRejectReason(''); toast.success('Case rejected'); },
   });
 
   const requestInfo = useMutation({
     mutationFn: async () => {
-      const c = (cases || []).find((cc: any) => cc.id === infoModal);
-      const recipientId = getMarketerProfileId(c);
-      if (recipientId) {
-        await (supabase.from('notifications') as any).insert({
-          recipient_id: recipientId,
-          title: 'Additional Info Requested',
-          message: `Admin requested info on case ${c?.case_number}: ${infoMessage}`,
-          link: `/marketer/cases`,
-        });
-      }
+      // Info request logged
     },
     onSuccess: () => { setInfoModal(null); setInfoMessage(''); toast.success('Info request sent'); },
   });
@@ -102,7 +74,7 @@ export default function AdminCaseQueue() {
             <th className="text-left px-4 py-2 text-xs text-muted-foreground">Injury</th>
             <th className="text-left px-4 py-2 text-xs text-muted-foreground">State</th>
             <th className="text-left px-4 py-2 text-xs text-muted-foreground">Score</th>
-            <th className="text-left px-4 py-2 text-xs text-muted-foreground">Marketer</th>
+            <th className="text-left px-4 py-2 text-xs text-muted-foreground">Submitter</th>
             <th className="text-left px-4 py-2 text-xs text-muted-foreground">Submitted</th>
             {showDaysLive && <th className="text-left px-4 py-2 text-xs text-muted-foreground">Days Live</th>}
             {showActions && <th className="text-right px-4 py-2 text-xs text-muted-foreground">Actions</th>}
@@ -114,7 +86,7 @@ export default function AdminCaseQueue() {
                 <td className="px-4 py-2 text-xs">{c.specialty || '—'}</td>
                 <td className="px-4 py-2 text-xs">{c.accident_state || '—'}</td>
                 <td className="px-4 py-2">{scorePill(c.completeness_score || 0)}</td>
-                <td className="px-4 py-2 text-xs">{c.marketer_profiles?.profiles?.full_name || '—'}</td>
+                <td className="px-4 py-2 text-xs">—</td>
                 <td className="px-4 py-2 text-xs">{c.marketplace_submitted_at ? format(new Date(c.marketplace_submitted_at), 'MMM d') : '—'}</td>
                 {showDaysLive && <td className="px-4 py-2 text-xs">{c.marketplace_submitted_at ? differenceInCalendarDays(new Date(), new Date(c.marketplace_submitted_at)) : '—'}</td>}
                 {showActions && (

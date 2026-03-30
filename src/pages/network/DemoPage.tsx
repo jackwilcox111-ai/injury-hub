@@ -7,7 +7,7 @@ import {
   LayoutDashboard, FolderOpen, Stethoscope, Scale, DollarSign,
   FileSignature, BarChart3, ShieldCheck, Users, Banknote,
   CheckSquare, MessageCircle, CalendarDays, GitBranch, ArrowRight,
-  Megaphone, CreditCard, ClipboardCheck
+  CreditCard, ClipboardCheck
 } from 'lucide-react';
 
 const features = [
@@ -140,29 +140,6 @@ const features = [
           <div key={s.label} className="bg-accent/40 rounded-lg p-2">
             <p className="text-xs font-bold text-foreground">{s.val}</p>
             <p className="text-[7px] text-muted-foreground">{s.label}</p>
-          </div>
-        ))}
-      </div>
-    ),
-  },
-  {
-    icon: Megaphone,
-    title: 'Marketer Channel',
-    description: 'Independent marketers submit cases, track referral status, and earn commissions with transparent payout tracking. Built-in compliance with consent verification.',
-    tags: ['Marketer', 'Admin'],
-    color: 'hsl(var(--primary))',
-    mockUI: (
-      <div className="mt-4 space-y-1.5">
-        {[
-          { step: 'Submit Case', status: 'Complete', color: 'bg-success' },
-          { step: 'Quality Review', status: 'Complete', color: 'bg-success' },
-          { step: 'Case Accepted', status: 'In Progress', color: 'bg-warning' },
-          { step: 'Payout Issued', status: 'Pending', color: 'bg-muted-foreground/30' },
-        ].map((s, i) => (
-          <div key={s.step} className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${s.color}`} />
-            <span className="text-[9px] text-foreground/80 flex-1">{s.step}</span>
-            <span className="text-[7px] text-muted-foreground">{s.status}</span>
           </div>
         ))}
       </div>
@@ -302,7 +279,7 @@ const rolePortals = [
   { role: 'Provider', icon: Stethoscope, description: 'Patient management, RCM billing, lien tracking, and document management', color: 'hsl(var(--settled))' },
   { role: 'Attorney', icon: Scale, description: 'Case oversight, demand letters, settlement worksheets, and marketplace access', color: 'hsl(var(--warning))' },
   { role: 'Funder', icon: Banknote, description: 'Portfolio management, case underwriting, and settlement recovery tracking', color: 'hsl(var(--success))' },
-  { role: 'Marketer', icon: Megaphone, description: 'Case submission, referral tracking, earnings dashboard, and compliance tools', color: 'hsl(var(--primary))' },
+  
   { role: 'Case Management', icon: LayoutDashboard, description: 'Full operational control with pipeline management, reporting, and network oversight', color: 'hsl(var(--destructive))' },
 ];
 
@@ -329,7 +306,7 @@ export default function DemoPage() {
             The Command Center for<br />Personal Injury Care
           </h1>
           <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
-            See how Got Hurt coordinates every stakeholder — patients, providers, attorneys, funders, and marketers — through a single intelligent platform. Here's what powers the network behind the scenes.
+            See how Got Hurt coordinates every stakeholder — patients, providers, attorneys, and funders — through a single intelligent platform. Here's what powers the network behind the scenes.
           </p>
           <div className="flex items-center justify-center gap-3">
             <Button size="lg" onClick={() => navigate('/get-started')} className="text-sm h-11 px-6">
