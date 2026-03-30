@@ -39,16 +39,6 @@ export default function AdminCaseQueue() {
   const approveMutation = useMutation({
     mutationFn: async (caseId: string) => {
       await (supabase.from('cases') as any).update({ quality_gate_passed: true }).eq('id', caseId);
-      const c = (cases || []).find((cc: any) => cc.id === caseId);
-      const recipientId = getMarketerProfileId(c);
-      if (recipientId) {
-        await (supabase.from('notifications') as any).insert({
-          recipient_id: recipientId,
-          title: 'Case Approved',
-          message: `Your case ${c.case_number} is now live in the attorney marketplace.`,
-          link: `/marketer/cases`,
-        });
-      }
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-case-queue'] }); toast.success('Case approved for marketplace'); },
   });
