@@ -145,7 +145,7 @@ export default function ProviderPortal() {
         completionRate={completionRate}
       />
 
-      <Tabs defaultValue="appointments">
+      <Tabs defaultValue="patients">
         <TabsList className="flex-wrap h-auto gap-1">
           <TabsTrigger value="appointments" className="gap-1.5"><Calendar className="w-3.5 h-3.5" /> Appointments</TabsTrigger>
           <TabsTrigger value="patients" className="gap-1.5"><Users className="w-3.5 h-3.5" /> Patients</TabsTrigger>
