@@ -703,7 +703,7 @@ export default function CaseDetail() {
           <TabsTrigger value="policy" className="text-xs gap-1.5"><Shield className="w-3.5 h-3.5" /> Policy</TabsTrigger>
           
           {isAdmin && <TabsTrigger value="colossus" className="text-xs gap-1.5"><Radar className="w-3.5 h-3.5" /> Colossus</TabsTrigger>}
-          <TabsTrigger value="messages" className="text-xs gap-1.5"><MessageCircle className="w-3.5 h-3.5" /> Messages</TabsTrigger>
+          
           <TabsTrigger value="demand" className="text-xs gap-1.5"><FileSignature className="w-3.5 h-3.5" /> Demand Letters</TabsTrigger>
           <TabsTrigger value="docs-dump" className="text-xs gap-1.5"><FolderOpen className="w-3.5 h-3.5" /> Records & Bills</TabsTrigger>
         </TabsList>
