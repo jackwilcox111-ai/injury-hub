@@ -306,7 +306,7 @@ export default function DemoPage() {
             The Command Center for<br />Personal Injury Care
           </h1>
           <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
-            See how Got Hurt coordinates every stakeholder — patients, providers, attorneys, funders, and marketers — through a single intelligent platform. Here's what powers the network behind the scenes.
+            See how Got Hurt coordinates every stakeholder — patients, providers, attorneys, and funders — through a single intelligent platform. Here's what powers the network behind the scenes.
           </p>
           <div className="flex items-center justify-center gap-3">
             <Button size="lg" onClick={() => navigate('/get-started')} className="text-sm h-11 px-6">

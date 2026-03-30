@@ -86,7 +86,7 @@ export default function AdminCaseQueue() {
                 <td className="px-4 py-2 text-xs">{c.specialty || '—'}</td>
                 <td className="px-4 py-2 text-xs">{c.accident_state || '—'}</td>
                 <td className="px-4 py-2">{scorePill(c.completeness_score || 0)}</td>
-                <td className="px-4 py-2 text-xs">{c.marketer_profiles?.profiles?.full_name || '—'}</td>
+                <td className="px-4 py-2 text-xs">—</td>
                 <td className="px-4 py-2 text-xs">{c.marketplace_submitted_at ? format(new Date(c.marketplace_submitted_at), 'MMM d') : '—'}</td>
                 {showDaysLive && <td className="px-4 py-2 text-xs">{c.marketplace_submitted_at ? differenceInCalendarDays(new Date(), new Date(c.marketplace_submitted_at)) : '—'}</td>}
                 {showActions && (
