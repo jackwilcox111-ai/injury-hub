@@ -731,7 +731,7 @@ export default function CaseDetail() {
           
           <TabsTrigger value="sol-alerts" className="text-xs gap-1.5"><Bell className="w-3.5 h-3.5" /> SoL Alerts</TabsTrigger>
           <TabsTrigger value="policy" className="text-xs gap-1.5"><Shield className="w-3.5 h-3.5" /> Policy</TabsTrigger>
-          <TabsTrigger value="timeline" className="text-xs gap-1.5"><GitBranch className="w-3.5 h-3.5" /> Timeline</TabsTrigger>
+          
           {isAdmin && <TabsTrigger value="colossus" className="text-xs gap-1.5"><Radar className="w-3.5 h-3.5" /> Colossus</TabsTrigger>}
           <TabsTrigger value="messages" className="text-xs gap-1.5"><MessageCircle className="w-3.5 h-3.5" /> Messages</TabsTrigger>
           <TabsTrigger value="demand" className="text-xs gap-1.5"><FileSignature className="w-3.5 h-3.5" /> Demand Letters</TabsTrigger>
