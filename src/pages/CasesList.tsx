@@ -65,7 +65,6 @@ export default function CasesList() {
         patient_name: newCase.patient_name,
         accident_date: newCase.accident_date || null,
         accident_state: newCase.accident_state || null,
-        sol_period_days: newCase.sol_period_days,
         patient_phone: newCase.patient_phone || null,
         patient_email: newCase.patient_email || null,
         attorney_id: newCase.attorney_id || null,
