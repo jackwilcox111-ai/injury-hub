@@ -2310,9 +2310,14 @@ export type Database = {
           id: string
           notes: string | null
           provider_id: string
+          referral_method: string
           referred_by: string | null
+          responded_at: string | null
+          response_notes: string | null
           specialty: string | null
           status: string
+          token: string | null
+          token_expires_at: string | null
           updated_at: string
         }
         Insert: {
@@ -2321,9 +2326,14 @@ export type Database = {
           id?: string
           notes?: string | null
           provider_id: string
+          referral_method?: string
           referred_by?: string | null
+          responded_at?: string | null
+          response_notes?: string | null
           specialty?: string | null
           status?: string
+          token?: string | null
+          token_expires_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -2332,9 +2342,14 @@ export type Database = {
           id?: string
           notes?: string | null
           provider_id?: string
+          referral_method?: string
           referred_by?: string | null
+          responded_at?: string | null
+          response_notes?: string | null
           specialty?: string | null
           status?: string
+          token?: string | null
+          token_expires_at?: string | null
           updated_at?: string
         }
         Relationships: [
