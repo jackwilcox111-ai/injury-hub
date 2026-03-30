@@ -987,6 +987,7 @@ export default function CaseDetail() {
         open={showReferral}
         onOpenChange={setShowReferral}
         caseId={id!}
+        caseNumber={c.case_number}
         patientCity={patientProfile?.city}
         patientState={patientProfile?.state}
       />
