@@ -649,34 +649,6 @@ export default function CaseDetail() {
           <WorkPlanTab caseId={id!} caseStatus={c.status || ''} />
         </TabsContent>
 
-        <TabsContent value="engagement" className="p-5">
-          <PatientEngagementTab caseId={id!} />
-        </TabsContent>
-
-
-        <TabsContent value="sol-alerts" className="p-5">
-          <SoLAlertsTab caseId={id!} />
-        </TabsContent>
-
-        <TabsContent value="policy" className="p-5">
-          <PolicyDetailsTab caseId={id!} />
-        </TabsContent>
-
-
-        {isAdmin && (
-          <TabsContent value="colossus" className="p-5">
-            <ColossusTab caseId={id!} />
-          </TabsContent>
-        )}
-
-
-        <TabsContent value="demand" className="p-5">
-          <DemandLettersTab caseId={id!} />
-        </TabsContent>
-
-        <TabsContent value="docs-dump" className="p-5">
-          <RecordsBillsDump caseId={id!} />
-        </TabsContent>
       </Tabs>
 
       {/* Modals */}
