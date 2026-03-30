@@ -38,6 +38,7 @@ import { DemandLettersTab } from '@/components/cases/DemandLettersTab';
 import { CaseMessagesTab } from '@/components/cases/CaseMessagesTab';
 import { SendReferralDialog } from '@/components/cases/SendReferralDialog';
 import { ProviderReferralsModule } from '@/components/cases/ProviderReferralsModule';
+import { CaseTimelineSidebar } from '@/components/cases/CaseTimelineSidebar';
 
 
 function RecordsBillsDump({ caseId }: { caseId: string }) {
