@@ -20,9 +20,7 @@ import AttorneyPortal from "./pages/AttorneyPortal";
 import AttorneyMarketplace from "./pages/AttorneyMarketplace";
 import ProviderPortal from "./pages/ProviderPortal";
 import ReportingDashboard from "./pages/ReportingDashboard";
-import ReferralTracking from "./pages/ReferralTracking";
 import TaskDashboard from "./pages/TaskDashboard";
-import RecordsBills from "./pages/RecordsBills";
 import PatientDashboard from "./pages/PatientDashboard";
 import NotFound from "./pages/NotFound";
 import LandingPage from "./pages/network/LandingPage";
@@ -33,9 +31,6 @@ import FunderJoin from "./pages/network/FunderJoin";
 
 import AdminDemandLetters from "./pages/AdminDemandLetters";
 import AdminMessages from "./pages/AdminMessages";
-import AdminRCM from "./pages/AdminRCM";
-import AdminFunding from "./pages/AdminFunding";
-import AdminCaseQueue from "./pages/admin/AdminCaseQueue";
 import FunderDashboard from "./pages/FunderDashboard";
 import ProviderRCM from "./pages/ProviderRCM";
 import PatientTimeline from "./pages/PatientTimeline";
@@ -112,15 +107,10 @@ const App = () => (
             <Route path="/liens" element={<RequireAuth roles={['admin']}><AppLayout><LiensPage /></AppLayout></RequireAuth>} />
             <Route path="/calendar" element={<RequireAuth><AppLayout><CalendarPage /></AppLayout></RequireAuth>} />
             <Route path="/reports" element={<RequireAuth roles={['admin']}><AppLayout><ReportingDashboard /></AppLayout></RequireAuth>} />
-            <Route path="/referrals" element={<RequireAuth roles={['admin']}><AppLayout><ReferralTracking /></AppLayout></RequireAuth>} />
             <Route path="/tasks" element={<RequireAuth roles={['admin','care_manager','attorney']}><AppLayout><TaskDashboard /></AppLayout></RequireAuth>} />
-            <Route path="/records-bills" element={<RequireAuth roles={['admin','care_manager','provider']}><AppLayout><RecordsBills /></AppLayout></RequireAuth>} />
             <Route path="/settings" element={<RequireAuth roles={['admin']}><AppLayout><SettingsPage /></AppLayout></RequireAuth>} />
             <Route path="/demand-letters" element={<RequireAuth roles={['admin','care_manager','attorney']}><AppLayout><AdminDemandLetters /></AppLayout></RequireAuth>} />
             <Route path="/messages" element={<RequireAuth roles={['admin','care_manager','attorney']}><AppLayout><AdminMessages /></AppLayout></RequireAuth>} />
-            <Route path="/rcm" element={<RequireAuth roles={['admin']}><AppLayout><AdminRCM /></AppLayout></RequireAuth>} />
-            <Route path="/funding" element={<RequireAuth roles={['admin']}><AppLayout><AdminFunding /></AppLayout></RequireAuth>} />
-            <Route path="/admin/case-queue" element={<RequireAuth roles={['admin']}><AppLayout><AdminCaseQueue /></AppLayout></RequireAuth>} />
 
             {/* Attorney extras */}
             <Route path="/attorney-portal" element={<Navigate to="/dashboard" replace />} />
