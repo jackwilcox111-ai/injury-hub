@@ -8,8 +8,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Send, MessageCircle, Eye, User, Building2, Stethoscope } from 'lucide-react';
+import { Send, MessageCircle, Eye, User, Building2, Stethoscope, Plus } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 
 const MESSAGE_TYPES = ['Welcome', 'Status Update', 'Appointment Reminder', 'Settlement Notification', 'General'] as const;
@@ -30,11 +31,11 @@ interface Props {
 export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId }: Props) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const [showCompose, setShowCompose] = useState(false);
   const [recipientRole, setRecipientRole] = useState<string>('');
   const [messageType, setMessageType] = useState<string>('General');
   const [script, setScript] = useState('');
 
-  // Fetch messages for this case
   const { data: messages, isLoading } = useQuery({
     queryKey: ['case-messages', caseId],
     queryFn: async () => {
@@ -48,55 +49,28 @@ export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId }:
     },
   });
 
-  // Look up recipient profile IDs
   const { data: recipientProfiles } = useQuery({
     queryKey: ['case-recipient-profiles', caseId, attorneyId, providerId],
     queryFn: async () => {
       const result: Record<string, { id: string; name: string } | null> = {
-        patient: null,
-        attorney: null,
-        provider: null,
+        patient: null, attorney: null, provider: null,
       };
-
-      // Patient profile: look for patient role with a case link via patient_profiles
       const { data: patientProfile } = await supabase
         .from('patient_profiles')
         .select('profile_id, profiles:profile_id(id, full_name)')
         .eq('case_id', caseId)
         .maybeSingle();
       if (patientProfile?.profile_id) {
-        result.patient = {
-          id: patientProfile.profile_id,
-          name: (patientProfile as any).profiles?.full_name || patientName,
-        };
+        result.patient = { id: patientProfile.profile_id, name: (patientProfile as any).profiles?.full_name || patientName };
       }
-
-      // Attorney profile: find profile with firm_id matching attorney_id
       if (attorneyId) {
-        const { data: attyProfile } = await supabase
-          .from('profiles')
-          .select('id, full_name')
-          .eq('firm_id', attorneyId)
-          .limit(1)
-          .maybeSingle();
-        if (attyProfile) {
-          result.attorney = { id: attyProfile.id, name: attyProfile.full_name || 'Attorney' };
-        }
+        const { data: attyProfile } = await supabase.from('profiles').select('id, full_name').eq('firm_id', attorneyId).limit(1).maybeSingle();
+        if (attyProfile) result.attorney = { id: attyProfile.id, name: attyProfile.full_name || 'Attorney' };
       }
-
-      // Provider profile: find profile with provider_id
       if (providerId) {
-        const { data: provProfile } = await supabase
-          .from('profiles')
-          .select('id, full_name')
-          .eq('provider_id', providerId)
-          .limit(1)
-          .maybeSingle();
-        if (provProfile) {
-          result.provider = { id: provProfile.id, name: provProfile.full_name || 'Provider' };
-        }
+        const { data: provProfile } = await supabase.from('profiles').select('id, full_name').eq('provider_id', providerId).limit(1).maybeSingle();
+        if (provProfile) result.provider = { id: provProfile.id, name: provProfile.full_name || 'Provider' };
       }
-
       return result;
     },
   });
@@ -105,24 +79,17 @@ export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId }:
     mutationFn: async () => {
       if (!recipientRole || !script.trim()) throw new Error('Select a recipient and enter a message.');
       const recipientProfile = recipientProfiles?.[recipientRole];
-
       const { error } = await supabase.from('video_messages').insert({
-        case_id: caseId,
-        recipient_role: recipientRole,
-        recipient_id: recipientProfile?.id || null,
-        message_type: messageType,
-        script: script.trim(),
-        ai_generated_script: false,
-        sent_at: new Date().toISOString(),
-        created_by: user?.id,
+        case_id: caseId, recipient_role: recipientRole, recipient_id: recipientProfile?.id || null,
+        message_type: messageType, script: script.trim(), ai_generated_script: false,
+        sent_at: new Date().toISOString(), created_by: user?.id,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['case-messages', caseId] });
-      setScript('');
-      setRecipientRole('');
-      setMessageType('General');
+      setScript(''); setRecipientRole(''); setMessageType('General');
+      setShowCompose(false);
       toast.success('Message sent');
     },
     onError: (e: any) => toast.error(e.message),
@@ -135,132 +102,99 @@ export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId }:
   });
 
   return (
-    <div className="space-y-6">
-      {/* Compose */}
-      <div className="border border-border rounded-xl p-5 space-y-4 bg-accent/20">
+    <>
+      {/* Header with send button */}
+      <div className="flex items-center justify-between mb-3">
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <Send className="w-4 h-4 text-primary" /> Send a Message
-        </h4>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label className="text-xs">Recipient</Label>
-            <Select value={recipientRole} onValueChange={setRecipientRole}>
-              <SelectTrigger className="h-9 text-xs">
-                <SelectValue placeholder="Select recipient..." />
-              </SelectTrigger>
-              <SelectContent>
-                {availableRecipients.map(([role, meta]) => {
-                  const profile = recipientProfiles?.[role];
-                  return (
-                    <SelectItem key={role} value={role} className="text-xs">
-                      {meta.label}{profile ? ` — ${profile.name}` : ''}
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-xs">Message Type</Label>
-            <Select value={messageType} onValueChange={setMessageType}>
-              <SelectTrigger className="h-9 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {MESSAGE_TYPES.map(t => (
-                  <SelectItem key={t} value={t} className="text-xs">{t}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label className="text-xs">Message</Label>
-          <Textarea
-            value={script}
-            onChange={e => setScript(e.target.value)}
-            placeholder="Type your message here..."
-            className="min-h-[100px] text-sm"
-          />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <p className="text-[10px] text-muted-foreground">PHI — Handle in accordance with HIPAA policy</p>
-          <Button
-            size="sm"
-            className="gap-1.5"
-            onClick={() => sendMessage.mutate()}
-            disabled={!recipientRole || !script.trim() || sendMessage.isPending}
-          >
-            <Send className="w-3.5 h-3.5" />
-            {sendMessage.isPending ? 'Sending...' : 'Send Message'}
-          </Button>
-        </div>
-      </div>
-
-      {/* Message history */}
-      <div>
-        <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
           <MessageCircle className="w-4 h-4 text-muted-foreground" />
           Message History
           {messages && messages.length > 0 && (
             <span className="text-xs font-normal text-muted-foreground">({messages.length})</span>
           )}
         </h4>
-
-        {isLoading ? (
-          <div className="space-y-2">
-            {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 rounded-xl" />)}
-          </div>
-        ) : !messages || messages.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">No messages sent for this case yet.</p>
-        ) : (
-          <div className="space-y-2.5 max-h-[400px] overflow-y-auto">
-            {messages.map(m => {
-              const meta = RECIPIENT_META[m.recipient_role] || RECIPIENT_META.patient;
-              const Icon = meta.icon;
-              return (
-                <div
-                  key={m.id}
-                  className="border border-border rounded-xl p-4 bg-card hover:bg-accent/20 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full ${meta.color}`}>
-                          <Icon className="w-3 h-3" />
-                          {meta.label}
-                        </span>
-                        <Badge variant="outline" className="text-[10px]">{m.message_type}</Badge>
-                        {m.viewed ? (
-                          <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground">
-                            <Eye className="w-3 h-3" /> Viewed
-                          </span>
-                        ) : (
-                          <Badge className="text-[10px] h-4">Unread</Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-foreground mt-2 whitespace-pre-wrap">{m.script}</p>
-                      <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
-                        <span>
-                          Sent by {(m as any).profiles?.full_name || 'System'}{' '}
-                          {m.created_at ? formatDistanceToNow(new Date(m.created_at), { addSuffix: true }) : ''}
-                        </span>
-                        {m.viewed_at && (
-                          <span>• Viewed {format(new Date(m.viewed_at), 'MMM d, h:mm a')}</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowCompose(true)}>
+          <Plus className="w-3.5 h-3.5 mr-1" /> Send Message
+        </Button>
       </div>
-    </div>
+
+      {/* Message history */}
+      {isLoading ? (
+        <div className="space-y-2">
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 rounded-xl" />)}
+        </div>
+      ) : !messages || messages.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-8">No messages sent yet.</p>
+      ) : (
+        <div className="space-y-2.5 max-h-[400px] overflow-y-auto">
+          {messages.map(m => {
+            const meta = RECIPIENT_META[m.recipient_role] || RECIPIENT_META.patient;
+            const Icon = meta.icon;
+            return (
+              <div key={m.id} className="border border-border rounded-xl p-4 bg-card hover:bg-accent/20 transition-colors">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full ${meta.color}`}>
+                    <Icon className="w-3 h-3" /> {meta.label}
+                  </span>
+                  <Badge variant="outline" className="text-[10px]">{m.message_type}</Badge>
+                  {m.viewed ? (
+                    <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground"><Eye className="w-3 h-3" /> Viewed</span>
+                  ) : (
+                    <Badge className="text-[10px] h-4">Unread</Badge>
+                  )}
+                </div>
+                <p className="text-sm text-foreground mt-2 whitespace-pre-wrap">{m.script}</p>
+                <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
+                  <span>
+                    Sent by {(m as any).profiles?.full_name || 'System'}{' '}
+                    {m.created_at ? formatDistanceToNow(new Date(m.created_at), { addSuffix: true }) : ''}
+                  </span>
+                  {m.viewed_at && <span>• Viewed {format(new Date(m.viewed_at), 'MMM d, h:mm a')}</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Compose Dialog */}
+      <Dialog open={showCompose} onOpenChange={setShowCompose}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Send a Message</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-xs">Recipient</Label>
+                <Select value={recipientRole} onValueChange={setRecipientRole}>
+                  <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Select recipient..." /></SelectTrigger>
+                  <SelectContent>
+                    {availableRecipients.map(([role, meta]) => {
+                      const profile = recipientProfiles?.[role];
+                      return <SelectItem key={role} value={role} className="text-xs">{meta.label}{profile ? ` — ${profile.name}` : ''}</SelectItem>;
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs">Message Type</Label>
+                <Select value={messageType} onValueChange={setMessageType}>
+                  <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>{MESSAGE_TYPES.map(t => <SelectItem key={t} value={t} className="text-xs">{t}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs">Message</Label>
+              <Textarea value={script} onChange={e => setScript(e.target.value)} placeholder="Type your message here..." className="min-h-[100px] text-sm" />
+            </div>
+            <p className="text-[10px] text-muted-foreground">PHI — Handle in accordance with HIPAA policy</p>
+            <div className="flex justify-end">
+              <Button size="sm" className="gap-1.5" onClick={() => sendMessage.mutate()} disabled={!recipientRole || !script.trim() || sendMessage.isPending}>
+                <Send className="w-3.5 h-3.5" /> {sendMessage.isPending ? 'Sending...' : 'Send Message'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
