@@ -31,9 +31,6 @@ import FunderJoin from "./pages/network/FunderJoin";
 
 import AdminDemandLetters from "./pages/AdminDemandLetters";
 import AdminMessages from "./pages/AdminMessages";
-import AdminRCM from "./pages/AdminRCM";
-import AdminFunding from "./pages/AdminFunding";
-import AdminCaseQueue from "./pages/admin/AdminCaseQueue";
 import FunderDashboard from "./pages/FunderDashboard";
 import ProviderRCM from "./pages/ProviderRCM";
 import PatientTimeline from "./pages/PatientTimeline";
