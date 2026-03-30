@@ -34,7 +34,7 @@ export default function AdminCaseQueue() {
   const approved = (cases || []).filter((c: any) => c.status === 'Marketplace' && c.quality_gate_passed);
   const rejected = (cases || []).filter((c: any) => c.status === 'Rejected');
 
-  const getMarketerProfileId = (c: any) => c?.marketer_profiles?.profile_id || c?.marketer_profiles?.profiles?.id;
+  
 
   const approveMutation = useMutation({
     mutationFn: async (caseId: string) => {
