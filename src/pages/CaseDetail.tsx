@@ -651,6 +651,7 @@ export default function CaseDetail() {
 
         <TabsContent value="policy" className="p-5">
           <PolicyDetailsTab caseId={id!} />
+        </TabsContent>
 
       </Tabs>
 
