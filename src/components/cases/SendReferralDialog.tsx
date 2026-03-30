@@ -73,7 +73,7 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
         case_id: caseId,
         title: `Assign ${specialty} provider`,
         description: `Attorney requested a ${specialty} provider referral for case ${caseNumber || caseId}. ${notes || ''}`.trim(),
-        status: 'pending',
+        status: 'Pending',
       });
       if (error) throw error;
     },

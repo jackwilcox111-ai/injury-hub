@@ -1,0 +1,1 @@
+UPDATE case_tasks SET status = 'Pending' WHERE status = 'pending';
