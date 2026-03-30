@@ -54,6 +54,7 @@ import FindProvider from "./pages/network/FindProvider";
 import DemoPage from "./pages/network/DemoPage";
 import ResourcesPage from "./pages/network/ResourcesPage";
 import ResourceDetail from "./pages/network/ResourceDetail";
+import ReferralAccept from "./pages/network/ReferralAccept";
 import { ReactNode } from "react";
 
 const queryClient = new QueryClient();
