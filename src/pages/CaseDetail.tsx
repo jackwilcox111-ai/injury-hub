@@ -88,7 +88,7 @@ function RecordsBillsDump({ caseId }: { caseId: string }) {
   );
 }
 
-const caseStatuses = ['Intake', 'In Treatment', 'Records Pending', 'Demand Prep', 'Settled'];
+const caseStatuses = ['Intake', 'Referrals Sent', 'In Treatment', 'Records Pending', 'Demand Prep', 'Settled'];
 const flagOptions = [{ value: 'none', label: 'None' }, { value: 'noshow', label: 'No-Show Risk' }, { value: 'records', label: 'Records Due' }, { value: 'urgent', label: 'Urgent' }];
 
 export default function CaseDetail() {
