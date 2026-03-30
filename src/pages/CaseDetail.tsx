@@ -601,15 +601,7 @@ export default function CaseDetail() {
           <TabsTrigger value="billing" className="text-xs gap-1.5"><DollarSign className="w-3.5 h-3.5" /> Billing</TabsTrigger>
           <TabsTrigger value="records" className="text-xs gap-1.5"><FileText className="w-3.5 h-3.5" /> Records</TabsTrigger>
           <TabsTrigger value="workplan" className="text-xs gap-1.5"><ListTodo className="w-3.5 h-3.5" /> Work Plan</TabsTrigger>
-          <TabsTrigger value="engagement" className="text-xs gap-1.5"><Heart className="w-3.5 h-3.5" /> Engagement</TabsTrigger>
-          
-          <TabsTrigger value="sol-alerts" className="text-xs gap-1.5"><Bell className="w-3.5 h-3.5" /> SoL Alerts</TabsTrigger>
           <TabsTrigger value="policy" className="text-xs gap-1.5"><Shield className="w-3.5 h-3.5" /> Policy</TabsTrigger>
-          
-          {isAdmin && <TabsTrigger value="colossus" className="text-xs gap-1.5"><Radar className="w-3.5 h-3.5" /> Colossus</TabsTrigger>}
-          
-          <TabsTrigger value="demand" className="text-xs gap-1.5"><FileSignature className="w-3.5 h-3.5" /> Demand Letters</TabsTrigger>
-          <TabsTrigger value="docs-dump" className="text-xs gap-1.5"><FolderOpen className="w-3.5 h-3.5" /> Records & Bills</TabsTrigger>
         </TabsList>
 
         <TabsContent value="activity" className="p-5">
@@ -657,34 +649,10 @@ export default function CaseDetail() {
           <WorkPlanTab caseId={id!} caseStatus={c.status || ''} />
         </TabsContent>
 
-        <TabsContent value="engagement" className="p-5">
-          <PatientEngagementTab caseId={id!} />
-        </TabsContent>
-
-
-        <TabsContent value="sol-alerts" className="p-5">
-          <SoLAlertsTab caseId={id!} />
-        </TabsContent>
-
         <TabsContent value="policy" className="p-5">
           <PolicyDetailsTab caseId={id!} />
         </TabsContent>
 
-
-        {isAdmin && (
-          <TabsContent value="colossus" className="p-5">
-            <ColossusTab caseId={id!} />
-          </TabsContent>
-        )}
-
-
-        <TabsContent value="demand" className="p-5">
-          <DemandLettersTab caseId={id!} />
-        </TabsContent>
-
-        <TabsContent value="docs-dump" className="p-5">
-          <RecordsBillsDump caseId={id!} />
-        </TabsContent>
       </Tabs>
 
       {/* Modals */}
