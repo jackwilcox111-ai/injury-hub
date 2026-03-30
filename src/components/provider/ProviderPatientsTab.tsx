@@ -43,7 +43,6 @@ export function ProviderPatientsTab() {
     },
   });
 
-  // Build appointment counts per case
   const apptStats = useMemo(() => {
     const map: Record<string, { total: number; completed: number; next: string | null }> = {};
     appointments?.forEach(a => {
@@ -92,7 +91,6 @@ export function ProviderPatientsTab() {
     });
   }, [filtered, sortField, sortDir]);
 
-  // Summary stats
   const totalPatients = cases?.length || 0;
   const inTreatment = cases?.filter(c => c.status === 'In Treatment').length || 0;
   const totalLien = cases?.reduce((sum, c) => sum + (c.lien_amount || 0), 0) || 0;
@@ -182,84 +180,68 @@ export function ProviderPatientsTab() {
         <span className="text-xs text-muted-foreground ml-auto">{sorted.length} patient{sorted.length !== 1 ? 's' : ''}</span>
       </div>
 
-      {/* Patient Cards Grid */}
-      {sorted.length === 0 ? (
-        <div className="bg-card border border-border rounded-xl py-16 text-center">
-          <User className="w-10 h-10 mx-auto text-muted-foreground/40 mb-3" />
-          <p className="text-sm text-muted-foreground">No patients found</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-          {sorted.map(c => {
-            const stats = apptStats[c.id];
-            const firmName = (c as any).attorneys?.firm_name;
-            return (
-              <div
-                key={c.id}
-                onClick={() => navigate(`/cases/${c.id}`)}
-                className="group bg-card border border-border rounded-xl p-4 cursor-pointer transition-all hover:shadow-md hover:border-primary/30"
-              >
-                {/* Header: name + status */}
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">{c.patient_name}</p>
-                    <p className="font-mono text-[11px] text-primary mt-0.5">{c.case_number}</p>
-                  </div>
-                  <StatusBadge status={c.status || ''} />
-                </div>
-
-                {/* Details grid */}
-                <div className="space-y-2 text-xs">
-                  {/* Specialty + Contact */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-muted-foreground">{c.specialty || 'No specialty'}</span>
-                    {c.patient_phone && (
-                      <span className="flex items-center gap-1 text-muted-foreground">
+      {/* Patient Table */}
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border bg-accent/50">
+              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Patient</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Case #</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Specialty</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Phone</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Visits</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Next Appt</th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Lien</th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Updated</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {sorted.map(c => {
+              const stats = apptStats[c.id];
+              return (
+                <tr
+                  key={c.id}
+                  onClick={() => navigate(`/cases/${c.id}`)}
+                  className="hover:bg-accent/30 transition-colors cursor-pointer"
+                >
+                  <td className="px-4 py-3 text-xs font-medium text-foreground">{c.patient_name}</td>
+                  <td className="px-4 py-3 font-mono text-[11px] text-primary">{c.case_number}</td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">{c.specialty || '—'}</td>
+                  <td className="px-4 py-3"><StatusBadge status={c.status || ''} /></td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                    {c.patient_phone ? (
+                      <span className="flex items-center gap-1">
                         <Phone className="w-3 h-3" />
                         {c.patient_phone}
                       </span>
+                    ) : '—'}
+                  </td>
+                  <td className="px-4 py-3 text-xs tabular-nums">
+                    {stats ? `${stats.completed}/${stats.total}` : '0'}
+                  </td>
+                  <td className="px-4 py-3 text-xs">
+                    {stats?.next ? (
+                      <span className="text-primary font-medium">{format(new Date(stats.next), 'MMM d')}</span>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
                     )}
-                  </div>
-
-                  {/* Attorney */}
-                  {firmName && (
-                    <p className="text-muted-foreground truncate">
-                      <span className="text-foreground/60">Atty:</span> {firmName}
-                    </p>
-                  )}
-
-                  {/* Appointments */}
-                  <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-border">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="w-3 h-3 text-muted-foreground" />
-                      <span className="tabular-nums">
-                        {stats ? `${stats.completed}/${stats.total} visits` : '0 visits'}
-                      </span>
-                    </div>
-                    {stats?.next && (
-                      <span className="text-[10px] text-primary font-medium">
-                        Next: {format(new Date(stats.next), 'MMM d')}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Lien + Last Updated */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono tabular-nums text-emerald-600 font-medium">
-                      ${Number(c.lien_amount || 0).toLocaleString()}
-                    </span>
-                    {c.updated_at && (
-                      <span className="text-[10px] text-muted-foreground">
-                        Updated {formatDistanceToNow(new Date(c.updated_at), { addSuffix: true })}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+                  </td>
+                  <td className="px-4 py-3 font-mono text-xs text-right tabular-nums">${Number(c.lien_amount || 0).toLocaleString()}</td>
+                  <td className="px-4 py-3 text-[11px] text-muted-foreground text-right whitespace-nowrap">
+                    {c.updated_at ? formatDistanceToNow(new Date(c.updated_at), { addSuffix: true }) : '—'}
+                  </td>
+                </tr>
+              );
+            })}
+            {sorted.length === 0 && (
+              <tr>
+                <td colSpan={9} className="px-4 py-16 text-center text-muted-foreground">No patients found</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
