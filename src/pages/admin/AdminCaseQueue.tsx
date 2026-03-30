@@ -47,15 +47,6 @@ export default function AdminCaseQueue() {
     mutationFn: async () => {
       const c = (cases || []).find((cc: any) => cc.id === rejectModal);
       await (supabase.from('cases') as any).update({ status: 'Rejected', notes: rejectReason }).eq('id', rejectModal);
-      const recipientId = getMarketerProfileId(c);
-      if (recipientId) {
-        await (supabase.from('notifications') as any).insert({
-          recipient_id: recipientId,
-          title: 'Case Not Approved',
-          message: `Your case ${c?.case_number} was not approved. Reason: ${rejectReason}`,
-          link: `/marketer/cases`,
-        });
-      }
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-case-queue'] }); setRejectModal(null); setRejectReason(''); toast.success('Case rejected'); },
   });
