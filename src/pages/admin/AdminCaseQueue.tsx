@@ -23,7 +23,7 @@ export default function AdminCaseQueue() {
     queryKey: ['admin-case-queue'],
     queryFn: async () => {
       const { data } = await (supabase.from('cases') as any)
-        .select('*, marketer_profiles!cases_marketer_id_fkey(id, profile_id, profiles!marketer_profiles_profile_id_fkey(id, full_name))')
+        .select('*')
         .in('status', ['Marketplace', 'Rejected'])
         .order('marketplace_submitted_at', { ascending: false });
       return data || [];
