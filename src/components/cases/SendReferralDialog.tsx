@@ -35,7 +35,7 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
     queryFn: async () => {
       const { data } = await supabase
         .from('providers')
-        .select('id, name, specialty, address_city, address_state, accepting_patients, phone, email')
+        .select('id, name, specialty, address_city, address_state, accepting_patients, phone')
         .eq('status', 'Active')
         .order('name');
       if (!data) return [];
