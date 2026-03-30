@@ -22,7 +22,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
   patients: 'bg-primary/10 text-primary',
   providers: 'bg-settled/10 text-settled',
   attorneys: 'bg-warning/10 text-warning',
-  marketers: 'bg-destructive/10 text-destructive',
+  
   general: 'bg-muted text-muted-foreground',
 };
 
