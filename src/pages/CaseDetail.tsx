@@ -773,9 +773,6 @@ export default function CaseDetail() {
           </TabsContent>
         )}
 
-        <TabsContent value="messages" className="p-5">
-          <CaseMessagesTab caseId={id!} patientName={c.patient_name} attorneyId={c.attorney_id} providerId={c.provider_id} />
-        </TabsContent>
 
         <TabsContent value="demand" className="p-5">
           <DemandLettersTab caseId={id!} />
