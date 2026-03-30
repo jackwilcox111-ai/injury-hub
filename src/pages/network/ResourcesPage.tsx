@@ -32,7 +32,7 @@ export default function ResourcesPage() {
     <PublicLayout>
       <Helmet>
         <title>Resources & Blog | Got Hurt Injury Network</title>
-        <meta name="description" content="Expert guides and resources for personal injury patients, medical providers, attorneys, and marketers. Learn about lien-based treatment, case management, and more." />
+        <meta name="description" content="Expert guides and resources for personal injury patients, medical providers, and attorneys. Learn about lien-based treatment, case management, and more." />
         <link rel="canonical" href={`${window.location.origin}/resources`} />
       </Helmet>
 

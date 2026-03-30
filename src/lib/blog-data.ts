@@ -270,50 +270,6 @@ Colossus is a claims evaluation software used by major insurance carriers to ass
 Our platform tracks Colossus-relevant factors automatically, giving attorneys a clear picture of estimated case value throughout the treatment lifecycle.`,
   },
   {
-    slug: 'marketer-guide-pi-referrals',
-    title: 'The Marketer\'s Guide to Personal Injury Referrals',
-    excerpt: 'Learn how independent marketers can earn commissions by connecting injured individuals with the Got Hurt Injury Network — ethically and compliantly.',
-    category: 'marketers',
-    readTime: '5 min read',
-    publishedAt: '2026-03-05',
-    author: 'Got Hurt Team',
-    content: `## What Is a PI Marketer?
-
-Independent marketers help connect injured individuals with medical care and legal representation. When done ethically, this service fills a critical gap — many accident victims don't know where to turn for help.
-
-## How the Got Hurt Marketer Program Works
-
-### 1. Apply and Get Approved
-Complete our application process. We verify your background and ensure compliance with applicable regulations.
-
-### 2. Submit Cases
-When you encounter someone who's been injured, submit their information through our secure portal. Consent verification is built into the process.
-
-### 3. Track Progress
-Monitor your submitted cases through your marketer dashboard. See real-time status updates as cases move through the pipeline.
-
-### 4. Earn Commissions
-When cases meet qualifying milestones, commissions are calculated and paid according to your fee structure.
-
-## Compliance Is Non-Negotiable
-
-- **Written consent** is required for every case submission
-- **No solicitation** at accident scenes or hospitals
-- **Transparent fee structures** — no hidden arrangements
-- **Audit trail** — every interaction is logged
-
-## Marketing Channels That Work
-
-- Community outreach and education
-- Digital advertising (compliant with bar association rules)
-- Referral partnerships with auto body shops, towing companies
-- Social media awareness campaigns
-
-## Ready to Join?
-
-Apply to become a Got Hurt marketer and start earning while helping injured individuals access the care they need.`,
-  },
-  {
     slug: 'florida-personal-injury-statute-limitations',
     title: 'Florida Personal Injury Statute of Limitations: What You Need to Know',
     excerpt: 'Missing the statute of limitations deadline means losing your right to recover damages. Here\'s what Florida law says and how to stay protected.',

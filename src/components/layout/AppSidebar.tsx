@@ -5,8 +5,8 @@ import {
   LayoutDashboard, FolderOpen, Stethoscope, Scale,
   DollarSign, CalendarDays, Settings, LogOut, ShieldCheck,
   BarChart3, Link2, CheckSquare, FileSignature, Video, Landmark, Banknote,
-  CreditCard, GitBranch, MessageCircle, Heart, Megaphone, ClipboardCheck,
-  Percent, PlusCircle, ShoppingBag, FileText
+  CreditCard, GitBranch, MessageCircle, Heart, ClipboardCheck,
+  ShoppingBag, FileText
 } from 'lucide-react';
 
 const navItems = [

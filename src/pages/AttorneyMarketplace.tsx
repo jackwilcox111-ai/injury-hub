@@ -90,7 +90,7 @@ export default function AttorneyMarketplace() {
         <h2 className="font-display text-xl text-foreground">Case Marketplace</h2>
         <div className="mt-3 p-4 rounded-xl bg-primary/5 border border-primary/15 text-sm text-foreground">
           <Info className="w-4 h-4 text-primary inline mr-2" />
-          Browse unrepresented PI cases submitted by GHIN network marketers. Patient consent is on file. Accepting initiates GHIN care coordination.
+          Browse unrepresented PI cases submitted to the GHIN network. Patient consent is on file. Accepting initiates GHIN care coordination.
         </div>
       </div>
 
