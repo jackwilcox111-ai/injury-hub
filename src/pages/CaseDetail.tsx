@@ -421,13 +421,6 @@ export default function CaseDetail() {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Provider</Label>
-            <Select value={c.provider_id || ''} onValueChange={v => updateCase.mutate({ provider_id: v || null })}>
-              <SelectTrigger className="h-9"><SelectValue placeholder="Select..." /></SelectTrigger>
-              <SelectContent>{allProviders?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Attorney</Label>
             <Select value={c.attorney_id || ''} onValueChange={v => updateCase.mutate({ attorney_id: v || null })}>
               <SelectTrigger className="h-9"><SelectValue placeholder="Select..." /></SelectTrigger>
