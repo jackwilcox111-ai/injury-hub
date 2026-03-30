@@ -242,12 +242,12 @@ export default function CasesList() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Phone</Label>
-                <Input value={newCase.patient_phone} onChange={e => setNewCase(p => ({...p, patient_phone: e.target.value}))} className="h-10" />
+                <Label className="text-sm font-medium">Client Phone *</Label>
+                <Input value={newCase.patient_phone} onChange={e => setNewCase(p => ({...p, patient_phone: e.target.value}))} required className="h-10" />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Email</Label>
-                <Input value={newCase.patient_email} onChange={e => setNewCase(p => ({...p, patient_email: e.target.value}))} className="h-10" />
+                <Label className="text-sm font-medium">Client Email *</Label>
+                <Input type="email" value={newCase.patient_email} onChange={e => setNewCase(p => ({...p, patient_email: e.target.value}))} required className="h-10" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
