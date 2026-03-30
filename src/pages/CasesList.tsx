@@ -35,8 +35,10 @@ export default function CasesList() {
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
   const [showNew, setShowNew] = useState(false);
   const [newCase, setNewCase] = useState({
-    patient_name: '', accident_date: '', accident_state: '', case_type: '',
+    first_name: '', last_name: '', accident_date: '', accident_state: '', case_type: '',
     patient_phone: '', patient_email: '', attorney_id: '', specialty: '',
+    request_date: new Date().toISOString().split('T')[0], preferred_language: 'English',
+    urgent: false, law_firm_website: '', case_manager_email: '', case_manager_phone: '',
   });
 
   const { data: cases, isLoading } = useQuery({
