@@ -493,15 +493,8 @@ export default function CaseDetail() {
         </div>
 
         {/* Messages */}
-        <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
-          <div className="px-5 py-4 border-b border-border">
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <MessageCircle className="w-4 h-4 text-muted-foreground" /> Messages
-            </h3>
-          </div>
-          <div className="p-5">
-            <CaseMessagesTab caseId={id!} patientName={c.patient_name} attorneyId={c.attorney_id} providerId={c.provider_id} />
-          </div>
+        <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden p-5">
+          <CaseMessagesTab caseId={id!} patientName={c.patient_name} attorneyId={c.attorney_id} providerId={c.provider_id} />
         </div>
       </div>
 
