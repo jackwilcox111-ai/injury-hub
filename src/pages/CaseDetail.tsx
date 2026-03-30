@@ -38,6 +38,7 @@ import { DemandLettersTab } from '@/components/cases/DemandLettersTab';
 import { CaseMessagesTab } from '@/components/cases/CaseMessagesTab';
 import { SendReferralDialog } from '@/components/cases/SendReferralDialog';
 import { ProviderReferralsModule } from '@/components/cases/ProviderReferralsModule';
+import { CaseTimelineSidebar } from '@/components/cases/CaseTimelineSidebar';
 
 
 function RecordsBillsDump({ caseId }: { caseId: string }) {
@@ -578,53 +579,59 @@ export default function CaseDetail() {
       {/* Provider Referrals */}
       <ProviderReferralsModule caseId={id!} onSendReferral={() => setShowReferral(true)} />
 
-      {/* Appointments Table */}
-      <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
-        <div className="px-5 py-4 border-b border-border flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Appointments</h3>
-          <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => {
-            if (c.status === 'Settled') { toast.error('Cannot add appointments to a settled case.'); return; }
-            setShowAddAppt(true);
-          }}>+ Appointment</Button>
-        </div>
-        <table className="w-full text-sm">
-          <thead><tr className="border-b border-border bg-accent/50">
-            <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Date</th>
-            <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
-            <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Status</th>
-            <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Notes</th>
-            {needsInterpreter && <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Interp.</th>}
-          </tr></thead>
-          <tbody className="divide-y divide-border">
-            {appointments?.map(a => (
-              <tr key={a.id} className="hover:bg-accent/30 transition-colors">
-                <td className="px-4 py-2.5 font-mono text-[11px]">{a.scheduled_date ? format(new Date(a.scheduled_date), 'MMM d, yyyy') : '—'}</td>
-                <td className="px-4 py-2.5 text-xs font-medium">{(a as any).providers?.name || '—'}</td>
-                <td className="px-4 py-2.5">
-                  <Select value={a.status} onValueChange={v => updateApptStatus.mutate({ apptId: a.id, status: v })}>
-                    <SelectTrigger className="h-7 text-xs w-24"><SelectValue /></SelectTrigger>
-                    <SelectContent>{['Scheduled','Completed','No-Show','Cancelled'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                  </Select>
-                </td>
-                <td className="px-4 py-2.5 text-xs text-muted-foreground max-w-[120px] truncate">{a.notes || '—'}</td>
-                {needsInterpreter && (
+      {/* Two-column: Appointments + Timeline */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Appointments Table */}
+        <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
+          <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground">Appointments</h3>
+            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => {
+              if (c.status === 'Settled') { toast.error('Cannot add appointments to a settled case.'); return; }
+              setShowAddAppt(true);
+            }}>+ Appointment</Button>
+          </div>
+          <table className="w-full text-sm">
+            <thead><tr className="border-b border-border bg-accent/50">
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Date</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Status</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Notes</th>
+              {needsInterpreter && <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Interp.</th>}
+            </tr></thead>
+            <tbody className="divide-y divide-border">
+              {appointments?.map(a => (
+                <tr key={a.id} className="hover:bg-accent/30 transition-colors">
+                  <td className="px-4 py-2.5 font-mono text-[11px]">{a.scheduled_date ? format(new Date(a.scheduled_date), 'MMM d, yyyy') : '—'}</td>
+                  <td className="px-4 py-2.5 text-xs font-medium">{(a as any).providers?.name || '—'}</td>
                   <td className="px-4 py-2.5">
-                    {(a as any).interpreter_confirmed ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full">
-                        <Languages className="w-3 h-3" /> ✓
-                      </span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
+                    <Select value={a.status} onValueChange={v => updateApptStatus.mutate({ apptId: a.id, status: v })}>
+                      <SelectTrigger className="h-7 text-xs w-24"><SelectValue /></SelectTrigger>
+                      <SelectContent>{['Scheduled','Completed','No-Show','Cancelled'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                    </Select>
                   </td>
-                )}
-              </tr>
-            ))}
-            {(!appointments || appointments.length === 0) && (
-              <tr><td colSpan={needsInterpreter ? 5 : 4} className="px-4 py-12 text-center text-muted-foreground text-sm">No appointments yet</td></tr>
-            )}
-          </tbody>
-        </table>
+                  <td className="px-4 py-2.5 text-xs text-muted-foreground max-w-[120px] truncate">{a.notes || '—'}</td>
+                  {needsInterpreter && (
+                    <td className="px-4 py-2.5">
+                      {(a as any).interpreter_confirmed ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full">
+                          <Languages className="w-3 h-3" /> ✓
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </td>
+                  )}
+                </tr>
+              ))}
+              {(!appointments || appointments.length === 0) && (
+                <tr><td colSpan={needsInterpreter ? 5 : 4} className="px-4 py-12 text-center text-muted-foreground text-sm">No appointments yet</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Case Timeline Sidebar */}
+        <CaseTimelineSidebar caseId={id!} />
       </div>
 
       {/* Records */}
@@ -724,7 +731,7 @@ export default function CaseDetail() {
           
           <TabsTrigger value="sol-alerts" className="text-xs gap-1.5"><Bell className="w-3.5 h-3.5" /> SoL Alerts</TabsTrigger>
           <TabsTrigger value="policy" className="text-xs gap-1.5"><Shield className="w-3.5 h-3.5" /> Policy</TabsTrigger>
-          <TabsTrigger value="timeline" className="text-xs gap-1.5"><GitBranch className="w-3.5 h-3.5" /> Timeline</TabsTrigger>
+          
           {isAdmin && <TabsTrigger value="colossus" className="text-xs gap-1.5"><Radar className="w-3.5 h-3.5" /> Colossus</TabsTrigger>}
           <TabsTrigger value="messages" className="text-xs gap-1.5"><MessageCircle className="w-3.5 h-3.5" /> Messages</TabsTrigger>
           <TabsTrigger value="demand" className="text-xs gap-1.5"><FileSignature className="w-3.5 h-3.5" /> Demand Letters</TabsTrigger>
@@ -789,9 +796,6 @@ export default function CaseDetail() {
           <PolicyDetailsTab caseId={id!} />
         </TabsContent>
 
-        <TabsContent value="timeline" className="p-5">
-          <TimelineTab caseId={id!} isAdmin={isAdmin} />
-        </TabsContent>
 
         {isAdmin && (
           <TabsContent value="colossus" className="p-5">
