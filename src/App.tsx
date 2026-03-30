@@ -30,7 +30,7 @@ import PatientIntake from "./pages/network/PatientIntake";
 import ProviderJoin from "./pages/network/ProviderJoin";
 import AttorneyJoin from "./pages/network/AttorneyJoin";
 import FunderJoin from "./pages/network/FunderJoin";
-import MarketerJoin from "./pages/network/MarketerJoin";
+
 import AdminDemandLetters from "./pages/AdminDemandLetters";
 import AdminMessages from "./pages/AdminMessages";
 import AdminRCM from "./pages/AdminRCM";
