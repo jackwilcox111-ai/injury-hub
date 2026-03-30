@@ -440,6 +440,9 @@ export default function CaseDetail() {
       {/* Provider Referrals */}
       <ProviderReferralsModule caseId={id!} onSendReferral={() => setShowReferral(true)} />
 
+      {/* Case Tasks */}
+      <CaseTasksSection caseId={id!} />
+
       {/* Two-column: Appointments + Messages */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Appointments Table */}
