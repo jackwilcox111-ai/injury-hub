@@ -34,7 +34,7 @@ function getDotColor(eventType: string): string {
 
 interface Props {
   caseId: string;
-  onViewFullTimeline: () => void;
+  onViewFullTimeline?: () => void;
 }
 
 export function CaseTimelineSidebar({ caseId, onViewFullTimeline }: Props) {
