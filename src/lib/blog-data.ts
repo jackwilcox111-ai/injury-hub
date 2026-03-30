@@ -2,7 +2,7 @@ export interface BlogPost {
   slug: string;
   title: string;
   excerpt: string;
-  category: 'patients' | 'providers' | 'attorneys' | 'marketers' | 'general';
+  category: 'patients' | 'providers' | 'attorneys' | 'general';
   readTime: string;
   publishedAt: string;
   author: string;
