@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
 import { Send, MapPin, CheckSquare } from 'lucide-react';
+import { SPECIALTIES } from '@/lib/specialties';
 
 interface Props {
   open: boolean;
@@ -56,7 +57,12 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
     enabled: open,
   });
 
-  const specialties = [...new Set(providers?.map(p => p.specialty).filter(Boolean) || [])].sort();
+  const specialties = useMemo(() => {
+    if (isAttorney) return [...SPECIALTIES];
+    return [...new Set(providers?.map(p => p.specialty).filter(Boolean) || [])].sort();
+  }, [isAttorney, providers]);
+
+
   const filteredProviders = specialty ? providers?.filter(p => p.specialty === specialty) : providers;
 
   // Attorney flow: create a task for the care manager
