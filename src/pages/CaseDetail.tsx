@@ -40,6 +40,7 @@ import { SendReferralDialog } from '@/components/cases/SendReferralDialog';
 import { ProviderReferralsModule } from '@/components/cases/ProviderReferralsModule';
 import { CaseTimelineSidebar } from '@/components/cases/CaseTimelineSidebar';
 import { CaseProgressStepper } from '@/components/cases/CaseProgressStepper';
+import { CaseTasksSection } from '@/components/cases/CaseTasksSection';
 
 
 function RecordsBillsDump({ caseId }: { caseId: string }) {
