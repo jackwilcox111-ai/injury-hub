@@ -86,7 +86,7 @@ export default function CasesList() {
       toast.success(`Case ${data.case_number} created`);
       queryClient.invalidateQueries({ queryKey: ['cases-list'] });
       setShowNew(false);
-      setNewCase({ patient_name: '', accident_date: '', accident_state: '', case_type: '', patient_phone: '', patient_email: '', attorney_id: '', specialty: '' });
+      setNewCase({ first_name: '', last_name: '', accident_date: '', accident_state: '', case_type: '', patient_phone: '', patient_email: '', attorney_id: '', specialty: '', request_date: new Date().toISOString().split('T')[0], preferred_language: 'English', urgent: false, law_firm_website: '', case_manager_email: '', case_manager_phone: '' });
     },
     onError: (e: any) => toast.error(e.message),
   });
