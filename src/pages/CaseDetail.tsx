@@ -1003,6 +1003,72 @@ export default function CaseDetail() {
         </DialogContent>
       </Dialog>
 
+      {/* Edit Charge Dialog */}
+      <Dialog open={showEditCharge} onOpenChange={v => { setShowEditCharge(v); if (!v) setEditCharge(null); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Edit Charge</DialogTitle></DialogHeader>
+          {editCharge && (
+            <form onSubmit={e => { e.preventDefault(); updateChargeMutation.mutate(editCharge); }} className="space-y-4">
+              <div className="space-y-2"><Label className="text-sm font-medium">Description</Label>
+                <Input value={editCharge.cpt_description || ''} onChange={e => setEditCharge((p: any) => ({...p, cpt_description: e.target.value}))} className="h-10" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label className="text-sm font-medium">Service Date</Label>
+                  <Input type="date" value={editCharge.service_date || ''} onChange={e => setEditCharge((p: any) => ({...p, service_date: e.target.value}))} className="h-10" />
+                </div>
+                <div className="space-y-2"><Label className="text-sm font-medium">Amount ($)</Label>
+                  <Input type="number" min="0" step="0.01" value={editCharge.charge_amount} onChange={e => setEditCharge((p: any) => ({...p, charge_amount: Number(e.target.value)}))} className="h-10" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label className="text-sm font-medium">Status</Label>
+                  <Select value={editCharge.status} onValueChange={v => setEditCharge((p: any) => ({...p, status: v}))}><SelectTrigger className="h-10"><SelectValue /></SelectTrigger><SelectContent>{['Pending','Submitted','Approved','Denied','Paid','Adjusted'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select>
+                </div>
+                <div className="space-y-2"><Label className="text-sm font-medium">Billing Path</Label>
+                  <Select value={editCharge.billing_path || ''} onValueChange={v => setEditCharge((p: any) => ({...p, billing_path: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{['Insurance','Lien','Self-Pay','MedPay/PIP'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select>
+                </div>
+              </div>
+              <div className="space-y-2"><Label className="text-sm font-medium">Notes</Label><Textarea value={editCharge.notes || ''} onChange={e => setEditCharge((p: any) => ({...p, notes: e.target.value}))} /></div>
+              <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
+              <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowEditCharge(false)}>Cancel</Button><Button type="submit" disabled={updateChargeMutation.isPending}>{updateChargeMutation.isPending ? 'Saving...' : 'Save'}</Button></div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Lien Dialog */}
+      <Dialog open={showEditLien} onOpenChange={v => { setShowEditLien(v); if (!v) setEditLien(null); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Edit Lien</DialogTitle></DialogHeader>
+          {editLien && (
+            <form onSubmit={e => { e.preventDefault(); updateLienMutation.mutate(editLien); }} className="space-y-4">
+              <div className="space-y-2"><Label className="text-sm font-medium">Provider</Label>
+                <Input value={(editLien as any).providers?.name || '—'} disabled className="h-10 bg-muted" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label className="text-sm font-medium">Amount ($)</Label>
+                  <Input type="number" min="0" step="0.01" value={editLien.amount} onChange={e => setEditLien((p: any) => ({...p, amount: Number(e.target.value)}))} className="h-10" />
+                </div>
+                <div className="space-y-2"><Label className="text-sm font-medium">Reduction ($)</Label>
+                  <Input type="number" min="0" step="0.01" value={editLien.reduction_amount} onChange={e => setEditLien((p: any) => ({...p, reduction_amount: Number(e.target.value)}))} className="h-10" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label className="text-sm font-medium">Status</Label>
+                  <Select value={editLien.status} onValueChange={v => setEditLien((p: any) => ({...p, status: v}))}><SelectTrigger className="h-10"><SelectValue /></SelectTrigger><SelectContent>{['Active','Reduced','Paid','Waived'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select>
+                </div>
+                <div className="space-y-2"><Label className="text-sm font-medium">Payment Date</Label>
+                  <Input type="date" value={editLien.payment_date || ''} onChange={e => setEditLien((p: any) => ({...p, payment_date: e.target.value}))} className="h-10" />
+                </div>
+              </div>
+              <div className="space-y-2"><Label className="text-sm font-medium">Notes</Label><Textarea value={editLien.notes || ''} onChange={e => setEditLien((p: any) => ({...p, notes: e.target.value}))} /></div>
+              <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
+              <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowEditLien(false)}>Cancel</Button><Button type="submit" disabled={updateLienMutation.isPending}>{updateLienMutation.isPending ? 'Saving...' : 'Save'}</Button></div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <SendReferralDialog
         open={showReferral}
         onOpenChange={setShowReferral}
