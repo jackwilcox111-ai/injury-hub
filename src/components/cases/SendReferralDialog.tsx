@@ -58,9 +58,8 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
   });
 
   const specialties = useMemo(() => {
-    if (isAttorney) return [...SPECIALTIES];
-    return [...new Set(providers?.map(p => p.specialty).filter(Boolean) || [])].sort();
-  }, [isAttorney, providers]);
+    return [...SPECIALTIES];
+  }, []);
 
 
   const filteredProviders = specialty ? providers?.filter(p => p.specialty === specialty) : providers;
