@@ -49,11 +49,46 @@ export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId }:
     },
   });
 
+  // Fetch all providers linked to this case (via referrals + primary provider)
+  const { data: caseProviders } = useQuery({
+    queryKey: ['case-providers-for-messages', caseId, providerId],
+    queryFn: async () => {
+      const providers: { id: string; name: string; providerId: string }[] = [];
+      
+      // Get providers from referrals
+      const { data: referrals } = await supabase
+        .from('referrals')
+        .select('provider_id, providers:provider_id(id, name)')
+        .eq('case_id', caseId)
+        .neq('status', 'Rejected');
+      
+      const seenProviderIds = new Set<string>();
+      referrals?.forEach(r => {
+        if (r.provider_id && !seenProviderIds.has(r.provider_id)) {
+          seenProviderIds.add(r.provider_id);
+          providers.push({
+            id: r.provider_id,
+            name: (r as any).providers?.name || 'Provider',
+            providerId: r.provider_id,
+          });
+        }
+      });
+
+      // Add primary provider if not already included
+      if (providerId && !seenProviderIds.has(providerId)) {
+        const { data: prov } = await supabase.from('providers').select('id, name').eq('id', providerId).maybeSingle();
+        if (prov) providers.push({ id: prov.id, name: prov.name, providerId: prov.id });
+      }
+
+      return providers;
+    },
+  });
+
   const { data: recipientProfiles } = useQuery({
     queryKey: ['case-recipient-profiles', caseId, attorneyId, providerId],
     queryFn: async () => {
       const result: Record<string, { id: string; name: string } | null> = {
-        patient: null, attorney: null, provider: null,
+        patient: null, attorney: null,
       };
       const { data: patientProfile } = await supabase
         .from('patient_profiles')
@@ -67,10 +102,6 @@ export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId }:
         const { data: attyProfile } = await supabase.from('profiles').select('id, full_name').eq('firm_id', attorneyId).limit(1).maybeSingle();
         if (attyProfile) result.attorney = { id: attyProfile.id, name: attyProfile.full_name || 'Attorney' };
       }
-      if (providerId) {
-        const { data: provProfile } = await supabase.from('profiles').select('id, full_name').eq('provider_id', providerId).limit(1).maybeSingle();
-        if (provProfile) result.provider = { id: provProfile.id, name: provProfile.full_name || 'Provider' };
-      }
       return result;
     },
   });
@@ -78,9 +109,21 @@ export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId }:
   const sendMessage = useMutation({
     mutationFn: async () => {
       if (!recipientRole || !script.trim()) throw new Error('Select a recipient and enter a message.');
-      const recipientProfile = recipientProfiles?.[recipientRole];
+      // For provider recipients, recipientRole is like "provider_<id>"
+      const isProviderRecipient = recipientRole.startsWith('provider_');
+      const actualRole = isProviderRecipient ? 'provider' : recipientRole;
+      let recipientId: string | null = null;
+      
+      if (isProviderRecipient) {
+        const provId = recipientRole.replace('provider_', '');
+        const { data: provProfile } = await supabase.from('profiles').select('id').eq('provider_id', provId).limit(1).maybeSingle();
+        recipientId = provProfile?.id || null;
+      } else {
+        recipientId = recipientProfiles?.[recipientRole]?.id || null;
+      }
+
       const { error } = await supabase.from('video_messages').insert({
-        case_id: caseId, recipient_role: recipientRole, recipient_id: recipientProfile?.id || null,
+        case_id: caseId, recipient_role: actualRole, recipient_id: recipientId,
         message_type: messageType, script: script.trim(), ai_generated_script: false,
         sent_at: new Date().toISOString(), created_by: user?.id,
       });
@@ -97,18 +140,24 @@ export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId }:
 
   const isAttorney = profile?.role === 'attorney';
 
-  const availableRecipients = Object.entries(RECIPIENT_META).filter(([role]) => {
-    if (role === 'attorney' && (!attorneyId || isAttorney)) return false;
-    if (role === 'provider' && !providerId) return false;
-    if (role === 'patient' && isAttorney) return false;
-    return true;
-  });
+  // Build recipient options: non-provider roles + individual providers
+  const baseRecipients: [string, { label: string; icon: typeof User; color: string }][] = [];
+  
+  if (!isAttorney) {
+    baseRecipients.push(['patient', RECIPIENT_META.patient]);
+    if (attorneyId) baseRecipients.push(['attorney', RECIPIENT_META.attorney]);
+  } else {
+    baseRecipients.push(['case_manager', { label: 'Case Manager', icon: User, color: 'bg-amber-100 text-amber-700' }]);
+  }
 
-  // For attorneys, add "Case Manager" as a recipient option
-  const CASE_MANAGER_META = { label: 'Case Manager', icon: User, color: 'bg-amber-100 text-amber-700' };
-  const recipientOptions = isAttorney
-    ? [['case_manager', CASE_MANAGER_META] as const, ...availableRecipients]
-    : availableRecipients;
+  // Add individual providers
+  const providerRecipients: [string, { label: string; icon: typeof User; color: string }][] = 
+    (caseProviders || []).map(p => [
+      `provider_${p.id}`,
+      { label: p.name, icon: Stethoscope, color: 'bg-emerald-100 text-emerald-700' },
+    ]);
+
+  const recipientOptions = [...baseRecipients, ...providerRecipients];
 
   return (
     <>
@@ -176,10 +225,9 @@ export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId }:
                 <Select value={recipientRole} onValueChange={setRecipientRole}>
                   <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Select recipient..." /></SelectTrigger>
                   <SelectContent>
-                    {recipientOptions.map(([role, meta]) => {
-                      const rProfile = recipientProfiles?.[role as string];
-                      return <SelectItem key={role} value={role as string} className="text-xs">{meta.label}{rProfile ? ` — ${rProfile.name}` : ''}</SelectItem>;
-                    })}
+                    {recipientOptions.map(([role, meta]) => (
+                      <SelectItem key={role} value={role as string} className="text-xs">{meta.label}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
