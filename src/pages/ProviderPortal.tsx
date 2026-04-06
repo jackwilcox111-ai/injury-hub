@@ -37,6 +37,8 @@ export default function ProviderPortal() {
   const activeTab = searchParams.get('tab') || 'dashboard';
   const queryClient = useQueryClient();
   const [showAddCharge, setShowAddCharge] = useState(false);
+  const [showEditCharge, setShowEditCharge] = useState(false);
+  const [editingCharge, setEditingCharge] = useState<any>(null);
   const [selectedCaseId, setSelectedCaseId] = useState('');
   const [charge, setCharge] = useState({ description: '', service_date: '', charge_amount: '', units: '1', billing_path: 'Lien' });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -165,6 +167,28 @@ export default function ProviderPortal() {
       setSelectedFile(null);
       setCharge({ description: '', service_date: '', charge_amount: '', units: '1', billing_path: 'Lien' });
       toast.success('Charge submitted');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const updateCharge = useMutation({
+    mutationFn: async () => {
+      if (!editingCharge) return;
+      const { error } = await supabase.from('charges').update({
+        cpt_code: editingCharge.cpt_description || editingCharge.cpt_code || 'BILL',
+        cpt_description: editingCharge.cpt_description || null,
+        service_date: editingCharge.service_date,
+        charge_amount: parseFloat(editingCharge.charge_amount) || 0,
+        units: parseInt(editingCharge.units) || 1,
+        billing_path: editingCharge.billing_path || 'Lien',
+      }).eq('id', editingCharge.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['provider-charges'] });
+      setShowEditCharge(false);
+      setEditingCharge(null);
+      toast.success('Charge updated');
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -698,7 +722,21 @@ export default function ProviderPortal() {
                   </tr></thead>
                   <tbody className="divide-y divide-border">
                     {charges?.map(c => (
-                      <tr key={c.id} className="hover:bg-accent/30 transition-colors">
+                      <tr key={c.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => {
+                        if (c.status === 'Pending') {
+                          setEditingCharge({
+                            id: c.id,
+                            cpt_code: c.cpt_code,
+                            cpt_description: c.cpt_description || '',
+                            service_date: c.service_date,
+                            charge_amount: String(c.charge_amount),
+                            units: String(c.units || 1),
+                            billing_path: c.billing_path || 'Lien',
+                            case_number: (c as any).cases?.case_number,
+                          });
+                          setShowEditCharge(true);
+                        }
+                      }}>
                         <td className="px-4 py-3 font-mono text-xs text-primary">{(c as any).cases?.case_number}</td>
                         <td className="px-4 py-3 text-xs"><span className="font-mono">{c.cpt_code}</span> {c.cpt_description && <span className="text-muted-foreground ml-1">— {c.cpt_description}</span>}</td>
                         <td className="px-4 py-3 font-mono text-xs">{c.service_date}</td>
@@ -826,7 +864,36 @@ export default function ProviderPortal() {
         </DialogContent>
       </Dialog>
 
-      {/* HIPAA Disclaimer */}
+      {/* Edit Charge Dialog */}
+      <Dialog open={showEditCharge} onOpenChange={v => { setShowEditCharge(v); if (!v) setEditingCharge(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Edit Charge — {editingCharge?.case_number}</DialogTitle></DialogHeader>
+          {editingCharge && (
+            <form onSubmit={e => { e.preventDefault(); updateCharge.mutate(); }} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label>Service Date *</Label><Input type="date" value={editingCharge.service_date} onChange={e => setEditingCharge((p: any) => ({ ...p, service_date: e.target.value }))} required /></div>
+                <div className="space-y-2">
+                  <Label>Billing Path</Label>
+                  <Select value={editingCharge.billing_path} onValueChange={v => setEditingCharge((p: any) => ({ ...p, billing_path: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>{BILLING_PATHS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2"><Label>Description</Label><Input value={editingCharge.cpt_description} onChange={e => setEditingCharge((p: any) => ({ ...p, cpt_description: e.target.value }))} placeholder="e.g. Office visit, MRI, Injection..." /></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label>Amount ($) *</Label><Input type="number" step="0.01" value={editingCharge.charge_amount} onChange={e => setEditingCharge((p: any) => ({ ...p, charge_amount: e.target.value }))} required /></div>
+                <div className="space-y-2"><Label>Units</Label><Input type="number" min={1} value={editingCharge.units} onChange={e => setEditingCharge((p: any) => ({ ...p, units: e.target.value }))} /></div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => { setShowEditCharge(false); setEditingCharge(null); }}>Cancel</Button>
+                <Button type="submit" disabled={updateCharge.isPending}>Save Changes</Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <div className="text-[10px] text-muted-foreground text-center py-2 border-t border-border mt-8">
         This portal contains Protected Health Information (PHI). Access is restricted to authorized personnel only. All activity is logged in compliance with HIPAA regulations.
       </div>
