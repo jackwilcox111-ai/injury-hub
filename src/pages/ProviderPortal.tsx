@@ -153,6 +153,7 @@ export default function ProviderPortal() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const addCharge = useMutation({
     mutationFn: async () => {
       let documentId: string | null = null;
 
