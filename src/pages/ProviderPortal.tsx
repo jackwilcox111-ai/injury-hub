@@ -37,6 +37,8 @@ export default function ProviderPortal() {
   const activeTab = searchParams.get('tab') || 'dashboard';
   const queryClient = useQueryClient();
   const [showAddCharge, setShowAddCharge] = useState(false);
+  const [showEditCharge, setShowEditCharge] = useState(false);
+  const [editingCharge, setEditingCharge] = useState<any>(null);
   const [selectedCaseId, setSelectedCaseId] = useState('');
   const [charge, setCharge] = useState({ description: '', service_date: '', charge_amount: '', units: '1', billing_path: 'Lien' });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
