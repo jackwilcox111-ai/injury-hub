@@ -30,7 +30,7 @@ const navItems = [
   { title: 'Records & Bills', path: '/provider/dashboard?tab=records-bills', icon: FileText, roles: ['provider'] as UserRole[] },
   { title: 'Liens', path: '/provider/dashboard?tab=liens', icon: Link2, roles: ['provider'] as UserRole[] },
   { title: 'Messages', path: '/provider/dashboard?tab=messages', icon: MessageCircle, roles: ['provider'] as UserRole[] },
-  { title: 'RCM Billing', path: '/provider/rcm', icon: CreditCard, roles: ['provider'] as UserRole[] },
+  
   { title: 'My Practice', path: '/provider/dashboard?tab=profile', icon: Building2, roles: ['provider'] as UserRole[] },
   // Patient sidebar
   { title: 'My Dashboard', path: '/patient/dashboard', icon: Heart, roles: ['patient'] as UserRole[] },
