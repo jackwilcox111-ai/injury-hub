@@ -171,6 +171,28 @@ export default function ProviderPortal() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const updateCharge = useMutation({
+    mutationFn: async () => {
+      if (!editingCharge) return;
+      const { error } = await supabase.from('charges').update({
+        cpt_code: editingCharge.cpt_description || editingCharge.cpt_code || 'BILL',
+        cpt_description: editingCharge.cpt_description || null,
+        service_date: editingCharge.service_date,
+        charge_amount: parseFloat(editingCharge.charge_amount) || 0,
+        units: parseInt(editingCharge.units) || 1,
+        billing_path: editingCharge.billing_path || 'Lien',
+      }).eq('id', editingCharge.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['provider-charges'] });
+      setShowEditCharge(false);
+      setEditingCharge(null);
+      toast.success('Charge updated');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   // Build unique case list from provider's assigned cases for charge selector
   const uniqueCases = (cases || []).map(c => ({ id: c.id, case_number: c.case_number, patient_name: c.patient_name }));
 
