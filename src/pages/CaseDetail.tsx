@@ -164,6 +164,15 @@ export default function CaseDetail() {
     },
   });
 
+  const { data: charges } = useQuery({
+    queryKey: ['case-charges-inline', id],
+    queryFn: async () => {
+      const { data } = await supabase.from('charges').select('*, providers!charges_provider_id_fkey(name)')
+        .eq('case_id', id!).order('service_date', { ascending: false });
+      return data || [];
+    },
+  });
+
   const { data: liens } = useQuery({
     queryKey: ['case-liens', id],
     queryFn: async () => {
