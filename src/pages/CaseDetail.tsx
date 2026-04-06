@@ -356,7 +356,25 @@ export default function CaseDetail() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const updateLienMutation = useMutation({
+  const addChargeMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from('charges').insert({
+        case_id: id!, cpt_code: 'MISC', cpt_description: newCharge.cpt_description,
+        service_date: newCharge.service_date, charge_amount: newCharge.charge_amount,
+        status: newCharge.status, billing_path: newCharge.billing_path || null,
+        notes: newCharge.notes || null, provider_id: newCharge.provider_id || null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidateAll();
+      setShowAddCharge(false);
+      setNewCharge({ cpt_description: '', service_date: '', charge_amount: 0, status: 'Pending', billing_path: '', notes: '', provider_id: '' });
+      toast.success('Charge added');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
     mutationFn: async (lien: any) => {
       const { error } = await supabase.from('liens').update({
         amount: lien.amount, reduction_amount: lien.reduction_amount,
