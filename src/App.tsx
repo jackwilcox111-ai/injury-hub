@@ -115,6 +115,7 @@ const App = () => (
 
             {/* Attorney extras */}
             <Route path="/attorney-portal" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/provider-portal" element={<Navigate to="/provider/dashboard" replace />} />
             <Route path="/attorney/marketplace" element={<RequireAuth roles={['attorney']}><AppLayout><AttorneyMarketplace /></AppLayout></RequireAuth>} />
 
             {/* Provider portal */}
