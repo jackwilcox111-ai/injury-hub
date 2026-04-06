@@ -15,8 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { PHIBanner } from '@/components/global/PHIBanner';
-import { Calendar, FileText, DollarSign, Plus, Users, Building2, Link2, MessageCircle, Upload } from 'lucide-react';
-import { ProviderMetrics } from '@/components/provider/ProviderMetrics';
+import { Calendar, FileText, DollarSign, Plus, Users, Building2, Link2, MessageCircle, Upload, TrendingUp, CheckCircle, Clock, AlertTriangle, FileCheck, Eye } from 'lucide-react';
 import { ProviderProfileTab } from '@/components/provider/ProviderProfileTab';
 import { ProviderPatientsTab } from '@/components/provider/ProviderPatientsTab';
 import { ProviderLiensTab } from '@/components/provider/ProviderLiensTab';
@@ -81,6 +80,22 @@ export default function ProviderPortal() {
     },
   });
 
+  const { data: liens } = useQuery({
+    queryKey: ['provider-liens-metrics'],
+    queryFn: async () => {
+      const { data } = await supabase.from('liens').select('amount, reduction_amount, status, payment_date');
+      return data || [];
+    },
+  });
+
+  const { data: documents } = useQuery({
+    queryKey: ['provider-documents-metrics'],
+    queryFn: async () => {
+      const { data } = await supabase.from('documents').select('id, signed, document_type');
+      return data || [];
+    },
+  });
+
   const updateAppt = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
       const { error } = await supabase.from('appointments').update({ status }).eq('id', id);
@@ -127,8 +142,20 @@ export default function ProviderPortal() {
   const totalCharges = charges?.reduce((sum, c) => sum + (c.charge_amount || 0), 0) || 0;
   const totalPaid = charges?.reduce((sum, c) => sum + (c.paid_amount || 0), 0) || 0;
   const completed = appointments?.filter(a => a.status === 'Completed').length || 0;
+  const scheduled = appointments?.filter(a => a.status === 'Scheduled').length || 0;
+  const noShows = appointments?.filter(a => a.status === 'No-Show').length || 0;
   const total = appointments?.length || 0;
   const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+  const inTreatment = uniqueCases.filter((c: any) => c.status === 'In Treatment').length;
+  const pendingCharges = charges?.filter(c => c.status === 'Pending').length || 0;
+  const totalLienAmount = liens?.reduce((sum, l) => sum + (l.amount || 0), 0) || 0;
+  const pendingLiens = liens?.filter(l => l.status === 'Pending').length || 0;
+  const paidLiens = liens?.filter(l => l.status === 'Paid').length || 0;
+  const totalReductions = liens?.reduce((sum, l) => sum + (l.reduction_amount || 0), 0) || 0;
+  const totalDocs = documents?.length || 0;
+  const signedDocs = documents?.filter(d => d.signed).length || 0;
+  const unsignedDocs = totalDocs - signedDocs;
+  const totalRecords = records?.length || 0;
 
   if (isLoading) return <div className="space-y-6"><h2 className="font-display text-xl">Provider Portal</h2><Skeleton className="h-96 rounded" /></div>;
 
@@ -143,21 +170,93 @@ export default function ProviderPortal() {
     profile: 'My Practice',
   };
 
+  const tabDescriptions: Record<string, string> = {
+    patients: 'View and manage your assigned patients.',
+    appointments: 'Track upcoming, completed, and missed appointments.',
+    charges: 'Submit and track billing charges across your cases.',
+    records: 'View medical records received and delivered.',
+    documents: 'Upload and manage case documents.',
+    liens: 'Track lien amounts, reductions, and payments.',
+    messages: 'View and respond to secure messages.',
+    profile: 'Update your practice information.',
+  };
+
+  const KpiCard = ({ icon: Icon, value, label, color = 'text-foreground', bg = 'bg-card border-border' }: { icon: any; value: string | number; label: string; color?: string; bg?: string }) => (
+    <div className={`${bg} border rounded-xl p-4 text-center`}>
+      <Icon className={`w-4 h-4 mx-auto mb-1 ${color}`} />
+      <p className={`text-2xl font-bold tabular-nums ${color}`}>{value}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
+    </div>
+  );
+
+  const sectionKpis: Record<string, React.ReactNode> = {
+    patients: (
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <KpiCard icon={Users} value={uniqueCases.length} label="Total Patients" />
+        <KpiCard icon={TrendingUp} value={inTreatment} label="In Treatment" color="text-success" />
+        <KpiCard icon={Calendar} value={scheduled} label="Upcoming Appts" />
+        <KpiCard icon={DollarSign} value={`$${totalLienAmount.toLocaleString()}`} label="Total Liens" />
+      </div>
+    ),
+    appointments: (
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <KpiCard icon={Calendar} value={total} label="Total Appts" />
+        <KpiCard icon={CheckCircle} value={completed} label="Completed" color="text-success" />
+        <KpiCard icon={Clock} value={scheduled} label="Scheduled" color="text-primary" />
+        <KpiCard icon={AlertTriangle} value={noShows} label="No-Shows" color="text-destructive" />
+      </div>
+    ),
+    charges: (
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <KpiCard icon={FileText} value={charges?.length || 0} label="Total Charges" />
+        <KpiCard icon={Clock} value={pendingCharges} label="Pending" color="text-warning" />
+        <KpiCard icon={DollarSign} value={`$${totalCharges.toLocaleString()}`} label="Billed" color="text-success" bg="bg-success/5 border-success/20" />
+        <KpiCard icon={DollarSign} value={`$${totalPaid.toLocaleString()}`} label="Collected" color="text-primary" bg="bg-primary/5 border-primary/20" />
+      </div>
+    ),
+    records: (
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <KpiCard icon={FileText} value={totalRecords} label="Total Records" />
+        <KpiCard icon={Users} value={uniqueCases.length} label="Cases with Records" />
+        <KpiCard icon={CheckCircle} value={completionRate + '%'} label="Appt Completion" color="text-success" />
+        <KpiCard icon={Calendar} value={scheduled} label="Upcoming Appts" />
+      </div>
+    ),
+    documents: (
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <KpiCard icon={Upload} value={totalDocs} label="Total Documents" />
+        <KpiCard icon={FileCheck} value={signedDocs} label="Signed" color="text-success" />
+        <KpiCard icon={AlertTriangle} value={unsignedDocs} label="Unsigned" color="text-warning" />
+        <KpiCard icon={Users} value={uniqueCases.length} label="Cases" />
+      </div>
+    ),
+    liens: (
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <KpiCard icon={DollarSign} value={`$${totalLienAmount.toLocaleString()}`} label="Total Liens" />
+        <KpiCard icon={Clock} value={pendingLiens} label="Pending" color="text-warning" />
+        <KpiCard icon={CheckCircle} value={paidLiens} label="Paid" color="text-success" />
+        <KpiCard icon={DollarSign} value={`$${totalReductions.toLocaleString()}`} label="Reductions" color="text-primary" />
+      </div>
+    ),
+    messages: (
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <KpiCard icon={MessageCircle} value={unreadMessages || 0} label="Unread" color="text-destructive" />
+        <KpiCard icon={Users} value={uniqueCases.length} label="Active Cases" />
+        <KpiCard icon={Calendar} value={scheduled} label="Upcoming Appts" />
+        <KpiCard icon={TrendingUp} value={completionRate + '%'} label="Completion Rate" color="text-success" />
+      </div>
+    ),
+  };
+
   return (
     <div className="space-y-6">
       <PHIBanner />
       <div>
         <h2 className="font-display text-xl">{tabTitles[activeTab] || 'Dashboard'}</h2>
-        <p className="text-sm text-muted-foreground">Manage your patients, appointments, charges, and records.</p>
+        <p className="text-sm text-muted-foreground">{tabDescriptions[activeTab] || 'Manage your patients, appointments, charges, and records.'}</p>
       </div>
 
-      <ProviderMetrics
-        appointmentCount={total}
-        patientCount={uniqueCases.length}
-        totalBilled={totalCharges}
-        totalCollected={totalPaid}
-        completionRate={completionRate}
-      />
+      {sectionKpis[activeTab] || null}
 
       <Tabs value={activeTab}>
 
