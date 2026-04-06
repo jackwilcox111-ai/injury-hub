@@ -66,7 +66,7 @@ function AuthRedirect() {
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground font-mono text-sm">Loading...</p></div>;
   if (!session) return <Navigate to="/login" replace />;
   if (profile?.role === 'attorney') return <Navigate to="/dashboard" replace />;
-  if (profile?.role === 'provider') return <Navigate to="/provider-portal" replace />;
+  if (profile?.role === 'provider') return <Navigate to="/provider/dashboard" replace />;
   if (profile?.role === 'patient') return <Navigate to="/patient/dashboard" replace />;
   if (profile?.role === 'funder') return <Navigate to="/funder/dashboard" replace />;
   
