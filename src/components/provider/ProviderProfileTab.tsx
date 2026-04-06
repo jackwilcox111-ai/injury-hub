@@ -181,6 +181,11 @@ export function ProviderProfileTab() {
           <div className="px-6 py-8 text-center text-sm text-muted-foreground">No locations on file</div>
         )}
       </div>
+
+      {/* Compliance section — read-only */}
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-border">
+          <h3 className="text-sm font-semibold text-foreground">Compliance & Status</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
           <div className="divide-y divide-border">
@@ -194,7 +199,6 @@ export function ProviderProfileTab() {
               <Badge variant={provider.status === 'Active' ? 'default' : 'secondary'} className="text-xs">{provider.status}</Badge>
             </div>
             <InfoRow label="Rating" value={provider.rating ? `${provider.rating} / 5` : 'Not rated'} />
-            <InfoRow label="Locations" value={String(provider.locations || 1)} />
           </div>
         </div>
       </div>
