@@ -95,11 +95,20 @@ export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId }:
     onError: (e: any) => toast.error(e.message),
   });
 
+  const isAttorney = profile?.role === 'attorney';
+
   const availableRecipients = Object.entries(RECIPIENT_META).filter(([role]) => {
-    if (role === 'attorney' && !attorneyId) return false;
+    if (role === 'attorney' && (!attorneyId || isAttorney)) return false;
     if (role === 'provider' && !providerId) return false;
+    if (role === 'patient' && isAttorney) return false;
     return true;
   });
+
+  // For attorneys, add "Case Manager" as a recipient option
+  const CASE_MANAGER_META = { label: 'Case Manager', icon: User, color: 'bg-amber-100 text-amber-700' };
+  const recipientOptions = isAttorney
+    ? [['case_manager', CASE_MANAGER_META] as const, ...availableRecipients]
+    : availableRecipients;
 
   return (
     <>
