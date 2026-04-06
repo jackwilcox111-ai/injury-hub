@@ -63,7 +63,23 @@ export default function CasesList() {
     },
   });
 
-  const createCase = useMutation({
+  // Fetch patient DOBs for display
+  const { data: patientDobs } = useQuery({
+    queryKey: ['patient-dobs', cases?.map(c => c.id)],
+    enabled: !!cases && cases.length > 0,
+    queryFn: async () => {
+      const caseIds = cases!.map(c => c.id);
+      const { data } = await supabase
+        .from('patient_profiles')
+        .select('case_id, date_of_birth')
+        .in('case_id', caseIds)
+        .not('date_of_birth', 'is', null);
+      const map: Record<string, string> = {};
+      data?.forEach(p => { if (p.case_id && p.date_of_birth) map[p.case_id] = p.date_of_birth; });
+      return map;
+    },
+  });
+
     mutationFn: async () => {
       const insertData: any = {
         patient_name: `${newCase.first_name} ${newCase.last_name}`.trim(),
