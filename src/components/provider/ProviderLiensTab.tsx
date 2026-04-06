@@ -16,9 +16,6 @@ export function ProviderLiensTab() {
 
   if (isLoading) return <Skeleton className="h-64 rounded-xl" />;
 
-  const totalActive = liens?.filter(l => l.status === 'Active').reduce((s, l) => s + Number(l.amount || 0), 0) || 0;
-  const totalReductions = liens?.reduce((s, l) => s + Number(l.reduction_amount || 0), 0) || 0;
-  const totalPaid = liens?.filter(l => l.status === 'Paid').reduce((s, l) => s + Number(l.amount || 0), 0) || 0;
 
   return (
     <div className="space-y-4">
