@@ -24,6 +24,7 @@ const navItems = [
   { title: 'Calendar', path: '/calendar', icon: CalendarDays, roles: ['admin', 'care_manager', 'attorney', 'provider'] as UserRole[] },
   { title: 'Settings', path: '/settings', icon: Settings, roles: ['admin'] as UserRole[] },
   // Provider sidebar
+  { title: 'Dashboard', path: '/provider/dashboard', icon: LayoutDashboard, roles: ['provider'] as UserRole[] },
   { title: 'My Patients', path: '/provider-portal', icon: Stethoscope, roles: ['provider'] as UserRole[] },
   { title: 'RCM Billing', path: '/provider/rcm', icon: CreditCard, roles: ['provider'] as UserRole[] },
   
