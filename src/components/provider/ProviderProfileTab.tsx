@@ -196,8 +196,6 @@ export function ProviderProfileTab() {
       )}
     </div>
   );
-    </div>
-  );
 }
 
 /* ---- Sub-components ---- */
