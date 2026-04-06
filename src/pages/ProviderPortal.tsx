@@ -190,7 +190,7 @@ export default function ProviderPortal() {
       queryClient.invalidateQueries({ queryKey: ['provider-charges'] });
       setShowAddCharge(false);
       setSelectedFile(null);
-      setCharge({ description: '', service_date: '', charge_amount: '', units: '1', billing_path: 'Lien' });
+      setCharge({ description: '', service_date: '', charge_amount: '', units: '1', billing_path: 'Lien', notes: '' });
       toast.success('Charge submitted');
     },
     onError: (e: any) => toast.error(e.message),
