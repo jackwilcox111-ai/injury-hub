@@ -120,7 +120,7 @@ export default function ProvidersPage() {
     mutationFn: async () => {
       const { error } = await supabase.from('providers').insert({
         name: form.name, specialty: form.specialty || null, locations: form.locations,
-        rating: form.rating || null, status: form.status, credentialing_expiry: form.credentialing_expiry || null,
+        status: form.status, credentialing_expiry: form.credentialing_expiry || null,
         hipaa_baa_on_file: form.hipaa_baa_on_file, interpreter_available: form.interpreter_available,
         languages_spoken: form.languages_spoken, notes: form.notes || null,
       });
