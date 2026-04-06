@@ -166,7 +166,7 @@ export function AttorneyCaseActions({ caseId, caseNumber, patientName, currentFl
         <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" title="Upload Termination Letter" onClick={() => setShowUpload(true)}>
           <Upload className="w-3.5 h-3.5" />
         </Button>
-      </div>
+    </>
 
       {currentStatus === 'Dropped' && (
         <div className="col-span-full flex items-center gap-2 bg-destructive/10 text-destructive text-xs rounded-lg px-3 py-2 mt-2">
