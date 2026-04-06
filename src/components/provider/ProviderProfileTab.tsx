@@ -150,10 +150,37 @@ export function ProviderProfileTab() {
         </div>
       </div>
 
-      {/* Compliance section — read-only */}
+      {/* Locations */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-border">
-          <h3 className="text-sm font-semibold text-foreground">Compliance & Status</h3>
+          <h3 className="text-sm font-semibold text-foreground">Locations ({locations?.length || 0})</h3>
+        </div>
+        {locations && locations.length > 0 ? (
+          <div className="divide-y divide-border">
+            {locations.map((loc: any) => (
+              <div key={loc.id} className="px-6 py-4 flex items-start gap-3">
+                <PhoneIcon className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-foreground">{loc.label || 'Office'}</span>
+                    {loc.is_primary && <span className="text-[10px] bg-primary/10 text-primary rounded px-1.5 py-0.5">Primary</span>}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {[loc.address_street, loc.address_city, loc.address_state, loc.address_zip].filter(Boolean).join(', ') || 'No address on file'}
+                  </p>
+                  {(loc.phone || loc.fax) && (
+                    <p className="text-xs text-muted-foreground mt-0.5 font-mono">
+                      {loc.phone && `☎ ${loc.phone}`}{loc.phone && loc.fax && ' · '}{loc.fax && `Fax: ${loc.fax}`}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="px-6 py-8 text-center text-sm text-muted-foreground">No locations on file</div>
+        )}
+      </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
           <div className="divide-y divide-border">
