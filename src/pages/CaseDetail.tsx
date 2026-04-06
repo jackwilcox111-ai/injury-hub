@@ -464,7 +464,7 @@ export default function CaseDetail() {
       {/* Case Overview */}
       <div className="bg-card border border-border rounded-xl p-5 shadow-card">
         <h3 className="text-sm font-semibold text-foreground mb-4">Case Overview</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="space-y-1">
             <Label className="text-xs text-muted-foreground">DOI (Date of Injury)</Label>
             <p className="text-sm font-medium">{c.accident_date ? format(new Date(c.accident_date), 'MMM d, yyyy') : '—'}</p>
@@ -513,10 +513,6 @@ export default function CaseDetail() {
                 {(c as any).initial_appointment_status || 'Pending'}
               </Badge>
             )}
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">SOL Date</Label>
-            <SoLCountdown sol_date={c.sol_date} />
           </div>
         </div>
       </div>
