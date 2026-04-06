@@ -203,6 +203,7 @@ export default function CaseDetail() {
     enabled: isProvider,
   });
 
+  const { data: updates } = useQuery({
     queryKey: ['case-updates', id],
     queryFn: async () => {
       const { data } = await supabase.from('case_updates').select('*, profiles(full_name)')
