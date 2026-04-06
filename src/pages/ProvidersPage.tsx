@@ -287,10 +287,8 @@ export default function ProvidersPage() {
                     <Label className="text-xs text-muted-foreground">Phone</Label>
                     <Input defaultValue={(selectedProvider as any).phone || ''} placeholder="(555) 555-5555" className="h-9 font-mono" onBlur={e => { const v = e.target.value || null; if (v !== (selectedProvider as any).phone) updateProvider.mutate({ phone: v }); }} />
                   </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">Locations</Label>
-                    <Input type="number" defaultValue={selectedProvider.locations || 1} className="h-9" onBlur={e => { const v = Number(e.target.value); if (v !== selectedProvider.locations) updateProvider.mutate({ locations: v }); }} />
-                  </div>
+                  <div className="space-y-1 col-span-2" />
+                  {/* Locations managed below */}
                   <div className="space-y-1">
                     <Label className="text-xs text-muted-foreground">Rating</Label>
                     <Input type="number" step="0.1" min="0" max="5" defaultValue={selectedProvider.rating || ''} className="h-9" onBlur={e => { const v = e.target.value ? Number(e.target.value) : null; if (v !== selectedProvider.rating) updateProvider.mutate({ rating: v }); }} />
