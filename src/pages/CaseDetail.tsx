@@ -109,6 +109,10 @@ export default function CaseDetail() {
   const [showEditRecord, setShowEditRecord] = useState(false);
   const [editRecord, setEditRecord] = useState<any>(null);
   const [showAddLien, setShowAddLien] = useState(false);
+  const [showEditCharge, setShowEditCharge] = useState(false);
+  const [editCharge, setEditCharge] = useState<any>(null);
+  const [showEditLien, setShowEditLien] = useState(false);
+  const [editLien, setEditLien] = useState<any>(null);
   const [showSettlementModal, setShowSettlementModal] = useState(false);
   const [settlementAmount, setSettlementAmount] = useState('');
   const [editingEstimate, setEditingEstimate] = useState(false);
