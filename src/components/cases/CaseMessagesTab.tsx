@@ -29,7 +29,7 @@ interface Props {
   attorneyFirmName?: string | null;
 }
 
-export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId }: Props) {
+export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId, attorneyFirmName }: Props) {
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const [showCompose, setShowCompose] = useState(false);
