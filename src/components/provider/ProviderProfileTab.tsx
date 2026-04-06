@@ -202,14 +202,6 @@ export function ProviderProfileTab() {
           </div>
         </div>
       </div>
-
-      {/* Notes — read-only */}
-      {provider.notes && (
-        <div className="bg-card border border-border rounded-xl p-6">
-          <h3 className="text-sm font-semibold text-foreground mb-2">Notes</h3>
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{provider.notes}</p>
-        </div>
-      )}
     </div>
   );
 }
