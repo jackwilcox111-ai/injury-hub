@@ -191,6 +191,18 @@ export default function CaseDetail() {
     enabled: isAdmin || isProvider,
   });
 
+  const { data: providerReferrals } = useQuery({
+    queryKey: ['provider-referral-requests', id],
+    queryFn: async () => {
+      const { data } = await supabase.from('referrals')
+        .select('id, specialty, status, notes, created_at')
+        .eq('case_id', id!)
+        .order('created_at', { ascending: false });
+      return data || [];
+    },
+    enabled: isProvider,
+  });
+
   const { data: updates } = useQuery({
     queryKey: ['case-updates', id],
     queryFn: async () => {
@@ -636,16 +648,53 @@ export default function CaseDetail() {
 
       {/* Provider: Request Specialty Referral */}
       {isProvider && (
-        <div className="bg-card border border-border rounded-xl shadow-card p-5">
-          <div className="flex items-center justify-between">
+        <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
+          <div className="px-5 py-4 border-b border-border flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-semibold text-foreground">Request Specialty Referral</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Request a referral to another specialty — case management will assign the provider.</p>
+              <h3 className="text-sm font-semibold text-foreground">Specialty Referral Requests</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {providerReferrals?.length || 0} request{(providerReferrals?.length || 0) !== 1 ? 's' : ''} sent
+              </p>
             </div>
             <Button size="sm" variant="outline" className="h-8 text-xs gap-1.5" onClick={() => setShowReferral(true)}>
               <Send className="w-3 h-3" /> Request Referral
             </Button>
           </div>
+          {providerReferrals && providerReferrals.length > 0 ? (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-accent/50">
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Specialty</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Requested Date</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Notes</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {providerReferrals.map((r: any) => (
+                  <tr key={r.id} className="hover:bg-accent/30 transition-colors">
+                    <td className="px-5 py-3 text-xs font-medium">{r.specialty || '—'}</td>
+                    <td className="px-5 py-3 font-mono text-xs">{r.created_at ? format(new Date(r.created_at), 'MMM d, yyyy') : '—'}</td>
+                    <td className="px-5 py-3">
+                      <Badge variant="outline" className={`text-[10px] ${
+                        r.status === 'Accepted' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                        r.status === 'Declined' ? 'bg-red-100 text-red-700 border-red-200' :
+                        r.status === 'Expired' ? 'bg-muted text-muted-foreground border-border' :
+                        'bg-amber-100 text-amber-700 border-amber-200'
+                      }`}>
+                        {r.status}
+                      </Badge>
+                    </td>
+                    <td className="px-5 py-3 text-xs text-muted-foreground max-w-[200px] truncate">{r.notes || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="px-5 py-12 text-center text-muted-foreground text-sm">
+              No referral requests yet
+            </div>
+          )}
         </div>
       )}
 
