@@ -1027,6 +1027,37 @@ export default function CaseDetail() {
         </DialogContent>
       </Dialog>
 
+      {/* Add Charge Dialog */}
+      <Dialog open={showAddCharge} onOpenChange={setShowAddCharge}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Add Bill</DialogTitle></DialogHeader>
+          <form onSubmit={e => { e.preventDefault(); addChargeMutation.mutate(); }} className="space-y-4">
+            <div className="space-y-2"><Label className="text-sm font-medium">Description</Label>
+              <Input value={newCharge.cpt_description} onChange={e => setNewCharge(p => ({...p, cpt_description: e.target.value}))} placeholder="e.g. Follow up Injection" className="h-10" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2"><Label className="text-sm font-medium">Service Date</Label>
+                <Input type="date" value={newCharge.service_date} onChange={e => setNewCharge(p => ({...p, service_date: e.target.value}))} className="h-10" />
+              </div>
+              <div className="space-y-2"><Label className="text-sm font-medium">Amount ($)</Label>
+                <Input type="number" min="0" step="0.01" value={newCharge.charge_amount || ''} onChange={e => setNewCharge(p => ({...p, charge_amount: Number(e.target.value)}))} className="h-10" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2"><Label className="text-sm font-medium">Billing Path</Label>
+                <Select value={newCharge.billing_path} onValueChange={v => setNewCharge(p => ({...p, billing_path: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{['Insurance','Lien','Self-Pay','MedPay/PIP'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select>
+              </div>
+              <div className="space-y-2"><Label className="text-sm font-medium">Provider</Label>
+                <Select value={newCharge.provider_id} onValueChange={v => setNewCharge(p => ({...p, provider_id: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{allProviders?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
+              </div>
+            </div>
+            <div className="space-y-2"><Label className="text-sm font-medium">Notes</Label><Textarea value={newCharge.notes} onChange={e => setNewCharge(p => ({...p, notes: e.target.value}))} /></div>
+            <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
+            <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowAddCharge(false)}>Cancel</Button><Button type="submit" disabled={!newCharge.cpt_description || !newCharge.service_date || addChargeMutation.isPending}>{addChargeMutation.isPending ? 'Adding...' : 'Add'}</Button></div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* Edit Charge Dialog */}
       <Dialog open={showEditCharge} onOpenChange={v => { setShowEditCharge(v); if (!v) setEditCharge(null); }}>
         <DialogContent>
