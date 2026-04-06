@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Send, MessageCircle, Eye, User, Building2, Stethoscope, Plus } from 'lucide-react';
+import { Send, MessageCircle, Eye, User, Building2, Stethoscope, Plus, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 
 const MESSAGE_TYPES = ['Welcome', 'Status Update', 'Appointment Reminder', 'Settlement Notification', 'General'] as const;
