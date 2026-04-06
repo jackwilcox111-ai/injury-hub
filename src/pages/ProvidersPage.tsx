@@ -262,8 +262,26 @@ export default function ProvidersPage() {
                     <Input defaultValue={selectedProvider.name} className="h-9" onBlur={e => { if (e.target.value !== selectedProvider.name) updateProvider.mutate({ name: e.target.value }); }} />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">Specialty</Label>
+                    <Label className="text-xs text-muted-foreground">Primary Specialty</Label>
                     <Input defaultValue={selectedProvider.specialty || ''} className="h-9" onBlur={e => { const v = e.target.value || null; if (v !== selectedProvider.specialty) updateProvider.mutate({ specialty: v }); }} />
+                  </div>
+                  <div className="col-span-2 space-y-1">
+                    <Label className="text-xs text-muted-foreground">Services Offered</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {['Chiropractic', 'Physical Therapy', 'Pain Management', 'Imaging', 'Orthopedic Surgery', 'Neurology', 'Radiology', 'General Practice', 'Surgery', 'Other'].map(svc => {
+                        const current: string[] = (selectedProvider as any).services_offered || [];
+                        const checked = current.includes(svc);
+                        return (
+                          <label key={svc} className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border cursor-pointer transition-colors ${checked ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/50 border-border text-muted-foreground'}`}>
+                            <Checkbox checked={checked} onCheckedChange={() => {
+                              const updated = checked ? current.filter(s => s !== svc) : [...current, svc];
+                              updateProvider.mutate({ services_offered: updated });
+                            }} className="w-3 h-3" />
+                            {svc}
+                          </label>
+                        );
+                      })}
+                    </div>
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs text-muted-foreground">Phone</Label>
@@ -295,7 +313,8 @@ export default function ProvidersPage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div><span className="text-muted-foreground">Specialty:</span> <span className="font-medium">{selectedProvider.specialty}</span></div>
+                  <div><span className="text-muted-foreground">Primary Specialty:</span> <span className="font-medium">{selectedProvider.specialty || '—'}</span></div>
+                  <div><span className="text-muted-foreground">Services:</span> <span className="font-medium">{((selectedProvider as any).services_offered || []).join('; ') || '—'}</span></div>
                   <div><span className="text-muted-foreground">Locations:</span> <span className="font-medium">{selectedProvider.locations}</span></div>
                   <div><span className="text-muted-foreground">Rating:</span> <span className="font-medium">{selectedProvider.rating}</span></div>
                   <div><span className="text-muted-foreground">Phone:</span> <span className="font-mono text-sm">{(selectedProvider as any).phone || '—'}</span></div>
