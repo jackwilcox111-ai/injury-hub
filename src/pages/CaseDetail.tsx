@@ -121,6 +121,8 @@ export default function CaseDetail() {
   const [estimateValue, setEstimateValue] = useState('');
   const [updateMsg, setUpdateMsg] = useState('');
   const [newAppt, setNewAppt] = useState({ provider_id: '', scheduled_date: '', specialty: '', notes: '', interpreter_confirmed: false });
+  const [showEditAppt, setShowEditAppt] = useState(false);
+  const [editAppt, setEditAppt] = useState<any>(null);
   const [newRecord, setNewRecord] = useState({ record_type: '', provider_id: '', received_date: '', delivered_to_attorney_date: '', hipaa_auth_on_file: false, notes: '' });
   const [recordFile, setRecordFile] = useState<File | null>(null);
   const [editRecordFile, setEditRecordFile] = useState<File | null>(null);
