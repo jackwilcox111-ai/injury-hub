@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -33,6 +34,8 @@ const CPT_CHIPS = [
 
 export default function ProviderPortal() {
   const { profile } = useAuth();
+  const [searchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'patients';
   const queryClient = useQueryClient();
   const [showAddCharge, setShowAddCharge] = useState(false);
   const [selectedCaseId, setSelectedCaseId] = useState('');
@@ -129,11 +132,22 @@ export default function ProviderPortal() {
 
   if (isLoading) return <div className="space-y-6"><h2 className="font-display text-xl">Provider Portal</h2><Skeleton className="h-96 rounded" /></div>;
 
+  const tabTitles: Record<string, string> = {
+    patients: 'Patients',
+    appointments: 'Appointments',
+    charges: 'Charges',
+    records: 'Records',
+    documents: 'Documents',
+    liens: 'Liens',
+    messages: 'Messages',
+    profile: 'My Practice',
+  };
+
   return (
     <div className="space-y-6">
       <PHIBanner />
       <div>
-        <h2 className="font-display text-xl">Provider Portal</h2>
+        <h2 className="font-display text-xl">{tabTitles[activeTab] || 'Dashboard'}</h2>
         <p className="text-sm text-muted-foreground">Manage your patients, appointments, charges, and records.</p>
       </div>
 
@@ -145,24 +159,7 @@ export default function ProviderPortal() {
         completionRate={completionRate}
       />
 
-      <Tabs defaultValue="patients">
-        <TabsList className="flex-wrap h-auto gap-1">
-          <TabsTrigger value="appointments" className="gap-1.5"><Calendar className="w-3.5 h-3.5" /> Appointments</TabsTrigger>
-          <TabsTrigger value="patients" className="gap-1.5"><Users className="w-3.5 h-3.5" /> Patients</TabsTrigger>
-          <TabsTrigger value="charges" className="gap-1.5"><DollarSign className="w-3.5 h-3.5" /> Charges</TabsTrigger>
-          <TabsTrigger value="records" className="gap-1.5"><FileText className="w-3.5 h-3.5" /> Records</TabsTrigger>
-          <TabsTrigger value="documents" className="gap-1.5"><Upload className="w-3.5 h-3.5" /> Documents</TabsTrigger>
-          <TabsTrigger value="liens" className="gap-1.5"><Link2 className="w-3.5 h-3.5" /> Liens</TabsTrigger>
-          <TabsTrigger value="messages" className="gap-1.5 relative">
-            <MessageCircle className="w-3.5 h-3.5" /> Messages
-            {(unreadMessages || 0) > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-destructive text-destructive-foreground rounded-full text-[9px] flex items-center justify-center">
-                {unreadMessages}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="profile" className="gap-1.5"><Building2 className="w-3.5 h-3.5" /> My Practice</TabsTrigger>
-        </TabsList>
+      <Tabs value={activeTab}>
 
         {/* Appointments Tab */}
         <TabsContent value="appointments" className="mt-4">

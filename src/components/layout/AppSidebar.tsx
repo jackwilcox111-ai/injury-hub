@@ -6,7 +6,7 @@ import {
   DollarSign, CalendarDays, Settings, LogOut, ShieldCheck,
   BarChart3, Link2, CheckSquare, FileSignature, Video, Landmark, Banknote,
   CreditCard, GitBranch, MessageCircle, Heart, ClipboardCheck,
-  ShoppingBag, FileText
+  ShoppingBag, FileText, Calendar, Upload, Building2, Users
 } from 'lucide-react';
 
 const navItems = [
@@ -25,9 +25,15 @@ const navItems = [
   { title: 'Settings', path: '/settings', icon: Settings, roles: ['admin'] as UserRole[] },
   // Provider sidebar
   { title: 'Dashboard', path: '/provider/dashboard', icon: LayoutDashboard, roles: ['provider'] as UserRole[] },
+  { title: 'Patients', path: '/provider/dashboard?tab=patients', icon: Users, roles: ['provider'] as UserRole[] },
+  { title: 'Appointments', path: '/provider/dashboard?tab=appointments', icon: Calendar, roles: ['provider'] as UserRole[] },
+  { title: 'Charges', path: '/provider/dashboard?tab=charges', icon: DollarSign, roles: ['provider'] as UserRole[] },
+  { title: 'Records', path: '/provider/dashboard?tab=records', icon: FileText, roles: ['provider'] as UserRole[] },
+  { title: 'Documents', path: '/provider/dashboard?tab=documents', icon: Upload, roles: ['provider'] as UserRole[] },
+  { title: 'Liens', path: '/provider/dashboard?tab=liens', icon: Link2, roles: ['provider'] as UserRole[] },
+  { title: 'Messages', path: '/provider/dashboard?tab=messages', icon: MessageCircle, roles: ['provider'] as UserRole[] },
   { title: 'RCM Billing', path: '/provider/rcm', icon: CreditCard, roles: ['provider'] as UserRole[] },
-  
-  { title: 'Messages', path: '/provider/messages', icon: MessageCircle, roles: ['provider'] as UserRole[] },
+  { title: 'My Practice', path: '/provider/dashboard?tab=profile', icon: Building2, roles: ['provider'] as UserRole[] },
   // Patient sidebar
   { title: 'My Dashboard', path: '/patient/dashboard', icon: Heart, roles: ['patient'] as UserRole[] },
   { title: 'Timeline', path: '/patient/timeline', icon: GitBranch, roles: ['patient'] as UserRole[] },
@@ -76,7 +82,11 @@ export function AppSidebar() {
       <nav className="flex-1 py-3 px-3 space-y-0.5 overflow-y-auto">
         <p className="px-3 py-2 text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Menu</p>
         {visibleItems.map(item => {
-          const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
+          const itemPath = item.path.split('?')[0];
+          const itemSearch = item.path.includes('?') ? '?' + item.path.split('?')[1] : '';
+          const isActive = item.path.includes('?')
+            ? location.pathname === itemPath && location.search === itemSearch
+            : location.pathname === item.path || location.pathname.startsWith(item.path + '/');
           return (
             <button
               key={item.path}
