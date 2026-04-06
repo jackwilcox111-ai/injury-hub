@@ -198,24 +198,6 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
                   </p>
                 </div>
               )}
-
-              <div className="space-y-2">
-                <Label>Referral Method</Label>
-                <RadioGroup value={referralMethod} onValueChange={setReferralMethod} className="flex gap-4">
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="Email" id="method-email" />
-                    <Label htmlFor="method-email" className="text-sm font-normal">Email</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="SMS" id="method-sms" />
-                    <Label htmlFor="method-sms" className="text-sm font-normal">SMS</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="Both" id="method-both" />
-                    <Label htmlFor="method-both" className="text-sm font-normal">Both</Label>
-                  </div>
-                </RadioGroup>
-              </div>
             </>
           )}
 
