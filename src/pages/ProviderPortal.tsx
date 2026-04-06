@@ -831,6 +831,7 @@ export default function ProviderPortal() {
               <div className="space-y-2"><Label>Amount ($) *</Label><Input type="number" step="0.01" value={charge.charge_amount} onChange={e => setCharge(p => ({ ...p, charge_amount: e.target.value }))} required /></div>
               <div className="space-y-2"><Label>Units</Label><Input type="number" min={1} value={charge.units} onChange={e => setCharge(p => ({ ...p, units: e.target.value }))} /></div>
             </div>
+            <div className="space-y-2"><Label>Notes</Label><Textarea value={charge.notes || ''} onChange={e => setCharge(p => ({ ...p, notes: e.target.value }))} /></div>
 
             {/* Document Upload */}
             <div className="space-y-2">
@@ -860,6 +861,7 @@ export default function ProviderPortal() {
               )}
             </div>
 
+            <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setShowAddCharge(false)}>Cancel</Button>
               <Button type="submit" disabled={addCharge.isPending || !selectedCaseId || !charge.service_date}>Submit</Button>
