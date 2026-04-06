@@ -335,10 +335,6 @@ export default function ProvidersPage() {
                   <div className="space-y-1 col-span-2" />
                   {/* Locations managed below */}
                   <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">Rating</Label>
-                    <Input type="number" step="0.1" min="0" max="5" defaultValue={selectedProvider.rating || ''} className="h-9" onBlur={e => { const v = e.target.value ? Number(e.target.value) : null; if (v !== selectedProvider.rating) updateProvider.mutate({ rating: v }); }} />
-                  </div>
-                  <div className="space-y-1">
                     <Label className="text-xs text-muted-foreground">Credentialing Expiry</Label>
                     <Input type="date" defaultValue={selectedProvider.credentialing_expiry || ''} className="h-9" onBlur={e => { const v = e.target.value || null; if (v !== selectedProvider.credentialing_expiry) updateProvider.mutate({ credentialing_expiry: v }); }} />
                   </div>
