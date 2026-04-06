@@ -191,7 +191,18 @@ export default function CaseDetail() {
     enabled: isAdmin || isProvider,
   });
 
-  const { data: updates } = useQuery({
+  const { data: providerReferrals } = useQuery({
+    queryKey: ['provider-referral-requests', id],
+    queryFn: async () => {
+      const { data } = await supabase.from('referrals')
+        .select('id, specialty, status, notes, created_at')
+        .eq('case_id', id!)
+        .order('created_at', { ascending: false });
+      return data || [];
+    },
+    enabled: isProvider,
+  });
+
     queryKey: ['case-updates', id],
     queryFn: async () => {
       const { data } = await supabase.from('case_updates').select('*, profiles(full_name)')
