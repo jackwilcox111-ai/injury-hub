@@ -1,0 +1,1 @@
+CREATE POLICY "attorneys_provider_select" ON public.attorneys FOR SELECT TO authenticated USING (get_user_role(auth.uid()) = 'provider');
