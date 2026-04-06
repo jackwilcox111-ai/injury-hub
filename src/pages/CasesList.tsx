@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
 import { Plus, Search, Phone, LayoutGrid, Table2 } from 'lucide-react';
 import { PHIBanner } from '@/components/global/PHIBanner';
 import { US_STATES } from '@/lib/us-states';
@@ -59,6 +60,23 @@ export default function CasesList() {
     queryFn: async () => {
       const { data } = await supabase.from('attorneys').select('id, firm_name').eq('status', 'Active');
       return data || [];
+    },
+  });
+
+  // Fetch patient DOBs for display
+  const { data: patientDobs } = useQuery({
+    queryKey: ['patient-dobs', cases?.map(c => c.id)],
+    enabled: !!cases && cases.length > 0,
+    queryFn: async () => {
+      const caseIds = cases!.map(c => c.id);
+      const { data } = await supabase
+        .from('patient_profiles')
+        .select('case_id, date_of_birth')
+        .in('case_id', caseIds)
+        .not('date_of_birth', 'is', null);
+      const map: Record<string, string> = {};
+      data?.forEach(p => { if (p.case_id && p.date_of_birth) map[p.case_id] = p.date_of_birth; });
+      return map;
     },
   });
 
@@ -185,11 +203,23 @@ export default function CasesList() {
                   <td className="px-5 py-3.5">
                     <div>
                       <p className="font-semibold text-foreground text-sm">{c.patient_name}</p>
-                      {c.patient_phone && (
-                        <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
-                          <Phone className="w-3 h-3" /> {c.patient_phone}
-                        </p>
-                      )}
+                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                        {c.patient_phone && (
+                          <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                            <Phone className="w-3 h-3" /> {c.patient_phone}
+                          </span>
+                        )}
+                        {c.accident_date && (
+                          <span className="text-[11px] text-muted-foreground">
+                            DOI: {format(new Date(c.accident_date), 'MM/dd/yyyy')}
+                          </span>
+                        )}
+                        {patientDobs?.[c.id] && (
+                          <span className="text-[11px] text-muted-foreground">
+                            DOB: {format(new Date(patientDobs[c.id]), 'MM/dd/yyyy')}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </td>
                   <td className="px-5 py-3.5 text-xs text-foreground">{(c as any).attorneys?.firm_name || '—'}</td>
