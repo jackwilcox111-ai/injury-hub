@@ -153,13 +153,8 @@ export default function ProviderPortal() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  // Build unique case map from appointments for charge selector
-  const caseMap = new Map<string, any>();
-  appointments?.forEach(a => {
-    const c = (a as any).cases;
-    if (c?.id) caseMap.set(c.id, c);
-  });
-  const uniqueCases = [...caseMap.values()];
+  // Build unique case list from provider's assigned cases for charge selector
+  const uniqueCases = (cases || []).map(c => ({ id: c.id, case_number: c.case_number, patient_name: c.patient_name }));
 
   // Metrics
   const now = new Date();
