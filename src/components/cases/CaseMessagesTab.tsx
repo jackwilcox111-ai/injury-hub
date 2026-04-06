@@ -146,7 +146,7 @@ export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId, a
   
   if (!isAttorney) {
     baseRecipients.push(['patient', RECIPIENT_META.patient]);
-    if (attorneyId) baseRecipients.push(['attorney', RECIPIENT_META.attorney]);
+    if (attorneyId) baseRecipients.push(['attorney', { label: attorneyFirmName ? `Attorney - ${attorneyFirmName}` : 'Attorney', icon: Building2, color: 'bg-violet-100 text-violet-700' }]);
   } else {
     baseRecipients.push(['patient', { label: 'Client', icon: User, color: 'bg-blue-100 text-blue-700' }]);
     baseRecipients.push(['case_manager', { label: 'Case Manager', icon: User, color: 'bg-amber-100 text-amber-700' }]);
