@@ -366,6 +366,7 @@ export default function CaseDetail() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const handleStatusChange = async (newStatus: string) => {
     const currentIdx = caseStatuses.indexOf(caseData?.status || '');
     const newIdx = caseStatuses.indexOf(newStatus);
     if (newIdx < currentIdx) {
