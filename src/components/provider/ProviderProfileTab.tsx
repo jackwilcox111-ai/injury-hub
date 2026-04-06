@@ -40,6 +40,18 @@ export function ProviderProfileTab() {
     enabled: !!profile?.provider_id,
   });
 
+  const { data: locations } = useQuery({
+    queryKey: ['provider-locations', profile?.provider_id],
+    queryFn: async () => {
+      const { data } = await supabase.from('provider_locations')
+        .select('*')
+        .eq('provider_id', profile!.provider_id!)
+        .order('is_primary', { ascending: false });
+      return data || [];
+    },
+    enabled: !!profile?.provider_id,
+  });
+
   if (isLoading) return <Skeleton className="h-64 rounded-xl" />;
   if (!provider) return <p className="text-muted-foreground text-sm py-8 text-center">No provider profile linked to your account.</p>;
 
