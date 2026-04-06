@@ -414,7 +414,7 @@ export default function CaseDetail() {
           <CaseProgressStepper currentStatus={c.status || ''} />
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className={`grid gap-4 ${isAttorney ? 'grid-cols-4' : 'grid-cols-3'}`}>
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Status</Label>
             <Select value={c.status || ''} onValueChange={handleStatusChange}>
@@ -436,19 +436,19 @@ export default function CaseDetail() {
               <SelectContent>{allAttorneys?.map(a => <SelectItem key={a.id} value={a.id}>{a.firm_name}</SelectItem>)}</SelectContent>
             </Select>
           </div>
+          {isAttorney && (
+            <div className="space-y-1.5">
+              <AttorneyCaseActions
+                caseId={id!}
+                caseNumber={c.case_number}
+                patientName={c.patient_name}
+                currentFlag={c.flag}
+                providerId={c.provider_id}
+              />
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Attorney Case Actions — only shown to attorneys */}
-      {isAttorney && (
-        <AttorneyCaseActions
-          caseId={id!}
-          caseNumber={c.case_number}
-          patientName={c.patient_name}
-          currentFlag={c.flag}
-          providerId={c.provider_id}
-        />
-      )}
 
       {/* Provider Referrals */}
       <ProviderReferralsModule caseId={id!} onSendReferral={() => setShowReferral(true)} />
