@@ -69,7 +69,53 @@ export default function ProvidersPage() {
     enabled: !!showDetail,
   });
 
-  const addProvider = useMutation({
+  const { data: providerLocations } = useQuery({
+    queryKey: ['provider-locations', showDetail],
+    queryFn: async () => {
+      if (!showDetail) return [];
+      const { data } = await supabase.from('provider_locations').select('*').eq('provider_id', showDetail).order('is_primary', { ascending: false });
+      return data || [];
+    },
+    enabled: !!showDetail,
+  });
+
+  const addLocation = useMutation({
+    mutationFn: async () => {
+      if (!showDetail) throw new Error('No provider');
+      const { error } = await supabase.from('provider_locations').insert({
+        provider_id: showDetail,
+        label: newLoc.label || 'Office',
+        address_street: newLoc.address_street || null,
+        address_city: newLoc.address_city || null,
+        address_state: newLoc.address_state || null,
+        address_zip: newLoc.address_zip || null,
+        phone: newLoc.phone || null,
+        fax: newLoc.fax || null,
+        is_primary: (providerLocations?.length || 0) === 0,
+      } as any);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['provider-locations', showDetail] });
+      setNewLoc({ label: '', address_street: '', address_city: '', address_state: '', address_zip: '', phone: '', fax: '' });
+      setShowAddLoc(false);
+      toast.success('Location added');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const deleteLocation = useMutation({
+    mutationFn: async (locId: string) => {
+      const { error } = await supabase.from('provider_locations').delete().eq('id', locId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['provider-locations', showDetail] });
+      toast.success('Location removed');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
     mutationFn: async () => {
       const { error } = await supabase.from('providers').insert({
         name: form.name, specialty: form.specialty || null, locations: form.locations,
