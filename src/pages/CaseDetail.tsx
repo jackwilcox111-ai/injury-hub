@@ -111,6 +111,8 @@ export default function CaseDetail() {
   const [showAddLien, setShowAddLien] = useState(false);
   const [showEditCharge, setShowEditCharge] = useState(false);
   const [editCharge, setEditCharge] = useState<any>(null);
+  const [showAddCharge, setShowAddCharge] = useState(false);
+  const [newCharge, setNewCharge] = useState({ cpt_description: '', service_date: '', charge_amount: 0, status: 'Pending', billing_path: '', notes: '', provider_id: '' });
   const [showEditLien, setShowEditLien] = useState(false);
   const [editLien, setEditLien] = useState<any>(null);
   const [showSettlementModal, setShowSettlementModal] = useState(false);
@@ -351,6 +353,25 @@ export default function CaseDetail() {
       if (error) throw error;
     },
     onSuccess: () => { invalidateAll(); setShowEditCharge(false); setEditCharge(null); toast.success('Charge updated'); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const addChargeMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from('charges').insert({
+        case_id: id!, cpt_code: 'MISC', cpt_description: newCharge.cpt_description,
+        service_date: newCharge.service_date, charge_amount: newCharge.charge_amount,
+        status: newCharge.status, billing_path: newCharge.billing_path || null,
+        notes: newCharge.notes || null, provider_id: newCharge.provider_id || null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidateAll();
+      setShowAddCharge(false);
+      setNewCharge({ cpt_description: '', service_date: '', charge_amount: 0, status: 'Pending', billing_path: '', notes: '', provider_id: '' });
+      toast.success('Charge added');
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -671,7 +692,10 @@ export default function CaseDetail() {
         <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
           <div className="px-5 py-4 border-b border-border flex items-center justify-between">
             <h3 className="text-sm font-semibold text-foreground">Bills</h3>
-            <span className="text-xs text-muted-foreground">{charges?.length || 0} charges</span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">{charges?.length || 0} charges</span>
+              <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowAddCharge(true)}>+ Bill</Button>
+            </div>
           </div>
           <table className="w-full text-sm">
             <thead><tr className="border-b border-border bg-accent/50">
@@ -1000,6 +1024,37 @@ export default function CaseDetail() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Charge Dialog */}
+      <Dialog open={showAddCharge} onOpenChange={setShowAddCharge}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Add Bill</DialogTitle></DialogHeader>
+          <form onSubmit={e => { e.preventDefault(); addChargeMutation.mutate(); }} className="space-y-4">
+            <div className="space-y-2"><Label className="text-sm font-medium">Description</Label>
+              <Input value={newCharge.cpt_description} onChange={e => setNewCharge(p => ({...p, cpt_description: e.target.value}))} placeholder="e.g. Follow up Injection" className="h-10" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2"><Label className="text-sm font-medium">Service Date</Label>
+                <Input type="date" value={newCharge.service_date} onChange={e => setNewCharge(p => ({...p, service_date: e.target.value}))} className="h-10" />
+              </div>
+              <div className="space-y-2"><Label className="text-sm font-medium">Amount ($)</Label>
+                <Input type="number" min="0" step="0.01" value={newCharge.charge_amount || ''} onChange={e => setNewCharge(p => ({...p, charge_amount: Number(e.target.value)}))} className="h-10" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2"><Label className="text-sm font-medium">Billing Path</Label>
+                <Select value={newCharge.billing_path} onValueChange={v => setNewCharge(p => ({...p, billing_path: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{['Insurance','Lien','Self-Pay','MedPay/PIP'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select>
+              </div>
+              <div className="space-y-2"><Label className="text-sm font-medium">Provider</Label>
+                <Select value={newCharge.provider_id} onValueChange={v => setNewCharge(p => ({...p, provider_id: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{allProviders?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
+              </div>
+            </div>
+            <div className="space-y-2"><Label className="text-sm font-medium">Notes</Label><Textarea value={newCharge.notes} onChange={e => setNewCharge(p => ({...p, notes: e.target.value}))} /></div>
+            <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
+            <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowAddCharge(false)}>Cancel</Button><Button type="submit" disabled={!newCharge.cpt_description || !newCharge.service_date || addChargeMutation.isPending}>{addChargeMutation.isPending ? 'Adding...' : 'Add'}</Button></div>
+          </form>
         </DialogContent>
       </Dialog>
 
