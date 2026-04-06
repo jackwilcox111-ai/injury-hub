@@ -19,7 +19,7 @@ import SettingsPage from "./pages/SettingsPage";
 import AttorneyPortal from "./pages/AttorneyPortal";
 import AttorneyMarketplace from "./pages/AttorneyMarketplace";
 import ProviderPortal from "./pages/ProviderPortal";
-import ProviderDashboardPage from "./pages/ProviderDashboard";
+
 import ReportingDashboard from "./pages/ReportingDashboard";
 import TaskDashboard from "./pages/TaskDashboard";
 import PatientDashboard from "./pages/PatientDashboard";
@@ -118,8 +118,7 @@ const App = () => (
             <Route path="/attorney/marketplace" element={<RequireAuth roles={['attorney']}><AppLayout><AttorneyMarketplace /></AppLayout></RequireAuth>} />
 
             {/* Provider portal */}
-            <Route path="/provider/dashboard" element={<RequireAuth roles={['provider']}><AppLayout><ProviderDashboardPage /></AppLayout></RequireAuth>} />
-            <Route path="/provider-portal" element={<RequireAuth roles={['provider']}><AppLayout><ProviderPortal /></AppLayout></RequireAuth>} />
+            <Route path="/provider/dashboard" element={<RequireAuth roles={['provider']}><AppLayout><ProviderPortal /></AppLayout></RequireAuth>} />
             <Route path="/provider/rcm" element={<RequireAuth roles={['provider']}><AppLayout><ProviderRCM /></AppLayout></RequireAuth>} />
             <Route path="/provider/messages" element={<RequireAuth roles={['provider']}><AppLayout><ProviderMessages /></AppLayout></RequireAuth>} />
 
