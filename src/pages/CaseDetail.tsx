@@ -692,7 +692,10 @@ export default function CaseDetail() {
         <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
           <div className="px-5 py-4 border-b border-border flex items-center justify-between">
             <h3 className="text-sm font-semibold text-foreground">Bills</h3>
-            <span className="text-xs text-muted-foreground">{charges?.length || 0} charges</span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">{charges?.length || 0} charges</span>
+              <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowAddCharge(true)}>+ Bill</Button>
+            </div>
           </div>
           <table className="w-full text-sm">
             <thead><tr className="border-b border-border bg-accent/50">
