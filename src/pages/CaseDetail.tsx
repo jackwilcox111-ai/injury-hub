@@ -1089,7 +1089,45 @@ export default function CaseDetail() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Charge Dialog */}
+      {/* Edit Appointment Dialog */}
+      <Dialog open={showEditAppt} onOpenChange={v => { setShowEditAppt(v); if (!v) setEditAppt(null); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Edit Appointment</DialogTitle></DialogHeader>
+          {editAppt && (
+            <form onSubmit={e => { e.preventDefault(); updateAppointment.mutate(editAppt); }} className="space-y-4">
+              <div className="space-y-2"><Label>Provider</Label>
+                <Select value={editAppt.provider_id} onValueChange={v => setEditAppt((p: any) => ({...p, provider_id: v}))}><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{allProviders?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
+              </div>
+              <div className="space-y-2"><Label>Date & Time</Label>
+                <Input type="datetime-local" value={editAppt.scheduled_date} onChange={e => setEditAppt((p: any) => ({...p, scheduled_date: e.target.value}))} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label>Specialty</Label>
+                  <Input value={editAppt.specialty} onChange={e => setEditAppt((p: any) => ({...p, specialty: e.target.value}))} />
+                </div>
+                <div className="space-y-2"><Label>Status</Label>
+                  <Select value={editAppt.status} onValueChange={v => setEditAppt((p: any) => ({...p, status: v}))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{['Scheduled','Completed','No-Show','Cancelled'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select>
+                </div>
+              </div>
+              <div className="space-y-2"><Label>Notes</Label>
+                <Textarea value={editAppt.notes} onChange={e => setEditAppt((p: any) => ({...p, notes: e.target.value}))} />
+              </div>
+              {needsInterpreter && (
+                <div className="flex items-center gap-2">
+                  <Checkbox checked={editAppt.interpreter_confirmed} onCheckedChange={v => setEditAppt((p: any) => ({...p, interpreter_confirmed: !!v}))} id="edit-interp" />
+                  <Label htmlFor="edit-interp" className="text-sm font-normal">Interpreter confirmed</Label>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setShowEditAppt(false)}>Cancel</Button>
+                <Button type="submit" disabled={updateAppointment.isPending}>{updateAppointment.isPending ? 'Saving...' : 'Save'}</Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={showEditCharge} onOpenChange={v => { setShowEditCharge(v); if (!v) setEditCharge(null); }}>
         <DialogContent>
           <DialogHeader><DialogTitle>Edit Charge</DialogTitle></DialogHeader>
