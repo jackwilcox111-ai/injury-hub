@@ -422,85 +422,129 @@ export default function CaseDetail() {
           <CaseProgressStepper currentStatus={c.status || ''} />
         </div>
 
-        <div className="grid gap-4 grid-cols-3">
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Status</Label>
-            <Select value={c.status || ''} onValueChange={handleStatusChange}>
-              <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-              <SelectContent>{caseStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Flag</Label>
-            <Select value={c.flag || 'none'} onValueChange={v => updateCase.mutate({ flag: v === 'none' ? null : v })}>
-              <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-              <SelectContent>{flagOptions.map(f => <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
-          {isAttorney ? (
-            <div className="space-y-1.5">
-              <AttorneyCaseActions
-                caseId={id!}
-                caseNumber={c.case_number}
-                patientName={c.patient_name}
-                currentFlag={c.flag}
-                providerId={c.provider_id}
-              />
+        {/* Controls — providers get read-only overview */}
+        {isProvider ? (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Status</Label>
+                <p className="text-sm font-medium"><StatusBadge status={c.status || ''} /></p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Specialty</Label>
+                <p className="text-sm font-medium text-foreground">{c.specialty || '—'}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">DOI (Date of Injury)</Label>
+                <p className="text-sm font-medium text-foreground">{c.accident_date ? format(new Date(c.accident_date), 'MMM d, yyyy') : '—'}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Attorney</Label>
+                <p className="text-sm font-medium text-foreground">{(c as any).attorneys?.firm_name || '—'}</p>
+              </div>
             </div>
-          ) : (
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Attorney</Label>
-              <Select value={c.attorney_id || ''} onValueChange={v => updateCase.mutate({ attorney_id: v || null })}>
-                <SelectTrigger className="h-9"><SelectValue placeholder="Select..." /></SelectTrigger>
-                <SelectContent>{allAttorneys?.map(a => <SelectItem key={a.id} value={a.id}>{a.firm_name}</SelectItem>)}</SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Lien Amount</Label>
+                <p className="text-sm font-mono font-medium tabular-nums text-foreground">${Number(c.lien_amount || 0).toLocaleString()}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Preferred Language</Label>
+                <p className="text-sm font-medium text-foreground">{(c as any).preferred_language || 'English'}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Opened</Label>
+                <p className="text-sm font-medium text-foreground">{c.opened_date ? format(new Date(c.opened_date), 'MMM d, yyyy') : '—'}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Last Updated</Label>
+                <p className="text-sm font-medium text-foreground">{c.updated_at ? formatDistanceToNow(new Date(c.updated_at), { addSuffix: true }) : '—'}</p>
+              </div>
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <>
+            <div className="grid gap-4 grid-cols-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Status</Label>
+                <Select value={c.status || ''} onValueChange={handleStatusChange}>
+                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>{caseStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Flag</Label>
+                <Select value={c.flag || 'none'} onValueChange={v => updateCase.mutate({ flag: v === 'none' ? null : v })}>
+                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>{flagOptions.map(f => <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              {isAttorney ? (
+                <div className="space-y-1.5">
+                  <AttorneyCaseActions
+                    caseId={id!}
+                    caseNumber={c.case_number}
+                    patientName={c.patient_name}
+                    currentFlag={c.flag}
+                    providerId={c.provider_id}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Attorney</Label>
+                  <Select value={c.attorney_id || ''} onValueChange={v => updateCase.mutate({ attorney_id: v || null })}>
+                    <SelectTrigger className="h-9"><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectContent>{allAttorneys?.map(a => <SelectItem key={a.id} value={a.id}>{a.firm_name}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
 
-        {/* Case Overview */}
-        <div className="mt-5 pt-5 border-t border-border">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">DOI (Date of Injury)</Label>
-              <Input
-                type="date"
-                className="h-9 text-sm"
-                value={c.accident_date || ''}
-                onChange={e => updateCase.mutate({ accident_date: e.target.value || null })}
-              />
+            {/* Case Overview */}
+            <div className="mt-5 pt-5 border-t border-border">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">DOI (Date of Injury)</Label>
+                  <Input
+                    type="date"
+                    className="h-9 text-sm"
+                    value={c.accident_date || ''}
+                    onChange={e => updateCase.mutate({ accident_date: e.target.value || null })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Request Date</Label>
+                  <Input
+                    type="date"
+                    className="h-9 text-sm"
+                    value={(c as any).request_date || ''}
+                    onChange={e => updateCase.mutate({ request_date: e.target.value || null })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Initial Appt Date</Label>
+                  <Input
+                    type="date"
+                    className="h-9 text-sm"
+                    value={(c as any).initial_appointment_date || ''}
+                    onChange={e => updateCase.mutate({ initial_appointment_date: e.target.value || null })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Initial Appt Status</Label>
+                  <Select value={(c as any).initial_appointment_status || 'Pending'} onValueChange={v => updateCase.mutate({ initial_appointment_status: v })}>
+                    <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {['Pending', 'Scheduled', 'Patient Seen', 'No Show', 'Cancelled', 'Rescheduled'].map(s => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Request Date</Label>
-              <Input
-                type="date"
-                className="h-9 text-sm"
-                value={(c as any).request_date || ''}
-                onChange={e => updateCase.mutate({ request_date: e.target.value || null })}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Initial Appt Date</Label>
-              <Input
-                type="date"
-                className="h-9 text-sm"
-                value={(c as any).initial_appointment_date || ''}
-                onChange={e => updateCase.mutate({ initial_appointment_date: e.target.value || null })}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Initial Appt Status</Label>
-              <Select value={(c as any).initial_appointment_status || 'Pending'} onValueChange={v => updateCase.mutate({ initial_appointment_status: v })}>
-                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {['Pending', 'Scheduled', 'Patient Seen', 'No Show', 'Cancelled', 'Rescheduled'].map(s => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
       {/* Provider Referrals */}
