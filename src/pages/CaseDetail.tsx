@@ -109,6 +109,10 @@ export default function CaseDetail() {
   const [showEditRecord, setShowEditRecord] = useState(false);
   const [editRecord, setEditRecord] = useState<any>(null);
   const [showAddLien, setShowAddLien] = useState(false);
+  const [showEditCharge, setShowEditCharge] = useState(false);
+  const [editCharge, setEditCharge] = useState<any>(null);
+  const [showEditLien, setShowEditLien] = useState(false);
+  const [editLien, setEditLien] = useState<any>(null);
   const [showSettlementModal, setShowSettlementModal] = useState(false);
   const [settlementAmount, setSettlementAmount] = useState('');
   const [editingEstimate, setEditingEstimate] = useState(false);
@@ -214,6 +218,7 @@ export default function CaseDetail() {
     queryClient.invalidateQueries({ queryKey: ['case-records', id] });
     queryClient.invalidateQueries({ queryKey: ['case-liens', id] });
     queryClient.invalidateQueries({ queryKey: ['case-updates', id] });
+    queryClient.invalidateQueries({ queryKey: ['case-charges-inline', id] });
   };
 
   const updateCase = useMutation({
@@ -333,6 +338,31 @@ export default function CaseDetail() {
       if (error) throw error;
     },
     onSuccess: () => { invalidateAll(); setShowAddLien(false); toast.success('Lien added'); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const updateChargeMutation = useMutation({
+    mutationFn: async (charge: any) => {
+      const { error } = await supabase.from('charges').update({
+        cpt_description: charge.cpt_description, service_date: charge.service_date,
+        charge_amount: charge.charge_amount, status: charge.status, notes: charge.notes || null,
+        billing_path: charge.billing_path || null,
+      }).eq('id', charge.id);
+      if (error) throw error;
+    },
+    onSuccess: () => { invalidateAll(); setShowEditCharge(false); setEditCharge(null); toast.success('Charge updated'); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const updateLienMutation = useMutation({
+    mutationFn: async (lien: any) => {
+      const { error } = await supabase.from('liens').update({
+        amount: lien.amount, reduction_amount: lien.reduction_amount,
+        status: lien.status, notes: lien.notes || null, payment_date: lien.payment_date || null,
+      }).eq('id', lien.id);
+      if (error) throw error;
+    },
+    onSuccess: () => { invalidateAll(); setShowEditLien(false); setEditLien(null); toast.success('Lien updated'); },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -652,7 +682,7 @@ export default function CaseDetail() {
             </tr></thead>
             <tbody className="divide-y divide-border">
               {charges?.map(c => (
-                <tr key={c.id} className="hover:bg-accent/30 transition-colors">
+                <tr key={c.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => { setEditCharge({ ...c }); setShowEditCharge(true); }}>
                   <td className="px-4 py-2.5 text-xs">
                     <span className="font-medium">{c.cpt_description || c.cpt_code}</span>
                   </td>
@@ -732,7 +762,7 @@ export default function CaseDetail() {
             </tr></thead>
             <tbody className="divide-y divide-border">
               {liens?.map(l => (
-                <tr key={l.id} className="hover:bg-accent/30 transition-colors">
+                <tr key={l.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => { setEditLien({ ...l }); setShowEditLien(true); }}>
                   <td className="px-4 py-2.5 text-xs font-medium">{(l as any).providers?.name || '—'}</td>
                   <td className="px-4 py-2.5 font-mono text-xs tabular-nums">${l.amount.toLocaleString()}</td>
                   <td className="px-4 py-2.5 font-mono text-xs tabular-nums">${l.reduction_amount.toLocaleString()}</td>
@@ -970,6 +1000,72 @@ export default function CaseDetail() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Charge Dialog */}
+      <Dialog open={showEditCharge} onOpenChange={v => { setShowEditCharge(v); if (!v) setEditCharge(null); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Edit Charge</DialogTitle></DialogHeader>
+          {editCharge && (
+            <form onSubmit={e => { e.preventDefault(); updateChargeMutation.mutate(editCharge); }} className="space-y-4">
+              <div className="space-y-2"><Label className="text-sm font-medium">Description</Label>
+                <Input value={editCharge.cpt_description || ''} onChange={e => setEditCharge((p: any) => ({...p, cpt_description: e.target.value}))} className="h-10" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label className="text-sm font-medium">Service Date</Label>
+                  <Input type="date" value={editCharge.service_date || ''} onChange={e => setEditCharge((p: any) => ({...p, service_date: e.target.value}))} className="h-10" />
+                </div>
+                <div className="space-y-2"><Label className="text-sm font-medium">Amount ($)</Label>
+                  <Input type="number" min="0" step="0.01" value={editCharge.charge_amount} onChange={e => setEditCharge((p: any) => ({...p, charge_amount: Number(e.target.value)}))} className="h-10" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label className="text-sm font-medium">Status</Label>
+                  <Select value={editCharge.status} onValueChange={v => setEditCharge((p: any) => ({...p, status: v}))}><SelectTrigger className="h-10"><SelectValue /></SelectTrigger><SelectContent>{['Pending','Submitted','Approved','Denied','Paid','Adjusted'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select>
+                </div>
+                <div className="space-y-2"><Label className="text-sm font-medium">Billing Path</Label>
+                  <Select value={editCharge.billing_path || ''} onValueChange={v => setEditCharge((p: any) => ({...p, billing_path: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{['Insurance','Lien','Self-Pay','MedPay/PIP'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select>
+                </div>
+              </div>
+              <div className="space-y-2"><Label className="text-sm font-medium">Notes</Label><Textarea value={editCharge.notes || ''} onChange={e => setEditCharge((p: any) => ({...p, notes: e.target.value}))} /></div>
+              <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
+              <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowEditCharge(false)}>Cancel</Button><Button type="submit" disabled={updateChargeMutation.isPending}>{updateChargeMutation.isPending ? 'Saving...' : 'Save'}</Button></div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Lien Dialog */}
+      <Dialog open={showEditLien} onOpenChange={v => { setShowEditLien(v); if (!v) setEditLien(null); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Edit Lien</DialogTitle></DialogHeader>
+          {editLien && (
+            <form onSubmit={e => { e.preventDefault(); updateLienMutation.mutate(editLien); }} className="space-y-4">
+              <div className="space-y-2"><Label className="text-sm font-medium">Provider</Label>
+                <Input value={(editLien as any).providers?.name || '—'} disabled className="h-10 bg-muted" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label className="text-sm font-medium">Amount ($)</Label>
+                  <Input type="number" min="0" step="0.01" value={editLien.amount} onChange={e => setEditLien((p: any) => ({...p, amount: Number(e.target.value)}))} className="h-10" />
+                </div>
+                <div className="space-y-2"><Label className="text-sm font-medium">Reduction ($)</Label>
+                  <Input type="number" min="0" step="0.01" value={editLien.reduction_amount} onChange={e => setEditLien((p: any) => ({...p, reduction_amount: Number(e.target.value)}))} className="h-10" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label className="text-sm font-medium">Status</Label>
+                  <Select value={editLien.status} onValueChange={v => setEditLien((p: any) => ({...p, status: v}))}><SelectTrigger className="h-10"><SelectValue /></SelectTrigger><SelectContent>{['Active','Reduced','Paid','Waived'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select>
+                </div>
+                <div className="space-y-2"><Label className="text-sm font-medium">Payment Date</Label>
+                  <Input type="date" value={editLien.payment_date || ''} onChange={e => setEditLien((p: any) => ({...p, payment_date: e.target.value}))} className="h-10" />
+                </div>
+              </div>
+              <div className="space-y-2"><Label className="text-sm font-medium">Notes</Label><Textarea value={editLien.notes || ''} onChange={e => setEditLien((p: any) => ({...p, notes: e.target.value}))} /></div>
+              <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
+              <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowEditLien(false)}>Cancel</Button><Button type="submit" disabled={updateLienMutation.isPending}>{updateLienMutation.isPending ? 'Saving...' : 'Save'}</Button></div>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
 
