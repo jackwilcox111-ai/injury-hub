@@ -625,8 +625,8 @@ export default function CaseDetail() {
         </div>
       </div>
 
-      {/* Two-column: Records + Liens (left, stacked) | Case Timeline (right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      {/* Records + Liens / Case Timeline */}
+      <div className={`grid grid-cols-1 ${!isProvider ? 'lg:grid-cols-2' : ''} gap-5`}>
         {/* Left: Records stacked over Liens */}
         <div className="space-y-5">
           {/* Records */}
@@ -675,12 +675,12 @@ export default function CaseDetail() {
             </table>
           </div>
 
-          {/* Lien Register (admin only) */}
-          {isAdmin && (
+          {/* Lien Register (admin and provider) */}
+          {(isAdmin || isProvider) && (
             <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
               <div className="px-5 py-4 border-b border-border flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-foreground">Lien Register</h3>
-                <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowAddLien(true)}>+ Lien</Button>
+                {isAdmin && <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowAddLien(true)}>+ Lien</Button>}
               </div>
               <table className="w-full text-sm">
                 <thead><tr className="border-b border-border bg-accent/50">
@@ -694,8 +694,8 @@ export default function CaseDetail() {
                   {liens?.map(l => (
                     <tr key={l.id} className="hover:bg-accent/30 transition-colors">
                       <td className="px-4 py-2.5 text-xs font-medium">{(l as any).providers?.name || '—'}</td>
-                      <td className="px-4 py-2.5 font-mono text-xs text-emerald-600 tabular-nums">${l.amount.toLocaleString()}</td>
-                      <td className="px-4 py-2.5 font-mono text-xs text-amber-600 tabular-nums">${l.reduction_amount.toLocaleString()}</td>
+                      <td className="px-4 py-2.5 font-mono text-xs tabular-nums">${l.amount.toLocaleString()}</td>
+                      <td className="px-4 py-2.5 font-mono text-xs tabular-nums">${l.reduction_amount.toLocaleString()}</td>
                       <td className="px-4 py-2.5 font-mono text-xs text-foreground font-medium tabular-nums">${(l.amount - l.reduction_amount).toLocaleString()}</td>
                       <td className="px-4 py-2.5"><StatusBadge status={l.status} /></td>
                     </tr>
@@ -709,8 +709,8 @@ export default function CaseDetail() {
           )}
         </div>
 
-        {/* Right: Case Timeline */}
-        <CaseTimelineSidebar caseId={id!} />
+        {/* Right: Case Timeline — hidden for providers */}
+        {!isProvider && <CaseTimelineSidebar caseId={id!} />}
       </div>
 
       {/* Tabbed Module Panels */}
@@ -720,8 +720,8 @@ export default function CaseDetail() {
           <TabsTrigger value="insurance" className="text-xs gap-1.5"><ShieldCheck className="w-3.5 h-3.5" /> Insurance</TabsTrigger>
           <TabsTrigger value="billing" className="text-xs gap-1.5"><DollarSign className="w-3.5 h-3.5" /> Billing</TabsTrigger>
           <TabsTrigger value="records" className="text-xs gap-1.5"><FileText className="w-3.5 h-3.5" /> Records</TabsTrigger>
-          <TabsTrigger value="workplan" className="text-xs gap-1.5"><ListTodo className="w-3.5 h-3.5" /> Work Plan</TabsTrigger>
-          <TabsTrigger value="policy" className="text-xs gap-1.5"><Shield className="w-3.5 h-3.5" /> Policy</TabsTrigger>
+          {!isProvider && <TabsTrigger value="workplan" className="text-xs gap-1.5"><ListTodo className="w-3.5 h-3.5" /> Work Plan</TabsTrigger>}
+          {!isProvider && <TabsTrigger value="policy" className="text-xs gap-1.5"><Shield className="w-3.5 h-3.5" /> Policy</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="activity" className="p-5">
