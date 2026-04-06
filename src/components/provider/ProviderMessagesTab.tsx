@@ -9,11 +9,17 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
-import { MessageCircle, Eye, Send, ArrowUpRight, ArrowDownLeft, Plus } from 'lucide-react';
+import { format, formatDistanceToNow } from 'date-fns';
+import { MessageCircle, Eye, Send, ArrowUpRight, ArrowDownLeft, Plus, User, Building2, Stethoscope } from 'lucide-react';
 import { useState } from 'react';
 
 const MESSAGE_TYPES = ['Status Update', 'Appointment Reminder', 'General'] as const;
+
+const RECIPIENT_META: Record<string, { label: string; icon: typeof User; color: string }> = {
+  patient: { label: 'Patient', icon: User, color: 'bg-blue-100 text-blue-700' },
+  attorney: { label: 'Attorney', icon: Building2, color: 'bg-violet-100 text-violet-700' },
+  provider: { label: 'Provider', icon: Stethoscope, color: 'bg-emerald-100 text-emerald-700' },
+};
 
 export function ProviderMessagesTab() {
   const { user } = useAuth();
@@ -24,18 +30,16 @@ export function ProviderMessagesTab() {
   const [script, setScript] = useState('');
   const [caseId, setCaseId] = useState('');
 
-  // Fetch messages where user is recipient OR sender — RLS handles the filtering
   const { data: messages, isLoading } = useQuery({
     queryKey: ['provider-video-messages', user?.id],
     queryFn: async () => {
       const { data } = await supabase.from('video_messages')
-        .select('*, cases:case_id(case_number, patient_name), sender:created_by(full_name)')
+        .select('*, cases:case_id(case_number, patient_name, attorney_id, attorneys:attorney_id(firm_name)), sender:created_by(full_name)')
         .order('created_at', { ascending: false });
       return data || [];
     },
   });
 
-  // Fetch cases linked to this provider for compose
   const { data: providerCases } = useQuery({
     queryKey: ['provider-cases-for-messages'],
     queryFn: async () => {
@@ -89,6 +93,14 @@ export function ProviderMessagesTab() {
 
   const unread = messages?.filter(m => !m.viewed && m.recipient_id === user?.id).length || 0;
 
+  const getRecipientLabel = (m: any, isSent: boolean) => {
+    const firmName = (m as any).cases?.attorneys?.firm_name;
+    if (m.recipient_role === 'attorney' && firmName) return firmName;
+    if (m.recipient_role === 'patient') return (m as any).cases?.patient_name || 'Patient';
+    const meta = RECIPIENT_META[m.recipient_role];
+    return meta?.label || m.recipient_role;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -105,44 +117,51 @@ export function ProviderMessagesTab() {
         </Button>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         {messages?.map(m => {
           const isSent = m.created_by === user?.id;
           const isReceived = m.recipient_id === user?.id;
+          const meta = RECIPIENT_META[m.recipient_role] || RECIPIENT_META.patient;
+          const Icon = meta.icon;
+          const recipientLabel = getRecipientLabel(m, isSent);
+
           return (
             <button
               key={m.id}
               onClick={() => openMessage(m)}
-              className={`w-full text-left bg-card border rounded-xl p-4 hover:bg-accent/30 transition-colors ${
+              className={`w-full text-left border rounded-xl p-4 hover:bg-accent/20 transition-colors bg-card ${
                 isReceived && !m.viewed ? 'border-primary/30 bg-primary/[0.02]' : 'border-border'
               }`}
             >
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    {isSent ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
-                        <ArrowUpRight className="w-3 h-3" /> Sent
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
-                        <ArrowDownLeft className="w-3 h-3" /> Received
-                      </span>
-                    )}
-                    <span className="text-sm font-medium text-foreground">{m.message_type}</span>
-                    {isReceived && !m.viewed && <Badge className="text-[9px] h-4">New</Badge>}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {(m as any).cases?.case_number} — {(m as any).cases?.patient_name}
-                    {isSent && <span className="ml-1">· To: {m.recipient_role}</span>}
-                    {isReceived && (m as any).sender?.full_name && <span className="ml-1">· From: {(m as any).sender.full_name}</span>}
-                  </p>
-                </div>
-                <span className="text-[10px] text-muted-foreground font-mono">
-                  {m.created_at ? format(new Date(m.created_at), 'MMM d, yyyy') : ''}
+              <div className="flex items-center gap-2 flex-wrap">
+                {isSent ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                    <ArrowUpRight className="w-3 h-3" /> Sent
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                    <ArrowDownLeft className="w-3 h-3" /> Received
+                  </span>
+                )}
+                <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full ${meta.color}`}>
+                  <Icon className="w-3 h-3" />
+                  {isSent ? `To: ${recipientLabel}` : `From: ${(m as any).sender?.full_name || recipientLabel}`}
                 </span>
+                <Badge variant="outline" className="text-[10px]">{m.message_type}</Badge>
+                {m.viewed ? (
+                  <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground"><Eye className="w-3 h-3" /> Viewed</span>
+                ) : (
+                  <Badge className="text-[10px] h-4">Unread</Badge>
+                )}
               </div>
-              <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{m.script}</p>
+              <p className="text-sm text-foreground mt-2 whitespace-pre-wrap line-clamp-2">{m.script}</p>
+              <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
+                <span>
+                  {isSent ? 'Sent by you' : `Sent by ${(m as any).sender?.full_name || 'System'}`}{' '}
+                  {m.created_at ? formatDistanceToNow(new Date(m.created_at), { addSuffix: true }) : ''}
+                </span>
+                {m.viewed_at && <span>• Viewed {format(new Date(m.viewed_at), 'MMM d, h:mm a')}</span>}
+              </div>
             </button>
           );
         })}
