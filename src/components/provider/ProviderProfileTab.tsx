@@ -40,6 +40,18 @@ export function ProviderProfileTab() {
     enabled: !!profile?.provider_id,
   });
 
+  const { data: locations } = useQuery({
+    queryKey: ['provider-locations', profile?.provider_id],
+    queryFn: async () => {
+      const { data } = await supabase.from('provider_locations')
+        .select('*')
+        .eq('provider_id', profile!.provider_id!)
+        .order('is_primary', { ascending: false });
+      return data || [];
+    },
+    enabled: !!profile?.provider_id,
+  });
+
   if (isLoading) return <Skeleton className="h-64 rounded-xl" />;
   if (!provider) return <p className="text-muted-foreground text-sm py-8 text-center">No provider profile linked to your account.</p>;
 
@@ -138,6 +150,38 @@ export function ProviderProfileTab() {
         </div>
       </div>
 
+      {/* Locations */}
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-border">
+          <h3 className="text-sm font-semibold text-foreground">Locations ({locations?.length || 0})</h3>
+        </div>
+        {locations && locations.length > 0 ? (
+          <div className="divide-y divide-border">
+            {locations.map((loc: any) => (
+              <div key={loc.id} className="px-6 py-4 flex items-start gap-3">
+                <PhoneIcon className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-foreground">{loc.label || 'Office'}</span>
+                    {loc.is_primary && <span className="text-[10px] bg-primary/10 text-primary rounded px-1.5 py-0.5">Primary</span>}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {[loc.address_street, loc.address_city, loc.address_state, loc.address_zip].filter(Boolean).join(', ') || 'No address on file'}
+                  </p>
+                  {(loc.phone || loc.fax) && (
+                    <p className="text-xs text-muted-foreground mt-0.5 font-mono">
+                      {loc.phone && `☎ ${loc.phone}`}{loc.phone && loc.fax && ' · '}{loc.fax && `Fax: ${loc.fax}`}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="px-6 py-8 text-center text-sm text-muted-foreground">No locations on file</div>
+        )}
+      </div>
+
       {/* Compliance section — read-only */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-border">
@@ -155,7 +199,6 @@ export function ProviderProfileTab() {
               <Badge variant={provider.status === 'Active' ? 'default' : 'secondary'} className="text-xs">{provider.status}</Badge>
             </div>
             <InfoRow label="Rating" value={provider.rating ? `${provider.rating} / 5` : 'Not rated'} />
-            <InfoRow label="Locations" value={String(provider.locations || 1)} />
           </div>
         </div>
       </div>
