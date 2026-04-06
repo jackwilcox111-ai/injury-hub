@@ -23,8 +23,6 @@ const navItems = [
   { title: 'Reports', path: '/reports', icon: BarChart3, roles: ['admin'] as UserRole[] },
   { title: 'Calendar', path: '/calendar', icon: CalendarDays, roles: ['admin', 'care_manager', 'attorney', 'provider'] as UserRole[] },
   { title: 'Settings', path: '/settings', icon: Settings, roles: ['admin'] as UserRole[] },
-  // Attorney extras
-  { title: 'Marketplace', path: '/attorney/marketplace', icon: ShoppingBag, roles: ['attorney'] as UserRole[] },
   // Provider sidebar
   { title: 'My Patients', path: '/provider-portal', icon: Stethoscope, roles: ['provider'] as UserRole[] },
   { title: 'RCM Billing', path: '/provider/rcm', icon: CreditCard, roles: ['provider'] as UserRole[] },
