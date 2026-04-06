@@ -128,21 +128,42 @@ export default function ProviderPortal() {
 
   const addCharge = useMutation({
     mutationFn: async () => {
+      let documentId: string | null = null;
+
+      if (selectedFile) {
+        const filePath = `charges/${selectedCaseId}/${Date.now()}_${selectedFile.name}`;
+        const { error: uploadError } = await supabase.storage.from('documents').upload(filePath, selectedFile);
+        if (uploadError) throw uploadError;
+
+        const { data: docData, error: docError } = await supabase.from('documents').insert({
+          case_id: selectedCaseId,
+          file_name: selectedFile.name,
+          storage_path: filePath,
+          document_type: 'bill',
+          uploader_id: profile?.id,
+        }).select('id').single();
+        if (docError) throw docError;
+        documentId = docData.id;
+      }
+
       const { error } = await supabase.from('charges').insert({
         case_id: selectedCaseId,
         provider_id: profile?.provider_id || null,
-        cpt_code: charge.cpt_code,
-        cpt_description: charge.cpt_description || null,
+        cpt_code: charge.description || 'BILL',
+        cpt_description: charge.description || null,
         service_date: charge.service_date,
         charge_amount: parseFloat(charge.charge_amount) || 0,
         units: parseInt(charge.units) || 1,
+        billing_path: charge.billing_path,
+        document_id: documentId,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['provider-charges'] });
       setShowAddCharge(false);
-      setCharge({ cpt_code: '', cpt_description: '', service_date: '', charge_amount: '', units: '1' });
+      setSelectedFile(null);
+      setCharge({ description: '', service_date: '', charge_amount: '', units: '1', billing_path: 'Lien' });
       toast.success('Charge submitted');
     },
     onError: (e: any) => toast.error(e.message),
