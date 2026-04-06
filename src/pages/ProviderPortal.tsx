@@ -24,8 +24,11 @@ import { ProviderProfileTab } from '@/components/provider/ProviderProfileTab';
 import { ProviderLiensTab } from '@/components/provider/ProviderLiensTab';
 import { ProviderDocumentsTab } from '@/components/provider/ProviderDocumentsTab';
 import { ProviderMessagesTab } from '@/components/provider/ProviderMessagesTab';
+import { SPECIALTIES } from '@/lib/specialties';
+import { Textarea } from '@/components/ui/textarea';
 
 const BILLING_PATHS = ['Lien', 'PIP', 'MedPay', 'Insurance'];
+const APPT_STATUSES = ['Scheduled', 'Completed', 'No-Show', 'Cancelled', 'Rescheduled'];
 
 type SortField = 'patient_name' | 'updated_at' | 'lien_amount' | 'status' | 'case_number';
 type SortDir = 'asc' | 'desc';
@@ -44,6 +47,8 @@ export default function ProviderPortal() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState('');
+  const [showEditAppt, setShowEditAppt] = useState(false);
+  const [editingAppt, setEditingAppt] = useState<any>(null);
   const [statusFilter, setStatusFilter] = useState('All');
   const [sortField, setSortField] = useState<SortField>('updated_at');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
@@ -123,6 +128,26 @@ export default function ProviderPortal() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['provider-portal-appointments'] });
+      toast.success('Appointment updated');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const updateApptFull = useMutation({
+    mutationFn: async () => {
+      if (!editingAppt) return;
+      const { error } = await supabase.from('appointments').update({
+        scheduled_date: editingAppt.scheduled_date,
+        specialty: editingAppt.specialty || null,
+        status: editingAppt.status,
+        notes: editingAppt.notes || null,
+      }).eq('id', editingAppt.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['provider-portal-appointments'] });
+      setShowEditAppt(false);
+      setEditingAppt(null);
       toast.success('Appointment updated');
     },
     onError: (e: any) => toast.error(e.message),
@@ -668,25 +693,32 @@ export default function ProviderPortal() {
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Case #</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Patient</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Date</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Specialty</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Actions</th>
               </tr></thead>
               <tbody className="divide-y divide-border">
                 {appointments?.map(a => (
-                  <tr key={a.id} className="hover:bg-accent/30 transition-colors">
+                  <tr key={a.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => {
+                    setEditingAppt({
+                      id: a.id,
+                      scheduled_date: a.scheduled_date ? new Date(a.scheduled_date).toISOString().slice(0, 16) : '',
+                      specialty: a.specialty || '',
+                      status: a.status,
+                      notes: a.notes || '',
+                      case_number: (a as any).cases?.case_number,
+                      patient_name: (a as any).cases?.patient_name,
+                    });
+                    setShowEditAppt(true);
+                  }}>
                     <td className="px-4 py-3 font-mono text-xs text-primary">{(a as any).cases?.case_number}</td>
                     <td className="px-4 py-3 text-foreground text-xs">{(a as any).cases?.patient_name}</td>
                     <td className="px-4 py-3 font-mono text-xs">{a.scheduled_date ? format(new Date(a.scheduled_date), 'MMM d, yyyy') : '—'}</td>
-                    <td className="px-4 py-3"><StatusBadge status={a.status} /></td>
-                    <td className="px-4 py-3 flex gap-1">
-                      {a.status === 'Scheduled' && (
-                        <>
-                          <Button size="sm" variant="ghost" className="h-7 text-[10px] text-success"
-                            onClick={() => updateAppt.mutate({ id: a.id, status: 'Completed' })}>Complete</Button>
-                          <Button size="sm" variant="ghost" className="h-7 text-[10px] text-destructive"
-                            onClick={() => updateAppt.mutate({ id: a.id, status: 'No-Show' })}>No-Show</Button>
-                        </>
-                      )}
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{a.specialty || '—'}</td>
+                    <td className="px-4 py-3">
+                      <Select value={a.status} onValueChange={v => { updateAppt.mutate({ id: a.id, status: v }); }}>
+                        <SelectTrigger className="h-7 w-28 text-[10px]" onClick={e => e.stopPropagation()}><SelectValue /></SelectTrigger>
+                        <SelectContent>{APPT_STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                      </Select>
                     </td>
                   </tr>
                 ))}
@@ -861,6 +893,41 @@ export default function ProviderPortal() {
               <Button type="submit" disabled={addCharge.isPending || !selectedCaseId || !charge.service_date}>Submit</Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Appointment Dialog */}
+      <Dialog open={showEditAppt} onOpenChange={v => { setShowEditAppt(v); if (!v) setEditingAppt(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Edit Appointment — {editingAppt?.case_number}</DialogTitle></DialogHeader>
+          {editingAppt && (
+            <form onSubmit={e => { e.preventDefault(); updateApptFull.mutate(); }} className="space-y-4">
+              <div className="text-sm text-muted-foreground">Patient: <span className="text-foreground font-medium">{editingAppt.patient_name}</span></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label>Date & Time</Label><Input type="datetime-local" value={editingAppt.scheduled_date} onChange={e => setEditingAppt((p: any) => ({ ...p, scheduled_date: e.target.value }))} /></div>
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <Select value={editingAppt.status} onValueChange={v => setEditingAppt((p: any) => ({ ...p, status: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>{APPT_STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Specialty</Label>
+                <Select value={editingAppt.specialty} onValueChange={v => setEditingAppt((p: any) => ({ ...p, specialty: v }))}>
+                  <SelectTrigger><SelectValue placeholder="Select specialty..." /></SelectTrigger>
+                  <SelectContent>{SPECIALTIES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2"><Label>Notes</Label><Textarea value={editingAppt.notes} onChange={e => setEditingAppt((p: any) => ({ ...p, notes: e.target.value }))} /></div>
+              <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => { setShowEditAppt(false); setEditingAppt(null); }}>Cancel</Button>
+                <Button type="submit" disabled={updateApptFull.isPending}>Save Changes</Button>
+              </div>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
 
