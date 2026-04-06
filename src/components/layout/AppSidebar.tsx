@@ -82,7 +82,11 @@ export function AppSidebar() {
       <nav className="flex-1 py-3 px-3 space-y-0.5 overflow-y-auto">
         <p className="px-3 py-2 text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Menu</p>
         {visibleItems.map(item => {
-          const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
+          const itemPath = item.path.split('?')[0];
+          const itemSearch = item.path.includes('?') ? item.path.split('?')[1] : '';
+          const isActive = item.path.includes('?')
+            ? location.pathname === itemPath && location.search === '?' + itemSearch
+            : location.pathname === item.path && !location.search;
           return (
             <button
               key={item.path}
