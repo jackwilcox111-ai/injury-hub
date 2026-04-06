@@ -47,6 +47,8 @@ export default function ProviderPortal() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState('');
+  const [showEditAppt, setShowEditAppt] = useState(false);
+  const [editingAppt, setEditingAppt] = useState<any>(null);
   const [statusFilter, setStatusFilter] = useState('All');
   const [sortField, setSortField] = useState<SortField>('updated_at');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
