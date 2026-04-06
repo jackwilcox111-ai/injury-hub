@@ -307,28 +307,12 @@ export default function ProviderPortal() {
         <KpiCard icon={AlertTriangle} value={noShowAppts.length} label="No-Shows" color="text-destructive" />
       </div>
     ),
-    charges: (
+    'records-bills': (
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <KpiCard icon={FileText} value={charges?.length || 0} label="Total Charges" />
-        <KpiCard icon={Clock} value={pendingCharges} label="Pending" color="text-warning" />
-        <KpiCard icon={DollarSign} value={`$${totalCharges.toLocaleString()}`} label="Billed" color="text-success" bg="bg-success/5 border-success/20" />
-        <KpiCard icon={DollarSign} value={`$${totalPaid.toLocaleString()}`} label="Collected" color="text-primary" bg="bg-primary/5 border-primary/20" />
-      </div>
-    ),
-    records: (
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <KpiCard icon={FileText} value={totalRecords} label="Total Records" />
-        <KpiCard icon={Users} value={activeCases.length} label="Cases" />
-        <KpiCard icon={CheckCircle} value={completionRate + '%'} label="Appt Completion" color="text-success" />
-        <KpiCard icon={Calendar} value={scheduled} label="Upcoming Appts" />
-      </div>
-    ),
-    documents: (
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <KpiCard icon={Upload} value={totalDocs} label="Total Documents" />
-        <KpiCard icon={FileCheck} value={signedDocs} label="Signed" color="text-success" />
-        <KpiCard icon={AlertTriangle} value={unsignedDocs} label="Unsigned" color="text-warning" />
-        <KpiCard icon={Users} value={activeCases.length} label="Cases" />
+        <KpiCard icon={FileText} value={charges?.length || 0} label="Charges" />
+        <KpiCard icon={DollarSign} value={`$${totalCharges.toLocaleString()}`} label="Total Billed" color="text-success" bg="bg-success/5 border-success/20" />
+        <KpiCard icon={FolderOpen} value={totalRecords} label="Records" />
+        <KpiCard icon={Upload} value={totalDocs} label="Documents" />
       </div>
     ),
     liens: (
