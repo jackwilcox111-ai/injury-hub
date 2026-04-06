@@ -100,6 +100,8 @@ export default function CaseDetail() {
   const queryClient = useQueryClient();
   const isAdmin = profile?.role === 'admin';
   const isAttorney = profile?.role === 'attorney';
+  const isProvider = profile?.role === 'provider';
+  const isStaff = isAdmin || profile?.role === 'care_manager';
   const [showAddAppt, setShowAddAppt] = useState(false);
   const [showReferral, setShowReferral] = useState(false);
   const [showAddRecord, setShowAddRecord] = useState(false);
@@ -168,7 +170,7 @@ export default function CaseDetail() {
         .eq('case_id', id!).order('created_at', { ascending: false });
       return data || [];
     },
-    enabled: isAdmin,
+    enabled: isAdmin || isProvider,
   });
 
   const { data: updates } = useQuery({
@@ -374,14 +376,18 @@ export default function CaseDetail() {
     <div className="space-y-6">
       <PHIBanner />
       <div className="flex items-center gap-1 text-sm text-muted-foreground -ml-2">
-        <Button variant="link" size="sm" onClick={() => navigate('/dashboard')} className="text-muted-foreground px-1">
+        <Button variant="link" size="sm" onClick={() => navigate(isProvider ? '/provider/dashboard' : '/dashboard')} className="text-muted-foreground px-1">
           Dashboard
         </Button>
         <span>/</span>
-        <Button variant="link" size="sm" onClick={() => navigate('/cases')} className="text-muted-foreground px-1">
-          Cases
-        </Button>
-        <span>/</span>
+        {!isProvider && (
+          <>
+            <Button variant="link" size="sm" onClick={() => navigate('/cases')} className="text-muted-foreground px-1">
+              Cases
+            </Button>
+            <span>/</span>
+          </>
+        )}
         <span className="text-foreground font-medium">{caseData?.case_number}</span>
       </div>
 
@@ -397,9 +403,11 @@ export default function CaseDetail() {
                   <Phone className="w-3.5 h-3.5" />{c.patient_phone}
                 </span>
               )}
-              <Button size="sm" className="h-7 text-xs gap-1" onClick={() => setShowReferral(true)}>
-                <Send className="w-3 h-3" /> Send Referral
-              </Button>
+              {!isProvider && (
+                <Button size="sm" className="h-7 text-xs gap-1" onClick={() => setShowReferral(true)}>
+                  <Send className="w-3 h-3" /> Send Referral
+                </Button>
+              )}
             </div>
             
           </div>
@@ -414,92 +422,151 @@ export default function CaseDetail() {
           <CaseProgressStepper currentStatus={c.status || ''} />
         </div>
 
-        <div className="grid gap-4 grid-cols-3">
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Status</Label>
-            <Select value={c.status || ''} onValueChange={handleStatusChange}>
-              <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-              <SelectContent>{caseStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Flag</Label>
-            <Select value={c.flag || 'none'} onValueChange={v => updateCase.mutate({ flag: v === 'none' ? null : v })}>
-              <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-              <SelectContent>{flagOptions.map(f => <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
-          {isAttorney ? (
-            <div className="space-y-1.5">
-              <AttorneyCaseActions
-                caseId={id!}
-                caseNumber={c.case_number}
-                patientName={c.patient_name}
-                currentFlag={c.flag}
-                providerId={c.provider_id}
-              />
+        {/* Controls — providers get read-only overview */}
+        {isProvider ? (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Status</Label>
+                <p className="text-sm font-medium"><StatusBadge status={c.status || ''} /></p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Specialty</Label>
+                <p className="text-sm font-medium text-foreground">{c.specialty || '—'}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">DOI (Date of Injury)</Label>
+                <p className="text-sm font-medium text-foreground">{c.accident_date ? format(new Date(c.accident_date), 'MMM d, yyyy') : '—'}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Attorney</Label>
+                <p className="text-sm font-medium text-foreground">{(c as any).attorneys?.firm_name || '—'}</p>
+              </div>
             </div>
-          ) : (
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Attorney</Label>
-              <Select value={c.attorney_id || ''} onValueChange={v => updateCase.mutate({ attorney_id: v || null })}>
-                <SelectTrigger className="h-9"><SelectValue placeholder="Select..." /></SelectTrigger>
-                <SelectContent>{allAttorneys?.map(a => <SelectItem key={a.id} value={a.id}>{a.firm_name}</SelectItem>)}</SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Lien Amount</Label>
+                <p className="text-sm font-mono font-medium tabular-nums text-foreground">${Number(c.lien_amount || 0).toLocaleString()}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Preferred Language</Label>
+                <p className="text-sm font-medium text-foreground">{(c as any).preferred_language || 'English'}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Opened</Label>
+                <p className="text-sm font-medium text-foreground">{c.opened_date ? format(new Date(c.opened_date), 'MMM d, yyyy') : '—'}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Last Updated</Label>
+                <p className="text-sm font-medium text-foreground">{c.updated_at ? formatDistanceToNow(new Date(c.updated_at), { addSuffix: true }) : '—'}</p>
+              </div>
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <>
+            <div className="grid gap-4 grid-cols-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Status</Label>
+                <Select value={c.status || ''} onValueChange={handleStatusChange}>
+                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>{caseStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Flag</Label>
+                <Select value={c.flag || 'none'} onValueChange={v => updateCase.mutate({ flag: v === 'none' ? null : v })}>
+                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>{flagOptions.map(f => <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              {isAttorney ? (
+                <div className="space-y-1.5">
+                  <AttorneyCaseActions
+                    caseId={id!}
+                    caseNumber={c.case_number}
+                    patientName={c.patient_name}
+                    currentFlag={c.flag}
+                    providerId={c.provider_id}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Attorney</Label>
+                  <Select value={c.attorney_id || ''} onValueChange={v => updateCase.mutate({ attorney_id: v || null })}>
+                    <SelectTrigger className="h-9"><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectContent>{allAttorneys?.map(a => <SelectItem key={a.id} value={a.id}>{a.firm_name}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
 
-        {/* Case Overview */}
-        <div className="mt-5 pt-5 border-t border-border">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">DOI (Date of Injury)</Label>
-              <Input
-                type="date"
-                className="h-9 text-sm"
-                value={c.accident_date || ''}
-                onChange={e => updateCase.mutate({ accident_date: e.target.value || null })}
-              />
+            {/* Case Overview */}
+            <div className="mt-5 pt-5 border-t border-border">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">DOI (Date of Injury)</Label>
+                  <Input
+                    type="date"
+                    className="h-9 text-sm"
+                    value={c.accident_date || ''}
+                    onChange={e => updateCase.mutate({ accident_date: e.target.value || null })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Request Date</Label>
+                  <Input
+                    type="date"
+                    className="h-9 text-sm"
+                    value={(c as any).request_date || ''}
+                    onChange={e => updateCase.mutate({ request_date: e.target.value || null })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Initial Appt Date</Label>
+                  <Input
+                    type="date"
+                    className="h-9 text-sm"
+                    value={(c as any).initial_appointment_date || ''}
+                    onChange={e => updateCase.mutate({ initial_appointment_date: e.target.value || null })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Initial Appt Status</Label>
+                  <Select value={(c as any).initial_appointment_status || 'Pending'} onValueChange={v => updateCase.mutate({ initial_appointment_status: v })}>
+                    <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {['Pending', 'Scheduled', 'Patient Seen', 'No Show', 'Cancelled', 'Rescheduled'].map(s => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Request Date</Label>
-              <Input
-                type="date"
-                className="h-9 text-sm"
-                value={(c as any).request_date || ''}
-                onChange={e => updateCase.mutate({ request_date: e.target.value || null })}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Initial Appt Date</Label>
-              <Input
-                type="date"
-                className="h-9 text-sm"
-                value={(c as any).initial_appointment_date || ''}
-                onChange={e => updateCase.mutate({ initial_appointment_date: e.target.value || null })}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Initial Appt Status</Label>
-              <Select value={(c as any).initial_appointment_status || 'Pending'} onValueChange={v => updateCase.mutate({ initial_appointment_status: v })}>
-                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {['Pending', 'Scheduled', 'Patient Seen', 'No Show', 'Cancelled', 'Rescheduled'].map(s => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
-      {/* Provider Referrals */}
-      <ProviderReferralsModule caseId={id!} onSendReferral={() => setShowReferral(true)} />
+      {/* Provider Referrals — hidden for providers */}
+      {!isProvider && <ProviderReferralsModule caseId={id!} onSendReferral={() => setShowReferral(true)} />}
 
-      {/* Case Tasks */}
-      <CaseTasksSection caseId={id!} />
+      {/* Provider: Request Specialty Referral */}
+      {isProvider && (
+        <div className="bg-card border border-border rounded-xl shadow-card p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Request Specialty Referral</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Request a referral to another specialty — case management will assign the provider.</p>
+            </div>
+            <Button size="sm" variant="outline" className="h-8 text-xs gap-1.5" onClick={() => setShowReferral(true)}>
+              <Send className="w-3 h-3" /> Request Referral
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Case Tasks — hidden for providers */}
+      {!isProvider && <CaseTasksSection caseId={id!} />}
 
       {/* Two-column: Appointments + Messages */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -558,8 +625,8 @@ export default function CaseDetail() {
         </div>
       </div>
 
-      {/* Two-column: Records + Liens (left, stacked) | Case Timeline (right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      {/* Records + Liens / Case Timeline */}
+      <div className={`grid grid-cols-1 ${!isProvider ? 'lg:grid-cols-2' : ''} gap-5`}>
         {/* Left: Records stacked over Liens */}
         <div className="space-y-5">
           {/* Records */}
@@ -608,12 +675,12 @@ export default function CaseDetail() {
             </table>
           </div>
 
-          {/* Lien Register (admin only) */}
-          {isAdmin && (
+          {/* Lien Register (admin and provider) */}
+          {(isAdmin || isProvider) && (
             <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
               <div className="px-5 py-4 border-b border-border flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-foreground">Lien Register</h3>
-                <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowAddLien(true)}>+ Lien</Button>
+                {isAdmin && <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowAddLien(true)}>+ Lien</Button>}
               </div>
               <table className="w-full text-sm">
                 <thead><tr className="border-b border-border bg-accent/50">
@@ -627,8 +694,8 @@ export default function CaseDetail() {
                   {liens?.map(l => (
                     <tr key={l.id} className="hover:bg-accent/30 transition-colors">
                       <td className="px-4 py-2.5 text-xs font-medium">{(l as any).providers?.name || '—'}</td>
-                      <td className="px-4 py-2.5 font-mono text-xs text-emerald-600 tabular-nums">${l.amount.toLocaleString()}</td>
-                      <td className="px-4 py-2.5 font-mono text-xs text-amber-600 tabular-nums">${l.reduction_amount.toLocaleString()}</td>
+                      <td className="px-4 py-2.5 font-mono text-xs tabular-nums">${l.amount.toLocaleString()}</td>
+                      <td className="px-4 py-2.5 font-mono text-xs tabular-nums">${l.reduction_amount.toLocaleString()}</td>
                       <td className="px-4 py-2.5 font-mono text-xs text-foreground font-medium tabular-nums">${(l.amount - l.reduction_amount).toLocaleString()}</td>
                       <td className="px-4 py-2.5"><StatusBadge status={l.status} /></td>
                     </tr>
@@ -642,8 +709,8 @@ export default function CaseDetail() {
           )}
         </div>
 
-        {/* Right: Case Timeline */}
-        <CaseTimelineSidebar caseId={id!} />
+        {/* Right: Case Timeline — hidden for providers */}
+        {!isProvider && <CaseTimelineSidebar caseId={id!} />}
       </div>
 
       {/* Tabbed Module Panels */}
@@ -653,8 +720,8 @@ export default function CaseDetail() {
           <TabsTrigger value="insurance" className="text-xs gap-1.5"><ShieldCheck className="w-3.5 h-3.5" /> Insurance</TabsTrigger>
           <TabsTrigger value="billing" className="text-xs gap-1.5"><DollarSign className="w-3.5 h-3.5" /> Billing</TabsTrigger>
           <TabsTrigger value="records" className="text-xs gap-1.5"><FileText className="w-3.5 h-3.5" /> Records</TabsTrigger>
-          <TabsTrigger value="workplan" className="text-xs gap-1.5"><ListTodo className="w-3.5 h-3.5" /> Work Plan</TabsTrigger>
-          <TabsTrigger value="policy" className="text-xs gap-1.5"><Shield className="w-3.5 h-3.5" /> Policy</TabsTrigger>
+          {!isProvider && <TabsTrigger value="workplan" className="text-xs gap-1.5"><ListTodo className="w-3.5 h-3.5" /> Work Plan</TabsTrigger>}
+          {!isProvider && <TabsTrigger value="policy" className="text-xs gap-1.5"><Shield className="w-3.5 h-3.5" /> Policy</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="activity" className="p-5">
