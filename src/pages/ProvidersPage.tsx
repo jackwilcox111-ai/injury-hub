@@ -26,7 +26,7 @@ export default function ProvidersPage() {
   const isAdmin = profile?.role === 'admin';
   const [showAdd, setShowAdd] = useState(false);
   const [showDetail, setShowDetail] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', specialty: '', locations: 1, rating: 0, status: 'Active', credentialing_expiry: '', hipaa_baa_on_file: false, interpreter_available: false, languages_spoken: ['English'] as string[], notes: '' });
+  const [form, setForm] = useState({ name: '', specialty: '', locations: 1, status: 'Active', credentialing_expiry: '', hipaa_baa_on_file: false, interpreter_available: false, languages_spoken: ['English'] as string[], notes: '' });
   const [newLoc, setNewLoc] = useState({ label: '', address_street: '', address_city: '', address_state: '', address_zip: '', phone: '', fax: '' });
   const [showAddLoc, setShowAddLoc] = useState(false);
 
