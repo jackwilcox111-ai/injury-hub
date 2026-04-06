@@ -80,6 +80,22 @@ export default function ProviderPortal() {
     },
   });
 
+  const { data: liens } = useQuery({
+    queryKey: ['provider-liens-metrics'],
+    queryFn: async () => {
+      const { data } = await supabase.from('liens').select('amount, reduction_amount, status, payment_date');
+      return data || [];
+    },
+  });
+
+  const { data: documents } = useQuery({
+    queryKey: ['provider-documents-metrics'],
+    queryFn: async () => {
+      const { data } = await supabase.from('documents').select('id, signed, document_type');
+      return data || [];
+    },
+  });
+
   const updateAppt = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
       const { error } = await supabase.from('appointments').update({ status }).eq('id', id);
