@@ -24,8 +24,11 @@ import { ProviderProfileTab } from '@/components/provider/ProviderProfileTab';
 import { ProviderLiensTab } from '@/components/provider/ProviderLiensTab';
 import { ProviderDocumentsTab } from '@/components/provider/ProviderDocumentsTab';
 import { ProviderMessagesTab } from '@/components/provider/ProviderMessagesTab';
+import { SPECIALTIES } from '@/lib/specialties';
+import { Textarea } from '@/components/ui/textarea';
 
 const BILLING_PATHS = ['Lien', 'PIP', 'MedPay', 'Insurance'];
+const APPT_STATUSES = ['Scheduled', 'Completed', 'No-Show', 'Cancelled', 'Rescheduled'];
 
 type SortField = 'patient_name' | 'updated_at' | 'lien_amount' | 'status' | 'case_number';
 type SortDir = 'asc' | 'desc';
