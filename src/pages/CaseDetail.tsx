@@ -375,6 +375,7 @@ export default function CaseDetail() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const updateLienMutation = useMutation({
     mutationFn: async (lien: any) => {
       const { error } = await supabase.from('liens').update({
         amount: lien.amount, reduction_amount: lien.reduction_amount,
