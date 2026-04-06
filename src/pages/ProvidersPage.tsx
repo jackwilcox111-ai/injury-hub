@@ -187,9 +187,6 @@ export default function ProvidersPage() {
   const selectedProvider = providers?.find(p => p.id === showDetail);
   const activeProviders = providers?.filter(p => p.status === 'Active') || [];
   const totalActiveCases = Object.values(caseCounts || {}).reduce((s, c) => s + c, 0);
-  const avgRating = activeProviders.length > 0
-    ? activeProviders.filter(p => p.rating).reduce((s, p) => s + (p.rating || 0), 0) / activeProviders.filter(p => p.rating).length
-    : 0;
 
   if (isLoading) {
     return <div className="space-y-6"><h2 className="font-display text-2xl">Providers</h2><Skeleton className="h-96 rounded-xl" /></div>;
