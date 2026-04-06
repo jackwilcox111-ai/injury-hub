@@ -452,7 +452,6 @@ export default function CaseDetail() {
 
         {/* Case Overview */}
         <div className="mt-5 pt-5 border-t border-border">
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Case Overview</h4>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">DOI (Date of Injury)</Label>
