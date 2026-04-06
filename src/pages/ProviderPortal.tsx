@@ -693,25 +693,32 @@ export default function ProviderPortal() {
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Case #</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Patient</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Date</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Specialty</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Actions</th>
               </tr></thead>
               <tbody className="divide-y divide-border">
                 {appointments?.map(a => (
-                  <tr key={a.id} className="hover:bg-accent/30 transition-colors">
+                  <tr key={a.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => {
+                    setEditingAppt({
+                      id: a.id,
+                      scheduled_date: a.scheduled_date ? new Date(a.scheduled_date).toISOString().slice(0, 16) : '',
+                      specialty: a.specialty || '',
+                      status: a.status,
+                      notes: a.notes || '',
+                      case_number: (a as any).cases?.case_number,
+                      patient_name: (a as any).cases?.patient_name,
+                    });
+                    setShowEditAppt(true);
+                  }}>
                     <td className="px-4 py-3 font-mono text-xs text-primary">{(a as any).cases?.case_number}</td>
                     <td className="px-4 py-3 text-foreground text-xs">{(a as any).cases?.patient_name}</td>
                     <td className="px-4 py-3 font-mono text-xs">{a.scheduled_date ? format(new Date(a.scheduled_date), 'MMM d, yyyy') : '—'}</td>
-                    <td className="px-4 py-3"><StatusBadge status={a.status} /></td>
-                    <td className="px-4 py-3 flex gap-1">
-                      {a.status === 'Scheduled' && (
-                        <>
-                          <Button size="sm" variant="ghost" className="h-7 text-[10px] text-success"
-                            onClick={() => updateAppt.mutate({ id: a.id, status: 'Completed' })}>Complete</Button>
-                          <Button size="sm" variant="ghost" className="h-7 text-[10px] text-destructive"
-                            onClick={() => updateAppt.mutate({ id: a.id, status: 'No-Show' })}>No-Show</Button>
-                        </>
-                      )}
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{a.specialty || '—'}</td>
+                    <td className="px-4 py-3">
+                      <Select value={a.status} onValueChange={v => { updateAppt.mutate({ id: a.id, status: v }); }}>
+                        <SelectTrigger className="h-7 w-28 text-[10px]" onClick={e => e.stopPropagation()}><SelectValue /></SelectTrigger>
+                        <SelectContent>{APPT_STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                      </Select>
                     </td>
                   </tr>
                 ))}
