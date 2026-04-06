@@ -189,11 +189,21 @@ export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId, a
           {messages.map(m => {
             const meta = RECIPIENT_META[m.recipient_role] || RECIPIENT_META.patient;
             const Icon = meta.icon;
+            const isSentByMe = m.created_by === user?.id;
             return (
               <div key={m.id} className="border border-border rounded-xl p-4 bg-card hover:bg-accent/20 transition-colors">
                 <div className="flex items-center gap-2 flex-wrap">
+                  {isSentByMe ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                      <ArrowUpRight className="w-3 h-3" /> Sent
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                      <ArrowDownLeft className="w-3 h-3" /> Received
+                    </span>
+                  )}
                   <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full ${meta.color}`}>
-                    <Icon className="w-3 h-3" /> {meta.label}
+                    <Icon className="w-3 h-3" /> {isSentByMe ? `To: ${meta.label}` : `From: ${(m as any).profiles?.full_name || meta.label}`}
                   </span>
                   <Badge variant="outline" className="text-[10px]">{m.message_type}</Badge>
                   {m.viewed ? (
@@ -205,7 +215,7 @@ export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId, a
                 <p className="text-sm text-foreground mt-2 whitespace-pre-wrap">{m.script}</p>
                 <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
                   <span>
-                    Sent by {(m as any).profiles?.full_name || 'System'}{' '}
+                    {isSentByMe ? 'Sent by you' : `Sent by ${(m as any).profiles?.full_name || 'System'}`}{' '}
                     {m.created_at ? formatDistanceToNow(new Date(m.created_at), { addSuffix: true }) : ''}
                   </span>
                   {m.viewed_at && <span>• Viewed {format(new Date(m.viewed_at), 'MMM d, h:mm a')}</span>}
