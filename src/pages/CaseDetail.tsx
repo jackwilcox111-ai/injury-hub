@@ -99,6 +99,7 @@ export default function CaseDetail() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isAdmin = profile?.role === 'admin';
+  const isAttorney = profile?.role === 'attorney';
   const [showAddAppt, setShowAddAppt] = useState(false);
   const [showReferral, setShowReferral] = useState(false);
   const [showAddRecord, setShowAddRecord] = useState(false);
