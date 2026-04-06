@@ -673,12 +673,23 @@ export default function CaseDetail() {
             </tr></thead>
             <tbody className="divide-y divide-border">
               {appointments?.map(a => (
-                <tr key={a.id} className="hover:bg-accent/30 transition-colors">
+                <tr key={a.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => {
+                  setEditAppt({
+                    id: a.id,
+                    provider_id: a.provider_id || '',
+                    scheduled_date: a.scheduled_date ? new Date(a.scheduled_date).toISOString().slice(0, 16) : '',
+                    specialty: a.specialty || '',
+                    notes: a.notes || '',
+                    status: a.status,
+                    interpreter_confirmed: (a as any).interpreter_confirmed || false,
+                  });
+                  setShowEditAppt(true);
+                }}>
                   <td className="px-4 py-2.5 font-mono text-[11px]">{a.scheduled_date ? format(new Date(a.scheduled_date), 'MMM d, yyyy') : '—'}</td>
                   <td className="px-4 py-2.5 text-xs font-medium">{(a as any).providers?.name || '—'}</td>
                   <td className="px-4 py-2.5">
-                    <Select value={a.status} onValueChange={v => updateApptStatus.mutate({ apptId: a.id, status: v })}>
-                      <SelectTrigger className="h-7 text-xs w-24"><SelectValue /></SelectTrigger>
+                    <Select value={a.status} onValueChange={v => { updateApptStatus.mutate({ apptId: a.id, status: v }); }} >
+                      <SelectTrigger className="h-7 text-xs w-24" onClick={e => e.stopPropagation()}><SelectValue /></SelectTrigger>
                       <SelectContent>{['Scheduled','Completed','No-Show','Cancelled'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                     </Select>
                   </td>
