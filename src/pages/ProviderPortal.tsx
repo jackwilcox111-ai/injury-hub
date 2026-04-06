@@ -864,7 +864,36 @@ export default function ProviderPortal() {
         </DialogContent>
       </Dialog>
 
-      {/* HIPAA Disclaimer */}
+      {/* Edit Charge Dialog */}
+      <Dialog open={showEditCharge} onOpenChange={v => { setShowEditCharge(v); if (!v) setEditingCharge(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Edit Charge — {editingCharge?.case_number}</DialogTitle></DialogHeader>
+          {editingCharge && (
+            <form onSubmit={e => { e.preventDefault(); updateCharge.mutate(); }} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label>Service Date *</Label><Input type="date" value={editingCharge.service_date} onChange={e => setEditingCharge((p: any) => ({ ...p, service_date: e.target.value }))} required /></div>
+                <div className="space-y-2">
+                  <Label>Billing Path</Label>
+                  <Select value={editingCharge.billing_path} onValueChange={v => setEditingCharge((p: any) => ({ ...p, billing_path: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>{BILLING_PATHS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2"><Label>Description</Label><Input value={editingCharge.cpt_description} onChange={e => setEditingCharge((p: any) => ({ ...p, cpt_description: e.target.value }))} placeholder="e.g. Office visit, MRI, Injection..." /></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label>Amount ($) *</Label><Input type="number" step="0.01" value={editingCharge.charge_amount} onChange={e => setEditingCharge((p: any) => ({ ...p, charge_amount: e.target.value }))} required /></div>
+                <div className="space-y-2"><Label>Units</Label><Input type="number" min={1} value={editingCharge.units} onChange={e => setEditingCharge((p: any) => ({ ...p, units: e.target.value }))} /></div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => { setShowEditCharge(false); setEditingCharge(null); }}>Cancel</Button>
+                <Button type="submit" disabled={updateCharge.isPending}>Save Changes</Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <div className="text-[10px] text-muted-foreground text-center py-2 border-t border-border mt-8">
         This portal contains Protected Health Information (PHI). Access is restricted to authorized personnel only. All activity is logged in compliance with HIPAA regulations.
       </div>
