@@ -267,6 +267,27 @@ export default function CaseDetail() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const updateAppointment = useMutation({
+    mutationFn: async (appt: any) => {
+      const { error } = await supabase.from('appointments').update({
+        provider_id: appt.provider_id || null,
+        scheduled_date: appt.scheduled_date || null,
+        specialty: appt.specialty || null,
+        notes: appt.notes || null,
+        status: appt.status,
+        interpreter_confirmed: appt.interpreter_confirmed || false,
+      }).eq('id', appt.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidateAll();
+      setShowEditAppt(false);
+      setEditAppt(null);
+      toast.success('Appointment updated');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   const addRecord = useMutation({
     mutationFn: async () => {
       const { data: recordData, error } = await supabase.from('records').insert({
