@@ -631,7 +631,7 @@ export default function CaseDetail() {
 
         {/* Messages */}
         <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden p-5">
-          <CaseMessagesTab caseId={id!} patientName={c.patient_name} attorneyId={c.attorney_id} providerId={c.provider_id} />
+          <CaseMessagesTab caseId={id!} patientName={c.patient_name} attorneyId={c.attorney_id} providerId={c.provider_id} attorneyFirmName={(c as any).attorneys?.firm_name} />
         </div>
       </div>
 
