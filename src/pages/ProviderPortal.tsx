@@ -133,7 +133,26 @@ export default function ProviderPortal() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const addCharge = useMutation({
+  const updateApptFull = useMutation({
+    mutationFn: async () => {
+      if (!editingAppt) return;
+      const { error } = await supabase.from('appointments').update({
+        scheduled_date: editingAppt.scheduled_date,
+        specialty: editingAppt.specialty || null,
+        status: editingAppt.status,
+        notes: editingAppt.notes || null,
+      }).eq('id', editingAppt.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['provider-portal-appointments'] });
+      setShowEditAppt(false);
+      setEditingAppt(null);
+      toast.success('Appointment updated');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
     mutationFn: async () => {
       let documentId: string | null = null;
 
