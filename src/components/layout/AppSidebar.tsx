@@ -25,9 +25,15 @@ const navItems = [
   { title: 'Settings', path: '/settings', icon: Settings, roles: ['admin'] as UserRole[] },
   // Provider sidebar
   { title: 'Dashboard', path: '/provider/dashboard', icon: LayoutDashboard, roles: ['provider'] as UserRole[] },
+  { title: 'Patients', path: '/provider/dashboard?tab=patients', icon: Users, roles: ['provider'] as UserRole[] },
+  { title: 'Appointments', path: '/provider/dashboard?tab=appointments', icon: Calendar, roles: ['provider'] as UserRole[] },
+  { title: 'Charges', path: '/provider/dashboard?tab=charges', icon: DollarSign, roles: ['provider'] as UserRole[] },
+  { title: 'Records', path: '/provider/dashboard?tab=records', icon: FileText, roles: ['provider'] as UserRole[] },
+  { title: 'Documents', path: '/provider/dashboard?tab=documents', icon: Upload, roles: ['provider'] as UserRole[] },
+  { title: 'Liens', path: '/provider/dashboard?tab=liens', icon: Link2, roles: ['provider'] as UserRole[] },
+  { title: 'Messages', path: '/provider/dashboard?tab=messages', icon: MessageCircle, roles: ['provider'] as UserRole[] },
   { title: 'RCM Billing', path: '/provider/rcm', icon: CreditCard, roles: ['provider'] as UserRole[] },
-  
-  { title: 'Messages', path: '/provider/messages', icon: MessageCircle, roles: ['provider'] as UserRole[] },
+  { title: 'My Practice', path: '/provider/dashboard?tab=profile', icon: Building2, roles: ['provider'] as UserRole[] },
   // Patient sidebar
   { title: 'My Dashboard', path: '/patient/dashboard', icon: Heart, roles: ['patient'] as UserRole[] },
   { title: 'Timeline', path: '/patient/timeline', icon: GitBranch, roles: ['patient'] as UserRole[] },
