@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Plus, Check, X, Star, MapPin, Clock, CheckCircle2, XCircle, Stethoscope, TrendingUp, Users, Languages, Search } from 'lucide-react';
+import { Plus, Check, X, MapPin, Clock, CheckCircle2, XCircle, Stethoscope, Users, Languages, Search } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, differenceInDays } from 'date-fns';
@@ -26,7 +26,7 @@ export default function ProvidersPage() {
   const isAdmin = profile?.role === 'admin';
   const [showAdd, setShowAdd] = useState(false);
   const [showDetail, setShowDetail] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', specialty: '', locations: 1, rating: 0, status: 'Active', credentialing_expiry: '', hipaa_baa_on_file: false, interpreter_available: false, languages_spoken: ['English'] as string[], notes: '' });
+  const [form, setForm] = useState({ name: '', specialty: '', locations: 1, status: 'Active', credentialing_expiry: '', hipaa_baa_on_file: false, interpreter_available: false, languages_spoken: ['English'] as string[], notes: '' });
   const [newLoc, setNewLoc] = useState({ label: '', address_street: '', address_city: '', address_state: '', address_zip: '', phone: '', fax: '' });
   const [showAddLoc, setShowAddLoc] = useState(false);
 
@@ -120,7 +120,7 @@ export default function ProvidersPage() {
     mutationFn: async () => {
       const { error } = await supabase.from('providers').insert({
         name: form.name, specialty: form.specialty || null, locations: form.locations,
-        rating: form.rating || null, status: form.status, credentialing_expiry: form.credentialing_expiry || null,
+        status: form.status, credentialing_expiry: form.credentialing_expiry || null,
         hipaa_baa_on_file: form.hipaa_baa_on_file, interpreter_available: form.interpreter_available,
         languages_spoken: form.languages_spoken, notes: form.notes || null,
       });
@@ -187,9 +187,6 @@ export default function ProvidersPage() {
   const selectedProvider = providers?.find(p => p.id === showDetail);
   const activeProviders = providers?.filter(p => p.status === 'Active') || [];
   const totalActiveCases = Object.values(caseCounts || {}).reduce((s, c) => s + c, 0);
-  const avgRating = activeProviders.length > 0
-    ? activeProviders.filter(p => p.rating).reduce((s, p) => s + (p.rating || 0), 0) / activeProviders.filter(p => p.rating).length
-    : 0;
 
   if (isLoading) {
     return <div className="space-y-6"><h2 className="font-display text-2xl">Providers</h2><Skeleton className="h-96 rounded-xl" /></div>;
@@ -210,7 +207,6 @@ export default function ProvidersPage() {
         {[
           { label: 'Active Providers', value: activeProviders.length, icon: Users, color: 'text-primary bg-primary/10' },
           { label: 'Total Active Cases', value: totalActiveCases, icon: Stethoscope, color: 'text-emerald-600 bg-emerald-50' },
-          { label: 'Avg Provider Rating', value: avgRating > 0 ? avgRating.toFixed(1) : '—', icon: TrendingUp, color: 'text-amber-600 bg-amber-50' },
         ].map(card => (
           <div key={card.label} className="bg-card border border-border rounded-xl p-5 shadow-card">
             <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${card.color}`}>
@@ -339,10 +335,6 @@ export default function ProvidersPage() {
                   <div className="space-y-1 col-span-2" />
                   {/* Locations managed below */}
                   <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">Rating</Label>
-                    <Input type="number" step="0.1" min="0" max="5" defaultValue={selectedProvider.rating || ''} className="h-9" onBlur={e => { const v = e.target.value ? Number(e.target.value) : null; if (v !== selectedProvider.rating) updateProvider.mutate({ rating: v }); }} />
-                  </div>
-                  <div className="space-y-1">
                     <Label className="text-xs text-muted-foreground">Credentialing Expiry</Label>
                     <Input type="date" defaultValue={selectedProvider.credentialing_expiry || ''} className="h-9" onBlur={e => { const v = e.target.value || null; if (v !== selectedProvider.credentialing_expiry) updateProvider.mutate({ credentialing_expiry: v }); }} />
                   </div>
@@ -363,7 +355,7 @@ export default function ProvidersPage() {
                   <div><span className="text-muted-foreground">Primary Specialty:</span> <span className="font-medium">{selectedProvider.specialty || '—'}</span></div>
                   <div><span className="text-muted-foreground">Services:</span> <span className="font-medium">{((selectedProvider as any).services_offered || []).join('; ') || '—'}</span></div>
                   <div><span className="text-muted-foreground">Locations:</span> <span className="font-medium">{selectedProvider.locations}</span></div>
-                  <div><span className="text-muted-foreground">Rating:</span> <span className="font-medium">{selectedProvider.rating}</span></div>
+                  
                   <div><span className="text-muted-foreground">Phone:</span> <span className="font-mono text-sm">{(selectedProvider as any).phone || '—'}</span></div>
                   <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={selectedProvider.status} /></div>
                 </div>
@@ -565,7 +557,7 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
             <SortableHeader label="Specialty" sortKey="specialty" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Languages / Interpreter</th>
             <SortableHeader label="Locations" sortKey="locations" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
-            <SortableHeader label="Rating" sortKey="rating" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+            
             <SortableHeader label="Active Cases" sortKey="activeCases" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
             <SortableHeader label="HIPAA BAA" sortKey="hipaa_baa_on_file" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Credentials</th>
@@ -595,12 +587,6 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
                   <td className="px-5 py-3.5">
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
                       <MapPin className="w-3 h-3" /> {p.locations || 1}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <span className="flex items-center gap-1 text-xs">
-                      <Star className="w-3 h-3 text-amber-500" />
-                      <span className="font-mono tabular-nums">{p.rating || '—'}</span>
                     </span>
                   </td>
                   <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-primary">{p.activeCases}</td>
