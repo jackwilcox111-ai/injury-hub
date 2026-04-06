@@ -170,7 +170,7 @@ export default function CaseDetail() {
         .eq('case_id', id!).order('created_at', { ascending: false });
       return data || [];
     },
-    enabled: isAdmin,
+    enabled: isAdmin || isProvider,
   });
 
   const { data: updates } = useQuery({
