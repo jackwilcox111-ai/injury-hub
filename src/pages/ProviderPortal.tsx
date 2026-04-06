@@ -38,7 +38,9 @@ export default function ProviderPortal() {
   const queryClient = useQueryClient();
   const [showAddCharge, setShowAddCharge] = useState(false);
   const [selectedCaseId, setSelectedCaseId] = useState('');
-  const [charge, setCharge] = useState({ cpt_code: '', cpt_description: '', service_date: '', charge_amount: '', units: '1' });
+  const [charge, setCharge] = useState({ description: '', service_date: '', charge_amount: '', units: '1', billing_path: 'Lien' });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [sortField, setSortField] = useState<SortField>('updated_at');
