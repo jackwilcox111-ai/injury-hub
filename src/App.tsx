@@ -31,6 +31,7 @@ import AttorneyJoin from "./pages/network/AttorneyJoin";
 import FunderJoin from "./pages/network/FunderJoin";
 
 import AdminDemandLetters from "./pages/AdminDemandLetters";
+import AdminRecordsBills from "./pages/AdminRecordsBills";
 import AdminMessages from "./pages/AdminMessages";
 import FunderDashboard from "./pages/FunderDashboard";
 import ProviderRCM from "./pages/ProviderRCM";
