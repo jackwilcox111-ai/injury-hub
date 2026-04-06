@@ -19,6 +19,7 @@ import SettingsPage from "./pages/SettingsPage";
 import AttorneyPortal from "./pages/AttorneyPortal";
 import AttorneyMarketplace from "./pages/AttorneyMarketplace";
 import ProviderPortal from "./pages/ProviderPortal";
+import ProviderDashboardPage from "./pages/ProviderDashboard";
 import ReportingDashboard from "./pages/ReportingDashboard";
 import TaskDashboard from "./pages/TaskDashboard";
 import PatientDashboard from "./pages/PatientDashboard";
@@ -51,7 +52,7 @@ function RequireAuth({ children, roles }: { children: ReactNode; roles?: string[
   if (!session) return <Navigate to="/login" replace />;
   if (roles && profile && !roles.includes(profile.role)) {
     if (profile.role === 'attorney') return <Navigate to="/dashboard" replace />;
-    if (profile.role === 'provider') return <Navigate to="/provider-portal" replace />;
+    if (profile.role === 'provider') return <Navigate to="/provider/dashboard" replace />;
     if (profile.role === 'patient') return <Navigate to="/patient/dashboard" replace />;
     if (profile.role === 'funder') return <Navigate to="/funder/dashboard" replace />;
     
@@ -65,7 +66,7 @@ function AuthRedirect() {
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground font-mono text-sm">Loading...</p></div>;
   if (!session) return <Navigate to="/login" replace />;
   if (profile?.role === 'attorney') return <Navigate to="/dashboard" replace />;
-  if (profile?.role === 'provider') return <Navigate to="/provider-portal" replace />;
+  if (profile?.role === 'provider') return <Navigate to="/provider/dashboard" replace />;
   if (profile?.role === 'patient') return <Navigate to="/patient/dashboard" replace />;
   if (profile?.role === 'funder') return <Navigate to="/funder/dashboard" replace />;
   
@@ -117,6 +118,7 @@ const App = () => (
             <Route path="/attorney/marketplace" element={<RequireAuth roles={['attorney']}><AppLayout><AttorneyMarketplace /></AppLayout></RequireAuth>} />
 
             {/* Provider portal */}
+            <Route path="/provider/dashboard" element={<RequireAuth roles={['provider']}><AppLayout><ProviderDashboardPage /></AppLayout></RequireAuth>} />
             <Route path="/provider-portal" element={<RequireAuth roles={['provider']}><AppLayout><ProviderPortal /></AppLayout></RequireAuth>} />
             <Route path="/provider/rcm" element={<RequireAuth roles={['provider']}><AppLayout><ProviderRCM /></AppLayout></RequireAuth>} />
             <Route path="/provider/messages" element={<RequireAuth roles={['provider']}><AppLayout><ProviderMessages /></AppLayout></RequireAuth>} />
