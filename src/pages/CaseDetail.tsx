@@ -403,9 +403,11 @@ export default function CaseDetail() {
                   <Phone className="w-3.5 h-3.5" />{c.patient_phone}
                 </span>
               )}
-              <Button size="sm" className="h-7 text-xs gap-1" onClick={() => setShowReferral(true)}>
-                <Send className="w-3 h-3" /> Send Referral
-              </Button>
+              {!isProvider && (
+                <Button size="sm" className="h-7 text-xs gap-1" onClick={() => setShowReferral(true)}>
+                  <Send className="w-3 h-3" /> Send Referral
+                </Button>
+              )}
             </div>
             
           </div>
