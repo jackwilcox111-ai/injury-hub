@@ -547,11 +547,26 @@ export default function CaseDetail() {
         )}
       </div>
 
-      {/* Provider Referrals */}
-      <ProviderReferralsModule caseId={id!} onSendReferral={() => setShowReferral(true)} />
+      {/* Provider Referrals — hidden for providers */}
+      {!isProvider && <ProviderReferralsModule caseId={id!} onSendReferral={() => setShowReferral(true)} />}
 
-      {/* Case Tasks */}
-      <CaseTasksSection caseId={id!} />
+      {/* Provider: Request Specialty Referral */}
+      {isProvider && (
+        <div className="bg-card border border-border rounded-xl shadow-card p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Request Specialty Referral</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Request a referral to another specialty — case management will assign the provider.</p>
+            </div>
+            <Button size="sm" variant="outline" className="h-8 text-xs gap-1.5" onClick={() => setShowReferral(true)}>
+              <Send className="w-3 h-3" /> Request Referral
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Case Tasks — hidden for providers */}
+      {!isProvider && <CaseTasksSection caseId={id!} />}
 
       {/* Two-column: Appointments + Messages */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
