@@ -83,10 +83,10 @@ export function AppSidebar() {
         <p className="px-3 py-2 text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Menu</p>
         {visibleItems.map(item => {
           const itemPath = item.path.split('?')[0];
-          const itemSearch = item.path.includes('?') ? item.path.split('?')[1] : '';
+          const itemSearch = item.path.includes('?') ? '?' + item.path.split('?')[1] : '';
           const isActive = item.path.includes('?')
-            ? location.pathname === itemPath && location.search === '?' + itemSearch
-            : location.pathname === item.path && !location.search;
+            ? location.pathname === itemPath && location.search === itemSearch
+            : location.pathname === item.path || location.pathname.startsWith(item.path + '/');
           return (
             <button
               key={item.path}
