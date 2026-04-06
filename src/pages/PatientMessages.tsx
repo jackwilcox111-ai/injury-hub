@@ -1,26 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { MediaPlayer } from '@/components/global/MediaPlayer';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { formatDistanceToNow } from 'date-fns';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, ArrowUpRight, ArrowDownLeft, Eye } from 'lucide-react';
 import { useState } from 'react';
 
 export default function PatientMessages() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  // RLS returns messages where recipient_id = user OR created_by = user
   const { data: messages, isLoading } = useQuery({
     queryKey: ['patient-messages', profile?.id],
     enabled: !!profile?.id,
     queryFn: async () => {
       const { data } = await supabase.from('video_messages')
-        .select('*')
-        .eq('recipient_id', profile!.id)
+        .select('*, sender:created_by(full_name)')
         .order('created_at', { ascending: false });
       return data || [];
     },
@@ -47,22 +46,43 @@ export default function PatientMessages() {
         </div>
       ) : (
         <div className="space-y-3">
-          {messages.map(m => (
-            <button
-              key={m.id}
-              onClick={() => { setSelectedId(m.id); if (!m.viewed) markViewed.mutate(m.id); }}
-              className="w-full bg-card border border-border rounded-xl p-4 text-left hover:bg-accent/30 transition-colors flex items-center gap-4"
-            >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-[10px]">{m.message_type}</Badge>
-                  {!m.viewed && <Badge className="text-[10px] bg-primary">New</Badge>}
+          {messages.map(m => {
+            const isSent = m.created_by === user?.id;
+            const isReceived = m.recipient_id === user?.id;
+            return (
+              <button
+                key={m.id}
+                onClick={() => {
+                  setSelectedId(m.id);
+                  if (isReceived && !m.viewed) markViewed.mutate(m.id);
+                }}
+                className={`w-full bg-card border rounded-xl p-4 text-left hover:bg-accent/30 transition-colors ${
+                  isReceived && !m.viewed ? 'border-primary/30 bg-primary/[0.02]' : 'border-border'
+                }`}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    {isSent ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                        <ArrowUpRight className="w-3 h-3" /> Sent
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                        <ArrowDownLeft className="w-3 h-3" /> Received
+                      </span>
+                    )}
+                    <Badge variant="outline" className="text-[10px]">{m.message_type}</Badge>
+                    {isReceived && !m.viewed && <Badge className="text-[10px] bg-primary">New</Badge>}
+                  </div>
+                  {isReceived && (m as any).sender?.full_name && (
+                    <p className="text-[10px] text-muted-foreground mt-0.5">From: {(m as any).sender.full_name}</p>
+                  )}
+                  <p className="text-sm text-foreground mt-1 line-clamp-2">{m.script}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">{m.sent_at ? formatDistanceToNow(new Date(m.sent_at), { addSuffix: true }) : ''}</p>
                 </div>
-                <p className="text-sm text-foreground mt-1 line-clamp-2">{m.script}</p>
-                <p className="text-[10px] text-muted-foreground mt-1">{m.sent_at ? formatDistanceToNow(new Date(m.sent_at), { addSuffix: true }) : ''}</p>
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       )}
 
@@ -71,13 +91,21 @@ export default function PatientMessages() {
           <DialogHeader><DialogTitle>{selected?.message_type}</DialogTitle></DialogHeader>
           {selected && (
             <div className="space-y-4">
-              <MediaPlayer
-                storageUrl={selected.storage_path || ''}
-                mediaType={selected.storage_path ? (selected.storage_path.includes('audio') ? 'audio' : 'video') : 'text'}
-                transcript={selected.script}
-                textContent={!selected.storage_path ? selected.script : undefined}
-                onViewed={() => { if (!selected.viewed) markViewed.mutate(selected.id); }}
-              />
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                {selected.created_by === user?.id ? (
+                  <Badge variant="outline" className="text-[10px]">Sent by you</Badge>
+                ) : (
+                  <Badge variant="outline" className="text-[10px]">From: {(selected as any).sender?.full_name || 'Care Team'}</Badge>
+                )}
+              </div>
+              <div className="bg-accent/50 rounded-lg p-4">
+                <p className="text-sm text-foreground whitespace-pre-wrap">{selected.script}</p>
+              </div>
+              {selected.viewed_at && (
+                <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                  <Eye className="w-3 h-3" /> Viewed {formatDistanceToNow(new Date(selected.viewed_at), { addSuffix: true })}
+                </p>
+              )}
             </div>
           )}
         </DialogContent>
