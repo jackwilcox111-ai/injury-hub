@@ -102,7 +102,7 @@ const App = () => (
             <Route path="/home" element={<AuthRedirect />} />
             <Route path="/dashboard" element={<RequireAuth roles={['admin','care_manager','attorney']}><AppLayout><Dashboard /></AppLayout></RequireAuth>} />
             <Route path="/cases" element={<RequireAuth roles={['admin','care_manager','attorney']}><AppLayout><CasesList /></AppLayout></RequireAuth>} />
-            <Route path="/cases/:id" element={<RequireAuth roles={['admin','care_manager','attorney']}><AppLayout><CaseDetail /></AppLayout></RequireAuth>} />
+            <Route path="/cases/:id" element={<RequireAuth roles={['admin','care_manager','attorney','provider']}><AppLayout><CaseDetail /></AppLayout></RequireAuth>} />
             <Route path="/providers" element={<RequireAuth roles={['admin','care_manager','attorney']}><AppLayout><ProvidersPage /></AppLayout></RequireAuth>} />
             <Route path="/attorneys" element={<RequireAuth roles={['admin']}><AppLayout><AttorneysPage /></AppLayout></RequireAuth>} />
             <Route path="/liens" element={<RequireAuth roles={['admin']}><AppLayout><LiensPage /></AppLayout></RequireAuth>} />
