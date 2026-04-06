@@ -22,21 +22,6 @@ export function ProviderLiensTab() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-card border border-border rounded-xl p-4 text-center">
-          <p className="text-xl font-bold text-foreground tabular-nums">${totalActive.toLocaleString()}</p>
-          <p className="text-xs text-muted-foreground">Active Liens</p>
-        </div>
-        <div className="bg-card border border-border rounded-xl p-4 text-center">
-          <p className="text-xl font-bold text-amber-600 tabular-nums">${totalReductions.toLocaleString()}</p>
-          <p className="text-xs text-muted-foreground">Total Reductions</p>
-        </div>
-        <div className="bg-card border border-border rounded-xl p-4 text-center">
-          <p className="text-xl font-bold text-emerald-600 tabular-nums">${totalPaid.toLocaleString()}</p>
-          <p className="text-xs text-muted-foreground">Paid Out</p>
-        </div>
-      </div>
-
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
           <thead>
