@@ -457,15 +457,21 @@ export default function CaseDetail() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">DOI (Date of Injury)</Label>
-            <div className="h-9 flex items-center">
-              <p className="text-sm font-medium text-foreground">{c.accident_date ? format(new Date(c.accident_date), 'MMM d, yyyy') : '—'}</p>
-            </div>
+            <Input
+              type="date"
+              className="h-9 text-sm"
+              value={c.accident_date || ''}
+              onChange={e => updateCase.mutate({ accident_date: e.target.value || null })}
+            />
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Request Date</Label>
-            <div className="h-9 flex items-center">
-              <p className="text-sm font-medium text-foreground">{(c as any).request_date ? format(new Date((c as any).request_date), 'MMM d, yyyy') : '—'}</p>
-            </div>
+            <Input
+              type="date"
+              className="h-9 text-sm"
+              value={(c as any).request_date || ''}
+              onChange={e => updateCase.mutate({ request_date: e.target.value || null })}
+            />
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Initial Appt Date</Label>
