@@ -121,6 +121,8 @@ export default function CaseDetail() {
   const [estimateValue, setEstimateValue] = useState('');
   const [updateMsg, setUpdateMsg] = useState('');
   const [newAppt, setNewAppt] = useState({ provider_id: '', scheduled_date: '', specialty: '', notes: '', interpreter_confirmed: false });
+  const [showEditAppt, setShowEditAppt] = useState(false);
+  const [editAppt, setEditAppt] = useState<any>(null);
   const [newRecord, setNewRecord] = useState({ record_type: '', provider_id: '', received_date: '', delivered_to_attorney_date: '', hipaa_auth_on_file: false, notes: '' });
   const [recordFile, setRecordFile] = useState<File | null>(null);
   const [editRecordFile, setEditRecordFile] = useState<File | null>(null);
@@ -262,6 +264,27 @@ export default function CaseDetail() {
       if (error) throw error;
     },
     onSuccess: () => invalidateAll(),
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const updateAppointment = useMutation({
+    mutationFn: async (appt: any) => {
+      const { error } = await supabase.from('appointments').update({
+        provider_id: appt.provider_id || null,
+        scheduled_date: appt.scheduled_date || null,
+        specialty: appt.specialty || null,
+        notes: appt.notes || null,
+        status: appt.status,
+        interpreter_confirmed: appt.interpreter_confirmed || false,
+      }).eq('id', appt.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidateAll();
+      setShowEditAppt(false);
+      setEditAppt(null);
+      toast.success('Appointment updated');
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -650,12 +673,23 @@ export default function CaseDetail() {
             </tr></thead>
             <tbody className="divide-y divide-border">
               {appointments?.map(a => (
-                <tr key={a.id} className="hover:bg-accent/30 transition-colors">
+                <tr key={a.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => {
+                  setEditAppt({
+                    id: a.id,
+                    provider_id: a.provider_id || '',
+                    scheduled_date: a.scheduled_date ? new Date(a.scheduled_date).toISOString().slice(0, 16) : '',
+                    specialty: a.specialty || '',
+                    notes: a.notes || '',
+                    status: a.status,
+                    interpreter_confirmed: (a as any).interpreter_confirmed || false,
+                  });
+                  setShowEditAppt(true);
+                }}>
                   <td className="px-4 py-2.5 font-mono text-[11px]">{a.scheduled_date ? format(new Date(a.scheduled_date), 'MMM d, yyyy') : '—'}</td>
                   <td className="px-4 py-2.5 text-xs font-medium">{(a as any).providers?.name || '—'}</td>
                   <td className="px-4 py-2.5">
-                    <Select value={a.status} onValueChange={v => updateApptStatus.mutate({ apptId: a.id, status: v })}>
-                      <SelectTrigger className="h-7 text-xs w-24"><SelectValue /></SelectTrigger>
+                    <Select value={a.status} onValueChange={v => { updateApptStatus.mutate({ apptId: a.id, status: v }); }} >
+                      <SelectTrigger className="h-7 text-xs w-24" onClick={e => e.stopPropagation()}><SelectValue /></SelectTrigger>
                       <SelectContent>{['Scheduled','Completed','No-Show','Cancelled'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                     </Select>
                   </td>
@@ -1055,7 +1089,45 @@ export default function CaseDetail() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Charge Dialog */}
+      {/* Edit Appointment Dialog */}
+      <Dialog open={showEditAppt} onOpenChange={v => { setShowEditAppt(v); if (!v) setEditAppt(null); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Edit Appointment</DialogTitle></DialogHeader>
+          {editAppt && (
+            <form onSubmit={e => { e.preventDefault(); updateAppointment.mutate(editAppt); }} className="space-y-4">
+              <div className="space-y-2"><Label>Provider</Label>
+                <Select value={editAppt.provider_id} onValueChange={v => setEditAppt((p: any) => ({...p, provider_id: v}))}><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{allProviders?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
+              </div>
+              <div className="space-y-2"><Label>Date & Time</Label>
+                <Input type="datetime-local" value={editAppt.scheduled_date} onChange={e => setEditAppt((p: any) => ({...p, scheduled_date: e.target.value}))} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label>Specialty</Label>
+                  <Input value={editAppt.specialty} onChange={e => setEditAppt((p: any) => ({...p, specialty: e.target.value}))} />
+                </div>
+                <div className="space-y-2"><Label>Status</Label>
+                  <Select value={editAppt.status} onValueChange={v => setEditAppt((p: any) => ({...p, status: v}))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{['Scheduled','Completed','No-Show','Cancelled'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select>
+                </div>
+              </div>
+              <div className="space-y-2"><Label>Notes</Label>
+                <Textarea value={editAppt.notes} onChange={e => setEditAppt((p: any) => ({...p, notes: e.target.value}))} />
+              </div>
+              {needsInterpreter && (
+                <div className="flex items-center gap-2">
+                  <Checkbox checked={editAppt.interpreter_confirmed} onCheckedChange={v => setEditAppt((p: any) => ({...p, interpreter_confirmed: !!v}))} id="edit-interp" />
+                  <Label htmlFor="edit-interp" className="text-sm font-normal">Interpreter confirmed</Label>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setShowEditAppt(false)}>Cancel</Button>
+                <Button type="submit" disabled={updateAppointment.isPending}>{updateAppointment.isPending ? 'Saving...' : 'Save'}</Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={showEditCharge} onOpenChange={v => { setShowEditCharge(v); if (!v) setEditCharge(null); }}>
         <DialogContent>
           <DialogHeader><DialogTitle>Edit Charge</DialogTitle></DialogHeader>
