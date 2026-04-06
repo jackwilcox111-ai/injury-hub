@@ -12,7 +12,6 @@ const AVAILABLE_SERVICES = [
 
 export function ProviderProfileTab() {
   const { profile } = useAuth();
-  const queryClient = useQueryClient();
 
   const { data: provider, isLoading } = useQuery({
     queryKey: ['provider-profile', profile?.provider_id],
@@ -40,27 +39,6 @@ export function ProviderProfileTab() {
     },
     enabled: !!profile?.provider_id,
   });
-
-  const updateField = useMutation({
-    mutationFn: async (updates: Record<string, unknown>) => {
-      if (!profile?.provider_id) throw new Error('No provider linked');
-      const { error } = await supabase.from('providers')
-        .update(updates)
-        .eq('id', profile.provider_id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['provider-profile'] });
-      toast.success('Profile updated');
-    },
-    onError: (e: any) => toast.error(e.message),
-  });
-
-  const save = (field: string, value: unknown) => {
-    if (!provider) return;
-    if ((provider as any)[field] === value) return;
-    updateField.mutate({ [field]: value });
-  };
 
   if (isLoading) return <Skeleton className="h-64 rounded-xl" />;
   if (!provider) return <p className="text-muted-foreground text-sm py-8 text-center">No provider profile linked to your account.</p>;
