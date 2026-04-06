@@ -682,7 +682,7 @@ export default function CaseDetail() {
             </tr></thead>
             <tbody className="divide-y divide-border">
               {charges?.map(c => (
-                <tr key={c.id} className="hover:bg-accent/30 transition-colors">
+                <tr key={c.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => { setEditCharge({ ...c }); setShowEditCharge(true); }}>
                   <td className="px-4 py-2.5 text-xs">
                     <span className="font-medium">{c.cpt_description || c.cpt_code}</span>
                   </td>
