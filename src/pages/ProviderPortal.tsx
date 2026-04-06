@@ -663,68 +663,76 @@ export default function ProviderPortal() {
           </div>
         </TabsContent>
 
-        {/* Charges Tab */}
-        <TabsContent value="charges" className="mt-4 space-y-4">
-          <div className="flex justify-end">
-            <Button size="sm" onClick={() => setShowAddCharge(true)}><Plus className="w-3.5 h-3.5 mr-1" /> Submit Charge</Button>
-          </div>
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
-            <table className="w-full text-sm">
-              <thead><tr className="border-b border-border bg-accent/50">
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Case</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">CPT</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Date</th>
-                <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Amount</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
-              </tr></thead>
-              <tbody className="divide-y divide-border">
-                {charges?.map(c => (
-                  <tr key={c.id} className="hover:bg-accent/30 transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs text-primary">{(c as any).cases?.case_number}</td>
-                    <td className="px-4 py-3 text-xs"><span className="font-mono">{c.cpt_code}</span> {c.cpt_description && <span className="text-muted-foreground ml-1">— {c.cpt_description}</span>}</td>
-                    <td className="px-4 py-3 font-mono text-xs">{c.service_date}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-right">${c.charge_amount.toLocaleString()}</td>
-                    <td className="px-4 py-3"><Badge variant={c.status === 'Paid' ? 'default' : 'outline'} className="text-[10px]">{c.status}</Badge></td>
-                  </tr>
-                ))}
-                {(!charges || charges.length === 0) && (
-                  <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">No charges submitted</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </TabsContent>
+        {/* Records & Bills Tab (merged Charges + Records + Documents) */}
+        <TabsContent value="records-bills" className="mt-4">
+          <Tabs defaultValue="charges" className="space-y-4">
+            <TabsList className="bg-accent/30 border border-border">
+              <TabsTrigger value="charges" className="text-xs gap-1.5"><DollarSign className="w-3.5 h-3.5" /> Charges</TabsTrigger>
+              <TabsTrigger value="records" className="text-xs gap-1.5"><FileText className="w-3.5 h-3.5" /> Records</TabsTrigger>
+              <TabsTrigger value="documents" className="text-xs gap-1.5"><Upload className="w-3.5 h-3.5" /> Documents</TabsTrigger>
+            </TabsList>
 
-        {/* Records Tab */}
-        <TabsContent value="records" className="mt-4">
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
-            <table className="w-full text-sm">
-              <thead><tr className="border-b border-border bg-accent/50">
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Case</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Type</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Received</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Delivered to Atty</th>
-              </tr></thead>
-              <tbody className="divide-y divide-border">
-                {records?.map(r => (
-                  <tr key={r.id} className="hover:bg-accent/30 transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs text-primary">{(r as any).cases?.case_number}</td>
-                    <td className="px-4 py-3 text-xs">{r.record_type || '—'}</td>
-                    <td className="px-4 py-3 font-mono text-xs">{r.received_date || '—'}</td>
-                    <td className="px-4 py-3 font-mono text-xs">{r.delivered_to_attorney_date || '—'}</td>
-                  </tr>
-                ))}
-                {(!records || records.length === 0) && (
-                  <tr><td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">No records</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </TabsContent>
+            <TabsContent value="charges" className="space-y-4">
+              <div className="flex justify-end">
+                <Button size="sm" onClick={() => setShowAddCharge(true)}><Plus className="w-3.5 h-3.5 mr-1" /> Submit Charge</Button>
+              </div>
+              <div className="bg-card border border-border rounded-xl overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead><tr className="border-b border-border bg-accent/50">
+                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Case</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">CPT</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Date</th>
+                    <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Amount</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
+                  </tr></thead>
+                  <tbody className="divide-y divide-border">
+                    {charges?.map(c => (
+                      <tr key={c.id} className="hover:bg-accent/30 transition-colors">
+                        <td className="px-4 py-3 font-mono text-xs text-primary">{(c as any).cases?.case_number}</td>
+                        <td className="px-4 py-3 text-xs"><span className="font-mono">{c.cpt_code}</span> {c.cpt_description && <span className="text-muted-foreground ml-1">— {c.cpt_description}</span>}</td>
+                        <td className="px-4 py-3 font-mono text-xs">{c.service_date}</td>
+                        <td className="px-4 py-3 font-mono text-xs text-right">${c.charge_amount.toLocaleString()}</td>
+                        <td className="px-4 py-3"><Badge variant={c.status === 'Paid' ? 'default' : 'outline'} className="text-[10px]">{c.status}</Badge></td>
+                      </tr>
+                    ))}
+                    {(!charges || charges.length === 0) && (
+                      <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">No charges submitted</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </TabsContent>
 
-        {/* Documents Tab */}
-        <TabsContent value="documents" className="mt-4">
-          <ProviderDocumentsTab cases={uniqueCases} />
+            <TabsContent value="records">
+              <div className="bg-card border border-border rounded-xl overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead><tr className="border-b border-border bg-accent/50">
+                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Case</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Type</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Received</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Delivered to Atty</th>
+                  </tr></thead>
+                  <tbody className="divide-y divide-border">
+                    {records?.map(r => (
+                      <tr key={r.id} className="hover:bg-accent/30 transition-colors">
+                        <td className="px-4 py-3 font-mono text-xs text-primary">{(r as any).cases?.case_number}</td>
+                        <td className="px-4 py-3 text-xs">{r.record_type || '—'}</td>
+                        <td className="px-4 py-3 font-mono text-xs">{r.received_date || '—'}</td>
+                        <td className="px-4 py-3 font-mono text-xs">{r.delivered_to_attorney_date || '—'}</td>
+                      </tr>
+                    ))}
+                    {(!records || records.length === 0) && (
+                      <tr><td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">No records</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="documents">
+              <ProviderDocumentsTab cases={uniqueCases} />
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         {/* Liens Tab */}
