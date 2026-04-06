@@ -43,7 +43,7 @@ export default function ProviderPortal() {
   const [showEditCharge, setShowEditCharge] = useState(false);
   const [editingCharge, setEditingCharge] = useState<any>(null);
   const [selectedCaseId, setSelectedCaseId] = useState('');
-  const [charge, setCharge] = useState({ description: '', service_date: '', charge_amount: '', units: '1', billing_path: 'Lien' });
+  const [charge, setCharge] = useState({ description: '', service_date: '', charge_amount: '', units: '1', billing_path: 'Lien', notes: '' });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState('');
