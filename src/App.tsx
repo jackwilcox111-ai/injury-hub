@@ -31,6 +31,7 @@ import AttorneyJoin from "./pages/network/AttorneyJoin";
 import FunderJoin from "./pages/network/FunderJoin";
 
 import AdminDemandLetters from "./pages/AdminDemandLetters";
+import AdminRecordsBills from "./pages/AdminRecordsBills";
 import AdminMessages from "./pages/AdminMessages";
 import FunderDashboard from "./pages/FunderDashboard";
 import ProviderRCM from "./pages/ProviderRCM";
@@ -112,6 +113,7 @@ const App = () => (
             <Route path="/settings" element={<RequireAuth roles={['admin']}><AppLayout><SettingsPage /></AppLayout></RequireAuth>} />
             <Route path="/demand-letters" element={<RequireAuth roles={['admin','care_manager','attorney']}><AppLayout><AdminDemandLetters /></AppLayout></RequireAuth>} />
             <Route path="/messages" element={<RequireAuth roles={['admin','care_manager','attorney']}><AppLayout><AdminMessages /></AppLayout></RequireAuth>} />
+            <Route path="/records-bills" element={<RequireAuth roles={['admin','care_manager']}><AppLayout><AdminRecordsBills /></AppLayout></RequireAuth>} />
 
             {/* Attorney extras */}
             <Route path="/attorney-portal" element={<Navigate to="/dashboard" replace />} />
