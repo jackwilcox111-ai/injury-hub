@@ -116,6 +116,7 @@ export default function ProvidersPage() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const addProvider = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.from('providers').insert({
         name: form.name, specialty: form.specialty || null, locations: form.locations,
