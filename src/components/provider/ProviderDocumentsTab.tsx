@@ -15,7 +15,12 @@ import { format } from 'date-fns';
 
 const DOC_TYPES = ['Medical Records', 'Imaging', 'Treatment Notes', 'Billing Statement', 'Referral Letter', 'Other'];
 
-export function ProviderDocumentsTab({ cases }: { cases: Array<{ id: string; case_number: string; patient_name: string }> }) {
+interface ProviderDocumentsTabProps {
+  cases: Array<{ id: string; case_number: string; patient_name: string }>;
+  records?: Array<any>;
+}
+
+export function ProviderDocumentsTab({ cases, records = [] }: ProviderDocumentsTabProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [showUpload, setShowUpload] = useState(false);
@@ -52,6 +57,7 @@ export function ProviderDocumentsTab({ cases }: { cases: Array<{ id: string; cas
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['provider-documents'] });
+      queryClient.invalidateQueries({ queryKey: ['provider-documents-metrics'] });
       setShowUpload(false);
       setFile(null);
       setSelectedCaseId('');
@@ -76,41 +82,77 @@ export function ProviderDocumentsTab({ cases }: { cases: Array<{ id: string; cas
         </Button>
       </div>
 
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border bg-accent/50">
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Case</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">File</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Type</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Uploaded</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {documents?.map(d => (
-              <tr key={d.id} className="hover:bg-accent/30 transition-colors">
-                <td className="px-4 py-3 font-mono text-xs text-primary">{(d as any).cases?.case_number}</td>
-                <td className="px-4 py-3 text-xs flex items-center gap-1.5">
-                  <FileText className="w-3.5 h-3.5 text-muted-foreground" />
-                  {d.file_name}
-                </td>
-                <td className="px-4 py-3">
-                  <Badge variant="outline" className="text-[10px]">{d.document_type}</Badge>
-                </td>
-                <td className="px-4 py-3 font-mono text-xs">{d.created_at ? format(new Date(d.created_at), 'MMM d, yyyy') : '—'}</td>
-                <td className="px-4 py-3">
-                  <Button size="sm" variant="ghost" className="h-7 text-[10px]" onClick={() => handleDownload(d.storage_path, d.file_name)}>
-                    <Download className="w-3 h-3 mr-1" /> Download
-                  </Button>
-                </td>
+      {/* Records table */}
+      {records.length > 0 && (
+        <div>
+          <p className="text-xs font-medium text-muted-foreground mb-2">Medical Records</p>
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-accent/50">
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Case</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Type</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Received</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Delivered to Atty</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {records.map((r: any) => (
+                  <tr key={r.id} className="hover:bg-accent/30 transition-colors">
+                    <td className="px-4 py-3 font-mono text-xs text-primary">{r.cases?.case_number}</td>
+                    <td className="px-4 py-3 text-xs">{r.record_type || '—'}</td>
+                    <td className="px-4 py-3 font-mono text-xs">{r.received_date || '—'}</td>
+                    <td className="px-4 py-3 font-mono text-xs">{r.delivered_to_attorney_date || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Documents table */}
+      <div>
+        <p className="text-xs font-medium text-muted-foreground mb-2">Uploaded Documents</p>
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-accent/50">
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Case</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">File</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Type</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Uploaded</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Actions</th>
               </tr>
-            ))}
-            {(!documents || documents.length === 0) && (
-              <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">No documents</td></tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {documents?.map(d => (
+                <tr key={d.id} className="hover:bg-accent/30 transition-colors">
+                  <td className="px-4 py-3 font-mono text-xs text-primary">{(d as any).cases?.case_number}</td>
+                  <td className="px-4 py-3 text-xs flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5 text-muted-foreground" />
+                    {d.file_name}
+                  </td>
+                  <td className="px-4 py-3">
+                    <Badge variant="outline" className="text-[10px]">{d.document_type}</Badge>
+                  </td>
+                  <td className="px-4 py-3 font-mono text-xs">{d.created_at ? format(new Date(d.created_at), 'MMM d, yyyy') : '—'}</td>
+                  <td className="px-4 py-3">
+                    <Button size="sm" variant="ghost" className="h-7 text-[10px]" onClick={() => handleDownload(d.storage_path, d.file_name)}>
+                      <Download className="w-3 h-3 mr-1" /> Download
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+              {(!documents || documents.length === 0) && records.length === 0 && (
+                <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">No records or documents</td></tr>
+              )}
+              {(!documents || documents.length === 0) && records.length > 0 && (
+                <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">No uploaded documents</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <Dialog open={showUpload} onOpenChange={setShowUpload}>
