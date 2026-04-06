@@ -2038,6 +2038,56 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_locations: {
+        Row: {
+          address_city: string | null
+          address_state: string | null
+          address_street: string | null
+          address_zip: string | null
+          created_at: string | null
+          fax: string | null
+          id: string
+          is_primary: boolean | null
+          label: string | null
+          phone: string | null
+          provider_id: string
+        }
+        Insert: {
+          address_city?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
+          created_at?: string | null
+          fax?: string | null
+          id?: string
+          is_primary?: boolean | null
+          label?: string | null
+          phone?: string | null
+          provider_id: string
+        }
+        Update: {
+          address_city?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
+          created_at?: string | null
+          fax?: string | null
+          id?: string
+          is_primary?: boolean | null
+          label?: string | null
+          phone?: string | null
+          provider_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_locations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       providers: {
         Row: {
           accepting_patients: boolean | null
