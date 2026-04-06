@@ -5,6 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { logPHIAccess } from '@/lib/audit-logger';
 import { PHIBanner } from '@/components/global/PHIBanner';
+import { SPECIALTIES } from '@/lib/specialties';
 
 import { StatusBadge } from '@/components/global/StatusBadge';
 import { SoLCountdown } from '@/components/global/SoLCountdown';
@@ -790,7 +791,9 @@ export default function CaseDetail() {
               <Select value={newAppt.provider_id} onValueChange={v => setNewAppt(p => ({...p, provider_id: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{allProviders?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
             </div>
             <div className="space-y-2"><Label className="text-sm font-medium">Date & Time</Label><Input type="datetime-local" value={newAppt.scheduled_date} onChange={e => setNewAppt(p => ({...p, scheduled_date: e.target.value}))} className="h-10" /></div>
-            <div className="space-y-2"><Label className="text-sm font-medium">Specialty</Label><Input value={newAppt.specialty} onChange={e => setNewAppt(p => ({...p, specialty: e.target.value}))} className="h-10" /></div>
+            <div className="space-y-2"><Label className="text-sm font-medium">Specialty</Label>
+              <Select value={newAppt.specialty} onValueChange={v => setNewAppt(p => ({...p, specialty: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select specialty..." /></SelectTrigger><SelectContent>{SPECIALTIES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select>
+            </div>
             <div className="space-y-2"><Label className="text-sm font-medium">Notes</Label><Textarea value={newAppt.notes} onChange={e => setNewAppt(p => ({...p, notes: e.target.value}))} /></div>
             {needsInterpreter && (
               <div className="flex items-start gap-2.5 pt-1">
