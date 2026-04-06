@@ -341,7 +341,31 @@ export default function CaseDetail() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const handleStatusChange = async (newStatus: string) => {
+  const updateChargeMutation = useMutation({
+    mutationFn: async (charge: any) => {
+      const { error } = await supabase.from('charges').update({
+        cpt_description: charge.cpt_description, service_date: charge.service_date,
+        charge_amount: charge.charge_amount, status: charge.status, notes: charge.notes || null,
+        billing_path: charge.billing_path || null,
+      }).eq('id', charge.id);
+      if (error) throw error;
+    },
+    onSuccess: () => { invalidateAll(); setShowEditCharge(false); setEditCharge(null); toast.success('Charge updated'); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const updateLienMutation = useMutation({
+    mutationFn: async (lien: any) => {
+      const { error } = await supabase.from('liens').update({
+        amount: lien.amount, reduction_amount: lien.reduction_amount,
+        status: lien.status, notes: lien.notes || null, payment_date: lien.payment_date || null,
+      }).eq('id', lien.id);
+      if (error) throw error;
+    },
+    onSuccess: () => { invalidateAll(); setShowEditLien(false); setEditLien(null); toast.success('Lien updated'); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
     const currentIdx = caseStatuses.indexOf(caseData?.status || '');
     const newIdx = caseStatuses.indexOf(newStatus);
     if (newIdx < currentIdx) {
