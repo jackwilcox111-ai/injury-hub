@@ -19,6 +19,7 @@ import SettingsPage from "./pages/SettingsPage";
 import AttorneyPortal from "./pages/AttorneyPortal";
 import AttorneyMarketplace from "./pages/AttorneyMarketplace";
 import ProviderPortal from "./pages/ProviderPortal";
+import ProviderDashboardPage from "./pages/ProviderDashboard";
 import ReportingDashboard from "./pages/ReportingDashboard";
 import TaskDashboard from "./pages/TaskDashboard";
 import PatientDashboard from "./pages/PatientDashboard";
