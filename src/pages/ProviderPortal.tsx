@@ -275,9 +275,7 @@ export default function ProviderPortal() {
 
   const tabTitles: Record<string, string> = {
     appointments: 'Appointments',
-    charges: 'Charges',
-    records: 'Records',
-    documents: 'Documents',
+    'records-bills': 'Records & Bills',
     liens: 'Liens',
     messages: 'Messages',
     profile: 'My Practice',
@@ -285,9 +283,7 @@ export default function ProviderPortal() {
 
   const tabDescriptions: Record<string, string> = {
     appointments: 'Track upcoming, completed, and missed appointments.',
-    charges: 'Submit and track billing charges across your cases.',
-    records: 'View medical records received and delivered.',
-    documents: 'Upload and manage case documents.',
+    'records-bills': 'Manage charges, medical records, and uploaded documents.',
     liens: 'Track lien amounts, reductions, and payments.',
     messages: 'View and respond to secure messages.',
     profile: 'Update your practice information.',
