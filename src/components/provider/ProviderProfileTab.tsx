@@ -1,14 +1,9 @@
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'sonner';
-import { Pencil, Phone as PhoneIcon, Globe, ExternalLink } from 'lucide-react';
+import { Phone as PhoneIcon, Globe, ExternalLink } from 'lucide-react';
 
 const AVAILABLE_SERVICES = [
   'Chiropractic', 'Physical Therapy', 'Pain Management', 'Imaging',
