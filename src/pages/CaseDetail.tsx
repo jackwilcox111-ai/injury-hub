@@ -401,7 +401,7 @@ export default function CaseDetail() {
                 <Send className="w-3 h-3" /> Send Referral
               </Button>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">{c.specialty || '—'} · {(c as any).attorneys?.firm_name || 'No attorney'} · {(c as any).providers?.name || 'No provider'}</p>
+            
           </div>
           <div className="flex items-center gap-2">
             <FlagBadge flag={c.flag} />
