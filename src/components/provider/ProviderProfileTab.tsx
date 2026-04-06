@@ -198,7 +198,7 @@ export function ProviderProfileTab() {
               <span className="text-sm text-muted-foreground w-36 shrink-0 text-right pr-6">Status</span>
               <Badge variant={provider.status === 'Active' ? 'default' : 'secondary'} className="text-xs">{provider.status}</Badge>
             </div>
-            <InfoRow label="Rating" value={provider.rating ? `${provider.rating} / 5` : 'Not rated'} />
+            
           </div>
         </div>
       </div>

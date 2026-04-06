@@ -590,11 +590,6 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
                     </span>
                   </td>
                   <td className="px-5 py-3.5">
-                    <span className="flex items-center gap-1 text-xs">
-                      <Star className="w-3 h-3 text-amber-500" />
-                      <span className="font-mono tabular-nums">{p.rating || '—'}</span>
-                    </span>
-                  </td>
                   <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-primary">{p.activeCases}</td>
                   <td className="px-5 py-3.5">
                     <span className={`flex items-center gap-1 text-xs ${p.hipaa_baa_on_file ? 'text-emerald-600' : 'text-red-500'}`}>
