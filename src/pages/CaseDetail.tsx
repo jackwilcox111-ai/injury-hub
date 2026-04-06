@@ -41,6 +41,7 @@ import { ProviderReferralsModule } from '@/components/cases/ProviderReferralsMod
 import { CaseTimelineSidebar } from '@/components/cases/CaseTimelineSidebar';
 import { CaseProgressStepper } from '@/components/cases/CaseProgressStepper';
 import { CaseTasksSection } from '@/components/cases/CaseTasksSection';
+import { AttorneyCaseActions } from '@/components/cases/AttorneyCaseActions';
 
 
 function RecordsBillsDump({ caseId }: { caseId: string }) {
@@ -98,6 +99,7 @@ export default function CaseDetail() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isAdmin = profile?.role === 'admin';
+  const isAttorney = profile?.role === 'attorney';
   const [showAddAppt, setShowAddAppt] = useState(false);
   const [showReferral, setShowReferral] = useState(false);
   const [showAddRecord, setShowAddRecord] = useState(false);
@@ -437,6 +439,16 @@ export default function CaseDetail() {
         </div>
       </div>
 
+      {/* Attorney Case Actions — only shown to attorneys */}
+      {isAttorney && (
+        <AttorneyCaseActions
+          caseId={id!}
+          caseNumber={c.case_number}
+          patientName={c.patient_name}
+          currentFlag={c.flag}
+          providerId={c.provider_id}
+        />
+      )}
 
       {/* Provider Referrals */}
       <ProviderReferralsModule caseId={id!} onSendReferral={() => setShowReferral(true)} />
