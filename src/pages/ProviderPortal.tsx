@@ -745,7 +745,7 @@ export default function ProviderPortal() {
                 <table className="w-full text-sm">
                   <thead><tr className="border-b border-border bg-accent/50">
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Case</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">CPT</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Charge Description</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Date</th>
                     <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Amount</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
