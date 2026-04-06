@@ -896,6 +896,41 @@ export default function ProviderPortal() {
         </DialogContent>
       </Dialog>
 
+      {/* Edit Appointment Dialog */}
+      <Dialog open={showEditAppt} onOpenChange={v => { setShowEditAppt(v); if (!v) setEditingAppt(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Edit Appointment — {editingAppt?.case_number}</DialogTitle></DialogHeader>
+          {editingAppt && (
+            <form onSubmit={e => { e.preventDefault(); updateApptFull.mutate(); }} className="space-y-4">
+              <div className="text-sm text-muted-foreground">Patient: <span className="text-foreground font-medium">{editingAppt.patient_name}</span></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label>Date & Time</Label><Input type="datetime-local" value={editingAppt.scheduled_date} onChange={e => setEditingAppt((p: any) => ({ ...p, scheduled_date: e.target.value }))} /></div>
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <Select value={editingAppt.status} onValueChange={v => setEditingAppt((p: any) => ({ ...p, status: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>{APPT_STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Specialty</Label>
+                <Select value={editingAppt.specialty} onValueChange={v => setEditingAppt((p: any) => ({ ...p, specialty: v }))}>
+                  <SelectTrigger><SelectValue placeholder="Select specialty..." /></SelectTrigger>
+                  <SelectContent>{SPECIALTIES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2"><Label>Notes</Label><Textarea value={editingAppt.notes} onChange={e => setEditingAppt((p: any) => ({ ...p, notes: e.target.value }))} /></div>
+              <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => { setShowEditAppt(false); setEditingAppt(null); }}>Cancel</Button>
+                <Button type="submit" disabled={updateApptFull.isPending}>Save Changes</Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Edit Charge Dialog */}
       <Dialog open={showEditCharge} onOpenChange={v => { setShowEditCharge(v); if (!v) setEditingCharge(null); }}>
         <DialogContent className="max-w-lg">
