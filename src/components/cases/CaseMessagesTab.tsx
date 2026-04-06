@@ -176,9 +176,9 @@ export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId }:
                 <Select value={recipientRole} onValueChange={setRecipientRole}>
                   <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Select recipient..." /></SelectTrigger>
                   <SelectContent>
-                    {availableRecipients.map(([role, meta]) => {
-                      const profile = recipientProfiles?.[role];
-                      return <SelectItem key={role} value={role} className="text-xs">{meta.label}{profile ? ` — ${profile.name}` : ''}</SelectItem>;
+                    {recipientOptions.map(([role, meta]) => {
+                      const rProfile = recipientProfiles?.[role as string];
+                      return <SelectItem key={role} value={role as string} className="text-xs">{meta.label}{rProfile ? ` — ${rProfile.name}` : ''}</SelectItem>;
                     })}
                   </SelectContent>
                 </Select>
