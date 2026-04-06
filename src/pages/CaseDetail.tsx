@@ -452,57 +452,40 @@ export default function CaseDetail() {
       </div>
 
       {/* Case Overview */}
-      <div className="bg-card border border-border rounded-xl p-5 shadow-card">
+      <div className="bg-card border border-border rounded-xl p-6 shadow-card">
         <h3 className="text-sm font-semibold text-foreground mb-4">Case Overview</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">DOI (Date of Injury)</Label>
-            <p className="text-sm font-medium">{c.accident_date ? format(new Date(c.accident_date), 'MMM d, yyyy') : '—'}</p>
+            <div className="h-9 flex items-center">
+              <p className="text-sm font-medium text-foreground">{c.accident_date ? format(new Date(c.accident_date), 'MMM d, yyyy') : '—'}</p>
+            </div>
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Request Date</Label>
-            <p className="text-sm font-medium">{(c as any).request_date ? format(new Date((c as any).request_date), 'MMM d, yyyy') : '—'}</p>
+            <div className="h-9 flex items-center">
+              <p className="text-sm font-medium text-foreground">{(c as any).request_date ? format(new Date((c as any).request_date), 'MMM d, yyyy') : '—'}</p>
+            </div>
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Initial Appt Date</Label>
-            {!isAttorney ? (
-              <Input
-                type="date"
-                className="h-9 text-sm"
-                value={(c as any).initial_appointment_date || ''}
-                onChange={e => updateCase.mutate({ initial_appointment_date: e.target.value || null })}
-              />
-            ) : (
-              <p className="text-sm font-medium">{(c as any).initial_appointment_date ? format(new Date((c as any).initial_appointment_date), 'MMM d, yyyy') : '—'}</p>
-            )}
+            <Input
+              type="date"
+              className="h-9 text-sm"
+              value={(c as any).initial_appointment_date || ''}
+              onChange={e => updateCase.mutate({ initial_appointment_date: e.target.value || null })}
+            />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Initial Appt Status</Label>
-            {!isAttorney ? (
-              <Select value={(c as any).initial_appointment_status || 'Pending'} onValueChange={v => updateCase.mutate({ initial_appointment_status: v })}>
-                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {['Pending', 'Scheduled', 'Patient Seen', 'No Show', 'Cancelled', 'Rescheduled'].map(s => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <Badge
-                variant="outline"
-                className={
-                  (c as any).initial_appointment_status === 'Patient Seen'
-                    ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
-                    : (c as any).initial_appointment_status === 'No Show'
-                    ? 'bg-destructive/10 text-destructive border-destructive/20'
-                    : (c as any).initial_appointment_status === 'Scheduled'
-                    ? 'bg-blue-100 text-blue-700 border-blue-200'
-                    : ''
-                }
-              >
-                {(c as any).initial_appointment_status || 'Pending'}
-              </Badge>
-            )}
+            <Select value={(c as any).initial_appointment_status || 'Pending'} onValueChange={v => updateCase.mutate({ initial_appointment_status: v })}>
+              <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {['Pending', 'Scheduled', 'Patient Seen', 'No Show', 'Cancelled', 'Rescheduled'].map(s => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
