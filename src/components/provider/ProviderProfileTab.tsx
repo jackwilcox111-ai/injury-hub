@@ -74,9 +74,9 @@ export function ProviderProfileTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Pencil className="w-3.5 h-3.5" />
-        <span>Click any field to edit. Changes save automatically.</span>
+      <div className="flex items-center gap-2 text-xs text-muted-foreground bg-accent/50 rounded-lg px-3 py-2">
+        <Globe className="w-3.5 h-3.5" />
+        <span>Practice information is managed by Got Hurt Injury Network. Contact us to request updates.</span>
       </div>
 
       <div className="bg-card border border-border rounded-xl overflow-hidden">
@@ -87,25 +87,11 @@ export function ProviderProfileTab() {
         <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
           {/* Left Column */}
           <div className="divide-y divide-border">
-            <InfoRow
-              label="Clinic Owner"
-              value={(provider as any).clinic_owner || ''}
-              editable
-              placeholder="Enter clinic owner..."
-              onSave={(v) => save('clinic_owner', v || null)}
-            />
-            <InfoRow
-              label="Clinic Name"
-              value={provider.name}
-              editable
-              onSave={(v) => save('name', v)}
-            />
+            <InfoRow label="Clinic Owner" value={(provider as any).clinic_owner || ''} />
+            <InfoRow label="Clinic Name" value={provider.name} />
             <InfoRow
               label="Phone"
               value={provider.phone || ''}
-              editable
-              placeholder="Enter phone..."
-              onSave={(v) => save('phone', v || null)}
               suffix={provider.phone ? (
                 <a href={`tel:${provider.phone}`} className="text-success ml-2">
                   <PhoneIcon className="w-4 h-4" />
@@ -115,9 +101,6 @@ export function ProviderProfileTab() {
             <InfoRow
               label="Website"
               value={provider.website_url || ''}
-              editable
-              placeholder="Enter website URL..."
-              onSave={(v) => save('website_url', v || null)}
               renderValue={provider.website_url ? (
                 <a href={provider.website_url.startsWith('http') ? provider.website_url : `https://${provider.website_url}`}
                   target="_blank" rel="noopener noreferrer"
@@ -126,15 +109,11 @@ export function ProviderProfileTab() {
                 </a>
               ) : undefined}
             />
-            <ServicesList
-              services={servicesOffered}
-              onSave={(v) => save('services_offered', v)}
+            <InfoRow
+              label="Services Offered"
+              value={servicesOffered.length > 0 ? servicesOffered.join('; ') : '—'}
             />
-            <ToggleRow
-              label="Extended Hours"
-              checked={(provider as any).extended_hours ?? false}
-              onChange={(v) => save('extended_hours', v)}
-            />
+            <InfoRow label="Extended Hours" value={(provider as any).extended_hours ? 'Yes' : 'No'} />
           </div>
 
           {/* Right Column */}
@@ -142,9 +121,6 @@ export function ProviderProfileTab() {
             <InfoRow
               label="Email"
               value={(provider as any).email || ''}
-              editable
-              placeholder="Enter email..."
-              onSave={(v) => save('email', v || null)}
               renderValue={(provider as any).email ? (
                 <a href={`mailto:${(provider as any).email}`} className="text-primary hover:underline text-sm">
                   {(provider as any).email}
@@ -154,9 +130,6 @@ export function ProviderProfileTab() {
             <InfoRow
               label="Secondary Email"
               value={(provider as any).secondary_email || ''}
-              editable
-              placeholder="—"
-              onSave={(v) => save('secondary_email', v || null)}
               renderValue={(provider as any).secondary_email ? (
                 <a href={`mailto:${(provider as any).secondary_email}`} className="text-primary hover:underline text-sm">
                   {(provider as any).secondary_email}
@@ -166,34 +139,18 @@ export function ProviderProfileTab() {
             <InfoRow
               label="Fax"
               value={(provider as any).fax || ''}
-              editable
-              placeholder="Enter fax..."
-              onSave={(v) => save('fax', v || null)}
               suffix={(provider as any).fax ? (
                 <a href={`tel:${(provider as any).fax}`} className="text-success ml-2">
                   <PhoneIcon className="w-4 h-4" />
                 </a>
               ) : undefined}
             />
-            <div className="flex items-start justify-between px-6 py-4">
-              <span className="text-sm text-muted-foreground w-36 shrink-0 text-right pr-6">Languages</span>
-              <div className="flex-1">
-                <LanguageEditor
-                  languages={provider.languages_spoken || []}
-                  onSave={(v) => save('languages_spoken', v)}
-                />
-              </div>
-            </div>
-            <ToggleRow
-              label="Offers Transportation"
-              checked={(provider as any).offers_transportation ?? false}
-              onChange={(v) => save('offers_transportation', v)}
+            <InfoRow
+              label="Languages"
+              value={(provider.languages_spoken || []).length > 0 ? provider.languages_spoken.join('; ') : '—'}
             />
-            <ToggleRow
-              label="Offers Virtual"
-              checked={(provider as any).offers_virtual ?? false}
-              onChange={(v) => save('offers_virtual', v)}
-            />
+            <InfoRow label="Offers Transportation" value={(provider as any).offers_transportation ? 'Yes' : 'No'} />
+            <InfoRow label="Offers Virtual" value={(provider as any).offers_virtual ? 'Yes' : 'No'} />
             <div className="flex items-start justify-between px-6 py-4">
               <span className="text-sm text-muted-foreground w-36 shrink-0 text-right pr-6">Patients</span>
               <div className="flex-1 flex flex-wrap gap-1.5">
@@ -208,48 +165,35 @@ export function ProviderProfileTab() {
         </div>
       </div>
 
-      {/* Compliance section */}
+      {/* Compliance section — read-only */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-border">
           <h3 className="text-sm font-semibold text-foreground">Compliance & Status</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
           <div className="divide-y divide-border">
-            <ToggleRow label="HIPAA BAA on File" checked={provider.hipaa_baa_on_file ?? false} onChange={(v) => save('hipaa_baa_on_file', v)} />
-            <ToggleRow label="Interpreter Available" checked={provider.interpreter_available} onChange={(v) => save('interpreter_available', v)} />
-            <InfoRow
-              label="Credentialing Expiry"
-              value={provider.credentialing_expiry || ''}
-              editable
-              type="date"
-              placeholder="YYYY-MM-DD"
-              onSave={(v) => save('credentialing_expiry', v || null)}
-            />
+            <InfoRow label="HIPAA BAA on File" value={provider.hipaa_baa_on_file ? 'Yes' : 'No'} />
+            <InfoRow label="Interpreter Available" value={provider.interpreter_available ? 'Yes' : 'No'} />
+            <InfoRow label="Credentialing Expiry" value={provider.credentialing_expiry || '—'} />
           </div>
           <div className="divide-y divide-border">
             <div className="flex items-center justify-between px-6 py-4">
               <span className="text-sm text-muted-foreground w-36 shrink-0 text-right pr-6">Status</span>
               <Badge variant={provider.status === 'Active' ? 'default' : 'secondary'} className="text-xs">{provider.status}</Badge>
             </div>
-            <div className="flex items-center justify-between px-6 py-4">
-              <span className="text-sm text-muted-foreground w-36 shrink-0 text-right pr-6">Rating</span>
-              <span className="text-sm font-medium text-foreground">{provider.rating ? `${provider.rating} / 5` : 'Not rated'}</span>
-            </div>
-            <InfoRow
-              label="Locations"
-              value={String(provider.locations || 1)}
-              editable
-              type="number"
-              onSave={(v) => save('locations', parseInt(v) || 1)}
-            />
+            <InfoRow label="Rating" value={provider.rating ? `${provider.rating} / 5` : 'Not rated'} />
+            <InfoRow label="Locations" value={String(provider.locations || 1)} />
           </div>
         </div>
       </div>
 
-      {/* Notes */}
-      <div className="bg-card border border-border rounded-xl p-6">
-        <h3 className="text-sm font-semibold text-foreground mb-2">Notes</h3>
-        <EditableTextarea
+      {/* Notes — read-only */}
+      {provider.notes && (
+        <div className="bg-card border border-border rounded-xl p-6">
+          <h3 className="text-sm font-semibold text-foreground mb-2">Notes</h3>
+          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{provider.notes}</p>
+        </div>
+      )}
           defaultValue={provider.notes || ''}
           placeholder="Add notes about your practice..."
           onSave={(v) => save('notes', v || null)}
