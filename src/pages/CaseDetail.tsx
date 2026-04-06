@@ -514,10 +514,6 @@ export default function CaseDetail() {
               </Badge>
             )}
           </div>
-          <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">SOL Date</Label>
-            <SoLCountdown sol_date={c.sol_date} />
-          </div>
         </div>
       </div>
 
