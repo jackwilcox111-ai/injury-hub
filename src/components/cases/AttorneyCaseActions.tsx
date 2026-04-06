@@ -143,39 +143,33 @@ export function AttorneyCaseActions({ caseId, caseNumber, patientName, currentFl
   });
 
   return (
-    <div className="bg-card border border-border rounded-xl p-5 shadow-card space-y-4">
-      <h3 className="text-sm font-semibold text-foreground">Attorney Case Actions</h3>
-      <div className="flex items-center gap-4 flex-wrap">
-        <div className="space-y-1.5 min-w-[180px]">
-          <Label className="text-xs text-muted-foreground">Case Disposition</Label>
-          <Select
-            value={currentStatus}
-            onValueChange={(v) => changeStatus.mutate(v as AttorneyCaseStatus)}
-          >
-            <SelectTrigger className="h-9">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {ATTORNEY_CASE_STATUSES.map(s => (
-                <SelectItem key={s} value={s}>
-                  <span className={s === 'Dropped' ? 'text-destructive font-medium' : ''}>
-                    {s}
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-end">
-          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setShowUpload(true)}>
-            <Upload className="w-3.5 h-3.5" /> Upload Termination Letter
-          </Button>
-        </div>
+    <>
+      <Label className="text-xs text-muted-foreground">Case Disposition</Label>
+      <div className="flex items-center gap-2">
+        <Select
+          value={currentStatus}
+          onValueChange={(v) => changeStatus.mutate(v as AttorneyCaseStatus)}
+        >
+          <SelectTrigger className="h-9">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {ATTORNEY_CASE_STATUSES.map(s => (
+              <SelectItem key={s} value={s}>
+                <span className={s === 'Dropped' ? 'text-destructive font-medium' : ''}>
+                  {s}
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" title="Upload Termination Letter" onClick={() => setShowUpload(true)}>
+          <Upload className="w-3.5 h-3.5" />
+        </Button>
       </div>
 
       {currentStatus === 'Dropped' && (
-        <div className="flex items-center gap-2 bg-destructive/10 text-destructive text-xs rounded-lg px-3 py-2">
+        <div className="col-span-full flex items-center gap-2 bg-destructive/10 text-destructive text-xs rounded-lg px-3 py-2 mt-2">
           <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
           This case has been dropped by the attorney.
         </div>
