@@ -25,14 +25,7 @@ import { ProviderLiensTab } from '@/components/provider/ProviderLiensTab';
 import { ProviderDocumentsTab } from '@/components/provider/ProviderDocumentsTab';
 import { ProviderMessagesTab } from '@/components/provider/ProviderMessagesTab';
 
-const CPT_CHIPS = [
-  { code: '99213', desc: 'Office visit (est.)' },
-  { code: '99203', desc: 'Office visit (new)' },
-  { code: '97110', desc: 'Therapeutic exercises' },
-  { code: '97140', desc: 'Manual therapy' },
-  { code: '98941', desc: 'Chiropractic manipulation' },
-  { code: '72148', desc: 'MRI lumbar' },
-];
+const BILLING_PATHS = ['Lien', 'PIP', 'MedPay', 'Insurance'];
 
 type SortField = 'patient_name' | 'updated_at' | 'lien_amount' | 'status' | 'case_number';
 type SortDir = 'asc' | 'desc';
