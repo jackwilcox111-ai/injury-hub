@@ -194,11 +194,8 @@ export function ProviderProfileTab() {
           <p className="text-sm text-muted-foreground whitespace-pre-wrap">{provider.notes}</p>
         </div>
       )}
-          defaultValue={provider.notes || ''}
-          placeholder="Add notes about your practice..."
-          onSave={(v) => save('notes', v || null)}
-        />
-      </div>
+    </div>
+  );
     </div>
   );
 }
