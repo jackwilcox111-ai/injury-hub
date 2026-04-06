@@ -762,7 +762,7 @@ export default function CaseDetail() {
             </tr></thead>
             <tbody className="divide-y divide-border">
               {liens?.map(l => (
-                <tr key={l.id} className="hover:bg-accent/30 transition-colors">
+                <tr key={l.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => { setEditLien({ ...l }); setShowEditLien(true); }}>
                   <td className="px-4 py-2.5 text-xs font-medium">{(l as any).providers?.name || '—'}</td>
                   <td className="px-4 py-2.5 font-mono text-xs tabular-nums">${l.amount.toLocaleString()}</td>
                   <td className="px-4 py-2.5 font-mono text-xs tabular-nums">${l.reduction_amount.toLocaleString()}</td>
