@@ -635,93 +635,121 @@ export default function CaseDetail() {
         </div>
       </div>
 
-      {/* Records + Liens / Case Timeline */}
-      <div className={`grid grid-cols-1 ${!isProvider ? 'lg:grid-cols-2' : ''} gap-5`}>
-        {/* Left: Records stacked over Liens */}
-        <div className="space-y-5">
-          {/* Records */}
-          <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
-            <div className="px-5 py-4 border-b border-border flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-foreground">Records</h3>
-              <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowAddRecord(true)}>+ Record</Button>
-            </div>
-            <table className="w-full text-sm">
-              <thead><tr className="border-b border-border bg-accent/50">
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Type</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Document</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Received</th>
-              </tr></thead>
-              <tbody className="divide-y divide-border">
-                {records?.map(r => {
-                  const doc = (r as any).documents;
-                  return (
-                    <tr key={r.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => { setEditRecord({ ...r, provider_id: r.provider_id || '' }); setShowEditRecord(true); }}>
-                      <td className="px-4 py-2.5 text-xs font-medium text-primary">{r.record_type || '—'}</td>
-                      <td className="px-4 py-2.5 text-xs">{(r as any).providers?.name || '—'}</td>
-                      <td className="px-4 py-2.5 text-xs">
-                        {doc ? (
-                          <button onClick={async (e) => {
-                            e.stopPropagation();
-                            const { data, error } = await supabase.storage.from('documents').createSignedUrl(doc.storage_path, 300);
-                            if (error) { toast.error('Failed to get download link'); return; }
-                            window.open(data.signedUrl, '_blank');
-                          }} className="flex items-center gap-1 text-primary hover:underline">
-                            <FileText className="w-3 h-3" />
-                            <span className="truncate max-w-[100px]">{doc.file_name}</span>
-                          </button>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-2.5 font-mono text-xs">{r.received_date || '—'}</td>
-                    </tr>
-                  );
-                })}
-                {(!records || records.length === 0) && (
-                  <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground text-sm">No records</td></tr>
-                )}
-              </tbody>
-            </table>
+      {/* Bills + Records side by side */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Left: Bills / Charges */}
+        <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
+          <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground">Bills</h3>
+            <span className="text-xs text-muted-foreground">{charges?.length || 0} charges</span>
           </div>
-
-          {/* Lien Register (admin and provider) */}
-          {(isAdmin || isProvider) && (
-            <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
-              <div className="px-5 py-4 border-b border-border flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-foreground">Lien Register</h3>
-                {isAdmin && <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowAddLien(true)}>+ Lien</Button>}
-              </div>
-              <table className="w-full text-sm">
-                <thead><tr className="border-b border-border bg-accent/50">
-                  <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
-                  <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Amount</th>
-                  <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Reduction</th>
-                  <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Net Lien</th>
-                  <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Status</th>
-                </tr></thead>
-                <tbody className="divide-y divide-border">
-                  {liens?.map(l => (
-                    <tr key={l.id} className="hover:bg-accent/30 transition-colors">
-                      <td className="px-4 py-2.5 text-xs font-medium">{(l as any).providers?.name || '—'}</td>
-                      <td className="px-4 py-2.5 font-mono text-xs tabular-nums">${l.amount.toLocaleString()}</td>
-                      <td className="px-4 py-2.5 font-mono text-xs tabular-nums">${l.reduction_amount.toLocaleString()}</td>
-                      <td className="px-4 py-2.5 font-mono text-xs text-foreground font-medium tabular-nums">${(l.amount - l.reduction_amount).toLocaleString()}</td>
-                      <td className="px-4 py-2.5"><StatusBadge status={l.status} /></td>
-                    </tr>
-                  ))}
-                  {(!liens || liens.length === 0) && (
-                    <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground text-sm">No liens recorded</td></tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <table className="w-full text-sm">
+            <thead><tr className="border-b border-border bg-accent/50">
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Description</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Date</th>
+              <th className="text-right px-4 py-2.5 text-xs font-medium text-muted-foreground">Amount</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Status</th>
+            </tr></thead>
+            <tbody className="divide-y divide-border">
+              {charges?.map(c => (
+                <tr key={c.id} className="hover:bg-accent/30 transition-colors">
+                  <td className="px-4 py-2.5 text-xs">
+                    <span className="font-medium">{c.cpt_description || c.cpt_code}</span>
+                  </td>
+                  <td className="px-4 py-2.5 font-mono text-xs">{c.service_date}</td>
+                  <td className="px-4 py-2.5 font-mono text-xs text-right tabular-nums">${c.charge_amount.toLocaleString()}</td>
+                  <td className="px-4 py-2.5"><Badge variant={c.status === 'Paid' ? 'default' : c.status === 'Denied' ? 'destructive' : 'outline'} className="text-[10px]">{c.status}</Badge></td>
+                </tr>
+              ))}
+              {(!charges || charges.length === 0) && (
+                <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground text-sm">No charges</td></tr>
+              )}
+            </tbody>
+          </table>
         </div>
 
-        {/* Right: Case Timeline — hidden for providers */}
-        {!isProvider && <CaseTimelineSidebar caseId={id!} />}
+        {/* Right: Records */}
+        <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
+          <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground">Records</h3>
+            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowAddRecord(true)}>+ Record</Button>
+          </div>
+          <table className="w-full text-sm">
+            <thead><tr className="border-b border-border bg-accent/50">
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Type</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Document</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Received</th>
+            </tr></thead>
+            <tbody className="divide-y divide-border">
+              {records?.map(r => {
+                const doc = (r as any).documents;
+                return (
+                  <tr key={r.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => { setEditRecord({ ...r, provider_id: r.provider_id || '' }); setShowEditRecord(true); }}>
+                    <td className="px-4 py-2.5 text-xs font-medium text-primary">{r.record_type || '—'}</td>
+                    <td className="px-4 py-2.5 text-xs">{(r as any).providers?.name || '—'}</td>
+                    <td className="px-4 py-2.5 text-xs">
+                      {doc ? (
+                        <button onClick={async (e) => {
+                          e.stopPropagation();
+                          const { data, error } = await supabase.storage.from('documents').createSignedUrl(doc.storage_path, 300);
+                          if (error) { toast.error('Failed to get download link'); return; }
+                          window.open(data.signedUrl, '_blank');
+                        }} className="flex items-center gap-1 text-primary hover:underline">
+                          <FileText className="w-3 h-3" />
+                          <span className="truncate max-w-[100px]">{doc.file_name}</span>
+                        </button>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2.5 font-mono text-xs">{r.received_date || '—'}</td>
+                  </tr>
+                );
+              })}
+              {(!records || records.length === 0) && (
+                <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground text-sm">No records</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      {/* Lien Register - full width */}
+      {(isAdmin || isProvider) && (
+        <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
+          <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground">Lien Register</h3>
+            {isAdmin && <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowAddLien(true)}>+ Lien</Button>}
+          </div>
+          <table className="w-full text-sm">
+            <thead><tr className="border-b border-border bg-accent/50">
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Amount</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Reduction</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Net Lien</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Status</th>
+            </tr></thead>
+            <tbody className="divide-y divide-border">
+              {liens?.map(l => (
+                <tr key={l.id} className="hover:bg-accent/30 transition-colors">
+                  <td className="px-4 py-2.5 text-xs font-medium">{(l as any).providers?.name || '—'}</td>
+                  <td className="px-4 py-2.5 font-mono text-xs tabular-nums">${l.amount.toLocaleString()}</td>
+                  <td className="px-4 py-2.5 font-mono text-xs tabular-nums">${l.reduction_amount.toLocaleString()}</td>
+                  <td className="px-4 py-2.5 font-mono text-xs text-foreground font-medium tabular-nums">${(l.amount - l.reduction_amount).toLocaleString()}</td>
+                  <td className="px-4 py-2.5"><StatusBadge status={l.status} /></td>
+                </tr>
+              ))}
+              {(!liens || liens.length === 0) && (
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground text-sm">No liens recorded</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Case Timeline — hidden for providers */}
+      {!isProvider && <CaseTimelineSidebar caseId={id!} />}
 
       {/* Tabbed Module Panels */}
       <Tabs defaultValue="activity" className="bg-card border border-border rounded-xl shadow-card">
