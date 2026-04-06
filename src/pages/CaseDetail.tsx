@@ -218,6 +218,7 @@ export default function CaseDetail() {
     queryClient.invalidateQueries({ queryKey: ['case-records', id] });
     queryClient.invalidateQueries({ queryKey: ['case-liens', id] });
     queryClient.invalidateQueries({ queryKey: ['case-updates', id] });
+    queryClient.invalidateQueries({ queryKey: ['case-charges-inline', id] });
   };
 
   const updateCase = useMutation({
