@@ -2619,17 +2619,31 @@ export type Database = {
           appointments_completed: number | null
           appointments_total: number | null
           attorney_id: string | null
+          case_manager_email: string | null
+          case_manager_phone: string | null
           case_number: string | null
+          completeness_score: number | null
           created_at: string | null
           flag: string | null
           id: string | null
+          initial_appointment_date: string | null
+          initial_appointment_status: string | null
+          law_firm_website: string | null
           lien_amount: number | null
+          marketer_consent_signed: boolean | null
+          marketer_consent_signed_at: string | null
+          marketer_id: string | null
+          marketplace_accepted_at: string | null
+          marketplace_submitted_at: string | null
           notes: string | null
           opened_date: string | null
           patient_email: string | null
           patient_name: string | null
           patient_phone: string | null
+          preferred_language: string | null
           provider_id: string | null
+          quality_gate_passed: boolean | null
+          request_date: string | null
           settlement_estimate: number | null
           settlement_final: number | null
           sol_date: string | null
@@ -2637,6 +2651,7 @@ export type Database = {
           specialty: string | null
           status: string | null
           updated_at: string | null
+          urgent: boolean | null
         }
         Relationships: [
           {
@@ -2644,6 +2659,13 @@ export type Database = {
             columns: ["attorney_id"]
             isOneToOne: false
             referencedRelation: "attorneys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cases_marketer_id_fkey"
+            columns: ["marketer_id"]
+            isOneToOne: false
+            referencedRelation: "marketer_profiles"
             referencedColumns: ["id"]
           },
           {
