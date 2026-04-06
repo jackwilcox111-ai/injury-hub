@@ -414,16 +414,22 @@ export default function CaseDetail() {
           <CaseProgressStepper currentStatus={c.status || ''} />
         </div>
 
-        {isAttorney ? (
-          <div className="grid gap-4 grid-cols-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Status</Label>
-              <div className="h-9 flex items-center"><StatusBadge status={c.status || ''} /></div>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Flag</Label>
-              <div className="h-9 flex items-center"><FlagBadge flag={c.flag} /></div>
-            </div>
+        <div className="grid gap-4 grid-cols-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Status</Label>
+            <Select value={c.status || ''} onValueChange={handleStatusChange}>
+              <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+              <SelectContent>{caseStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Flag</Label>
+            <Select value={c.flag || 'none'} onValueChange={v => updateCase.mutate({ flag: v === 'none' ? null : v })}>
+              <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+              <SelectContent>{flagOptions.map(f => <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          {isAttorney ? (
             <div className="space-y-1.5">
               <AttorneyCaseActions
                 caseId={id!}
@@ -433,23 +439,7 @@ export default function CaseDetail() {
                 providerId={c.provider_id}
               />
             </div>
-          </div>
-        ) : (
-          <div className="grid gap-4 grid-cols-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Status</Label>
-              <Select value={c.status || ''} onValueChange={handleStatusChange}>
-                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                <SelectContent>{caseStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Flag</Label>
-              <Select value={c.flag || 'none'} onValueChange={v => updateCase.mutate({ flag: v === 'none' ? null : v })}>
-                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                <SelectContent>{flagOptions.map(f => <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
+          ) : (
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">Attorney</Label>
               <Select value={c.attorney_id || ''} onValueChange={v => updateCase.mutate({ attorney_id: v || null })}>
@@ -457,8 +447,8 @@ export default function CaseDetail() {
                 <SelectContent>{allAttorneys?.map(a => <SelectItem key={a.id} value={a.id}>{a.firm_name}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Case Overview */}
