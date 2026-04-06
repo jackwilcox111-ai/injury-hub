@@ -722,7 +722,21 @@ export default function ProviderPortal() {
                   </tr></thead>
                   <tbody className="divide-y divide-border">
                     {charges?.map(c => (
-                      <tr key={c.id} className="hover:bg-accent/30 transition-colors">
+                      <tr key={c.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => {
+                        if (c.status === 'Pending') {
+                          setEditingCharge({
+                            id: c.id,
+                            cpt_code: c.cpt_code,
+                            cpt_description: c.cpt_description || '',
+                            service_date: c.service_date,
+                            charge_amount: String(c.charge_amount),
+                            units: String(c.units || 1),
+                            billing_path: c.billing_path || 'Lien',
+                            case_number: (c as any).cases?.case_number,
+                          });
+                          setShowEditCharge(true);
+                        }
+                      }}>
                         <td className="px-4 py-3 font-mono text-xs text-primary">{(c as any).cases?.case_number}</td>
                         <td className="px-4 py-3 text-xs"><span className="font-mono">{c.cpt_code}</span> {c.cpt_description && <span className="text-muted-foreground ml-1">— {c.cpt_description}</span>}</td>
                         <td className="px-4 py-3 font-mono text-xs">{c.service_date}</td>
