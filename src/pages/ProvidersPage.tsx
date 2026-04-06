@@ -557,7 +557,7 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
             <SortableHeader label="Specialty" sortKey="specialty" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Languages / Interpreter</th>
             <SortableHeader label="Locations" sortKey="locations" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
-            <SortableHeader label="Rating" sortKey="rating" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+            
             <SortableHeader label="Active Cases" sortKey="activeCases" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
             <SortableHeader label="HIPAA BAA" sortKey="hipaa_baa_on_file" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Credentials</th>
