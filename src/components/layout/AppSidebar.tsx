@@ -25,7 +25,6 @@ const navItems = [
   { title: 'Settings', path: '/settings', icon: Settings, roles: ['admin'] as UserRole[] },
   // Provider sidebar
   { title: 'Dashboard', path: '/provider/dashboard', icon: LayoutDashboard, roles: ['provider'] as UserRole[] },
-  { title: 'Patients', path: '/provider/dashboard?tab=patients', icon: Users, roles: ['provider'] as UserRole[] },
   { title: 'Appointments', path: '/provider/dashboard?tab=appointments', icon: Calendar, roles: ['provider'] as UserRole[] },
   { title: 'Charges', path: '/provider/dashboard?tab=charges', icon: DollarSign, roles: ['provider'] as UserRole[] },
   { title: 'Records', path: '/provider/dashboard?tab=records', icon: FileText, roles: ['provider'] as UserRole[] },
