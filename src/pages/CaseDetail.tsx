@@ -471,7 +471,7 @@ export default function CaseDetail() {
           </div>
           <div className="space-y-1">
             <Label className="text-xs text-muted-foreground">Request Date</Label>
-            <p className="text-sm font-medium">{c.request_date ? format(new Date(c.request_date), 'MMM d, yyyy') : '—'}</p>
+            <p className="text-sm font-medium">{(c as any).request_date ? format(new Date((c as any).request_date), 'MMM d, yyyy') : '—'}</p>
           </div>
           <div className="space-y-1">
             <Label className="text-xs text-muted-foreground">Initial Appt Date</Label>
