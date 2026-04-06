@@ -368,11 +368,10 @@ export default function ProviderPortal() {
       </div>
     ),
     'records-bills': (
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <KpiCard icon={FileText} value={charges?.length || 0} label="Charges" />
         <KpiCard icon={DollarSign} value={`$${totalCharges.toLocaleString()}`} label="Total Billed" color="text-success" bg="bg-success/5 border-success/20" />
-        <KpiCard icon={FolderOpen} value={totalRecords} label="Records" />
-        <KpiCard icon={Upload} value={totalDocs} label="Documents" />
+        <KpiCard icon={FolderOpen} value={totalRecords + totalDocs} label="Records & Docs" />
       </div>
     ),
     liens: (
