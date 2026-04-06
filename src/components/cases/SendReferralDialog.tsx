@@ -198,7 +198,6 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
                   </p>
                 </div>
               )}
-              </div>
             </>
           )}
 
