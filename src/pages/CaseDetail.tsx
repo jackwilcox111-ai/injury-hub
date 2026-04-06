@@ -439,6 +439,16 @@ export default function CaseDetail() {
         </div>
       </div>
 
+      {/* Attorney Case Actions — only shown to attorneys */}
+      {isAttorney && (
+        <AttorneyCaseActions
+          caseId={id!}
+          caseNumber={c.case_number}
+          patientName={c.patient_name}
+          currentFlag={c.flag}
+          providerId={c.provider_id}
+        />
+      )}
 
       {/* Provider Referrals */}
       <ProviderReferralsModule caseId={id!} onSendReferral={() => setShowReferral(true)} />
