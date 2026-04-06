@@ -536,6 +536,8 @@ export type Database = {
           created_at: string | null
           flag: string | null
           id: string
+          initial_appointment_date: string | null
+          initial_appointment_status: string | null
           law_firm_website: string | null
           lien_amount: number
           marketer_consent_signed: boolean | null
@@ -572,6 +574,8 @@ export type Database = {
           created_at?: string | null
           flag?: string | null
           id?: string
+          initial_appointment_date?: string | null
+          initial_appointment_status?: string | null
           law_firm_website?: string | null
           lien_amount?: number
           marketer_consent_signed?: boolean | null
@@ -608,6 +612,8 @@ export type Database = {
           created_at?: string | null
           flag?: string | null
           id?: string
+          initial_appointment_date?: string | null
+          initial_appointment_status?: string | null
           law_firm_website?: string | null
           lien_amount?: number
           marketer_consent_signed?: boolean | null
