@@ -193,165 +193,25 @@ export function ProviderProfileTab() {
   );
 }
 
-/* ---- Sub-components ---- */
-
-function InfoRow({ label, value, editable, placeholder, type = 'text', onSave, suffix, renderValue }: {
+function InfoRow({ label, value, suffix, renderValue }: {
   label: string;
   value: string;
-  editable?: boolean;
-  placeholder?: string;
-  type?: string;
-  onSave?: (v: string) => void;
   suffix?: React.ReactNode;
   renderValue?: React.ReactNode;
 }) {
-  const [editing, setEditing] = useState(false);
-  const [localVal, setLocalVal] = useState(value);
-
-  const handleBlur = () => {
-    setEditing(false);
-    if (onSave && localVal !== value) onSave(localVal);
-  };
-
   return (
     <div className="flex items-center justify-between px-6 py-4">
       <span className="text-sm text-muted-foreground w-36 shrink-0 text-right pr-6">{label}</span>
       <div className="flex-1 flex items-center">
-        {editing ? (
-          <Input
-            autoFocus
-            type={type}
-            className="h-8 text-sm border-dashed"
-            value={localVal}
-            placeholder={placeholder || '—'}
-            onChange={(e) => setLocalVal(e.target.value)}
-            onBlur={handleBlur}
-            onKeyDown={(e) => e.key === 'Enter' && handleBlur()}
-          />
-        ) : (
-          <div
-            className={`text-sm ${editable ? 'cursor-pointer hover:bg-accent/50 rounded px-2 py-1 -mx-2 transition-colors' : ''}`}
-            onClick={() => editable && setEditing(true)}
-          >
-            {renderValue || (
-              <span className={value ? 'text-foreground font-medium' : 'text-muted-foreground'}>
-                {value || placeholder || '—'}
-              </span>
-            )}
-          </div>
-        )}
-        {!editing && suffix}
-      </div>
-    </div>
-  );
-}
-
-function ToggleRow({ label, checked, onChange }: {
-  label: string;
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <div className="flex items-center justify-between px-6 py-4">
-      <span className="text-sm text-muted-foreground w-36 shrink-0 text-right pr-6">{label}</span>
-      <div className="flex-1 flex items-center gap-2">
-        <Switch checked={checked} onCheckedChange={onChange} />
-        <span className="text-sm text-foreground">{checked ? 'Yes' : 'No'}</span>
-      </div>
-    </div>
-  );
-}
-
-function ServicesList({ services, onSave }: { services: string[]; onSave: (v: string[]) => void }) {
-  const toggle = (svc: string) => {
-    if (services.includes(svc)) {
-      onSave(services.filter(s => s !== svc));
-    } else {
-      onSave([...services, svc]);
-    }
-  };
-
-  return (
-    <div className="flex items-start justify-between px-6 py-4">
-      <span className="text-sm text-muted-foreground w-36 shrink-0 text-right pr-6">Services Offered</span>
-      <div className="flex-1">
-        {services.length > 0 ? (
-          <p className="text-sm font-medium text-foreground mb-2">{services.join('; ')}</p>
-        ) : (
-          <p className="text-sm text-muted-foreground mb-2">None selected</p>
-        )}
-        <div className="flex flex-wrap gap-1.5">
-          {AVAILABLE_SERVICES.map(s => (
-            <Badge
-              key={s}
-              variant={services.includes(s) ? 'default' : 'outline'}
-              className="text-[10px] cursor-pointer transition-colors"
-              onClick={() => toggle(s)}
-            >
-              {s}
-            </Badge>
-          ))}
+        <div className="text-sm">
+          {renderValue || (
+            <span className={value && value !== '—' ? 'text-foreground font-medium' : 'text-muted-foreground'}>
+              {value || '—'}
+            </span>
+          )}
         </div>
+        {suffix}
       </div>
     </div>
-  );
-}
-
-function LanguageEditor({ languages, onSave }: { languages: string[]; onSave: (v: string[]) => void }) {
-  const [newLang, setNewLang] = useState('');
-
-  const addLanguage = () => {
-    const trimmed = newLang.trim();
-    if (trimmed && !languages.includes(trimmed)) {
-      onSave([...languages, trimmed]);
-      setNewLang('');
-    }
-  };
-
-  return (
-    <div className="space-y-1.5">
-      <p className="text-sm font-medium text-foreground">
-        {languages.length > 0 ? languages.join('; ') : '—'}
-      </p>
-      <div className="flex flex-wrap gap-1 items-center">
-        {languages.map((l) => (
-          <Badge
-            key={l}
-            variant="outline"
-            className="text-[10px] cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
-            onClick={() => onSave(languages.filter(x => x !== l))}
-            title="Click to remove"
-          >
-            {l} ×
-          </Badge>
-        ))}
-        <Input
-          className="h-6 w-28 text-[10px] border-dashed"
-          placeholder="Add language..."
-          value={newLang}
-          onChange={(e) => setNewLang(e.target.value)}
-          onBlur={addLanguage}
-          onKeyDown={(e) => e.key === 'Enter' && addLanguage()}
-        />
-      </div>
-    </div>
-  );
-}
-
-function EditableTextarea({ defaultValue, placeholder, onSave }: {
-  defaultValue: string;
-  placeholder?: string;
-  onSave: (value: string) => void;
-}) {
-  const [value, setValue] = useState(defaultValue);
-
-  return (
-    <Textarea
-      className="text-sm border-dashed min-h-[60px]"
-      value={value}
-      placeholder={placeholder}
-      onChange={(e) => setValue(e.target.value)}
-      onBlur={() => onSave(value)}
-    />
   );
 }
