@@ -2045,8 +2045,12 @@ export type Database = {
           address_state: string | null
           address_street: string | null
           address_zip: string | null
+          clinic_owner: string | null
           created_at: string | null
           credentialing_expiry: string | null
+          email: string | null
+          extended_hours: boolean | null
+          fax: string | null
           hipaa_baa_on_file: boolean | null
           id: string
           interpreter_available: boolean
@@ -2058,8 +2062,12 @@ export type Database = {
           longitude: number | null
           name: string
           notes: string | null
+          offers_transportation: boolean | null
+          offers_virtual: boolean | null
           phone: string | null
           rating: number | null
+          secondary_email: string | null
+          services_offered: string[] | null
           specialty: string | null
           status: string
           website_url: string | null
@@ -2070,8 +2078,12 @@ export type Database = {
           address_state?: string | null
           address_street?: string | null
           address_zip?: string | null
+          clinic_owner?: string | null
           created_at?: string | null
           credentialing_expiry?: string | null
+          email?: string | null
+          extended_hours?: boolean | null
+          fax?: string | null
           hipaa_baa_on_file?: boolean | null
           id?: string
           interpreter_available?: boolean
@@ -2083,8 +2095,12 @@ export type Database = {
           longitude?: number | null
           name: string
           notes?: string | null
+          offers_transportation?: boolean | null
+          offers_virtual?: boolean | null
           phone?: string | null
           rating?: number | null
+          secondary_email?: string | null
+          services_offered?: string[] | null
           specialty?: string | null
           status?: string
           website_url?: string | null
@@ -2095,8 +2111,12 @@ export type Database = {
           address_state?: string | null
           address_street?: string | null
           address_zip?: string | null
+          clinic_owner?: string | null
           created_at?: string | null
           credentialing_expiry?: string | null
+          email?: string | null
+          extended_hours?: boolean | null
+          fax?: string | null
           hipaa_baa_on_file?: boolean | null
           id?: string
           interpreter_available?: boolean
@@ -2108,8 +2128,12 @@ export type Database = {
           longitude?: number | null
           name?: string
           notes?: string | null
+          offers_transportation?: boolean | null
+          offers_virtual?: boolean | null
           phone?: string | null
           rating?: number | null
+          secondary_email?: string | null
+          services_offered?: string[] | null
           specialty?: string | null
           status?: string
           website_url?: string | null
