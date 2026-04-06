@@ -33,6 +33,7 @@ const CPT_CHIPS = [
 ];
 
 export default function ProviderPortal() {
+  const { profile } = useAuth();
   const [searchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'patients';
   const queryClient = useQueryClient();
