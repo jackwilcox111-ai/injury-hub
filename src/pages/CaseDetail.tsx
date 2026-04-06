@@ -111,6 +111,8 @@ export default function CaseDetail() {
   const [showAddLien, setShowAddLien] = useState(false);
   const [showEditCharge, setShowEditCharge] = useState(false);
   const [editCharge, setEditCharge] = useState<any>(null);
+  const [showAddCharge, setShowAddCharge] = useState(false);
+  const [newCharge, setNewCharge] = useState({ cpt_description: '', service_date: '', charge_amount: 0, status: 'Pending', billing_path: '', notes: '', provider_id: '' });
   const [showEditLien, setShowEditLien] = useState(false);
   const [editLien, setEditLien] = useState<any>(null);
   const [showSettlementModal, setShowSettlementModal] = useState(false);
