@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,21 +18,14 @@ import { PHIBanner } from '@/components/global/PHIBanner';
 import {
   Calendar, FileText, DollarSign, Plus, Users, Building2, Link2, MessageCircle, Upload,
   TrendingUp, CheckCircle, Clock, AlertTriangle, FileCheck, FolderOpen, ArrowRight,
-  Phone, Search, ArrowUp, ArrowDown
+  Phone, Search, ArrowUp, ArrowDown, X
 } from 'lucide-react';
 import { ProviderProfileTab } from '@/components/provider/ProviderProfileTab';
 import { ProviderLiensTab } from '@/components/provider/ProviderLiensTab';
 import { ProviderDocumentsTab } from '@/components/provider/ProviderDocumentsTab';
 import { ProviderMessagesTab } from '@/components/provider/ProviderMessagesTab';
 
-const CPT_CHIPS = [
-  { code: '99213', desc: 'Office visit (est.)' },
-  { code: '99203', desc: 'Office visit (new)' },
-  { code: '97110', desc: 'Therapeutic exercises' },
-  { code: '97140', desc: 'Manual therapy' },
-  { code: '98941', desc: 'Chiropractic manipulation' },
-  { code: '72148', desc: 'MRI lumbar' },
-];
+const BILLING_PATHS = ['Lien', 'PIP', 'MedPay', 'Insurance'];
 
 type SortField = 'patient_name' | 'updated_at' | 'lien_amount' | 'status' | 'case_number';
 type SortDir = 'asc' | 'desc';
@@ -45,7 +38,9 @@ export default function ProviderPortal() {
   const queryClient = useQueryClient();
   const [showAddCharge, setShowAddCharge] = useState(false);
   const [selectedCaseId, setSelectedCaseId] = useState('');
-  const [charge, setCharge] = useState({ cpt_code: '', cpt_description: '', service_date: '', charge_amount: '', units: '1' });
+  const [charge, setCharge] = useState({ description: '', service_date: '', charge_amount: '', units: '1', billing_path: 'Lien' });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [sortField, setSortField] = useState<SortField>('updated_at');
@@ -133,21 +128,42 @@ export default function ProviderPortal() {
 
   const addCharge = useMutation({
     mutationFn: async () => {
+      let documentId: string | null = null;
+
+      if (selectedFile) {
+        const filePath = `charges/${selectedCaseId}/${Date.now()}_${selectedFile.name}`;
+        const { error: uploadError } = await supabase.storage.from('documents').upload(filePath, selectedFile);
+        if (uploadError) throw uploadError;
+
+        const { data: docData, error: docError } = await supabase.from('documents').insert({
+          case_id: selectedCaseId,
+          file_name: selectedFile.name,
+          storage_path: filePath,
+          document_type: 'bill',
+          uploader_id: profile?.id,
+        }).select('id').single();
+        if (docError) throw docError;
+        documentId = docData.id;
+      }
+
       const { error } = await supabase.from('charges').insert({
         case_id: selectedCaseId,
         provider_id: profile?.provider_id || null,
-        cpt_code: charge.cpt_code,
-        cpt_description: charge.cpt_description || null,
+        cpt_code: charge.description || 'BILL',
+        cpt_description: charge.description || null,
         service_date: charge.service_date,
         charge_amount: parseFloat(charge.charge_amount) || 0,
         units: parseInt(charge.units) || 1,
+        billing_path: charge.billing_path,
+        document_id: documentId,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['provider-charges'] });
       setShowAddCharge(false);
-      setCharge({ cpt_code: '', cpt_description: '', service_date: '', charge_amount: '', units: '1' });
+      setSelectedFile(null);
+      setCharge({ description: '', service_date: '', charge_amount: '', units: '1', billing_path: 'Lien' });
       toast.success('Charge submitted');
     },
     onError: (e: any) => toast.error(e.message),
@@ -758,32 +774,53 @@ export default function ProviderPortal() {
                 <SelectContent>{uniqueCases.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.case_number} — {c.patient_name}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>Quick CPT Select</Label>
-              <div className="flex flex-wrap gap-1.5">
-                {CPT_CHIPS.map(c => (
-                  <button key={c.code} type="button"
-                    className={`text-[10px] px-2 py-1 rounded-full border transition-colors ${
-                      charge.cpt_code === c.code ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-accent'
-                    }`}
-                    onClick={() => setCharge(p => ({ ...p, cpt_code: c.code, cpt_description: c.desc }))}>
-                    {c.code}
-                  </button>
-                ))}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2"><Label>Service Date *</Label><Input type="date" value={charge.service_date} onChange={e => setCharge(p => ({ ...p, service_date: e.target.value }))} required /></div>
+              <div className="space-y-2">
+                <Label>Billing Path</Label>
+                <Select value={charge.billing_path} onValueChange={v => setCharge(p => ({ ...p, billing_path: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{BILLING_PATHS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                </Select>
               </div>
             </div>
+            <div className="space-y-2"><Label>Description</Label><Input value={charge.description} onChange={e => setCharge(p => ({ ...p, description: e.target.value }))} placeholder="e.g. Office visit, MRI, Injection..." /></div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>CPT Code *</Label><Input value={charge.cpt_code} onChange={e => setCharge(p => ({ ...p, cpt_code: e.target.value }))} required /></div>
-              <div className="space-y-2"><Label>Description</Label><Input value={charge.cpt_description} onChange={e => setCharge(p => ({ ...p, cpt_description: e.target.value }))} /></div>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2"><Label>Service Date *</Label><Input type="date" value={charge.service_date} onChange={e => setCharge(p => ({ ...p, service_date: e.target.value }))} required /></div>
-              <div className="space-y-2"><Label>Amount *</Label><Input type="number" step="0.01" value={charge.charge_amount} onChange={e => setCharge(p => ({ ...p, charge_amount: e.target.value }))} required /></div>
+              <div className="space-y-2"><Label>Amount ($) *</Label><Input type="number" step="0.01" value={charge.charge_amount} onChange={e => setCharge(p => ({ ...p, charge_amount: e.target.value }))} required /></div>
               <div className="space-y-2"><Label>Units</Label><Input type="number" min={1} value={charge.units} onChange={e => setCharge(p => ({ ...p, units: e.target.value }))} /></div>
             </div>
+
+            {/* Document Upload */}
+            <div className="space-y-2">
+              <Label>Attach Bill (PDF)</Label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,application/pdf"
+                className="hidden"
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) setSelectedFile(file);
+                }}
+              />
+              {selectedFile ? (
+                <div className="flex items-center gap-2 bg-accent/30 rounded-lg px-3 py-2">
+                  <FileText className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-xs text-foreground truncate flex-1">{selectedFile.name}</span>
+                  <button type="button" onClick={() => { setSelectedFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }} className="text-muted-foreground hover:text-foreground">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <Button type="button" variant="outline" className="w-full h-9 text-xs" onClick={() => fileInputRef.current?.click()}>
+                  <Upload className="w-3.5 h-3.5 mr-1.5" /> Choose PDF...
+                </Button>
+              )}
+            </div>
+
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setShowAddCharge(false)}>Cancel</Button>
-              <Button type="submit" disabled={addCharge.isPending || !selectedCaseId}>Submit</Button>
+              <Button type="submit" disabled={addCharge.isPending || !selectedCaseId || !charge.service_date}>Submit</Button>
             </div>
           </form>
         </DialogContent>
