@@ -80,6 +80,7 @@ export default function CasesList() {
     },
   });
 
+  const createCase = useMutation({
     mutationFn: async () => {
       const insertData: any = {
         patient_name: `${newCase.first_name} ${newCase.last_name}`.trim(),
