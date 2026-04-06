@@ -207,7 +207,6 @@ export default function ProvidersPage() {
         {[
           { label: 'Active Providers', value: activeProviders.length, icon: Users, color: 'text-primary bg-primary/10' },
           { label: 'Total Active Cases', value: totalActiveCases, icon: Stethoscope, color: 'text-emerald-600 bg-emerald-50' },
-          { label: 'Avg Provider Rating', value: avgRating > 0 ? avgRating.toFixed(1) : '—', icon: TrendingUp, color: 'text-amber-600 bg-amber-50' },
         ].map(card => (
           <div key={card.label} className="bg-card border border-border rounded-xl p-5 shadow-card">
             <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${card.color}`}>
