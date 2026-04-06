@@ -203,7 +203,9 @@ export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId, a
                     </span>
                   )}
                   <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full ${meta.color}`}>
-                    <Icon className="w-3 h-3" /> {isSentByMe ? `To: ${meta.label}` : `From: ${(m as any).profiles?.full_name || meta.label}`}
+                    <Icon className="w-3 h-3" /> {isSentByMe
+                      ? `To: ${m.recipient_role === 'attorney' && attorneyFirmName ? attorneyFirmName : meta.label}`
+                      : `From: ${(m as any).profiles?.full_name || (m.recipient_role === 'attorney' && attorneyFirmName ? attorneyFirmName : meta.label)}`}
                   </span>
                   <Badge variant="outline" className="text-[10px]">{m.message_type}</Badge>
                   {m.viewed ? (
