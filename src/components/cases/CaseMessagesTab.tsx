@@ -26,6 +26,7 @@ interface Props {
   patientName: string;
   attorneyId?: string | null;
   providerId?: string | null;
+  attorneyFirmName?: string | null;
 }
 
 export function CaseMessagesTab({ caseId, patientName, attorneyId, providerId }: Props) {
