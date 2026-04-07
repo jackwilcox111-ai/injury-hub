@@ -131,7 +131,9 @@ export default function CaseDetail() {
   const { data: patientProfile } = useQuery({
     queryKey: ['patient-profile-for-case', id],
     queryFn: async () => {
-      const { data } = await supabase.from('patient_profiles').select('needs_interpreter, city, state').eq('case_id', id!).maybeSingle();
+      const { data } = await supabase.from('patient_profiles')
+        .select('needs_interpreter, preferred_language, address, city, state, zip, date_of_birth, insurance_status, hipaa_auth_signed, assignment_of_benefits_signed')
+        .eq('case_id', id!).maybeSingle();
       return data;
     },
   });
