@@ -370,10 +370,6 @@ export default function ProvidersPage() {
                     <Label className="text-xs text-muted-foreground">HIPAA BAA On File</Label>
                     <Switch checked={selectedProvider.hipaa_baa_on_file || false} onCheckedChange={v => updateProvider.mutate({ hipaa_baa_on_file: v })} />
                   </div>
-                  <div className="col-span-2 space-y-1">
-                    <Label className="text-xs text-muted-foreground">Notes</Label>
-                    <Input defaultValue={selectedProvider.notes || ''} className="h-9" onBlur={e => { const v = e.target.value || null; if (v !== selectedProvider.notes) updateProvider.mutate({ notes: v }); }} />
-                  </div>
                   <div className="col-span-2">
                     <span className="text-xs text-muted-foreground">Status:</span> <StatusBadge status={selectedProvider.status} />
                   </div>
