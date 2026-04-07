@@ -116,13 +116,16 @@ export default function PatientDocuments() {
     try {
       const { data, error } = await supabase.storage
         .from('documents')
-        .createSignedUrl(doc.storage_path, 300); // 5 min expiry
+        .createSignedUrl(doc.storage_path, 300);
       if (error) throw error;
       if (isImage) {
         setViewingDoc({ url: data.signedUrl, name: doc.file_name, isImage: true });
+      } else if (/\.pdf$/i.test(doc.file_name)) {
+        setViewingDoc({ url: data.signedUrl, name: doc.file_name, isImage: false });
       } else {
-        // For PDFs and other files, open in new tab
-        window.open(data.signedUrl, '_blank');
+        // For unsupported formats (docx, etc.), open in Google Docs Viewer inline
+        const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(data.signedUrl)}&embedded=true`;
+        setViewingDoc({ url: viewerUrl, name: doc.file_name, isImage: false });
       }
     } catch (e: any) {
       toast.error('Could not open file');
@@ -249,17 +252,26 @@ export default function PatientDocuments() {
         </div>
       )}
 
-      {/* Image preview dialog */}
+      {/* Document preview dialog */}
       <Dialog open={!!viewingDoc} onOpenChange={() => setViewingDoc(null)}>
-        <DialogContent className="max-w-3xl p-2 sm:p-4">
+        <DialogContent className="max-w-4xl max-h-[90vh] p-2 sm:p-4">
           {viewingDoc && (
             <div className="space-y-3">
               <p className="text-sm font-medium text-foreground truncate px-2">{viewingDoc.name}</p>
-              <img
-                src={viewingDoc.url}
-                alt={viewingDoc.name}
-                className="w-full rounded-lg object-contain max-h-[70vh]"
-              />
+              {viewingDoc.isImage ? (
+                <img
+                  src={viewingDoc.url}
+                  alt={viewingDoc.name}
+                  className="w-full rounded-lg object-contain max-h-[75vh]"
+                />
+              ) : (
+                <iframe
+                  src={viewingDoc.url}
+                  title={viewingDoc.name}
+                  className="w-full rounded-lg border border-border"
+                  style={{ height: '75vh' }}
+                />
+              )}
             </div>
           )}
         </DialogContent>
