@@ -89,6 +89,24 @@ export default function ProvidersPage() {
     enabled: !!showDetail,
   });
 
+  const { data: providerDocs } = useQuery({
+    queryKey: ['provider-shared-docs', showDetail],
+    queryFn: async () => {
+      if (!showDetail) return [];
+      // Get case IDs for this provider
+      const { data: caseRows } = await supabase.from('cases').select('id').eq('provider_id', showDetail);
+      const caseIds = (caseRows || []).map(c => c.id);
+      if (caseIds.length === 0) return [];
+      const { data } = await supabase.from('documents')
+        .select('id, file_name, document_type, created_at, signed, signed_at, storage_path')
+        .in('case_id', caseIds)
+        .in('document_type', ['Contract', 'Lien Agreement', 'W-9', 'HIPAA BAA', 'Assignment of Benefits', 'Provider Agreement', 'Other'])
+        .order('created_at', { ascending: false });
+      return data || [];
+    },
+    enabled: !!showDetail,
+  });
+
   const addLocation = useMutation({
     mutationFn: async () => {
       if (!showDetail) throw new Error('No provider');
