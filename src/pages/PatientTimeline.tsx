@@ -18,6 +18,49 @@ const patientLabels: Record<string, string> = {
 
 const milestones = ['Intake', 'Provider Matched', 'First Appointment', 'Appointment Completed', 'In Treatment', 'Treatment Completed', 'Records Received', 'Settlement Reached'];
 
+const milestoneEducation: Record<string, { icon: React.ReactNode; what: string; expect: string }> = {
+  'Intake': {
+    icon: <Info className="w-4 h-4 text-primary" />,
+    what: 'Your case has been created and our care coordination team is reviewing your information.',
+    expect: 'We will reach out within 1–2 business days to confirm your details and begin matching you with the right medical providers.',
+  },
+  'Provider Matched': {
+    icon: <Stethoscope className="w-4 h-4 text-primary" />,
+    what: 'We've identified medical providers who specialize in treating your type of injury.',
+    expect: 'Our team will schedule your first appointments. You may receive a call or text to confirm times that work for you.',
+  },
+  'First Appointment': {
+    icon: <Clock className="w-4 h-4 text-primary" />,
+    what: 'Your initial medical appointments have been scheduled with your care providers.',
+    expect: 'Please arrive 15 minutes early and bring a valid photo ID. If you need transportation or an interpreter, let us know.',
+  },
+  'Appointment Completed': {
+    icon: <CheckCircle className="w-4 h-4 text-primary" />,
+    what: 'You've completed your initial evaluation. Your provider is developing a treatment plan.',
+    expect: 'Follow-up appointments will be scheduled based on your provider's recommendations. Continue attending all visits — consistency helps your recovery and your case.',
+  },
+  'In Treatment': {
+    icon: <Stethoscope className="w-4 h-4 text-primary" />,
+    what: 'You are actively receiving medical treatment for your injuries.',
+    expect: 'Keep attending all scheduled appointments. Missing visits can impact both your health and your legal case. Log any new symptoms in your check-ins.',
+  },
+  'Treatment Completed': {
+    icon: <FileText className="w-4 h-4 text-primary" />,
+    what: 'Your medical providers have determined that you've reached maximum medical improvement (MMI).',
+    expect: 'Your medical records and bills are being compiled. This process typically takes 2–4 weeks. No action is needed from you at this stage.',
+  },
+  'Records Received': {
+    icon: <FileText className="w-4 h-4 text-primary" />,
+    what: 'All medical records and billing documentation have been gathered and are under review.',
+    expect: 'Your care team and attorney are preparing a demand package. This is a detailed summary sent to the insurance company to begin the settlement process.',
+  },
+  'Settlement Reached': {
+    icon: <Scale className="w-4 h-4 text-primary" />,
+    what: 'Your attorney is negotiating with the insurance company to reach a fair settlement.',
+    expect: 'Settlement negotiations can take weeks to months. Your attorney will contact you with any offers. You will have final say before anything is accepted.',
+  },
+};
+
 export default function PatientTimeline() {
   const { profile } = useAuth();
 
