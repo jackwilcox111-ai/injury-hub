@@ -88,6 +88,7 @@ export function ProviderProfileTab() {
               value={servicesOffered.length > 0 ? servicesOffered.join('; ') : '—'}
             />
             <InfoRow label="Extended Hours" value={(provider as any).extended_hours ? 'Yes' : 'No'} />
+            <InfoRow label="Transportation" value={(provider as any).offers_transportation ? 'Yes' : 'No'} />
           </div>
 
           {/* Right Column */}
@@ -123,7 +124,6 @@ export function ProviderProfileTab() {
               label="Languages"
               value={(provider.languages_spoken || []).length > 0 ? provider.languages_spoken.join('; ') : '—'}
             />
-            <InfoRow label="Offers Transportation" value={(provider as any).offers_transportation ? 'Yes' : 'No'} />
             <InfoRow label="Offers Virtual" value={(provider as any).offers_virtual ? 'Yes' : 'No'} />
           </div>
         </div>
