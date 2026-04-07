@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Plus, Search, Phone, LayoutGrid, Table2 } from 'lucide-react';
+import { formatPhone } from '@/lib/format-phone';
 import { PHIBanner } from '@/components/global/PHIBanner';
 import { US_STATES } from '@/lib/us-states';
 import { SortableHeader } from '@/components/global/SortableHeader';
