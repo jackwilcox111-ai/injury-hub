@@ -327,3 +327,7 @@ export function ImagingFacilitiesSection() {
     </div>
   );
 }
+
+export default function ImagingFacilitiesPage() {
+  return <ImagingFacilitiesSection />;
+}
