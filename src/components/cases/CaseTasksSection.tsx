@@ -20,18 +20,34 @@ export function CaseTasksSection({ caseId }: { caseId: string }) {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const isAdmin = profile?.role === 'admin' || profile?.role === 'care_manager';
+  const [selectedTask, setSelectedTask] = useState<any>(null);
 
   const { data: tasks } = useQuery({
     queryKey: ['case-tasks-section', caseId],
     queryFn: async () => {
       const { data } = await supabase
         .from('case_tasks')
-        .select('*, profiles:assignee_id(full_name)')
+        .select('*, profiles:assignee_id(full_name), cases:case_id(case_number, patient_name)')
         .eq('case_id', caseId)
         .order('created_at', { ascending: false });
       return data || [];
     },
   });
+
+  const { data: staff } = useQuery({
+    queryKey: ['staff-profiles'],
+    queryFn: async () => {
+      const { data } = await supabase.from('profiles').select('id, full_name, role').in('role', ['admin', 'care_manager']);
+      return data || [];
+    },
+  });
+
+  const updateTask = async (id: string, updates: Record<string, any>) => {
+    const { error } = await supabase.from('case_tasks').update(updates).eq('id', id);
+    if (error) { toast.error(error.message); return; }
+    queryClient.invalidateQueries({ queryKey: ['case-tasks-section', caseId] });
+    toast.success('Task updated');
+  };
 
   const updateStatus = useMutation({
     mutationFn: async ({ taskId, status }: { taskId: string; status: string }) => {
