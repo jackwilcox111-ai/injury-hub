@@ -59,6 +59,16 @@ export default function ProvidersPage() {
     },
   });
 
+  const { data: locationCounts } = useQuery({
+    queryKey: ['provider-location-counts'],
+    queryFn: async () => {
+      const { data } = await supabase.from('provider_locations').select('provider_id');
+      const counts: Record<string, number> = {};
+      data?.forEach(l => { if (l.provider_id) counts[l.provider_id] = (counts[l.provider_id] || 0) + 1; });
+      return counts;
+    },
+  });
+
   const { data: linkedCases } = useQuery({
     queryKey: ['provider-cases', showDetail],
     queryFn: async () => {
