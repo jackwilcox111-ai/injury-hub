@@ -167,13 +167,17 @@ export default function Dashboard() {
       </div>
 
       {/* Stale Cases - always show */}
-      {staleCases.length > 0 && (
-        <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
+      <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
           <div className="px-5 py-3 border-b border-border flex items-center gap-2">
             <Clock className="w-4 h-4 text-amber-500" />
             <h3 className="text-sm font-semibold text-foreground">Stale Cases — No Activity in 14+ Days</h3>
             <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full font-medium ml-1">{staleCases.length}</span>
           </div>
+          {staleCases.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-sm text-muted-foreground">No stale cases — all cases have recent activity.</p>
+            </div>
+          ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <colgroup>
