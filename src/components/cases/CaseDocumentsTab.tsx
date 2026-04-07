@@ -259,8 +259,9 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
     setAdditionalNotes('');
     setImagingTypes([]);
     setImagingOther('');
-    setBodyParts('');
-    setClinicalIndication('');
+    setBodyParts([]);
+    setClinicalIndication([]);
+    setContrastOption('without');
     setTreatmentSchedule('');
     setMnPrimaryComplaints('');
     setMnObjectiveFindings('');
