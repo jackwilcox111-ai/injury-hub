@@ -34,6 +34,8 @@ export default function CasesList() {
   const isAdmin = profile?.role === 'admin';
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [attorneyFilter, setAttorneyFilter] = useState('All');
+  const [alertFilter, setAlertFilter] = useState('All');
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
   const [showNew, setShowNew] = useState(false);
   const [newCase, setNewCase] = useState({
