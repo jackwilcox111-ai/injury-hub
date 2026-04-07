@@ -9,12 +9,14 @@ import { toast } from 'sonner';
 import { useState } from 'react';
 import { CheckSquare, Clock, AlertCircle, User } from 'lucide-react';
 import { format, isPast } from 'date-fns';
+import { TaskDetailDialog } from '@/components/tasks/TaskDetailDialog';
 
 export default function TaskDashboard() {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [filterStatus, setFilterStatus] = useState('Pending');
   const [filterAssignee, setFilterAssignee] = useState('all');
+  const [selectedTask, setSelectedTask] = useState<any>(null);
 
   const { data: tasks, isLoading } = useQuery({
     queryKey: ['admin-all-tasks', filterStatus],
@@ -119,7 +121,7 @@ export default function TaskDashboard() {
             {filtered.map(t => {
               const isOverdue = t.due_date && isPast(new Date(t.due_date)) && t.status !== 'Complete';
               return (
-                <tr key={t.id} className="hover:bg-accent/30 transition-colors">
+                <tr key={t.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => setSelectedTask(t)}>
                   <td className="px-4 py-3">
                     <div className="font-medium text-foreground text-xs">{t.title}</div>
                     {t.description && <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{t.description}</p>}
@@ -128,7 +130,7 @@ export default function TaskDashboard() {
                     <span className="font-mono text-xs text-primary">{(t as any).cases?.case_number}</span>
                     <p className="text-[10px] text-muted-foreground">{(t as any).cases?.patient_name}</p>
                   </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                  <td className="px-4 py-3 text-xs text-muted-foreground" onClick={e => e.stopPropagation()}>
                     <Select value={t.assignee_id || ''} onValueChange={v => updateTask.mutate({ id: t.id, updates: { assignee_id: v || null } })}>
                       <SelectTrigger className="h-7 text-[10px] w-32"><SelectValue placeholder="Unassigned" /></SelectTrigger>
                       <SelectContent>{staff?.map(s => <SelectItem key={s.id} value={s.id}>{s.full_name || 'Unnamed'}</SelectItem>)}</SelectContent>
@@ -143,7 +145,7 @@ export default function TaskDashboard() {
                       {t.status}
                     </Badge>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                     {t.status !== 'Complete' && (
                       <Button size="sm" variant="ghost" className="h-7 text-[10px] text-emerald-600"
                         onClick={() => updateTask.mutate({ id: t.id, updates: { status: 'Complete', completed_at: new Date().toISOString() } })}>
@@ -160,6 +162,13 @@ export default function TaskDashboard() {
           </tbody>
         </table>
       </div>
+      <TaskDetailDialog
+        open={!!selectedTask}
+        onOpenChange={open => { if (!open) setSelectedTask(null); }}
+        task={selectedTask}
+        staff={staff || []}
+        onUpdate={(id, updates) => updateTask.mutate({ id, updates })}
+      />
     </div>
   );
 }
