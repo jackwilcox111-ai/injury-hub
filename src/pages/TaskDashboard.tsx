@@ -16,6 +16,7 @@ export default function TaskDashboard() {
   const queryClient = useQueryClient();
   const [filterStatus, setFilterStatus] = useState('Pending');
   const [filterAssignee, setFilterAssignee] = useState('all');
+  const [selectedTask, setSelectedTask] = useState<any>(null);
 
   const { data: tasks, isLoading } = useQuery({
     queryKey: ['admin-all-tasks', filterStatus],
