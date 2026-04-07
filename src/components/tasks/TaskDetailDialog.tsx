@@ -101,7 +101,7 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
     let list = allProviders;
 
     // Filter by specialty
-    if (specialtyFilter) {
+    if (specialtyFilter && specialtyFilter !== '__all__') {
       list = list.filter(p => p.specialty?.toLowerCase().includes(specialtyFilter.toLowerCase()));
     }
 
