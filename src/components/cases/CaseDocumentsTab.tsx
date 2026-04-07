@@ -553,7 +553,15 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
             {selectedType === 'work_treatment_note' && (
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Treatment Schedule</Label>
-                <Input value={treatmentSchedule} onChange={e => setTreatmentSchedule(e.target.value)} placeholder="e.g. 3x per week for 4 weeks" className="h-10" />
+                <Select value={treatmentSchedule} onValueChange={setTreatmentSchedule}>
+                  <SelectTrigger className="h-10"><SelectValue placeholder="Select treatment schedule..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1x/week for next 3–4 weeks">1x/week for next 3–4 weeks</SelectItem>
+                    <SelectItem value="2x/week for next 3–4 weeks">2x/week for next 3–4 weeks</SelectItem>
+                    <SelectItem value="3x/week for next 3–4 weeks">3x/week for next 3–4 weeks</SelectItem>
+                    <SelectItem value="1x/week for next 3–4 weeks; 2x/week for next 3–4 weeks; 3x/week for next 3–4 weeks">1x/week → 2x/week → 3x/week (phased)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             )}
 
