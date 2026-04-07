@@ -34,6 +34,7 @@ const navItems = [
   { title: 'Make a Referral', path: '/patient/referral', icon: Heart, roles: ['patient'] as UserRole[] },
   { title: 'Share Us', path: '/patient/share', icon: Share2, roles: ['patient'] as UserRole[] },
   { title: 'Messages', path: '/patient/messages', icon: MessageCircle, roles: ['patient'] as UserRole[] },
+  { title: 'My Profile', path: '/patient/profile', icon: UserCircle, roles: ['patient'] as UserRole[] },
   { title: 'Portfolio', path: '/funder/dashboard', icon: Banknote, roles: ['funder'] as UserRole[] },
 ];
 
