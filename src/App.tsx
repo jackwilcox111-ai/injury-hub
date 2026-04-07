@@ -127,8 +127,9 @@ const App = () => (
             <Route path="/provider/messages" element={<RequireAuth roles={['provider']}><AppLayout><ProviderMessages /></AppLayout></RequireAuth>} />
 
             {/* Patient portal */}
-            <Route path="/patient/dashboard" element={<RequireAuth roles={['patient']}><AppLayout><PatientDashboard /></AppLayout></RequireAuth>} />
+            <Route path="/patient/dashboard" element={<Navigate to="/patient/timeline" replace />} />
             <Route path="/patient/timeline" element={<RequireAuth roles={['patient']}><AppLayout><PatientTimeline /></AppLayout></RequireAuth>} />
+            <Route path="/patient/medical-team" element={<RequireAuth roles={['patient']}><AppLayout><PatientMedicalTeam /></AppLayout></RequireAuth>} />
             <Route path="/patient/messages" element={<RequireAuth roles={['patient']}><AppLayout><PatientMessages /></AppLayout></RequireAuth>} />
 
             {/* Funder portal */}
