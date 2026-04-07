@@ -236,8 +236,8 @@ export default function Dashboard() {
               </tbody>
             </table>
           </div>
+          )}
         </div>
-      )}
 
       {/* Pending Records */}
       {pendingRecords && pendingRecords.length > 0 && (
