@@ -2905,42 +2905,57 @@ export type Database = {
           accident_state: string | null
           case_number: string | null
           completeness_score: number | null
-          created_at: string | null
+          flag: string | null
           id: string | null
           lien_amount: number | null
           marketplace_submitted_at: string | null
+          notes: string | null
+          opened_date: string | null
+          preferred_language: string | null
           quality_gate_passed: boolean | null
+          settlement_estimate: number | null
           sol_date: string | null
           specialty: string | null
           status: string | null
+          urgent: boolean | null
         }
         Insert: {
           accident_date?: string | null
           accident_state?: string | null
           case_number?: string | null
           completeness_score?: number | null
-          created_at?: string | null
+          flag?: string | null
           id?: string | null
           lien_amount?: number | null
           marketplace_submitted_at?: string | null
+          notes?: string | null
+          opened_date?: string | null
+          preferred_language?: string | null
           quality_gate_passed?: boolean | null
+          settlement_estimate?: number | null
           sol_date?: string | null
           specialty?: string | null
           status?: string | null
+          urgent?: boolean | null
         }
         Update: {
           accident_date?: string | null
           accident_state?: string | null
           case_number?: string | null
           completeness_score?: number | null
-          created_at?: string | null
+          flag?: string | null
           id?: string | null
           lien_amount?: number | null
           marketplace_submitted_at?: string | null
+          notes?: string | null
+          opened_date?: string | null
+          preferred_language?: string | null
           quality_gate_passed?: boolean | null
+          settlement_estimate?: number | null
           sol_date?: string | null
           specialty?: string | null
           status?: string | null
+          urgent?: boolean | null
         }
         Relationships: []
       }
