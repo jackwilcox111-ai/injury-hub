@@ -129,20 +129,6 @@ export function ProviderReferralsModule({ caseId, onSendReferral }: Props) {
                         <RotateCcw className="w-3 h-3" /> Resend
                       </Button>
                     )}
-                    {(r as any).token && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 text-[10px] gap-1"
-                        onClick={() => {
-                          const url = `${window.location.origin}/referral/accept?token=${(r as any).token}`;
-                          navigator.clipboard.writeText(url);
-                          toast.success('Referral link copied');
-                        }}
-                      >
-                        <Eye className="w-3 h-3" /> Copy Link
-                      </Button>
-                    )}
                   </div>
                 </td>
               </tr>
