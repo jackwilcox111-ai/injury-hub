@@ -51,7 +51,7 @@ export default function PatientMessages() {
 
       const { error } = await supabase.from('video_messages').insert({
         case_id: patientProfile?.case_id || null,
-        recipient_role: 'care_manager',
+        recipient_role: recipientRole,
         message_type: 'General',
         script: script.trim(),
         ai_generated_script: false,
