@@ -7,14 +7,16 @@ import { GitBranch, CheckCircle, Circle } from 'lucide-react';
 
 const patientLabels: Record<string, string> = {
   'Intake': 'Case Opened',
-  'Provider Matched': 'Your Doctor Was Found',
-  'First Appointment': 'First Appointment Scheduled',
-  'Appointment Completed': 'Appointment Completed',
-  'Records Received': 'Medical Records Received',
-  'Settlement Reached': 'Your Case Has Settled!',
+  'Provider Matched': 'Matched with Medical Providers',
+  'First Appointment': 'First Appointments Scheduled',
+  'Appointment Completed': 'First Appointments Completed',
+  'In Treatment': 'In Current Treatment',
+  'Treatment Completed': 'Treatment Completed',
+  'Records Received': 'Medical Records Being Reviewed',
+  'Settlement Reached': 'Attorney Working on Finalizing Your Case',
 };
 
-const milestones = ['Intake', 'Provider Matched', 'First Appointment', 'Appointment Completed', 'Records Received', 'Settlement Reached'];
+const milestones = ['Intake', 'Provider Matched', 'First Appointment', 'Appointment Completed', 'In Treatment', 'Treatment Completed', 'Records Received', 'Settlement Reached'];
 
 export default function PatientTimeline() {
   const { profile } = useAuth();
