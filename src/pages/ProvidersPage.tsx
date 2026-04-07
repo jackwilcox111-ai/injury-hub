@@ -243,7 +243,7 @@ export default function ProvidersPage() {
           </TabsList>
 
           <TabsContent value="providers" className="mt-4">
-            <ProviderTable providers={providers} caseCounts={caseCounts} onSelect={setShowDetail} />
+            <ProviderTable providers={providers} caseCounts={caseCounts} locationCounts={locationCounts} onSelect={setShowDetail} />
           </TabsContent>
 
           <TabsContent value="applications" className="mt-4">
