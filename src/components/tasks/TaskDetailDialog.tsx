@@ -46,7 +46,7 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
   // Fetch patient profile for address/coordinates
   const { data: patientProfile } = useQuery({
     queryKey: ['patient-profile-for-task', task?.case_id],
-    enabled: open && isReferralTask && !!task?.case_id,
+    enabled: open && !!task?.case_id,
     queryFn: async () => {
       const { data } = await supabase.from('patient_profiles')
         .select('address, city, state, zip')
