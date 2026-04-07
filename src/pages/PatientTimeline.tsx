@@ -1,3 +1,4 @@
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,11 +23,11 @@ const milestoneEducation: Record<string, { icon: React.ReactNode; what: string; 
   'Intake': {
     icon: <Info className="w-4 h-4 text-primary" />,
     what: 'Your case has been created and our care coordination team is reviewing your information.',
-    expect: 'We will reach out within 1–2 business days to confirm your details and begin matching you with the right medical providers.',
+    expect: 'We will reach out within 1-2 business days to confirm your details and begin matching you with the right medical providers.',
   },
   'Provider Matched': {
     icon: <Stethoscope className="w-4 h-4 text-primary" />,
-    what: 'We've identified medical providers who specialize in treating your type of injury.',
+    what: 'We have identified medical providers who specialize in treating your type of injury.',
     expect: 'Our team will schedule your first appointments. You may receive a call or text to confirm times that work for you.',
   },
   'First Appointment': {
@@ -36,8 +37,8 @@ const milestoneEducation: Record<string, { icon: React.ReactNode; what: string; 
   },
   'Appointment Completed': {
     icon: <CheckCircle className="w-4 h-4 text-primary" />,
-    what: 'You've completed your initial evaluation. Your provider is developing a treatment plan.',
-    expect: 'Follow-up appointments will be scheduled based on your provider's recommendations. Continue attending all visits — consistency helps your recovery and your case.',
+    what: 'You have completed your initial evaluation. Your provider is developing a treatment plan.',
+    expect: 'Follow-up appointments will be scheduled based on your provider\'s recommendations. Continue attending all visits -- consistency helps your recovery and your case.',
   },
   'In Treatment': {
     icon: <Stethoscope className="w-4 h-4 text-primary" />,
@@ -46,8 +47,8 @@ const milestoneEducation: Record<string, { icon: React.ReactNode; what: string; 
   },
   'Treatment Completed': {
     icon: <FileText className="w-4 h-4 text-primary" />,
-    what: 'Your medical providers have determined that you've reached maximum medical improvement (MMI).',
-    expect: 'Your medical records and bills are being compiled. This process typically takes 2–4 weeks. No action is needed from you at this stage.',
+    what: 'Your medical providers have determined that you have reached maximum medical improvement (MMI).',
+    expect: 'Your medical records and bills are being compiled. This process typically takes 2-4 weeks. No action is needed from you at this stage.',
   },
   'Records Received': {
     icon: <FileText className="w-4 h-4 text-primary" />,
@@ -91,6 +92,9 @@ export default function PatientTimeline() {
 
   const completedMilestones = events?.filter(e => milestones.includes(e.event_type)).map(e => e.event_type) || [];
   const progress = milestones.length > 0 ? Math.round(completedMilestones.length / milestones.length * 100) : 0;
+  const currentStepIndex = completedMilestones.length;
+  const currentMilestone = milestones[currentStepIndex] || milestones[milestones.length - 1];
+  const currentEdu = milestoneEducation[currentMilestone];
 
   return (
     <div className="space-y-6">
@@ -121,8 +125,58 @@ export default function PatientTimeline() {
         </div>
       </div>
 
+      {/* Current Step Education Card */}
+      {currentEdu && (
+        <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            {currentEdu.icon}
+            <h3 className="text-sm font-semibold text-foreground">
+              Current Step: {patientLabels[currentMilestone]}
+            </h3>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold text-primary uppercase tracking-wider">What This Means</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{currentEdu.what}</p>
+            </div>
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold text-primary uppercase tracking-wider">What To Expect</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{currentEdu.expect}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FAQ / Tips */}
+      <div className="bg-card border border-border rounded-xl p-5 space-y-3">
+        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <HelpCircle className="w-4 h-4 text-primary" /> Helpful Tips
+        </h3>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-lg bg-accent/50 p-3 space-y-1">
+            <p className="text-xs font-semibold text-foreground">Attend Every Appointment</p>
+            <p className="text-xs text-muted-foreground">Missing medical visits can delay your treatment and weaken your case. If you need to reschedule, contact us as soon as possible.</p>
+          </div>
+          <div className="rounded-lg bg-accent/50 p-3 space-y-1">
+            <p className="text-xs font-semibold text-foreground">Document Your Symptoms</p>
+            <p className="text-xs text-muted-foreground">Keep track of pain levels, new symptoms, and how your injuries affect daily life. This information helps build a stronger case.</p>
+          </div>
+          <div className="rounded-lg bg-accent/50 p-3 space-y-1">
+            <p className="text-xs font-semibold text-foreground">Stay Off Social Media</p>
+            <p className="text-xs text-muted-foreground">Insurance companies may monitor your social media. Avoid posting about your accident, injuries, or physical activities during your case.</p>
+          </div>
+          <div className="rounded-lg bg-accent/50 p-3 space-y-1">
+            <p className="text-xs font-semibold text-foreground">How Long Does This Take?</p>
+            <p className="text-xs text-muted-foreground">Every case is different, but personal injury cases typically take 6-18 months from start to settlement. Your team is working to resolve it as quickly as possible.</p>
+          </div>
+        </div>
+      </div>
+
       {/* Timeline */}
       <div className="space-y-0">
+        {events && events.length > 0 && (
+          <h3 className="text-sm font-semibold text-foreground mb-3">Your Timeline</h3>
+        )}
         {events?.map((e, i) => (
           <div key={e.id} className="flex gap-4">
             <div className="flex flex-col items-center">
@@ -137,7 +191,7 @@ export default function PatientTimeline() {
           </div>
         ))}
         {(!events || events.length === 0) && (
-          <p className="text-sm text-muted-foreground text-center py-8">Your timeline will appear here as your case progresses.</p>
+          <p className="text-sm text-muted-foreground text-center py-4">Your timeline will appear here as your case progresses.</p>
         )}
       </div>
     </div>
