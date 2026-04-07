@@ -42,7 +42,7 @@ const emptyForm = {
   accepted_imaging_types: [] as string[], is_preferred: false, status: 'active', notes: '',
 };
 
-export default function ImagingFacilitiesPage() {
+export function ImagingFacilitiesSection() {
   const queryClient = useQueryClient();
   const [showDialog, setShowDialog] = useState(false);
   const [editing, setEditing] = useState<Facility | null>(null);
