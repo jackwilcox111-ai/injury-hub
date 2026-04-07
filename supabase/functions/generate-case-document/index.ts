@@ -195,7 +195,13 @@ function generateDocumentHtml(type: string, d: Record<string, any>): string {
   }
 
   if (type === "imaging_requisition") {
-    const imagingList = (d.imaging_types || []).join(", ") + (d.imaging_other ? ` — ${d.imaging_other}` : "");
+    const imagingList = (d.imaging_types || []).join(", ") + (d.imaging_other ? ` &mdash; ${d.imaging_other}` : "");
+    const contrastLabels: Record<string, string> = {
+      with: "With Contrast",
+      without: "Without Contrast",
+      radiologist_discretion: "Upon Radiologist Discretion",
+    };
+    const contrastText = contrastLabels[d.contrast_option] || "Without Contrast";
     const facilityHeader = d.imaging_facility_name
       ? `<div class="section" style="text-align:center; border:1px solid #ccc; padding:10px; margin-bottom:16px;">
           <p class="label">${d.imaging_facility_name}</p>
@@ -226,17 +232,20 @@ function generateDocumentHtml(type: string, d: Record<string, any>): string {
         <p>${imagingList}</p>
       </div>
       <div class="section">
+        <p class="label">Contrast:</p>
+        <p>${contrastText}</p>
+      </div>
+      <div class="section">
         <p class="label">Body Part(s) / Region:</p>
-        <p>${d.body_parts || "—"}</p>
+        <p>${d.body_parts || "&mdash;"}</p>
       </div>
       <div class="section">
         <p class="label">Clinical Indication / Reason for Exam:</p>
-        <p>${d.clinical_indication || "—"}</p>
+        <p>${d.clinical_indication || "&mdash;"}</p>
       </div>
       <div class="divider"></div>
-      <p><strong>Send Results To:</strong> ${d.referring_provider_name} — Fax: ${d.referring_provider_fax}</p>
-      <p><strong>Attorney on File:</strong> ${d.attorney_name} — ${d.attorney_firm}<br>Phone: ${d.attorney_phone}</p>
-      ${d.additional_notes ? `<p>${d.additional_notes}</p>` : ""}
+      <p><strong>Send Results To:</strong> ${d.referring_provider_name} &mdash; Fax: ${d.referring_provider_fax}</p>
+      <p><strong>Attorney on File:</strong> ${d.attorney_name} &mdash; ${d.attorney_firm}<br>Phone: ${d.attorney_phone}</p>
       <div class="signature">
         <p>Ordering Provider Signature: ________________________<br>${d.referring_provider_name}, ${d.referring_provider_practice}</p>
       </div>
