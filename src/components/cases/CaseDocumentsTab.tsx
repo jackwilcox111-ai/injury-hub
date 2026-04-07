@@ -490,11 +490,48 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Body Part(s) / Region</Label>
-                  <Input value={bodyParts} onChange={e => setBodyParts(e.target.value)} placeholder="e.g. Cervical spine, Lumbar spine" className="h-10" />
+                  <div className="flex flex-wrap gap-2">
+                    {BODY_PART_OPTIONS.map(part => (
+                      <label key={part} className="flex items-center gap-1.5 text-sm">
+                        <Checkbox
+                          checked={bodyParts.includes(part)}
+                          onCheckedChange={v => {
+                            if (v) setBodyParts(prev => [...prev, part]);
+                            else setBodyParts(prev => prev.filter(p => p !== part));
+                          }}
+                        />
+                        {part}
+                      </label>
+                    ))}
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Clinical Indication / Reason for Exam</Label>
-                  <Textarea value={clinicalIndication} onChange={e => setClinicalIndication(e.target.value)} placeholder="Describe clinical reason..." />
+                  <div className="flex flex-wrap gap-2">
+                    {CLINICAL_INDICATION_OPTIONS.map(opt => (
+                      <label key={opt} className="flex items-center gap-1.5 text-sm">
+                        <Checkbox
+                          checked={clinicalIndication.includes(opt)}
+                          onCheckedChange={v => {
+                            if (v) setClinicalIndication(prev => [...prev, opt]);
+                            else setClinicalIndication(prev => prev.filter(i => i !== opt));
+                          }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Contrast</Label>
+                  <Select value={contrastOption} onValueChange={setContrastOption}>
+                    <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="with">With Contrast</SelectItem>
+                      <SelectItem value="without">Without Contrast</SelectItem>
+                      <SelectItem value="radiologist_discretion">Upon Radiologist Discretion</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </>
             )}
