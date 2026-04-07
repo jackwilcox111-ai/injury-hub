@@ -65,8 +65,9 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
   // Imaging-specific fields
   const [imagingTypes, setImagingTypes] = useState<string[]>([]);
   const [imagingOther, setImagingOther] = useState('');
-  const [bodyParts, setBodyParts] = useState('');
-  const [clinicalIndication, setClinicalIndication] = useState('');
+  const [bodyParts, setBodyParts] = useState<string[]>([]);
+  const [clinicalIndication, setClinicalIndication] = useState<string[]>([]);
+  const [contrastOption, setContrastOption] = useState('without');
   // Work/Treatment note fields
   const [treatmentSchedule, setTreatmentSchedule] = useState('');
   // Medical necessity fields
