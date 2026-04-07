@@ -64,7 +64,8 @@ export default function PatientMessages() {
       queryClient.invalidateQueries({ queryKey: ['patient-messages'] });
       setShowCompose(false);
       setScript('');
-      toast.success('Message sent to your care team');
+      setRecipientRole('care_manager');
+      toast.success('Message sent');
     },
     onError: (e: any) => toast.error(e.message),
   });
