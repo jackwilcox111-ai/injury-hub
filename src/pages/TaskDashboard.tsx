@@ -145,7 +145,7 @@ export default function TaskDashboard() {
                       {t.status}
                     </Badge>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                     {t.status !== 'Complete' && (
                       <Button size="sm" variant="ghost" className="h-7 text-[10px] text-emerald-600"
                         onClick={() => updateTask.mutate({ id: t.id, updates: { status: 'Complete', completed_at: new Date().toISOString() } })}>
