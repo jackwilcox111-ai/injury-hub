@@ -41,6 +41,7 @@ import PatientDocuments from "./pages/PatientDocuments";
 import PatientReferral from "./pages/PatientReferral";
 import PatientShare from "./pages/PatientShare";
 import PatientMessages from "./pages/PatientMessages";
+import PatientProfile from "./pages/PatientProfile";
 import ProviderMessages from "./pages/ProviderMessages";
 import FindProvider from "./pages/network/FindProvider";
 import DemoPage from "./pages/network/DemoPage";
