@@ -46,13 +46,11 @@ export default function CasesList() {
   });
 
   const { data: cases, isLoading } = useQuery({
-    queryKey: ['cases-list', statusFilter],
+    queryKey: ['cases-list'],
     queryFn: async () => {
-      let q = supabase.from('cases_with_counts')
+      const { data } = await supabase.from('cases_with_counts')
         .select('*, attorneys!cases_attorney_id_fkey(firm_name), providers!cases_provider_id_fkey(name)')
         .order('updated_at', { ascending: false });
-      if (statusFilter !== 'All') q = q.eq('status', statusFilter);
-      const { data } = await q;
       return data || [];
     },
   });
