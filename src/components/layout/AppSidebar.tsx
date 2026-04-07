@@ -36,6 +36,7 @@ const navItems = [
   { title: 'My Case Progress', path: '/patient/timeline', icon: GitBranch, roles: ['patient'] as UserRole[] },
   { title: 'Your Medical Team', path: '/patient/medical-team', icon: Stethoscope, roles: ['patient'] as UserRole[] },
   { title: 'My Documents', path: '/patient/documents', icon: Upload, roles: ['patient'] as UserRole[] },
+  { title: 'Make a Referral', path: '/patient/referral', icon: Heart, roles: ['patient'] as UserRole[] },
   { title: 'Messages', path: '/patient/messages', icon: MessageCircle, roles: ['patient'] as UserRole[] },
   // Funder sidebar
   { title: 'Portfolio', path: '/funder/dashboard', icon: Banknote, roles: ['funder'] as UserRole[] },
