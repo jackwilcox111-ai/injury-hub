@@ -252,17 +252,26 @@ export default function PatientDocuments() {
         </div>
       )}
 
-      {/* Image preview dialog */}
+      {/* Document preview dialog */}
       <Dialog open={!!viewingDoc} onOpenChange={() => setViewingDoc(null)}>
-        <DialogContent className="max-w-3xl p-2 sm:p-4">
+        <DialogContent className="max-w-4xl max-h-[90vh] p-2 sm:p-4">
           {viewingDoc && (
             <div className="space-y-3">
               <p className="text-sm font-medium text-foreground truncate px-2">{viewingDoc.name}</p>
-              <img
-                src={viewingDoc.url}
-                alt={viewingDoc.name}
-                className="w-full rounded-lg object-contain max-h-[70vh]"
-              />
+              {viewingDoc.isImage ? (
+                <img
+                  src={viewingDoc.url}
+                  alt={viewingDoc.name}
+                  className="w-full rounded-lg object-contain max-h-[75vh]"
+                />
+              ) : (
+                <iframe
+                  src={viewingDoc.url}
+                  title={viewingDoc.name}
+                  className="w-full rounded-lg border border-border"
+                  style={{ height: '75vh' }}
+                />
+              )}
             </div>
           )}
         </DialogContent>
