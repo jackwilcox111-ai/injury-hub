@@ -179,26 +179,17 @@ export default function Dashboard() {
               <p className="text-sm text-muted-foreground">No stale cases — all cases have recent activity.</p>
             </div>
           ) : (
-          <div className="overflow-x-auto">
+           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <colgroup>
-                <col className="w-[120px]" />
-                <col className="w-[180px]" />
-                <col className="w-[160px]" />
-                <col className="w-[120px]" />
-                {isAdmin && <col className="w-[80px]" />}
-                <col className="w-[70px]" />
-                <col className="w-[120px]" />
-                <col />
-              </colgroup>
               <thead>
                 <tr className="border-b border-border bg-accent/50">
                   <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Case</th>
                   <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Patient</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Phone</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">DOI</th>
                   <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Attorney</th>
                   <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Status</th>
-                  {isAdmin && <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Lien</th>}
-                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">SoL</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Lien</th>
                   <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Alert</th>
                   <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Inactive</th>
                 </tr>
@@ -207,25 +198,29 @@ export default function Dashboard() {
                 {staleCases.map(c => {
                   const stale = getStaleLabel(c.updated_at);
                   return (
-                    <tr key={c.id} onClick={() => navigate(`/cases/${c.id}`)} className="cursor-pointer hover:bg-accent/50 transition-colors">
-                      <td className="px-5 py-3.5 font-mono text-xs text-primary font-medium">{c.case_number}</td>
+                    <tr key={c.id} onClick={() => navigate(`/cases/${c.id}`)} className="cursor-pointer hover:bg-accent/30 transition-colors">
                       <td className="px-5 py-3.5">
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{c.patient_name}</p>
-                          {c.patient_phone && (
-                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Phone className="w-3 h-3" />{c.patient_phone}
-                            </span>
-                          )}
-                        </div>
+                        <span className="text-[11px] font-mono text-primary font-medium">{c.case_number}</span>
                       </td>
-                      <td className="px-5 py-3.5 text-muted-foreground text-xs">{(c as any).attorneys?.firm_name || '—'}</td>
-                      <td className="px-5 py-3.5 whitespace-nowrap"><StatusBadge status={c.status || ''} /></td>
-                      {isAdmin && <td className="px-5 py-3.5"><FinancialValue value={c.lien_amount} /></td>}
                       <td className="px-5 py-3.5">
-                        <SoLCountdown sol_date={c.sol_date} sol_period_days={c.sol_period_days} accident_state={c.accident_state} />
+                        <p className="font-semibold text-foreground text-sm">{c.patient_name}</p>
                       </td>
-                      <td className="px-5 py-3.5 whitespace-nowrap">{c.flag ? <FlagBadge flag={c.flag} /> : <span className="text-xs text-muted-foreground">—</span>}</td>
+                      <td className="px-5 py-3.5">
+                        {c.patient_phone ? (
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Phone className="w-3 h-3" /> {formatPhone(c.patient_phone)}
+                          </span>
+                        ) : <span className="text-xs text-muted-foreground">—</span>}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span className="text-xs text-muted-foreground">
+                          {c.accident_date ? format(new Date(c.accident_date), 'MM/dd/yyyy') : '—'}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 text-xs text-foreground">{(c as any).attorneys?.firm_name || '—'}</td>
+                      <td className="px-5 py-3.5"><StatusBadge status={c.status || ''} /></td>
+                      <td className="px-5 py-3.5"><FinancialValue value={c.lien_amount} /></td>
+                      <td className="px-5 py-3.5"><FlagBadge flag={c.flag} /></td>
                       <td className="px-5 py-3.5 whitespace-nowrap">
                         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
                           stale.days >= 30 ? 'bg-red-100 text-red-700 border-red-200' : 'bg-amber-100 text-amber-700 border-amber-200'
