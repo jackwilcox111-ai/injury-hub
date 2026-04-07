@@ -6,7 +6,7 @@ import {
   DollarSign, CalendarDays, Settings, LogOut, ShieldCheck,
   BarChart3, Link2, CheckSquare, FileSignature, Video, Landmark, Banknote,
   CreditCard, GitBranch, MessageCircle, Heart, ClipboardCheck,
-  ShoppingBag, FileText, Calendar, Upload, Building2, Users, Share2, Send
+  ShoppingBag, FileText, Calendar, Upload, Building2, Users, Share2, Send, UserCircle
 } from 'lucide-react';
 
 const navItems = [
@@ -34,6 +34,7 @@ const navItems = [
   { title: 'Make a Referral', path: '/patient/referral', icon: Heart, roles: ['patient'] as UserRole[] },
   { title: 'Share Us', path: '/patient/share', icon: Share2, roles: ['patient'] as UserRole[] },
   { title: 'Messages', path: '/patient/messages', icon: MessageCircle, roles: ['patient'] as UserRole[] },
+  { title: 'My Profile', path: '/patient/profile', icon: UserCircle, roles: ['patient'] as UserRole[] },
   { title: 'Portfolio', path: '/funder/dashboard', icon: Banknote, roles: ['funder'] as UserRole[] },
 ];
 

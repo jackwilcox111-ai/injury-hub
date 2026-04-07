@@ -41,6 +41,7 @@ import PatientDocuments from "./pages/PatientDocuments";
 import PatientReferral from "./pages/PatientReferral";
 import PatientShare from "./pages/PatientShare";
 import PatientMessages from "./pages/PatientMessages";
+import PatientProfile from "./pages/PatientProfile";
 import ProviderMessages from "./pages/ProviderMessages";
 import FindProvider from "./pages/network/FindProvider";
 import DemoPage from "./pages/network/DemoPage";
@@ -137,6 +138,7 @@ const App = () => (
             <Route path="/patient/referral" element={<RequireAuth roles={['patient']}><AppLayout><PatientReferral /></AppLayout></RequireAuth>} />
             <Route path="/patient/share" element={<RequireAuth roles={['patient']}><AppLayout><PatientShare /></AppLayout></RequireAuth>} />
             <Route path="/patient/messages" element={<RequireAuth roles={['patient']}><AppLayout><PatientMessages /></AppLayout></RequireAuth>} />
+            <Route path="/patient/profile" element={<RequireAuth roles={['patient']}><AppLayout><PatientProfile /></AppLayout></RequireAuth>} />
 
             {/* Funder portal */}
             <Route path="/funder/dashboard" element={<RequireAuth roles={['funder']}><AppLayout><FunderDashboard /></AppLayout></RequireAuth>} />
