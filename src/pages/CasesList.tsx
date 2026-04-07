@@ -182,6 +182,8 @@ export default function CasesList() {
               <tr className="border-b border-border bg-accent/50">
                 <SortableHeader label="Case" sortKey="case_number" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 <SortableHeader label="Patient" sortKey="patient_name" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+                <SortableHeader label="Phone" sortKey="patient_phone" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+                <SortableHeader label="DOI" sortKey="accident_date" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 <SortableHeader label="Attorney" sortKey="attorneys.firm_name" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 <SortableHeader label="Status" sortKey="status" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 <SortableHeader label="Lien" sortKey="lien_amount" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
@@ -201,26 +203,19 @@ export default function CasesList() {
                     <span className="text-[11px] font-mono text-primary font-medium">{c.case_number}</span>
                   </td>
                   <td className="px-5 py-3.5">
-                    <div>
-                      <p className="font-semibold text-foreground text-sm">{c.patient_name}</p>
-                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        {c.patient_phone && (
-                          <span className="text-[11px] text-muted-foreground flex items-center gap-1">
-                            <Phone className="w-3 h-3" /> {c.patient_phone}
-                          </span>
-                        )}
-                        {c.accident_date && (
-                          <span className="text-[11px] text-muted-foreground">
-                            DOI: {format(new Date(c.accident_date), 'MM/dd/yyyy')}
-                          </span>
-                        )}
-                        {patientDobs?.[c.id] && (
-                          <span className="text-[11px] text-muted-foreground">
-                            DOB: {format(new Date(patientDobs[c.id]), 'MM/dd/yyyy')}
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                    <p className="font-semibold text-foreground text-sm">{c.patient_name}</p>
+                  </td>
+                  <td className="px-5 py-3.5">
+                    {c.patient_phone ? (
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Phone className="w-3 h-3" /> {c.patient_phone}
+                      </span>
+                    ) : <span className="text-xs text-muted-foreground">—</span>}
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <span className="text-xs text-muted-foreground">
+                      {c.accident_date ? format(new Date(c.accident_date), 'MM/dd/yyyy') : '—'}
+                    </span>
                   </td>
                   <td className="px-5 py-3.5 text-xs text-foreground">{(c as any).attorneys?.firm_name || '—'}</td>
                   <td className="px-5 py-3.5">
