@@ -131,6 +131,7 @@ const App = () => (
             <Route path="/patient/dashboard" element={<Navigate to="/patient/timeline" replace />} />
             <Route path="/patient/timeline" element={<RequireAuth roles={['patient']}><AppLayout><PatientTimeline /></AppLayout></RequireAuth>} />
             <Route path="/patient/medical-team" element={<RequireAuth roles={['patient']}><AppLayout><PatientMedicalTeam /></AppLayout></RequireAuth>} />
+            <Route path="/patient/documents" element={<RequireAuth roles={['patient']}><AppLayout><PatientDocuments /></AppLayout></RequireAuth>} />
             <Route path="/patient/messages" element={<RequireAuth roles={['patient']}><AppLayout><PatientMessages /></AppLayout></RequireAuth>} />
 
             {/* Funder portal */}
