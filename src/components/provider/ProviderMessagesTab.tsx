@@ -103,15 +103,7 @@ export function ProviderMessagesTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          {unread > 0 && (
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-center gap-2">
-              <MessageCircle className="w-4 h-4 text-primary" />
-              <span className="text-sm text-primary font-medium">{unread} unread message{unread > 1 ? 's' : ''}</span>
-            </div>
-          )}
-        </div>
+      <div className="flex justify-end">
         <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowCompose(true)}>
           <Plus className="w-3.5 h-3.5 mr-1" /> Send Message
         </Button>
