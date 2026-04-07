@@ -253,6 +253,9 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
                           <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
                             <MapPin className="w-2.5 h-2.5" />
                             {[p.address_city, p.address_state].filter(Boolean).join(', ')}
+                            {(p as any)._distance != null && (
+                              <span className="ml-1 font-medium text-primary">({(p as any)._distance.toFixed(1)} mi)</span>
+                            )}
                           </span>
                         )}
                         {p.phone && (
