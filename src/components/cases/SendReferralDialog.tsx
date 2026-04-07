@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,26 +32,30 @@ interface Props {
 }
 
 export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, patientCity, patientState }: Props) {
+  const { profile } = useAuth();
   const queryClient = useQueryClient();
+  const isStaff = profile?.role === 'admin' || profile?.role === 'care_manager';
+
   const [specialty, setSpecialty] = useState<string>('__all__');
   const [providerSearch, setProviderSearch] = useState('');
   const [notes, setNotes] = useState('');
 
-  // Reset state when dialog opens
   useEffect(() => {
     if (open) {
       setSpecialty('__all__');
       setProviderSearch('');
       setNotes(
-        `You have a new patient referral from Got Hurt Injury Network${caseNumber ? ` for case ${caseNumber}` : ''}. Please review and accept or decline this referral.`
+        isStaff
+          ? `You have a new patient referral from Got Hurt Injury Network${caseNumber ? ` for case ${caseNumber}` : ''}. Please review and accept or decline this referral.`
+          : ''
       );
     }
-  }, [open, caseNumber]);
+  }, [open, caseNumber, isStaff]);
 
-  // Fetch patient profile for geocoding
+  // --- Staff-only: patient geocoding & provider list ---
   const { data: patientProfile } = useQuery({
     queryKey: ['patient-profile-for-referral', caseId],
-    enabled: open,
+    enabled: open && isStaff,
     queryFn: async () => {
       const { data } = await supabase.from('patient_profiles')
         .select('address, city, state, zip')
@@ -60,7 +65,6 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
     },
   });
 
-  // Geocode patient address
   const [patientCoords, setPatientCoords] = useState<{ lat: number; lng: number } | null>(null);
   useEffect(() => {
     if (!patientProfile) { setPatientCoords(null); return; }
@@ -73,10 +77,9 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
     return () => { cancelled = true; };
   }, [patientProfile]);
 
-  // Fetch all active providers
   const { data: allProviders, isLoading: loadingProviders } = useQuery({
     queryKey: ['referral-providers-all'],
-    enabled: open,
+    enabled: open && isStaff,
     queryFn: async () => {
       const { data } = await supabase.from('providers')
         .select('id, name, specialty, phone, address_city, address_state, accepting_patients, languages_spoken, rating, latitude, longitude')
@@ -86,17 +89,13 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
     },
   });
 
-  // Assign provider: creates task + updates case provider_id (which triggers referral via DB trigger)
+  // Staff: assign provider directly
   const assignProvider = useMutation({
     mutationFn: async (providerId: string) => {
       const provider = allProviders?.find(p => p.id === providerId);
       const providerSpecialty = provider?.specialty || 'General';
-
-      // Update case with provider
       const { error: caseErr } = await supabase.from('cases').update({ provider_id: providerId }).eq('id', caseId);
       if (caseErr) throw caseErr;
-
-      // Create a task for tracking
       const { error: taskErr } = await supabase.from('case_tasks').insert({
         case_id: caseId,
         title: `Assign ${providerSpecialty} provider`,
@@ -115,14 +114,32 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
     onError: (e: any) => toast.error(e.message),
   });
 
+  // Attorney: request specialty (creates task for care manager)
+  const requestReferral = useMutation({
+    mutationFn: async () => {
+      if (!specialty || specialty === '__all__') throw new Error('Please select a specialty');
+      const { error } = await supabase.from('case_tasks').insert({
+        case_id: caseId,
+        title: `Assign ${specialty} provider`,
+        description: `Attorney requested a ${specialty} provider referral for case ${caseNumber || caseId}. ${notes}`.trim(),
+        status: 'Pending',
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success('Referral request submitted — care team will assign a provider');
+      queryClient.invalidateQueries({ queryKey: ['case-tasks-section', caseId] });
+      onOpenChange(false);
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   const filteredProviders = useMemo(() => {
     if (!allProviders) return [];
     let list = allProviders;
-
     if (specialty && specialty !== '__all__') {
       list = list.filter(p => p.specialty?.toLowerCase().includes(specialty.toLowerCase()));
     }
-
     if (providerSearch.trim()) {
       const q = providerSearch.toLowerCase();
       list = list.filter(p =>
@@ -131,7 +148,6 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
         p.address_state?.toLowerCase().includes(q)
       );
     }
-
     if (patientCoords) {
       list = [...list].map(p => ({
         ...p,
@@ -145,7 +161,6 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
         return a._distance - b._distance;
       });
     }
-
     return list;
   }, [allProviders, specialty, providerSearch, patientCoords]);
 
@@ -153,6 +168,67 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
     ? [patientProfile.address, patientProfile.city, patientProfile.state, patientProfile.zip].filter(Boolean).join(', ')
     : [patientCity, patientState].filter(Boolean).join(', ') || null;
 
+  // ─── Attorney view: simple specialty request ───
+  if (!isStaff) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <Send className="w-4 h-4 text-primary" />
+              Request Provider Referral
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="text-xs">
+              <Label className="text-[10px] text-muted-foreground">Case</Label>
+              <p className="font-mono text-primary">{caseNumber}</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Specialty Needed <span className="text-destructive">*</span></Label>
+              <Select value={specialty} onValueChange={setSpecialty}>
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue placeholder="Select a specialty..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__all__" disabled>Select a specialty...</SelectItem>
+                  {SPECIALTIES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Notes (optional)</Label>
+              <Textarea
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                rows={3}
+                className="text-xs"
+                placeholder="Any special requirements, urgency notes, or preferences..."
+              />
+            </div>
+
+            <Button
+              className="w-full gap-1.5"
+              onClick={() => requestReferral.mutate()}
+              disabled={requestReferral.isPending || !specialty || specialty === '__all__'}
+            >
+              <Send className="w-3.5 h-3.5" />
+              {requestReferral.isPending ? 'Submitting...' : 'Submit Referral Request'}
+            </Button>
+
+            <p className="text-[10px] text-muted-foreground text-center">
+              Your request will be sent to the care team for provider assignment.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // ─── Staff view: full provider search & assign ───
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
@@ -164,7 +240,6 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Case info */}
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div>
               <Label className="text-[10px] text-muted-foreground">Case</Label>
@@ -178,13 +253,11 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber, pat
             </div>
           </div>
 
-          {/* Message */}
           <div className="space-y-1.5">
             <Label className="text-[10px] text-muted-foreground">Message</Label>
             <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} className="text-xs" />
           </div>
 
-          {/* Provider search */}
           <div className="border-t border-border pt-4 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
