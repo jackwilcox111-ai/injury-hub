@@ -35,6 +35,19 @@ const IMAGING_TYPE_MAP: Record<string, string> = {
   'X-Ray': 'xray', 'MRI': 'mri', 'CT Scan': 'ct_scan', 'Ultrasound': 'ultrasound', 'Other': 'other',
 };
 
+const BODY_PART_OPTIONS = [
+  'Cervical Spine', 'Thoracic Spine', 'Lumbar Spine', 'Shoulder', 'Knee',
+  'Hip', 'Ankle', 'Wrist', 'Elbow', 'Head/Brain', 'Abdomen/Pelvis',
+];
+
+const CLINICAL_INDICATION_OPTIONS = [
+  'Nature/Type of Injury/Trauma',
+  'Persistent Pain',
+  'Radicular/Radiating Pain',
+  'Rule Out Fracture',
+  'Medically Necessary',
+];
+
 const MEDICAL_NECESSITY_REASONS = [
   'Patient\'s condition has not responded adequately to conservative care',
   'Patient presents with symptoms beyond the scope of my practice',
@@ -65,8 +78,9 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
   // Imaging-specific fields
   const [imagingTypes, setImagingTypes] = useState<string[]>([]);
   const [imagingOther, setImagingOther] = useState('');
-  const [bodyParts, setBodyParts] = useState('');
-  const [clinicalIndication, setClinicalIndication] = useState('');
+  const [bodyParts, setBodyParts] = useState<string[]>([]);
+  const [clinicalIndication, setClinicalIndication] = useState<string[]>([]);
+  const [contrastOption, setContrastOption] = useState('without');
   // Work/Treatment note fields
   const [treatmentSchedule, setTreatmentSchedule] = useState('');
   // Medical necessity fields
@@ -195,8 +209,9 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
       // Imaging-specific
       imaging_types: imagingTypes,
       imaging_other: imagingOther,
-      body_parts: bodyParts,
-      clinical_indication: clinicalIndication || caseData?.specialty || '',
+      body_parts: bodyParts.join(', '),
+      clinical_indication: clinicalIndication.length > 0 ? clinicalIndication.join(', ') : (caseData?.specialty || ''),
+      contrast_option: contrastOption,
       // Work/treatment note
       treatment_schedule: treatmentSchedule,
     };
@@ -257,8 +272,9 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
     setAdditionalNotes('');
     setImagingTypes([]);
     setImagingOther('');
-    setBodyParts('');
-    setClinicalIndication('');
+    setBodyParts([]);
+    setClinicalIndication([]);
+    setContrastOption('without');
     setTreatmentSchedule('');
     setMnPrimaryComplaints('');
     setMnObjectiveFindings('');
@@ -487,11 +503,48 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Body Part(s) / Region</Label>
-                  <Input value={bodyParts} onChange={e => setBodyParts(e.target.value)} placeholder="e.g. Cervical spine, Lumbar spine" className="h-10" />
+                  <div className="flex flex-wrap gap-2">
+                    {BODY_PART_OPTIONS.map(part => (
+                      <label key={part} className="flex items-center gap-1.5 text-sm">
+                        <Checkbox
+                          checked={bodyParts.includes(part)}
+                          onCheckedChange={v => {
+                            if (v) setBodyParts(prev => [...prev, part]);
+                            else setBodyParts(prev => prev.filter(p => p !== part));
+                          }}
+                        />
+                        {part}
+                      </label>
+                    ))}
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Clinical Indication / Reason for Exam</Label>
-                  <Textarea value={clinicalIndication} onChange={e => setClinicalIndication(e.target.value)} placeholder="Describe clinical reason..." />
+                  <div className="flex flex-wrap gap-2">
+                    {CLINICAL_INDICATION_OPTIONS.map(opt => (
+                      <label key={opt} className="flex items-center gap-1.5 text-sm">
+                        <Checkbox
+                          checked={clinicalIndication.includes(opt)}
+                          onCheckedChange={v => {
+                            if (v) setClinicalIndication(prev => [...prev, opt]);
+                            else setClinicalIndication(prev => prev.filter(i => i !== opt));
+                          }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Contrast</Label>
+                  <Select value={contrastOption} onValueChange={setContrastOption}>
+                    <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="with">With Contrast</SelectItem>
+                      <SelectItem value="without">Without Contrast</SelectItem>
+                      <SelectItem value="radiologist_discretion">Upon Radiologist Discretion</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </>
             )}
@@ -574,11 +627,8 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
               </>
             )}
 
-            {/* Additional Notes */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Additional Notes</Label>
-              <Textarea value={additionalNotes} onChange={e => setAdditionalNotes(e.target.value)} placeholder="Add any context or special instructions..." />
-            </div>
+
+
 
             {/* Preview section */}
             {selectedType && (
