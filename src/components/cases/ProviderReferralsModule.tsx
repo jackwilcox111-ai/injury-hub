@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { Send, RotateCcw, Eye } from 'lucide-react';
+import { Send, RotateCcw } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const STATUS_STYLES: Record<string, string> = {
   Pending: 'bg-amber-100 text-amber-700 border-amber-200',
@@ -22,6 +23,7 @@ interface Props {
 
 export function ProviderReferralsModule({ caseId, onSendReferral }: Props) {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isAttorney = profile?.role === 'attorney';
   const canSendReferral = profile?.role === 'admin' || profile?.role === 'care_manager';
@@ -104,7 +106,13 @@ export function ProviderReferralsModule({ caseId, onSendReferral }: Props) {
             const isResendable = r.status === 'Pending' || r.status === 'Expired';
             return (
               <tr key={r.id} className="hover:bg-accent/30 transition-colors">
-                <td className="px-5 py-3 text-xs font-medium">{provider?.name || '—'}</td>
+                <td className="px-5 py-3 text-xs font-medium">
+                  {provider?.name ? (
+                    <button onClick={() => navigate('/providers')} className="text-primary hover:underline text-left">
+                      {provider.name}
+                    </button>
+                  ) : '—'}
+                </td>
                 <td className="px-5 py-3 text-xs text-muted-foreground">{r.specialty || provider?.specialty || '—'}</td>
                 <td className="px-5 py-3 font-mono text-xs">{format(new Date(r.created_at), 'MMM d, yyyy')}</td>
                 <td className="px-5 py-3 text-xs">{(r as any).referral_method || 'Email'}</td>
