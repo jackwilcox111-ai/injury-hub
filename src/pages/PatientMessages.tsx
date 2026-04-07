@@ -12,9 +12,6 @@ import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { MessageCircle, ArrowUpRight, ArrowDownLeft, Eye, Send, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import { MessageCircle, ArrowUpRight, ArrowDownLeft, Eye, Send, Plus } from 'lucide-react';
-import { useState } from 'react';
 
 export default function PatientMessages() {
   const { user, profile } = useAuth();
