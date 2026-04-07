@@ -210,12 +210,15 @@ export default function PatientDocuments() {
             {documents.map(doc => {
               const isImage = /\.(jpg|jpeg|png|gif|webp|heic)$/i.test(doc.file_name);
               return (
-                <div
+                <button
                   key={doc.id}
-                  className="bg-card border border-border rounded-xl p-4 flex items-center gap-3"
+                  onClick={() => viewDocument(doc)}
+                  className="bg-card border border-border rounded-xl p-4 flex items-center gap-3 w-full text-left hover:bg-accent/50 transition-colors cursor-pointer"
                 >
                   <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
-                    {isImage ? (
+                    {loadingView === doc.id ? (
+                      <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                    ) : isImage ? (
                       <Image className="w-5 h-5 text-primary" />
                     ) : (
                       getCategoryIcon(doc.document_type)
@@ -230,7 +233,8 @@ export default function PatientDocuments() {
                       </span>
                     </div>
                   </div>
-                </div>
+                  <Eye className="w-4 h-4 text-muted-foreground shrink-0" />
+                </button>
               );
             })}
           </div>
