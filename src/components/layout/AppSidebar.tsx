@@ -10,36 +10,29 @@ import {
 } from 'lucide-react';
 
 const navItems = [
-  // Admin / Care Manager / Attorney
   { title: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'care_manager', 'attorney'] as UserRole[] },
   { title: 'Messages', path: '/messages', icon: Video, roles: ['admin', 'care_manager', 'attorney'] as UserRole[] },
   { title: 'Tasks', path: '/tasks', icon: CheckSquare, roles: ['admin', 'care_manager', 'attorney'] as UserRole[] },
   { title: 'Cases', path: '/cases', icon: FolderOpen, roles: ['admin', 'care_manager', 'attorney'] as UserRole[] },
-  
   { title: 'Attorneys', path: '/attorneys', icon: Scale, roles: ['admin'] as UserRole[] },
   { title: 'Providers', path: '/providers', icon: Stethoscope, roles: ['admin', 'care_manager', 'attorney'] as UserRole[] },
   { title: 'Liens & Settlements', path: '/liens', icon: DollarSign, roles: ['admin'] as UserRole[] },
   { title: 'Records & Bills', path: '/records-bills', icon: FileText, roles: ['admin', 'care_manager'] as UserRole[] },
-  
   { title: 'Reports', path: '/reports', icon: BarChart3, roles: ['admin'] as UserRole[] },
   { title: 'Calendar', path: '/calendar', icon: CalendarDays, roles: ['admin', 'care_manager', 'attorney'] as UserRole[] },
   { title: 'Settings', path: '/settings', icon: Settings, roles: ['admin'] as UserRole[] },
-  // Provider sidebar
   { title: 'Dashboard', path: '/provider/dashboard', icon: LayoutDashboard, roles: ['provider'] as UserRole[] },
   { title: 'Appointments', path: '/provider/dashboard?tab=appointments', icon: Calendar, roles: ['provider'] as UserRole[] },
   { title: 'Records & Bills', path: '/provider/dashboard?tab=records-bills', icon: FileText, roles: ['provider'] as UserRole[] },
   { title: 'Liens', path: '/provider/dashboard?tab=liens', icon: Link2, roles: ['provider'] as UserRole[] },
   { title: 'Messages', path: '/provider/dashboard?tab=messages', icon: MessageCircle, roles: ['provider'] as UserRole[] },
-  
   { title: 'My Practice', path: '/provider/dashboard?tab=profile', icon: Building2, roles: ['provider'] as UserRole[] },
-  // Patient sidebar
   { title: 'My Case Progress', path: '/patient/timeline', icon: GitBranch, roles: ['patient'] as UserRole[] },
   { title: 'Your Medical Team', path: '/patient/medical-team', icon: Stethoscope, roles: ['patient'] as UserRole[] },
   { title: 'My Documents', path: '/patient/documents', icon: Upload, roles: ['patient'] as UserRole[] },
   { title: 'Make a Referral', path: '/patient/referral', icon: Heart, roles: ['patient'] as UserRole[] },
   { title: 'Share Us', path: '/patient/share', icon: Share2, roles: ['patient'] as UserRole[] },
   { title: 'Messages', path: '/patient/messages', icon: MessageCircle, roles: ['patient'] as UserRole[] },
-  // Funder sidebar
   { title: 'Portfolio', path: '/funder/dashboard', icon: Banknote, roles: ['funder'] as UserRole[] },
 ];
 
@@ -48,10 +41,14 @@ const roleBadgeStyles: Record<string, string> = {
   care_manager: 'bg-success/10 text-success',
   attorney: 'bg-warning/10 text-warning',
   provider: 'bg-settled/10 text-settled',
-  
 };
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  mobileOpen?: boolean;
+  onClose?: () => void;
+}
+
+export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
   const { profile, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -62,8 +59,15 @@ export function AppSidebar() {
     ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     : '??';
 
+  const handleNav = (path: string) => {
+    navigate(path);
+    onClose?.();
+  };
+
   return (
-    <aside className="w-60 h-screen bg-sidebar flex flex-col border-r border-sidebar-border fixed left-0 top-0 z-30">
+    <aside className={`w-60 h-screen bg-sidebar flex flex-col border-r border-sidebar-border fixed left-0 top-0 z-40 transition-transform duration-200 ${
+      mobileOpen ? 'translate-x-0' : '-translate-x-full'
+    } lg:translate-x-0`}>
       {/* Logo */}
       <div className="px-5 py-5 border-b border-sidebar-border">
         <div className="flex items-center gap-2.5">
@@ -91,7 +95,7 @@ export function AppSidebar() {
           return (
             <button
               key={item.path}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNav(item.path)}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-all duration-150 ${
                 isActive
                   ? 'bg-primary/8 text-primary font-medium shadow-sm'
