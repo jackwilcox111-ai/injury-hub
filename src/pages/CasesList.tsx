@@ -215,7 +215,7 @@ export default function CasesList() {
               <tr className="border-b border-border bg-accent/50">
                 <SortableHeader label="Case" sortKey="case_number" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 <SortableHeader label="Patient" sortKey="patient_name" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
-                <SortableHeader label="Phone" sortKey="patient_phone" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+                <SortableHeader label="Patient Phone" sortKey="patient_phone" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 <SortableHeader label="DOI" sortKey="accident_date" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 <SortableHeader label="Attorney" sortKey="attorneys.firm_name" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 <SortableHeader label="Status" sortKey="status" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
