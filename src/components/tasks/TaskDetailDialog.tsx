@@ -222,7 +222,7 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
                 <Select value={specialtyFilter} onValueChange={setSpecialtyFilter}>
                   <SelectTrigger className="h-9 w-48 text-xs"><SelectValue placeholder="All Specialties" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Specialties</SelectItem>
+                    <SelectItem value="__all__">All Specialties</SelectItem>
                     {SPECIALTIES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                   </SelectContent>
                 </Select>
