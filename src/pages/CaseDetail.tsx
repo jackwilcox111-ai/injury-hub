@@ -194,11 +194,18 @@ export default function CaseDetail() {
   const { data: providerReferrals } = useQuery({
     queryKey: ['provider-referral-requests', id],
     queryFn: async () => {
-      const { data } = await supabase.from('referrals')
-        .select('id, specialty, status, notes, created_at')
+      const { data } = await supabase.from('case_tasks')
+        .select('id, title, description, status, created_at')
         .eq('case_id', id!)
+        .like('title', 'Assign % provider')
         .order('created_at', { ascending: false });
-      return data || [];
+      return (data || []).map(t => ({
+        id: t.id,
+        specialty: t.title.replace('Assign ', '').replace(' provider', ''),
+        status: t.status,
+        notes: t.description,
+        created_at: t.created_at,
+      }));
     },
     enabled: isProvider,
   });
