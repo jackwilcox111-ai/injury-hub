@@ -397,11 +397,7 @@ export default function ProviderPortal() {
         <KpiCard icon={DollarSign} value={`$${totalReductions.toLocaleString()}`} label="Reductions" color="text-primary" />
       </div>
     ),
-    messages: (
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <KpiCard icon={MessageCircle} value={unreadMessages || 0} label="Unread" color="text-destructive" />
-      </div>
-    ),
+    messages: null,
   };
 
   // Dashboard view (default)
