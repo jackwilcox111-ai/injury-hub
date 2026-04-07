@@ -14,9 +14,16 @@ const SPECIALTY_RECORDS: Record<string, string[]> = {
   'Pain Management': ['Initial Evaluation', 'Treatment Notes', 'Injection Records', 'Imaging', 'Billing'],
   'Chiropractic': ['Initial Evaluation', 'Treatment Notes', 'X-rays', 'Billing'],
   'Physical Therapy': ['Initial Evaluation', 'Progress Notes', 'Billing'],
+  'Orthopedics': ['Initial Evaluation', 'Surgical Report', 'Imaging', 'Post-Op Notes', 'Billing'],
   'Orthopedic': ['Initial Evaluation', 'Surgical Report', 'Imaging', 'Post-Op Notes', 'Billing'],
+  'Radiology / Imaging': ['MRI Report', 'X-ray Report', 'CT Report', 'Billing'],
   'Imaging/MRI': ['MRI Report', 'X-ray Report', 'CT Report', 'Billing'],
+  'Surgery': ['Consultation Notes', 'Pre-Op Evaluation', 'Surgical Report', 'Anesthesia Records', 'Post-Op Notes', 'Billing'],
   'Surgery Consultation': ['Consultation Notes', 'Pre-Op Evaluation', 'Surgical Report', 'Anesthesia Records', 'Billing'],
+  'Neurology': ['Initial Evaluation', 'EMG/NCV Report', 'Treatment Notes', 'Imaging', 'Billing'],
+  'Primary Care': ['Initial Evaluation', 'Treatment Notes', 'Referral Letters', 'Billing'],
+  'Dental': ['Initial Evaluation', 'Treatment Notes', 'X-rays', 'Billing'],
+  'Mental Health / Psychology': ['Initial Evaluation', 'Treatment Notes', 'Progress Notes', 'Billing'],
 };
 
 interface RecordsManagementTabProps {
