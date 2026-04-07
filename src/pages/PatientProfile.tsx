@@ -307,9 +307,10 @@ export default function PatientProfile() {
               </div>
               <div className="flex justify-between items-center text-xs">
                 <span className="text-muted-foreground">Documents on File</span>
-                <span className="flex items-center gap-1 text-foreground font-medium">
-                  <FileText className="w-3.5 h-3.5 text-muted-foreground" /> {docCount}
-                </span>
+                <button onClick={() => navigate('/patient/documents')} className="flex items-center gap-1 text-primary hover:underline font-medium">
+                  <FileText className="w-3.5 h-3.5" /> {docCount}
+                  <ExternalLink className="w-3 h-3 ml-0.5" />
+                </button>
               </div>
             </div>
           </div>
