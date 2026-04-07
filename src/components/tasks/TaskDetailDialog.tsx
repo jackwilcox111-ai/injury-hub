@@ -73,15 +73,7 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
     mutationFn: async (providerId: string) => {
       const { error: caseErr } = await supabase.from('cases').update({ provider_id: providerId }).eq('id', task.case_id);
       if (caseErr) throw caseErr;
-      // Create a referral record so it shows in Provider Referrals
-      await supabase.from('referrals').insert({
-        case_id: task.case_id,
-        provider_id: providerId,
-        specialty: defaultSpecialty || null,
-        referral_method: 'Platform',
-        status: 'Accepted',
-        responded_at: new Date().toISOString(),
-      });
+      // Referral record is auto-created by DB trigger
       const { error: taskErr } = await supabase.from('case_tasks').update({
         status: 'Complete',
         completed_at: new Date().toISOString(),
