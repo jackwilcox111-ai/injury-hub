@@ -534,10 +534,6 @@ export default function CaseDetail() {
                 <p className="text-sm font-medium"><StatusBadge status={c.status || ''} /></p>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Specialty</Label>
-                <p className="text-sm font-medium text-foreground">{c.specialty || '—'}</p>
-              </div>
-              <div className="space-y-1">
                 <Label className="text-xs text-muted-foreground">DOI (Date of Injury)</Label>
                 <p className="text-sm font-medium text-foreground">{c.accident_date ? format(new Date(c.accident_date), 'MMM d, yyyy') : '—'}</p>
               </div>
