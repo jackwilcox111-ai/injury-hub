@@ -51,7 +51,7 @@ export default function PatientTimeline() {
 
   return (
     <div className="space-y-6">
-      <h2 className="font-display text-2xl text-foreground flex items-center gap-2"><GitBranch className="w-6 h-6 text-primary" /> Your Case Timeline</h2>
+      <h2 className="font-display text-2xl text-foreground flex items-center gap-2"><GitBranch className="w-6 h-6 text-primary" /> My Case Progress</h2>
 
       {/* Progress bar */}
       <div className="bg-card border border-border rounded-xl p-5 space-y-3">
