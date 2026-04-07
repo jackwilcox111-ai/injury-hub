@@ -2,18 +2,22 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
-import { MessageCircle, ArrowUpRight, ArrowDownLeft, Eye } from 'lucide-react';
+import { MessageCircle, ArrowUpRight, ArrowDownLeft, Eye, Send, Plus } from 'lucide-react';
 import { useState } from 'react';
 
 export default function PatientMessages() {
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [showCompose, setShowCompose] = useState(false);
+  const [script, setScript] = useState('');
 
-  // RLS returns messages where recipient_id = user OR created_by = user
   const { data: messages, isLoading } = useQuery({
     queryKey: ['patient-messages', profile?.id],
     enabled: !!profile?.id,
@@ -32,13 +36,50 @@ export default function PatientMessages() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['patient-messages'] }),
   });
 
+  const sendMessage = useMutation({
+    mutationFn: async () => {
+      if (!script.trim()) throw new Error('Enter a message.');
+
+      // Get the patient's case_id
+      const { data: patientProfile } = await supabase.from('patient_profiles')
+        .select('case_id')
+        .eq('profile_id', user?.id)
+        .maybeSingle();
+
+      const { error } = await supabase.from('video_messages').insert({
+        case_id: patientProfile?.case_id || null,
+        recipient_role: 'care_manager',
+        message_type: 'General',
+        script: script.trim(),
+        ai_generated_script: false,
+        sent_at: new Date().toISOString(),
+        created_by: user?.id,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['patient-messages'] });
+      setShowCompose(false);
+      setScript('');
+      toast.success('Message sent to your care team');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   const selected = messages?.find(m => m.id === selectedId);
 
   if (isLoading) return <div className="space-y-6"><h2 className="font-display text-2xl">Messages</h2><Skeleton className="h-96 rounded-xl" /></div>;
 
   return (
     <div className="space-y-6">
-      <h2 className="font-display text-2xl text-foreground flex items-center gap-2"><MessageCircle className="w-6 h-6 text-primary" /> Messages</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="font-display text-2xl text-foreground flex items-center gap-2">
+          <MessageCircle className="w-6 h-6 text-primary" /> Messages
+        </h2>
+        <Button size="sm" variant="outline" className="h-8 text-xs gap-1.5" onClick={() => setShowCompose(true)}>
+          <Plus className="w-3.5 h-3.5" /> New Message
+        </Button>
+      </div>
 
       {(!messages || messages.length === 0) ? (
         <div className="bg-card border border-border rounded-xl p-8 text-center">
@@ -86,6 +127,7 @@ export default function PatientMessages() {
         </div>
       )}
 
+      {/* Message Detail */}
       <Dialog open={!!selectedId} onOpenChange={open => !open && setSelectedId(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>{selected?.message_type}</DialogTitle></DialogHeader>
@@ -108,6 +150,28 @@ export default function PatientMessages() {
               )}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Compose Dialog */}
+      <Dialog open={showCompose} onOpenChange={setShowCompose}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Message Your Care Team</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <p className="text-xs text-muted-foreground">Your message will be sent to your care coordinator.</p>
+            <Textarea
+              value={script}
+              onChange={e => setScript(e.target.value)}
+              placeholder="Type your message here..."
+              className="min-h-[120px] text-sm"
+            />
+            <p className="text-[10px] text-muted-foreground">PHI — Handle in accordance with HIPAA policy</p>
+            <div className="flex justify-end">
+              <Button size="sm" className="gap-1.5" onClick={() => sendMessage.mutate()} disabled={!script.trim() || sendMessage.isPending}>
+                <Send className="w-3.5 h-3.5" /> {sendMessage.isPending ? 'Sending...' : 'Send Message'}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
