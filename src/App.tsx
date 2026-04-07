@@ -35,6 +35,7 @@ import AdminRecordsBills from "./pages/AdminRecordsBills";
 import AdminMessages from "./pages/AdminMessages";
 import FunderDashboard from "./pages/FunderDashboard";
 import ProviderRCM from "./pages/ProviderRCM";
+import ImagingFacilitiesPage from "./pages/ImagingFacilitiesPage";
 import PatientTimeline from "./pages/PatientTimeline";
 import PatientMedicalTeam from "./pages/PatientMedicalTeam";
 import PatientDocuments from "./pages/PatientDocuments";
@@ -116,6 +117,7 @@ const App = () => (
             <Route path="/reports" element={<RequireAuth roles={['admin']}><AppLayout><ReportingDashboard /></AppLayout></RequireAuth>} />
             <Route path="/tasks" element={<RequireAuth roles={['admin','care_manager','attorney']}><AppLayout><TaskDashboard /></AppLayout></RequireAuth>} />
             <Route path="/settings" element={<RequireAuth roles={['admin']}><AppLayout><SettingsPage /></AppLayout></RequireAuth>} />
+            <Route path="/imaging-facilities" element={<RequireAuth roles={['admin']}><AppLayout><ImagingFacilitiesPage /></AppLayout></RequireAuth>} />
             <Route path="/demand-letters" element={<RequireAuth roles={['admin','care_manager','attorney']}><AppLayout><AdminDemandLetters /></AppLayout></RequireAuth>} />
             <Route path="/messages" element={<RequireAuth roles={['admin','care_manager','attorney']}><AppLayout><AdminMessages /></AppLayout></RequireAuth>} />
             <Route path="/records-bills" element={<RequireAuth roles={['admin','care_manager']}><AppLayout><AdminRecordsBills /></AppLayout></RequireAuth>} />

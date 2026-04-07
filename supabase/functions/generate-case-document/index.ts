@@ -18,7 +18,6 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Validate JWT
     const userClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -30,7 +29,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Check role
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
     const { data: profile } = await adminClient
       .from("profiles")
@@ -64,7 +62,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const validTypes = ["referral_letter", "imaging_requisition", "work_treatment_note"];
+    const validTypes = ["referral_letter", "imaging_requisition", "work_treatment_note", "medical_necessity_md_referral"];
     if (!validTypes.includes(document_type)) {
       return new Response(JSON.stringify({ error: "Invalid document type" }), {
         status: 400,
@@ -72,19 +70,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Generate PDF content as HTML
     const htmlContent = generateDocumentHtml(document_type, merge_data);
-
-    // Store as HTML file (PDF generation can be enhanced later with a PDF service)
     const fileName = `case-docs/${case_id}/${document_type}-${Date.now()}.html`;
     const htmlBlob = new TextEncoder().encode(htmlContent);
 
     const { error: uploadError } = await adminClient.storage
       .from("documents")
-      .upload(fileName, htmlBlob, {
-        contentType: "text/html",
-        upsert: false,
-      });
+      .upload(fileName, htmlBlob, { contentType: "text/html", upsert: false });
 
     if (uploadError) {
       console.error("Upload error:", uploadError);
@@ -94,7 +86,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Create case_documents record
     const docRecord: Record<string, unknown> = {
       case_id,
       document_type,
@@ -108,9 +99,7 @@ Deno.serve(async (req) => {
       sent_at: send_email ? new Date().toISOString() : null,
     };
 
-    const { error: insertError } = await adminClient
-      .from("case_documents")
-      .insert(docRecord);
+    const { error: insertError } = await adminClient.from("case_documents").insert(docRecord);
 
     if (insertError) {
       console.error("Insert error:", insertError);
@@ -120,13 +109,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    // If send_email is true and we have an email, enqueue the email
     if (send_email && receiving_provider_email) {
       try {
         const typeLabels: Record<string, string> = {
           referral_letter: "Referral Letter",
           imaging_requisition: "Imaging Requisition",
           work_treatment_note: "Work/Treatment Note",
+          medical_necessity_md_referral: "Medical Necessity — MD Referral Authorization",
         };
 
         const emailPayload = {
@@ -141,7 +130,6 @@ Deno.serve(async (req) => {
         });
       } catch (emailErr) {
         console.error("Email enqueue error:", emailErr);
-        // Don't fail the whole request if email fails
       }
     }
 
@@ -158,21 +146,25 @@ Deno.serve(async (req) => {
   }
 });
 
-function generateDocumentHtml(type: string, d: Record<string, any>): string {
-  const styles = `
-    <style>
-      body { font-family: Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #333; max-width: 700px; margin: 40px auto; padding: 20px; }
-      h1 { font-size: 16px; text-align: center; margin-bottom: 20px; }
-      .header { margin-bottom: 20px; }
-      .section { margin-bottom: 16px; }
-      .label { font-weight: bold; }
-      .signature { margin-top: 30px; }
-      .divider { border-top: 1px solid #ccc; margin: 16px 0; }
-    </style>
-  `;
+const baseStyles = `
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #333; max-width: 700px; margin: 40px auto; padding: 20px; }
+    h1 { font-size: 16px; text-align: center; margin-bottom: 20px; }
+    .header { margin-bottom: 20px; }
+    .section { margin-bottom: 16px; }
+    .label { font-weight: bold; }
+    .signature { margin-top: 30px; }
+    .divider { border-top: 1px solid #ccc; margin: 16px 0; }
+    .checkbox-list { list-style: none; padding-left: 0; }
+    .checkbox-list li { margin-bottom: 4px; }
+    .checkbox-list li::before { content: "☐ "; }
+    .checkbox-list li.checked::before { content: "☑ "; }
+  </style>
+`;
 
+function generateDocumentHtml(type: string, d: Record<string, any>): string {
   if (type === "referral_letter") {
-    return `<!DOCTYPE html><html><head>${styles}</head><body>
+    return `<!DOCTYPE html><html><head>${baseStyles}</head><body>
       <div class="header">
         <p class="label">${d.referring_provider_practice}</p>
         <p>${d.referring_provider_address}</p>
@@ -204,8 +196,16 @@ function generateDocumentHtml(type: string, d: Record<string, any>): string {
 
   if (type === "imaging_requisition") {
     const imagingList = (d.imaging_types || []).join(", ") + (d.imaging_other ? ` — ${d.imaging_other}` : "");
-    return `<!DOCTYPE html><html><head>${styles}</head><body>
+    const facilityHeader = d.imaging_facility_name
+      ? `<div class="section" style="text-align:center; border:1px solid #ccc; padding:10px; margin-bottom:16px;">
+          <p class="label">${d.imaging_facility_name}</p>
+          <p>${d.imaging_facility_address || ""}</p>
+          <p>${d.imaging_facility_phone ? "Phone: " + d.imaging_facility_phone : ""}${d.imaging_facility_fax ? " | Fax: " + d.imaging_facility_fax : ""}</p>
+        </div>`
+      : "";
+    return `<!DOCTYPE html><html><head>${baseStyles}</head><body>
       <h1>IMAGING REQUISITION</h1>
+      ${facilityHeader}
       <p>Date: ${d.today_date}</p>
       <div class="section">
         <p class="label">Ordering Provider:</p>
@@ -243,8 +243,91 @@ function generateDocumentHtml(type: string, d: Record<string, any>): string {
     </body></html>`;
   }
 
+  if (type === "medical_necessity_md_referral") {
+    const reasons = d.mn_reasons || [];
+    const allReasons = [
+      "Patient's condition has not responded adequately to conservative care",
+      "Patient presents with symptoms beyond the scope of my practice",
+      "Patient requires medication management for pain/inflammation",
+      "Patient may require interventional procedures (injections, nerve blocks, etc.)",
+      "Diagnostic workup requires MD oversight",
+      "Patient's neurological findings warrant urgent medical evaluation",
+    ];
+    const reasonsHtml = allReasons.map(r =>
+      `<li class="${reasons.includes(r) ? 'checked' : ''}">${r}</li>`
+    ).join("\n");
+    const otherChecked = reasons.includes("Other");
+
+    return `<!DOCTYPE html><html><head>${baseStyles}</head><body>
+      <h1>MEDICAL NECESSITY — MD REFERRAL AUTHORIZATION</h1>
+      <p>Date: ${d.today_date} &nbsp;&nbsp; Case #: ${d.case_number}</p>
+
+      <div class="section">
+        <p class="label">Patient Information:</p>
+        <p>Name: ${d.patient_name}<br>DOB: ${d.patient_dob}<br>Date of Injury: ${d.patient_dol}<br>Injury Type: ${d.injury_type}</p>
+      </div>
+
+      <div class="section">
+        <p class="label">Treating Provider (Referring):</p>
+        <p>${d.referring_provider_name}<br>${d.referring_provider_practice}<br>${d.referring_provider_address}<br>Phone: ${d.referring_provider_phone} | Fax: ${d.referring_provider_fax}<br>NPI: ${d.referring_provider_npi}</p>
+      </div>
+
+      <div class="section">
+        <p class="label">Referred To:</p>
+        <p>${d.receiving_provider_name} (MD / Pain Management / PCP / Specialist)<br>${d.receiving_provider_practice}<br>${d.receiving_provider_address}</p>
+      </div>
+
+      <div class="divider"></div>
+      <h2 style="font-size:13px;">SECTION 1 — CLINICAL FINDINGS</h2>
+      <p>Based on my examination and ongoing treatment of the above patient, I have identified the following clinical findings that warrant evaluation by a medical doctor:</p>
+
+      <div class="section">
+        <p class="label">Primary complaint(s):</p>
+        <p>${d.mn_primary_complaints || "________________________"}</p>
+      </div>
+      <div class="section">
+        <p class="label">Objective findings from examination/treatment:</p>
+        <p>${d.mn_objective_findings || "________________________"}</p>
+      </div>
+      <div class="section">
+        <p class="label">Current treatment provided:</p>
+        <p>${d.mn_current_treatment || "________________________"}</p>
+      </div>
+      <div class="section">
+        <p class="label">Patient response to treatment:</p>
+        <p>${d.mn_patient_response || "________________________"}</p>
+      </div>
+
+      <div class="divider"></div>
+      <h2 style="font-size:13px;">SECTION 2 — MEDICAL NECESSITY STATEMENT</h2>
+      <p>I, ${d.referring_provider_name}, hereby certify that based on my clinical examination and treatment of the above-named patient, it is my professional opinion that this patient's condition warrants evaluation by a medical doctor for the following reason(s):</p>
+
+      <ul class="checkbox-list">
+        ${reasonsHtml}
+        <li class="${otherChecked ? 'checked' : ''}">Other: ${d.mn_reason_other || "___________"}</li>
+      </ul>
+
+      ${d.mn_additional_clinical ? `<div class="section"><p class="label">Additional notes:</p><p>${d.mn_additional_clinical}</p></div>` : ""}
+
+      <div class="divider"></div>
+      <h2 style="font-size:13px;">SECTION 3 — PROVIDER ATTESTATION</h2>
+      <p>I attest that the information provided above is accurate and based on my direct examination and treatment of this patient. This referral is made in the best interest of the patient's health and recovery.</p>
+
+      <div class="signature">
+        <p>Provider Signature: ________________________</p>
+        <p>Print Name: ${d.referring_provider_name}</p>
+        <p>Date: _______________</p>
+        <p>NPI: ${d.referring_provider_npi}</p>
+      </div>
+
+      <div class="divider"></div>
+      <p><strong>Attorney on File:</strong> ${d.attorney_name} — ${d.attorney_firm}<br>Phone: ${d.attorney_phone}</p>
+      ${d.additional_notes ? `<p>${d.additional_notes}</p>` : ""}
+    </body></html>`;
+  }
+
   // work_treatment_note
-  return `<!DOCTYPE html><html><head>${styles}</head><body>
+  return `<!DOCTYPE html><html><head>${baseStyles}</head><body>
     <h1>WORK/TREATMENT NOTE</h1>
     <p>Date: ${d.today_date}</p>
     <div class="section">
