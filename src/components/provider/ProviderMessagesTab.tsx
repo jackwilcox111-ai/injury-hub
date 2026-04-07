@@ -79,6 +79,7 @@ export function ProviderMessagesTab() {
       setScript('');
       setCaseId('');
       setMessageType('General');
+      setRecipientRole('attorney');
       toast.success('Message sent');
     },
     onError: (e: any) => toast.error(e.message),
