@@ -106,7 +106,13 @@ export function ProviderReferralsModule({ caseId, onSendReferral }: Props) {
             const isResendable = r.status === 'Pending' || r.status === 'Expired';
             return (
               <tr key={r.id} className="hover:bg-accent/30 transition-colors">
-                <td className="px-5 py-3 text-xs font-medium">{provider?.name || '—'}</td>
+                <td className="px-5 py-3 text-xs font-medium">
+                  {provider?.name ? (
+                    <button onClick={() => navigate('/providers')} className="text-primary hover:underline text-left">
+                      {provider.name}
+                    </button>
+                  ) : '—'}
+                </td>
                 <td className="px-5 py-3 text-xs text-muted-foreground">{r.specialty || provider?.specialty || '—'}</td>
                 <td className="px-5 py-3 font-mono text-xs">{format(new Date(r.created_at), 'MMM d, yyyy')}</td>
                 <td className="px-5 py-3 text-xs">{(r as any).referral_method || 'Email'}</td>
