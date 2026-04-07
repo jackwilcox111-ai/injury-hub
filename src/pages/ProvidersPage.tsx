@@ -540,7 +540,7 @@ export default function ProvidersPage() {
   );
 }
 
-function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] | undefined; caseCounts: Record<string, number> | undefined; onSelect: (id: string) => void }) {
+function ProviderTable({ providers, caseCounts, locationCounts, onSelect }: { providers: any[] | undefined; caseCounts: Record<string, number> | undefined; locationCounts: Record<string, number> | undefined; onSelect: (id: string) => void }) {
   const [search, setSearch] = useState('');
   
   const filtered = providers?.filter(p => {
