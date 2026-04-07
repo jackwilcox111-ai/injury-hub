@@ -23,7 +23,9 @@ interface Props {
 export function ProviderReferralsModule({ caseId, onSendReferral }: Props) {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
+  const isAttorney = profile?.role === 'attorney';
   const canSendReferral = profile?.role === 'admin' || profile?.role === 'care_manager';
+  const canRequestReferral = isAttorney;
 
   const { data: referrals, isLoading } = useQuery({
     queryKey: ['case-referrals', caseId],
