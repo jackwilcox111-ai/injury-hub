@@ -1326,6 +1326,60 @@ export type Database = {
           },
         ]
       }
+      imaging_facilities: {
+        Row: {
+          accepted_imaging_types: string[]
+          address: string | null
+          city: string
+          created_at: string
+          custom_form_url: string | null
+          email: string | null
+          fax: string | null
+          id: string
+          is_preferred: boolean
+          name: string
+          notes: string | null
+          phone: string | null
+          state: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_imaging_types?: string[]
+          address?: string | null
+          city: string
+          created_at?: string
+          custom_form_url?: string | null
+          email?: string | null
+          fax?: string | null
+          id?: string
+          is_preferred?: boolean
+          name: string
+          notes?: string | null
+          phone?: string | null
+          state: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_imaging_types?: string[]
+          address?: string | null
+          city?: string
+          created_at?: string
+          custom_form_url?: string | null
+          email?: string | null
+          fax?: string | null
+          id?: string
+          is_preferred?: boolean
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          state?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       insurance_colossus_data: {
         Row: {
           case_id: string
