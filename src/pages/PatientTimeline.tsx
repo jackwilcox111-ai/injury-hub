@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
-import { GitBranch, CheckCircle, Circle } from 'lucide-react';
+import { GitBranch, CheckCircle, Circle, Info, Clock, Stethoscope, FileText, Scale, HelpCircle } from 'lucide-react';
 
 const patientLabels: Record<string, string> = {
   'Intake': 'Your Case Has Been Opened',
