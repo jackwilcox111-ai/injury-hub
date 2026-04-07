@@ -187,7 +187,7 @@ export default function CasesList() {
                 <SortableHeader label="Attorney" sortKey="attorneys.firm_name" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 <SortableHeader label="Status" sortKey="status" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 <SortableHeader label="Lien" sortKey="lien_amount" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
-                <SortableHeader label="SoL" sortKey="sol_date" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
+                
                 <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Alert</th>
                 
               </tr>
@@ -223,9 +223,6 @@ export default function CasesList() {
                   </td>
                   <td className="px-5 py-3.5">
                     <FinancialValue value={c.lien_amount} />
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <SoLCountdown sol_date={c.sol_date} sol_period_days={c.sol_period_days} accident_state={c.accident_state} />
                   </td>
                   <td className="px-5 py-3.5">
                     <FlagBadge flag={c.flag} />
