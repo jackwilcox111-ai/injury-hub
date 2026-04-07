@@ -106,6 +106,18 @@ export default function ProviderPortal() {
     },
   });
 
+  const { data: pendingReferrals } = useQuery({
+    queryKey: ['provider-pending-referrals'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('referrals')
+        .select('id, specialty, created_at, status, cases!referrals_case_id_fkey(case_number, patient_name)')
+        .in('status', ['Sent', 'Pending'])
+        .order('created_at', { ascending: false });
+      return data || [];
+    },
+  });
+
   const { data: liens } = useQuery({
     queryKey: ['provider-liens-metrics'],
     queryFn: async () => {
