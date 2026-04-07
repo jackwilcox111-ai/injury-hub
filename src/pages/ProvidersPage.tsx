@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Plus, Check, X, MapPin, Clock, CheckCircle2, XCircle, Stethoscope, Users, Languages, Search } from 'lucide-react';
+import { Plus, Check, X, MapPin, Clock, CheckCircle2, XCircle, Stethoscope, Users, Languages, Search, FileText, Download, FileCheck } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, differenceInDays } from 'date-fns';
