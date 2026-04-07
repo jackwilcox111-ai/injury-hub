@@ -20,6 +20,7 @@ import { logPHIAccess } from '@/lib/audit-logger';
 export default function PatientProfile() {
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: patientProfile, isLoading: loadingProfile } = useQuery({
     queryKey: ['patient-profile-detail', user?.id],
