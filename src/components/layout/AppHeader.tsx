@@ -18,6 +18,18 @@ const routeNames: Record<string, string> = {
   '/provider-portal': 'Provider Portal',
   '/provider/rcm': 'RCM Billing',
   '/provider/messages': 'Messages',
+  '/provider/dashboard': 'Provider Dashboard',
+  '/patient/timeline': 'My Case Progress',
+  '/patient/medical-team': 'Your Medical Team',
+  '/patient/documents': 'My Documents',
+  '/patient/referral': 'Make a Referral',
+  '/patient/share': 'Share Us',
+  '/patient/messages': 'Messages',
+  '/funder/dashboard': 'Portfolio',
+  '/messages': 'Messages',
+  '/tasks': 'Tasks',
+  '/reports': 'Reports',
+  '/records-bills': 'Records & Bills',
 };
 
 const roleBadgeStyles: Record<string, string> = {
@@ -38,8 +50,7 @@ export function AppHeader({ onMenuToggle }: AppHeaderProps) {
   const [bellOpen, setBellOpen] = useState(false);
   const bellRef = useRef<HTMLDivElement>(null);
 
-  const basePath = '/' + location.pathname.split('/').filter(Boolean)[0];
-  const moduleName = routeNames[basePath] || 'Portal';
+  const moduleName = routeNames[location.pathname] || routeNames['/' + location.pathname.split('/').filter(Boolean)[0]] || 'Portal';
 
   const { data: flaggedCases } = useQuery({
     queryKey: ['flagged-cases'],
