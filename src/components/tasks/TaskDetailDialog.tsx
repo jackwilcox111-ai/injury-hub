@@ -41,7 +41,7 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
   const isReferralTask = !!defaultSpecialty;
 
   // Reset specialty filter when task changes
-  useMemo(() => { setSpecialtyFilter(defaultSpecialty || ''); }, [defaultSpecialty]);
+  useMemo(() => { setSpecialtyFilter(defaultSpecialty || '__all__'); }, [defaultSpecialty]);
 
   // Fetch patient profile for address/coordinates
   const { data: patientProfile } = useQuery({
