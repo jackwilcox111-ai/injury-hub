@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
 
         const emailPayload = {
           to: receiving_provider_email,
-          subject: `${typeLabels[document_type]} — ${merge_data.patient_name} (Case #${merge_data.case_number})`,
+          subject: `${typeLabels[document_type]} &mdash; ${merge_data.patient_name} (Case #${merge_data.case_number})`,
           html: htmlContent,
         };
 
@@ -184,7 +184,7 @@ function generateDocumentHtml(type: string, d: Record<string, any>): string {
       <p>Dear ${d.receiving_provider_name},</p>
       <p>I am referring the above patient to your office for evaluation and treatment related to injuries sustained on ${d.patient_dol}. The patient is currently under my care and I believe your expertise is warranted for their condition.</p>
       <p><strong>Injury Type:</strong> ${d.injury_type}</p>
-      <p><strong>Attorney on File:</strong> ${d.attorney_name} — ${d.attorney_firm}<br>Phone: ${d.attorney_phone}</p>
+      <p><strong>Attorney on File:</strong> ${d.attorney_name} &mdash; ${d.attorney_firm}<br>Phone: ${d.attorney_phone}</p>
       <p>Please contact our office if you have any questions regarding this referral or need additional information.</p>
       ${d.additional_notes ? `<p>${d.additional_notes}</p>` : ""}
       <div class="signature">
@@ -195,7 +195,13 @@ function generateDocumentHtml(type: string, d: Record<string, any>): string {
   }
 
   if (type === "imaging_requisition") {
-    const imagingList = (d.imaging_types || []).join(", ") + (d.imaging_other ? ` — ${d.imaging_other}` : "");
+    const imagingList = (d.imaging_types || []).join(", ") + (d.imaging_other ? ` &mdash; ${d.imaging_other}` : "");
+    const contrastLabels: Record<string, string> = {
+      with: "With Contrast",
+      without: "Without Contrast",
+      radiologist_discretion: "Upon Radiologist Discretion",
+    };
+    const contrastText = contrastLabels[d.contrast_option] || "Without Contrast";
     const facilityHeader = d.imaging_facility_name
       ? `<div class="section" style="text-align:center; border:1px solid #ccc; padding:10px; margin-bottom:16px;">
           <p class="label">${d.imaging_facility_name}</p>
@@ -226,17 +232,20 @@ function generateDocumentHtml(type: string, d: Record<string, any>): string {
         <p>${imagingList}</p>
       </div>
       <div class="section">
+        <p class="label">Contrast:</p>
+        <p>${contrastText}</p>
+      </div>
+      <div class="section">
         <p class="label">Body Part(s) / Region:</p>
-        <p>${d.body_parts || "—"}</p>
+        <p>${d.body_parts || "&mdash;"}</p>
       </div>
       <div class="section">
         <p class="label">Clinical Indication / Reason for Exam:</p>
-        <p>${d.clinical_indication || "—"}</p>
+        <p>${d.clinical_indication || "&mdash;"}</p>
       </div>
       <div class="divider"></div>
-      <p><strong>Send Results To:</strong> ${d.referring_provider_name} — Fax: ${d.referring_provider_fax}</p>
-      <p><strong>Attorney on File:</strong> ${d.attorney_name} — ${d.attorney_firm}<br>Phone: ${d.attorney_phone}</p>
-      ${d.additional_notes ? `<p>${d.additional_notes}</p>` : ""}
+      <p><strong>Send Results To:</strong> ${d.referring_provider_name} &mdash; Fax: ${d.referring_provider_fax}</p>
+      <p><strong>Attorney on File:</strong> ${d.attorney_name} &mdash; ${d.attorney_firm}<br>Phone: ${d.attorney_phone}</p>
       <div class="signature">
         <p>Ordering Provider Signature: ________________________<br>${d.referring_provider_name}, ${d.referring_provider_practice}</p>
       </div>
@@ -259,7 +268,7 @@ function generateDocumentHtml(type: string, d: Record<string, any>): string {
     const otherChecked = reasons.includes("Other");
 
     return `<!DOCTYPE html><html><head>${baseStyles}</head><body>
-      <h1>MEDICAL NECESSITY — MD REFERRAL AUTHORIZATION</h1>
+      <h1>MEDICAL NECESSITY &mdash; MD REFERRAL AUTHORIZATION</h1>
       <p>Date: ${d.today_date} &nbsp;&nbsp; Case #: ${d.case_number}</p>
 
       <div class="section">
@@ -278,7 +287,7 @@ function generateDocumentHtml(type: string, d: Record<string, any>): string {
       </div>
 
       <div class="divider"></div>
-      <h2 style="font-size:13px;">SECTION 1 — CLINICAL FINDINGS</h2>
+      <h2 style="font-size:13px;">SECTION 1 &mdash; CLINICAL FINDINGS</h2>
       <p>Based on my examination and ongoing treatment of the above patient, I have identified the following clinical findings that warrant evaluation by a medical doctor:</p>
 
       <div class="section">
@@ -299,7 +308,7 @@ function generateDocumentHtml(type: string, d: Record<string, any>): string {
       </div>
 
       <div class="divider"></div>
-      <h2 style="font-size:13px;">SECTION 2 — MEDICAL NECESSITY STATEMENT</h2>
+      <h2 style="font-size:13px;">SECTION 2 &mdash; MEDICAL NECESSITY STATEMENT</h2>
       <p>I, ${d.referring_provider_name}, hereby certify that based on my clinical examination and treatment of the above-named patient, it is my professional opinion that this patient's condition warrants evaluation by a medical doctor for the following reason(s):</p>
 
       <ul class="checkbox-list">
@@ -310,7 +319,7 @@ function generateDocumentHtml(type: string, d: Record<string, any>): string {
       ${d.mn_additional_clinical ? `<div class="section"><p class="label">Additional notes:</p><p>${d.mn_additional_clinical}</p></div>` : ""}
 
       <div class="divider"></div>
-      <h2 style="font-size:13px;">SECTION 3 — PROVIDER ATTESTATION</h2>
+      <h2 style="font-size:13px;">SECTION 3 &mdash; PROVIDER ATTESTATION</h2>
       <p>I attest that the information provided above is accurate and based on my direct examination and treatment of this patient. This referral is made in the best interest of the patient's health and recovery.</p>
 
       <div class="signature">
@@ -321,7 +330,7 @@ function generateDocumentHtml(type: string, d: Record<string, any>): string {
       </div>
 
       <div class="divider"></div>
-      <p><strong>Attorney on File:</strong> ${d.attorney_name} — ${d.attorney_firm}<br>Phone: ${d.attorney_phone}</p>
+      <p><strong>Attorney on File:</strong> ${d.attorney_name} &mdash; ${d.attorney_firm}<br>Phone: ${d.attorney_phone}</p>
       ${d.additional_notes ? `<p>${d.additional_notes}</p>` : ""}
     </body></html>`;
   }
