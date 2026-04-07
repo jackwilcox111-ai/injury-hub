@@ -1,6 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Bell } from 'lucide-react';
+import { Bell, Menu } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useState, useRef, useEffect } from 'react';
@@ -27,7 +27,11 @@ const roleBadgeStyles: Record<string, string> = {
   provider: 'bg-settled/10 text-settled',
 };
 
-export function AppHeader() {
+interface AppHeaderProps {
+  onMenuToggle?: () => void;
+}
+
+export function AppHeader({ onMenuToggle }: AppHeaderProps) {
   const { profile } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -62,14 +66,24 @@ export function AppHeader() {
     : '??';
 
   return (
-    <header className="h-16 bg-card border-b border-border flex items-center justify-between px-7 fixed top-0 left-60 right-0 z-20">
-      <div className="flex items-center gap-2 text-sm">
-        <span className="text-muted-foreground">Portal</span>
-        <span className="text-border">/</span>
-        <span className="text-foreground font-medium">{moduleName}</span>
+    <header className="h-14 sm:h-16 bg-card border-b border-border flex items-center justify-between px-4 sm:px-7 fixed top-0 left-0 lg:left-60 right-0 z-20">
+      <div className="flex items-center gap-3">
+        {/* Hamburger — mobile only */}
+        <button
+          onClick={onMenuToggle}
+          className="lg:hidden p-1.5 -ml-1 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-muted-foreground hidden sm:inline">Portal</span>
+          <span className="text-border hidden sm:inline">/</span>
+          <span className="text-foreground font-medium">{moduleName}</span>
+        </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Bell */}
         <div ref={bellRef} className="relative">
           <button
@@ -83,7 +97,7 @@ export function AppHeader() {
           </button>
 
           {bellOpen && flaggedCases && flaggedCases.length > 0 && (
-            <div className="absolute right-0 top-11 w-80 bg-card border border-border rounded-xl shadow-elevated z-50 max-h-80 overflow-y-auto">
+            <div className="absolute right-0 top-11 w-72 sm:w-80 bg-card border border-border rounded-xl shadow-elevated z-50 max-h-80 overflow-y-auto">
               <div className="p-3 border-b border-border">
                 <p className="text-xs font-semibold text-foreground">Alerts ({flaggedCases.length})</p>
               </div>
@@ -105,7 +119,7 @@ export function AppHeader() {
         </div>
 
         {/* Divider */}
-        <div className="w-px h-8 bg-border" />
+        <div className="w-px h-8 bg-border hidden sm:block" />
 
         {/* User */}
         <div className="flex items-center gap-2.5">
