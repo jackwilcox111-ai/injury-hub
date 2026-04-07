@@ -162,7 +162,17 @@ export default function PatientMessages() {
         <DialogContent>
           <DialogHeader><DialogTitle>Message Your Care Team</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <p className="text-xs text-muted-foreground">Your message will be sent to your care coordinator.</p>
+            <div className="space-y-2">
+              <Label className="text-xs">Send to</Label>
+              <Select value={recipientRole} onValueChange={setRecipientRole}>
+                <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="care_manager" className="text-xs">Care Coordinator</SelectItem>
+                  <SelectItem value="attorney" className="text-xs">Attorney</SelectItem>
+                  <SelectItem value="provider" className="text-xs">Provider</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <Textarea
               value={script}
               onChange={e => setScript(e.target.value)}
