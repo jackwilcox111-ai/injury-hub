@@ -651,7 +651,7 @@ export default function CaseDetail() {
       </div>
 
       {/* Patient Information Card — staff only */}
-      {isStaff && patientProfile && (
+      {isStaff && (
         <div className="bg-card border border-border rounded-xl p-5 shadow-card">
           <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5 mb-3">
             <User className="w-4 h-4 text-primary" />
@@ -659,38 +659,51 @@ export default function CaseDetail() {
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
             <div className="space-y-0.5">
+              <Label className="text-[10px] text-muted-foreground">Phone</Label>
+              <p className="text-foreground flex items-center gap-1">
+                <Phone className="w-3 h-3 text-muted-foreground shrink-0" />
+                {c.patient_phone || '—'}
+              </p>
+            </div>
+            <div className="space-y-0.5">
+              <Label className="text-[10px] text-muted-foreground">Email</Label>
+              <p className="text-foreground">{c.patient_email || '—'}</p>
+            </div>
+            <div className="space-y-0.5">
               <Label className="text-[10px] text-muted-foreground">Address</Label>
               <p className="text-foreground flex items-center gap-1">
                 <MapPin className="w-3 h-3 text-muted-foreground shrink-0" />
-                {[patientProfile.address, patientProfile.city, patientProfile.state, patientProfile.zip].filter(Boolean).join(', ') || '—'}
+                {patientProfile
+                  ? [patientProfile.address, patientProfile.city, patientProfile.state, patientProfile.zip].filter(Boolean).join(', ') || '—'
+                  : '—'}
               </p>
             </div>
             <div className="space-y-0.5">
               <Label className="text-[10px] text-muted-foreground">Date of Birth</Label>
               <p className="text-foreground flex items-center gap-1">
                 <Calendar className="w-3 h-3 text-muted-foreground shrink-0" />
-                {patientProfile.date_of_birth ? format(new Date(patientProfile.date_of_birth), 'MMM d, yyyy') : '—'}
+                {patientProfile?.date_of_birth ? format(new Date(patientProfile.date_of_birth), 'MMM d, yyyy') : '—'}
               </p>
             </div>
             <div className="space-y-0.5">
               <Label className="text-[10px] text-muted-foreground">Preferred Language</Label>
               <p className="text-foreground flex items-center gap-1">
                 <Languages className="w-3 h-3 text-muted-foreground shrink-0" />
-                {patientProfile.preferred_language || c.preferred_language || 'English'}
+                {patientProfile?.preferred_language || c.preferred_language || 'English'}
                 {needsInterpreter && <Badge variant="outline" className="text-[9px] ml-1">Interpreter needed</Badge>}
               </p>
             </div>
             <div className="space-y-0.5">
               <Label className="text-[10px] text-muted-foreground">Insurance Status</Label>
-              <p className="text-foreground">{patientProfile.insurance_status || '—'}</p>
+              <p className="text-foreground">{patientProfile?.insurance_status || '—'}</p>
             </div>
             <div className="space-y-0.5">
               <Label className="text-[10px] text-muted-foreground">HIPAA Auth</Label>
-              <p className="text-foreground">{patientProfile.hipaa_auth_signed ? '✓ Signed' : '✗ Not signed'}</p>
+              <p className="text-foreground">{patientProfile?.hipaa_auth_signed ? '✓ Signed' : '✗ Not signed'}</p>
             </div>
             <div className="space-y-0.5">
               <Label className="text-[10px] text-muted-foreground">Assignment of Benefits</Label>
-              <p className="text-foreground">{patientProfile.assignment_of_benefits_signed ? '✓ Signed' : '✗ Not signed'}</p>
+              <p className="text-foreground">{patientProfile?.assignment_of_benefits_signed ? '✓ Signed' : '✗ Not signed'}</p>
             </div>
           </div>
         </div>
