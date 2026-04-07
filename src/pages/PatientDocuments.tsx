@@ -6,9 +6,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { Upload, FileText, Image, Camera, Car, ShieldCheck, File, Loader2 } from 'lucide-react';
+import { Upload, FileText, Image, Camera, Car, ShieldCheck, File, Loader2, Eye, ExternalLink } from 'lucide-react';
 
 const DOCUMENT_CATEGORIES = [
   { value: 'Injury Photos', label: 'Injury Photos', icon: Camera },
@@ -24,6 +25,8 @@ export default function PatientDocuments() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedCategory, setSelectedCategory] = useState('Injury Photos');
   const [uploading, setUploading] = useState(false);
+  const [viewingDoc, setViewingDoc] = useState<{ url: string; name: string; isImage: boolean } | null>(null);
+  const [loadingView, setLoadingView] = useState<string | null>(null);
 
   const { data: patientProfile } = useQuery({
     queryKey: ['patient-profile-docs', profile?.id],
@@ -107,6 +110,27 @@ export default function PatientDocuments() {
     return <Icon className="w-4 h-4" />;
   };
 
+  const viewDocument = async (doc: any) => {
+    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(doc.file_name);
+    setLoadingView(doc.id);
+    try {
+      const { data, error } = await supabase.storage
+        .from('documents')
+        .createSignedUrl(doc.storage_path, 300); // 5 min expiry
+      if (error) throw error;
+      if (isImage) {
+        setViewingDoc({ url: data.signedUrl, name: doc.file_name, isImage: true });
+      } else {
+        // For PDFs and other files, open in new tab
+        window.open(data.signedUrl, '_blank');
+      }
+    } catch (e: any) {
+      toast.error('Could not open file');
+    } finally {
+      setLoadingView(null);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -186,12 +210,15 @@ export default function PatientDocuments() {
             {documents.map(doc => {
               const isImage = /\.(jpg|jpeg|png|gif|webp|heic)$/i.test(doc.file_name);
               return (
-                <div
+                <button
                   key={doc.id}
-                  className="bg-card border border-border rounded-xl p-4 flex items-center gap-3"
+                  onClick={() => viewDocument(doc)}
+                  className="bg-card border border-border rounded-xl p-4 flex items-center gap-3 w-full text-left hover:bg-accent/50 transition-colors cursor-pointer"
                 >
                   <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
-                    {isImage ? (
+                    {loadingView === doc.id ? (
+                      <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                    ) : isImage ? (
                       <Image className="w-5 h-5 text-primary" />
                     ) : (
                       getCategoryIcon(doc.document_type)
@@ -206,7 +233,8 @@ export default function PatientDocuments() {
                       </span>
                     </div>
                   </div>
-                </div>
+                  <Eye className="w-4 h-4 text-muted-foreground shrink-0" />
+                </button>
               );
             })}
           </div>
@@ -220,6 +248,22 @@ export default function PatientDocuments() {
           </p>
         </div>
       )}
+
+      {/* Image preview dialog */}
+      <Dialog open={!!viewingDoc} onOpenChange={() => setViewingDoc(null)}>
+        <DialogContent className="max-w-3xl p-2 sm:p-4">
+          {viewingDoc && (
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-foreground truncate px-2">{viewingDoc.name}</p>
+              <img
+                src={viewingDoc.url}
+                alt={viewingDoc.name}
+                className="w-full rounded-lg object-contain max-h-[70vh]"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
