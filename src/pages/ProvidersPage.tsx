@@ -622,11 +622,24 @@ export default function ProvidersPage() {
 
 function ProviderTable({ providers, caseCounts, locationCounts, onSelect }: { providers: any[] | undefined; caseCounts: Record<string, number> | undefined; locationCounts: Record<string, number> | undefined; onSelect: (id: string) => void }) {
   const [search, setSearch] = useState('');
+
+  // Fetch primary locations for all providers to show address/phone
+  const { data: primaryLocations } = useQuery({
+    queryKey: ['provider-primary-locations'],
+    queryFn: async () => {
+      const { data } = await supabase.from('provider_locations').select('provider_id, address_street, address_city, address_state, address_zip, phone, is_primary').order('is_primary', { ascending: false });
+      // Group by provider_id, take first (primary preferred)
+      const map: Record<string, any> = {};
+      data?.forEach(loc => { if (!map[loc.provider_id]) map[loc.provider_id] = loc; });
+      return map;
+    },
+  });
   
   const filtered = providers?.filter(p => {
     if (!search) return true;
     const s = search.toLowerCase();
-    return p.name.toLowerCase().includes(s) || p.specialty?.toLowerCase().includes(s);
+    const loc = primaryLocations?.[p.id];
+    return p.name.toLowerCase().includes(s) || p.specialty?.toLowerCase().includes(s) || loc?.address_city?.toLowerCase().includes(s) || loc?.address_state?.toLowerCase().includes(s);
   });
 
   // Enrich with activeCases for sorting
