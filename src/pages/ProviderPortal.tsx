@@ -798,6 +798,11 @@ export default function ProviderPortal() {
           <ProviderMessagesTab />
         </TabsContent>
 
+        {/* Referrals Tab */}
+        <TabsContent value="referrals" className="mt-4">
+          <ProviderReferralsTab />
+        </TabsContent>
+
         {/* My Practice Tab */}
         <TabsContent value="profile" className="mt-4">
           <ProviderProfileTab />
