@@ -35,7 +35,7 @@ import AdminRecordsBills from "./pages/AdminRecordsBills";
 import AdminMessages from "./pages/AdminMessages";
 import FunderDashboard from "./pages/FunderDashboard";
 import ProviderRCM from "./pages/ProviderRCM";
-import ImagingFacilitiesPage from "./pages/ImagingFacilitiesPage";
+
 import PatientTimeline from "./pages/PatientTimeline";
 import PatientMedicalTeam from "./pages/PatientMedicalTeam";
 import PatientDocuments from "./pages/PatientDocuments";
