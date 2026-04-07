@@ -39,6 +39,7 @@ import PatientTimeline from "./pages/PatientTimeline";
 import PatientMedicalTeam from "./pages/PatientMedicalTeam";
 import PatientDocuments from "./pages/PatientDocuments";
 import PatientReferral from "./pages/PatientReferral";
+import PatientShare from "./pages/PatientShare";
 import PatientMessages from "./pages/PatientMessages";
 import ProviderMessages from "./pages/ProviderMessages";
 import FindProvider from "./pages/network/FindProvider";
