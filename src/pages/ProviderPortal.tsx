@@ -26,6 +26,7 @@ import { ProviderDocumentsTab } from '@/components/provider/ProviderDocumentsTab
 import { ProviderMessagesTab } from '@/components/provider/ProviderMessagesTab';
 import { SPECIALTIES } from '@/lib/specialties';
 import { Textarea } from '@/components/ui/textarea';
+import { ProviderReferralsTab } from '@/components/provider/ProviderReferralsTab';
 
 const BILLING_PATHS = ['Lien', 'PIP', 'MedPay', 'Insurance'];
 const APPT_STATUSES = ['Scheduled', 'Completed', 'No-Show', 'Cancelled', 'Rescheduled'];
