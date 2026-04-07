@@ -25,6 +25,8 @@ export default function PatientDocuments() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedCategory, setSelectedCategory] = useState('Injury Photos');
   const [uploading, setUploading] = useState(false);
+  const [viewingDoc, setViewingDoc] = useState<{ url: string; name: string; isImage: boolean } | null>(null);
+  const [loadingView, setLoadingView] = useState<string | null>(null);
 
   const { data: patientProfile } = useQuery({
     queryKey: ['patient-profile-docs', profile?.id],
