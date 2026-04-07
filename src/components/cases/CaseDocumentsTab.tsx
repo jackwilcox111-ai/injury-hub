@@ -627,11 +627,8 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
               </>
             )}
 
-            {/* Additional Notes */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Additional Notes</Label>
-              <Textarea value={additionalNotes} onChange={e => setAdditionalNotes(e.target.value)} placeholder="Add any context or special instructions..." />
-            </div>
+
+
 
             {/* Preview section */}
             {selectedType && (
