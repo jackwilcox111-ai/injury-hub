@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { useState } from 'react';
 import { CheckSquare, Clock, AlertCircle, User } from 'lucide-react';
 import { format, isPast } from 'date-fns';
+import { TaskDetailDialog } from '@/components/tasks/TaskDetailDialog';
 
 export default function TaskDashboard() {
   const { profile } = useAuth();
