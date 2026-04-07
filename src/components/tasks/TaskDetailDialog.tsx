@@ -209,7 +209,7 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
           )}
 
           {/* Provider Assignment Section */}
-          {isReferralTask && task.status !== 'Complete' && (
+          {isReferralTask && isStaff && task.status !== 'Complete' && (
             <div className="border-t border-border pt-4 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
