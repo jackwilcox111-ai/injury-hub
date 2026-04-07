@@ -225,8 +225,6 @@ export default function CasesList() {
                     <FinancialValue value={c.lien_amount} />
                   </td>
                   <td className="px-5 py-3.5">
-                    <SoLCountdown sol_date={c.sol_date} sol_period_days={c.sol_period_days} accident_state={c.accident_state} />
-                  </td>
                   <td className="px-5 py-3.5">
                     <FlagBadge flag={c.flag} />
                   </td>
