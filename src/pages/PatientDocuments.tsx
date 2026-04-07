@@ -43,6 +43,7 @@ export default function PatientDocuments() {
 
   const caseId = patientProfile?.case_id;
 
+  // Patient-uploaded documents
   const { data: documents, isLoading } = useQuery({
     queryKey: ['patient-documents', caseId],
     enabled: !!caseId,
@@ -52,6 +53,22 @@ export default function PatientDocuments() {
         .select('*')
         .eq('case_id', caseId!)
         .eq('uploader_id', profile!.id)
+        .order('created_at', { ascending: false });
+      return data || [];
+    },
+  });
+
+  // Signed contracts & documents shared with the patient by the care team
+  const { data: sharedDocs, isLoading: loadingShared } = useQuery({
+    queryKey: ['patient-shared-documents', caseId],
+    enabled: !!caseId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('documents')
+        .select('*')
+        .eq('case_id', caseId!)
+        .contains('visible_to', ['patient'])
+        .neq('uploader_id', profile!.id)
         .order('created_at', { ascending: false });
       return data || [];
     },
