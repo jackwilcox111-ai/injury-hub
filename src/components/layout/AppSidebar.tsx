@@ -6,7 +6,7 @@ import {
   DollarSign, CalendarDays, Settings, LogOut, ShieldCheck,
   BarChart3, Link2, CheckSquare, FileSignature, Video, Landmark, Banknote,
   CreditCard, GitBranch, MessageCircle, Heart, ClipboardCheck,
-  ShoppingBag, FileText, Calendar, Upload, Building2, Users
+  ShoppingBag, FileText, Calendar, Upload, Building2, Users, Share2
 } from 'lucide-react';
 
 const navItems = [
