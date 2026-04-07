@@ -130,7 +130,7 @@ export default function TaskDashboard() {
                     <span className="font-mono text-xs text-primary">{(t as any).cases?.case_number}</span>
                     <p className="text-[10px] text-muted-foreground">{(t as any).cases?.patient_name}</p>
                   </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                  <td className="px-4 py-3 text-xs text-muted-foreground" onClick={e => e.stopPropagation()}>
                     <Select value={t.assignee_id || ''} onValueChange={v => updateTask.mutate({ id: t.id, updates: { assignee_id: v || null } })}>
                       <SelectTrigger className="h-7 text-[10px] w-32"><SelectValue placeholder="Unassigned" /></SelectTrigger>
                       <SelectContent>{staff?.map(s => <SelectItem key={s.id} value={s.id}>{s.full_name || 'Unnamed'}</SelectItem>)}</SelectContent>
