@@ -335,6 +335,7 @@ export default function ProviderPortal() {
   }
 
   const tabTitles: Record<string, string> = {
+    referrals: 'Referrals',
     appointments: 'Appointments',
     'records-bills': 'Records & Bills',
     liens: 'Liens',
@@ -343,6 +344,7 @@ export default function ProviderPortal() {
   };
 
   const tabDescriptions: Record<string, string> = {
+    referrals: 'Review and respond to incoming patient referrals.',
     appointments: 'Track upcoming, completed, and missed appointments.',
     'records-bills': 'Manage charges, medical records, and uploaded documents.',
     liens: 'Track lien amounts, reductions, and payments.',
