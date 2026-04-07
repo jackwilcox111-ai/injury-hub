@@ -139,7 +139,7 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
   if (!task) return null;
 
   const patientAddress = patientProfile
-    ? [patientProfile.city, patientProfile.state].filter(Boolean).join(', ')
+    ? [patientProfile.address, patientProfile.city, patientProfile.state, patientProfile.zip].filter(Boolean).join(', ')
     : null;
 
   return (
