@@ -701,24 +701,6 @@ function ProviderTable({ providers, caseCounts, locationCounts, onSelect }: { pr
                         <MapPin className="w-3 h-3" /> {locationCounts?.[p.id] || 0}
                       </span>
                     </td>
-                  <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-primary">{p.activeCases}</td>
-                  <td className="px-5 py-3.5">
-                    <span className={`flex items-center gap-1 text-xs ${p.hipaa_baa_on_file ? 'text-emerald-600' : 'text-red-500'}`}>
-                      {p.hipaa_baa_on_file ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-                      {p.hipaa_baa_on_file ? 'On File' : 'Missing'}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3.5 text-xs">
-                    {daysToExpiry == null ? (
-                      <span className="text-muted-foreground">—</span>
-                    ) : daysToExpiry < 0 ? (
-                      <span className="text-red-500 font-medium">Expired</span>
-                    ) : daysToExpiry < 90 ? (
-                      <span className="text-amber-600 font-medium">Expiring Soon</span>
-                    ) : (
-                      <span className="text-muted-foreground">{format(new Date(p.credentialing_expiry!), 'MMM yyyy')}</span>
-                    )}
-                  </td>
                   <td className="px-5 py-3.5"><StatusBadge status={p.status} /></td>
                 </tr>
               );
