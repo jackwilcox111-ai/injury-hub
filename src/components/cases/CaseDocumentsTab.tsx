@@ -19,17 +19,30 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { FileText, Download, Plus, ChevronDown, Send, Loader2 } from 'lucide-react';
+import { FileText, Download, Plus, ChevronDown, Send, Loader2, AlertTriangle } from 'lucide-react';
 
 const DOCUMENT_TYPES = {
   referral_letter: 'Referral Letter',
   imaging_requisition: 'Imaging Requisition',
   work_treatment_note: 'Work/Treatment Note',
+  medical_necessity_md_referral: 'Medical Necessity — MD Referral',
 } as const;
 
 type DocType = keyof typeof DOCUMENT_TYPES;
 
 const IMAGING_OPTIONS = ['X-Ray', 'MRI', 'CT Scan', 'Ultrasound', 'Other'];
+const IMAGING_TYPE_MAP: Record<string, string> = {
+  'X-Ray': 'xray', 'MRI': 'mri', 'CT Scan': 'ct_scan', 'Ultrasound': 'ultrasound', 'Other': 'other',
+};
+
+const MEDICAL_NECESSITY_REASONS = [
+  'Patient\'s condition has not responded adequately to conservative care',
+  'Patient presents with symptoms beyond the scope of my practice',
+  'Patient requires medication management for pain/inflammation',
+  'Patient may require interventional procedures (injections, nerve blocks, etc.)',
+  'Diagnostic workup requires MD oversight',
+  'Patient\'s neurological findings warrant urgent medical evaluation',
+];
 
 interface Props {
   caseId: string;
@@ -56,6 +69,18 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
   const [clinicalIndication, setClinicalIndication] = useState('');
   // Work/Treatment note fields
   const [treatmentSchedule, setTreatmentSchedule] = useState('');
+  // Medical necessity fields
+  const [mnPrimaryComplaints, setMnPrimaryComplaints] = useState('');
+  const [mnObjectiveFindings, setMnObjectiveFindings] = useState('');
+  const [mnCurrentTreatment, setMnCurrentTreatment] = useState('');
+  const [mnPatientResponse, setMnPatientResponse] = useState('');
+  const [mnReasons, setMnReasons] = useState<string[]>([]);
+  const [mnReasonOther, setMnReasonOther] = useState('');
+  const [mnAdditionalClinical, setMnAdditionalClinical] = useState('');
+  // Imaging facility
+  const [selectedFacilityId, setSelectedFacilityId] = useState('');
+  // Medical necessity warning for referral letters
+  const [showMnWarning, setShowMnWarning] = useState(false);
 
   const { data: documents, isLoading } = useQuery({
     queryKey: ['case-documents', caseId],
@@ -103,12 +128,46 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
     },
   });
 
+  // Fetch imaging facilities for auto-selection
+  const patientState = patientProfile?.state || caseData?.accident_state || '';
+  const patientCity = patientProfile?.city || '';
+
+  const { data: matchingFacilities } = useQuery({
+    queryKey: ['imaging-facilities-match', patientState, patientCity, imagingTypes],
+    queryFn: async () => {
+      if (!patientState) return [];
+      let q = supabase.from('imaging_facilities').select('*').eq('status', 'active').eq('state', patientState);
+      if (patientCity) q = q.ilike('city', `%${patientCity}%`);
+      const { data } = await q;
+      if (!data) return [];
+      // Filter by imaging types
+      const mappedTypes = imagingTypes.map(t => IMAGING_TYPE_MAP[t]).filter(Boolean);
+      if (mappedTypes.length === 0) return data;
+      return data.filter((f: any) => mappedTypes.some(t => f.accepted_imaging_types.includes(t)));
+    },
+    enabled: selectedType === 'imaging_requisition' && imagingTypes.length > 0,
+  });
+
+  const selectedFacility = matchingFacilities?.find((f: any) => f.id === selectedFacilityId);
+
+  // Check if MN form exists for this case
+  const { data: existingMnDocs } = useQuery({
+    queryKey: ['case-mn-docs', caseId],
+    queryFn: async () => {
+      const { data } = await supabase.from('case_documents')
+        .select('id, status')
+        .eq('case_id', caseId)
+        .eq('document_type', 'medical_necessity_md_referral');
+      return data || [];
+    },
+  });
+
   const buildMergeData = () => {
     const providerAddress = (p: any) =>
       [p?.address_street, p?.address_city, p?.address_state, p?.address_zip].filter(Boolean).join(', ');
     const patientAddress = [patientProfile?.address, patientProfile?.city, patientProfile?.state, patientProfile?.zip].filter(Boolean).join(', ');
 
-    return {
+    const base: Record<string, any> = {
       patient_name: caseData?.patient_name || '',
       patient_dob: patientProfile?.date_of_birth || '',
       patient_dol: caseData?.accident_date || '',
@@ -141,6 +200,27 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
       // Work/treatment note
       treatment_schedule: treatmentSchedule,
     };
+
+    // Imaging facility data
+    if (selectedType === 'imaging_requisition' && selectedFacility) {
+      base.imaging_facility_name = selectedFacility.name;
+      base.imaging_facility_address = selectedFacility.address || `${selectedFacility.city}, ${selectedFacility.state}`;
+      base.imaging_facility_phone = selectedFacility.phone || '';
+      base.imaging_facility_fax = selectedFacility.fax || '';
+    }
+
+    // Medical necessity fields
+    if (selectedType === 'medical_necessity_md_referral') {
+      base.mn_primary_complaints = mnPrimaryComplaints;
+      base.mn_objective_findings = mnObjectiveFindings;
+      base.mn_current_treatment = mnCurrentTreatment;
+      base.mn_patient_response = mnPatientResponse;
+      base.mn_reasons = mnReasons;
+      base.mn_reason_other = mnReasonOther;
+      base.mn_additional_clinical = mnAdditionalClinical;
+    }
+
+    return base;
   };
 
   const generateMutation = useMutation({
@@ -180,6 +260,15 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
     setBodyParts('');
     setClinicalIndication('');
     setTreatmentSchedule('');
+    setMnPrimaryComplaints('');
+    setMnObjectiveFindings('');
+    setMnCurrentTreatment('');
+    setMnPatientResponse('');
+    setMnReasons([]);
+    setMnReasonOther('');
+    setMnAdditionalClinical('');
+    setSelectedFacilityId('');
+    setShowMnWarning(false);
   };
 
   const handleDownload = async (filePath: string) => {
@@ -189,11 +278,40 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
   };
 
   const openGenerator = (type: DocType) => {
+    // Soft warning check for referral letters to MD
+    if (type === 'referral_letter' && (!existingMnDocs || existingMnDocs.length === 0)) {
+      setSelectedType(type);
+      setShowMnWarning(true);
+      return;
+    }
     setSelectedType(type);
     setReferringProviderId(caseData?.provider_id || '');
     setClinicalIndication(caseData?.specialty || '');
     setShowGenerate(true);
   };
+
+  const proceedWithReferral = () => {
+    setShowMnWarning(false);
+    setReferringProviderId(caseData?.provider_id || '');
+    setClinicalIndication(caseData?.specialty || '');
+    setShowGenerate(true);
+  };
+
+  const switchToMnForm = () => {
+    setShowMnWarning(false);
+    setSelectedType('medical_necessity_md_referral');
+    setReferringProviderId(caseData?.provider_id || '');
+    setClinicalIndication(caseData?.specialty || '');
+    setShowGenerate(true);
+  };
+
+  // Auto-select facility when matches change
+  const autoSelectedFacility = (() => {
+    if (!matchingFacilities || matchingFacilities.length === 0) return null;
+    if (selectedFacilityId) return matchingFacilities.find((f: any) => f.id === selectedFacilityId);
+    const preferred = matchingFacilities.find((f: any) => f.is_preferred);
+    return preferred || matchingFacilities[0];
+  })();
 
   if (isLoading) return <Skeleton className="h-40 rounded-xl" />;
 
@@ -212,6 +330,7 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
               <DropdownMenuItem onClick={() => openGenerator('referral_letter')}>Referral Letter</DropdownMenuItem>
               <DropdownMenuItem onClick={() => openGenerator('imaging_requisition')}>Imaging Requisition</DropdownMenuItem>
               <DropdownMenuItem onClick={() => openGenerator('work_treatment_note')}>Work/Treatment Note</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => openGenerator('medical_necessity_md_referral')}>Medical Necessity — MD Referral</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -260,6 +379,25 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
           )}
         </tbody>
       </table>
+
+      {/* Medical Necessity Warning Dialog */}
+      <Dialog open={showMnWarning} onOpenChange={v => { if (!v) { setShowMnWarning(false); setSelectedType(null); } }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-warning">
+              <AlertTriangle className="w-5 h-5" /> Medical Necessity Check
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            A Medical Necessity form has not been completed for this case. MD referrals require a completed 
+            <strong> Medical Necessity — MD Referral Authorization</strong> from the treating provider. Generate the Medical Necessity form first?
+          </p>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={proceedWithReferral}>Proceed Anyway</Button>
+            <Button onClick={switchToMnForm}>Generate Medical Necessity Form</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Generate Document Dialog */}
       <Dialog open={showGenerate} onOpenChange={v => { if (!v) resetForm(); else setShowGenerate(v); }}>
@@ -314,6 +452,39 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
                     <Input placeholder="Specify other imaging..." value={imagingOther} onChange={e => setImagingOther(e.target.value)} className="h-9 mt-1" />
                   )}
                 </div>
+
+                {/* Facility auto-selection */}
+                {imagingTypes.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Imaging Facility</Label>
+                    {!matchingFacilities || matchingFacilities.length === 0 ? (
+                      <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 text-xs text-warning flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                        <span>No imaging facility configured for {patientCity ? `${patientCity}, ` : ''}{patientState || 'this location'}. Please add one under Admin &gt; Imaging Facilities before generating this requisition.</span>
+                      </div>
+                    ) : matchingFacilities.length === 1 ? (
+                      <div className="bg-accent/50 rounded-lg p-3 text-xs">
+                        <p className="font-medium">{matchingFacilities[0].name}</p>
+                        <p className="text-muted-foreground">{matchingFacilities[0].address || `${matchingFacilities[0].city}, ${matchingFacilities[0].state}`}</p>
+                        {matchingFacilities[0].custom_form_url && (
+                          <Badge variant="outline" className="text-[9px] mt-1 text-success">Has custom requisition form</Badge>
+                        )}
+                      </div>
+                    ) : (
+                      <Select value={selectedFacilityId || autoSelectedFacility?.id || ''} onValueChange={setSelectedFacilityId}>
+                        <SelectTrigger className="h-10"><SelectValue placeholder="Select facility..." /></SelectTrigger>
+                        <SelectContent>
+                          {matchingFacilities.map((f: any) => (
+                            <SelectItem key={f.id} value={f.id}>
+                              {f.name} — {f.city}, {f.state} {f.is_preferred ? '⭐' : ''}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </div>
+                )}
+
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Body Part(s) / Region</Label>
                   <Input value={bodyParts} onChange={e => setBodyParts(e.target.value)} placeholder="e.g. Cervical spine, Lumbar spine" className="h-10" />
@@ -331,6 +502,76 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
                 <Label className="text-sm font-medium">Treatment Schedule</Label>
                 <Input value={treatmentSchedule} onChange={e => setTreatmentSchedule(e.target.value)} placeholder="e.g. 3x per week for 4 weeks" className="h-10" />
               </div>
+            )}
+
+            {/* Medical Necessity fields */}
+            {selectedType === 'medical_necessity_md_referral' && (
+              <>
+                <div className="bg-warning/5 border border-warning/20 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground">
+                    This form documents medical necessity for an MD referral. Sections 1-3 should be completed by the treating provider. 
+                    You may pre-fill known information; the provider will complete and sign the final form.
+                  </p>
+                </div>
+
+                <h4 className="text-sm font-semibold pt-2">Section 1 — Clinical Findings</h4>
+                <div className="space-y-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Primary Complaint(s)</Label>
+                    <Textarea value={mnPrimaryComplaints} onChange={e => setMnPrimaryComplaints(e.target.value)} placeholder="Describe patient's primary complaints..." rows={2} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Objective Findings from Examination/Treatment</Label>
+                    <Textarea value={mnObjectiveFindings} onChange={e => setMnObjectiveFindings(e.target.value)} placeholder="ROM deficits, orthopedic test results, neurological findings, imaging results..." rows={2} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Current Treatment Provided</Label>
+                    <Textarea value={mnCurrentTreatment} onChange={e => setMnCurrentTreatment(e.target.value)} placeholder="Adjustments, PT, modalities, frequency, duration..." rows={2} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Patient Response to Treatment</Label>
+                    <Textarea value={mnPatientResponse} onChange={e => setMnPatientResponse(e.target.value)} placeholder="Improving, plateauing, or worsening..." rows={2} />
+                  </div>
+                </div>
+
+                <h4 className="text-sm font-semibold pt-2">Section 2 — Medical Necessity Statement</h4>
+                <div className="space-y-2">
+                  <Label className="text-xs">Reason(s) for MD Referral</Label>
+                  <div className="space-y-2">
+                    {MEDICAL_NECESSITY_REASONS.map(reason => (
+                      <label key={reason} className="flex items-start gap-2 text-xs">
+                        <Checkbox
+                          checked={mnReasons.includes(reason)}
+                          onCheckedChange={v => {
+                            if (v) setMnReasons(prev => [...prev, reason]);
+                            else setMnReasons(prev => prev.filter(r => r !== reason));
+                          }}
+                          className="mt-0.5"
+                        />
+                        <span>{reason}</span>
+                      </label>
+                    ))}
+                    <label className="flex items-start gap-2 text-xs">
+                      <Checkbox
+                        checked={mnReasons.includes('Other')}
+                        onCheckedChange={v => {
+                          if (v) setMnReasons(prev => [...prev, 'Other']);
+                          else { setMnReasons(prev => prev.filter(r => r !== 'Other')); setMnReasonOther(''); }
+                        }}
+                        className="mt-0.5"
+                      />
+                      <span>Other</span>
+                    </label>
+                    {mnReasons.includes('Other') && (
+                      <Input value={mnReasonOther} onChange={e => setMnReasonOther(e.target.value)} placeholder="Specify other reason..." className="h-8 text-xs ml-6" />
+                    )}
+                  </div>
+                  <div className="space-y-1.5 pt-1">
+                    <Label className="text-xs">Additional Clinical Notes</Label>
+                    <Textarea value={mnAdditionalClinical} onChange={e => setMnAdditionalClinical(e.target.value)} placeholder="Optional additional clinical justification..." rows={2} />
+                  </div>
+                </div>
+              </>
             )}
 
             {/* Additional Notes */}
@@ -405,6 +646,9 @@ function DocumentPreview({ type, mergeData }: { type: DocType; mergeData: any })
     return (
       <div className="text-xs space-y-2 text-foreground leading-relaxed">
         <p className="font-bold text-center">IMAGING REQUISITION</p>
+        {d.imaging_facility_name && (
+          <p className="text-center">Facility: {d.imaging_facility_name}<br />{d.imaging_facility_address}{d.imaging_facility_phone ? ` | Phone: ${d.imaging_facility_phone}` : ''}{d.imaging_facility_fax ? ` | Fax: ${d.imaging_facility_fax}` : ''}</p>
+        )}
         <p>Date: {d.today_date}</p>
         <p>Ordering Provider: {d.referring_provider_name}<br />{d.referring_provider_practice}<br />NPI: {d.referring_provider_npi}</p>
         <p className="pt-1">Patient: {d.patient_name}<br />DOB: {d.patient_dob}<br />Phone: {d.patient_phone}</p>
@@ -413,6 +657,41 @@ function DocumentPreview({ type, mergeData }: { type: DocType; mergeData: any })
         <p>Body Part(s): {d.body_parts}</p>
         <p>Clinical Indication: {d.clinical_indication}</p>
         <p className="pt-1">Send Results To: {d.referring_provider_name} — Fax: {d.referring_provider_fax}</p>
+        {d.additional_notes && <p className="pt-1 italic">{d.additional_notes}</p>}
+      </div>
+    );
+  }
+
+  if (type === 'medical_necessity_md_referral') {
+    return (
+      <div className="text-xs space-y-2 text-foreground leading-relaxed">
+        <p className="font-bold text-center">MEDICAL NECESSITY — MD REFERRAL AUTHORIZATION</p>
+        <p>Date: {d.today_date} | Case #: {d.case_number}</p>
+        <p className="pt-1"><strong>Patient:</strong> {d.patient_name} | DOB: {d.patient_dob} | DOI: {d.patient_dol}</p>
+        <p><strong>Injury Type:</strong> {d.injury_type}</p>
+        <p className="pt-1"><strong>Treating Provider:</strong> {d.referring_provider_name}<br />{d.referring_provider_practice} | NPI: {d.referring_provider_npi}</p>
+        <p className="pt-1"><strong>Referred To:</strong> {d.receiving_provider_name}<br />{d.receiving_provider_practice}</p>
+
+        <p className="pt-2 font-semibold">Section 1 — Clinical Findings</p>
+        <p><strong>Primary complaints:</strong> {d.mn_primary_complaints || '(Provider to complete)'}</p>
+        <p><strong>Objective findings:</strong> {d.mn_objective_findings || '(Provider to complete)'}</p>
+        <p><strong>Current treatment:</strong> {d.mn_current_treatment || '(Provider to complete)'}</p>
+        <p><strong>Patient response:</strong> {d.mn_patient_response || '(Provider to complete)'}</p>
+
+        <p className="pt-2 font-semibold">Section 2 — Medical Necessity Statement</p>
+        {d.mn_reasons?.length > 0 ? (
+          <ul className="list-disc pl-4">
+            {d.mn_reasons.map((r: string, i: number) => (
+              <li key={i}>{r === 'Other' ? `Other: ${d.mn_reason_other || '___'}` : r}</li>
+            ))}
+          </ul>
+        ) : <p className="italic">(Provider to select reasons)</p>}
+        {d.mn_additional_clinical && <p><strong>Additional notes:</strong> {d.mn_additional_clinical}</p>}
+
+        <p className="pt-2 font-semibold">Section 3 — Provider Attestation</p>
+        <p>Provider Signature: ________________________<br />Print Name: {d.referring_provider_name}<br />Date: _______________ | NPI: {d.referring_provider_npi}</p>
+
+        <p className="pt-1">Attorney: {d.attorney_name} — {d.attorney_firm}</p>
         {d.additional_notes && <p className="pt-1 italic">{d.additional_notes}</p>}
       </div>
     );
