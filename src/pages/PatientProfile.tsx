@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { User, Shield, FileText, Phone, Mail, MapPin, Calendar, Save, CheckCircle, AlertTriangle } from 'lucide-react';
+import { User, Shield, FileText, Phone, Mail, MapPin, Calendar, Save, CheckCircle, AlertTriangle, ExternalLink } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { LANGUAGES } from '@/lib/languages';
 import { US_STATES } from '@/lib/us-states';
@@ -19,6 +20,7 @@ import { logPHIAccess } from '@/lib/audit-logger';
 export default function PatientProfile() {
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: patientProfile, isLoading: loadingProfile } = useQuery({
     queryKey: ['patient-profile-detail', user?.id],
@@ -306,9 +308,10 @@ export default function PatientProfile() {
               </div>
               <div className="flex justify-between items-center text-xs">
                 <span className="text-muted-foreground">Documents on File</span>
-                <span className="flex items-center gap-1 text-foreground font-medium">
-                  <FileText className="w-3.5 h-3.5 text-muted-foreground" /> {docCount}
-                </span>
+                <button onClick={() => navigate('/patient/documents')} className="flex items-center gap-1 text-primary hover:underline font-medium">
+                  <FileText className="w-3.5 h-3.5" /> {docCount}
+                  <ExternalLink className="w-3 h-3 ml-0.5" />
+                </button>
               </div>
             </div>
           </div>
