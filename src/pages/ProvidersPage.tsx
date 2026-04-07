@@ -594,11 +594,11 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
                       )}
                     </div>
                   </td>
-                  <td className="px-5 py-3.5">
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <MapPin className="w-3 h-3" /> {p.locations || 1}
-                    </span>
-                  </td>
+                    <td className="px-5 py-3.5">
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <MapPin className="w-3 h-3" /> {locationCounts?.[p.id] || 0}
+                      </span>
+                    </td>
                   <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-primary">{p.activeCases}</td>
                   <td className="px-5 py-3.5">
                     <span className={`flex items-center gap-1 text-xs ${p.hipaa_baa_on_file ? 'text-emerald-600' : 'text-red-500'}`}>
