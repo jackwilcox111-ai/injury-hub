@@ -1012,6 +1012,10 @@ export default function CaseDetail() {
           <PolicyDetailsTab caseId={id!} />
         </TabsContent>
 
+        <TabsContent value="documents" className="p-5">
+          <CaseDocumentsTab caseId={id!} caseData={caseData} patientProfile={patientProfile} allProviders={allProviders || []} />
+        </TabsContent>
+
       </Tabs>
 
       {/* Modals */}
