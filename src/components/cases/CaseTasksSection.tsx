@@ -84,7 +84,7 @@ export function CaseTasksSection({ caseId }: { caseId: string }) {
         </thead>
         <tbody className="divide-y divide-border">
           {tasks.map((t: any) => (
-            <tr key={t.id} className="hover:bg-accent/30 transition-colors">
+            <tr key={t.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => setSelectedTask(t)}>
               <td className="px-4 py-2.5">
                 <div className="flex items-center gap-1.5">
                   <CheckSquare className={`w-3.5 h-3.5 shrink-0 ${t.status === 'Complete' || t.status === 'Completed' ? 'text-emerald-500' : 'text-muted-foreground'}`} />
@@ -100,7 +100,7 @@ export function CaseTasksSection({ caseId }: { caseId: string }) {
                 </span>
               </td>
               {isAdmin && (
-                <td className="px-4 py-2.5">
+                <td className="px-4 py-2.5" onClick={e => e.stopPropagation()}>
                   <Select value={t.status} onValueChange={v => updateStatus.mutate({ taskId: t.id, status: v })}>
                     <SelectTrigger className="h-7 text-xs w-28"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -113,6 +113,14 @@ export function CaseTasksSection({ caseId }: { caseId: string }) {
           ))}
         </tbody>
       </table>
+
+      <TaskDetailDialog
+        open={!!selectedTask}
+        onOpenChange={open => { if (!open) setSelectedTask(null); }}
+        task={selectedTask}
+        staff={staff || []}
+        onUpdate={updateTask}
+      />
     </div>
   );
 }
