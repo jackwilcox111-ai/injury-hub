@@ -37,6 +37,7 @@ import FunderDashboard from "./pages/FunderDashboard";
 import ProviderRCM from "./pages/ProviderRCM";
 import PatientTimeline from "./pages/PatientTimeline";
 import PatientMedicalTeam from "./pages/PatientMedicalTeam";
+import PatientDocuments from "./pages/PatientDocuments";
 import PatientMessages from "./pages/PatientMessages";
 import ProviderMessages from "./pages/ProviderMessages";
 import FindProvider from "./pages/network/FindProvider";
