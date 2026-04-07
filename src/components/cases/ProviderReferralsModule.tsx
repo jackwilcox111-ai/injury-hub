@@ -79,6 +79,11 @@ export function ProviderReferralsModule({ caseId, onSendReferral }: Props) {
             <Send className="w-3.5 h-3.5" /> Send Referral
           </Button>
         )}
+        {canRequestReferral && (
+          <Button size="sm" variant="outline" className="h-8 text-xs gap-1.5" onClick={onSendReferral}>
+            <Send className="w-3.5 h-3.5" /> Request Referral
+          </Button>
+        )}
       </div>
 
       <table className="w-full text-sm">

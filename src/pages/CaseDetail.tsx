@@ -512,7 +512,7 @@ export default function CaseDetail() {
               )}
               {!isProvider && (
                 <Button size="sm" className="h-7 text-xs gap-1" onClick={() => setShowReferral(true)}>
-                  <Send className="w-3 h-3" /> Send Referral
+                  <Send className="w-3 h-3" /> {isAttorney ? 'Request Referral' : 'Send Referral'}
                 </Button>
               )}
             </div>
