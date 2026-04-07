@@ -72,9 +72,11 @@ export function ProviderReferralsModule({ caseId, onSendReferral }: Props) {
             {counts.sent} sent · {counts.accepted} accepted · {counts.pending} pending
           </p>
         </div>
-        <Button size="sm" className="h-8 text-xs gap-1.5" onClick={onSendReferral}>
-          <Send className="w-3.5 h-3.5" /> Send Referral
-        </Button>
+        {canSendReferral && (
+          <Button size="sm" className="h-8 text-xs gap-1.5" onClick={onSendReferral}>
+            <Send className="w-3.5 h-3.5" /> Send Referral
+          </Button>
+        )}
       </div>
 
       <table className="w-full text-sm">
