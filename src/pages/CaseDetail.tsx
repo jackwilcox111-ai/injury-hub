@@ -22,7 +22,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { ArrowLeft, AlertTriangle, Clock, FileText, DollarSign, Activity, Send, ShieldCheck, Heart, Bell, ListTodo, FileSignature, GitBranch, Radar, Shield, Languages, Info, Phone, MessageCircle, FolderOpen, Download } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Clock, FileText, DollarSign, Activity, Send, ShieldCheck, Heart, Bell, ListTodo, FileSignature, GitBranch, Radar, Shield, Languages, Info, Phone, MessageCircle, FolderOpen, Download, MapPin, User, Calendar } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, formatDistanceToNow } from 'date-fns';
 import { InsuranceEligibilityTab } from '@/components/cases/InsuranceEligibilityTab';
@@ -131,7 +131,9 @@ export default function CaseDetail() {
   const { data: patientProfile } = useQuery({
     queryKey: ['patient-profile-for-case', id],
     queryFn: async () => {
-      const { data } = await supabase.from('patient_profiles').select('needs_interpreter, city, state').eq('case_id', id!).maybeSingle();
+      const { data } = await supabase.from('patient_profiles')
+        .select('needs_interpreter, preferred_language, address, city, state, zip, date_of_birth, insurance_status, hipaa_auth_signed, assignment_of_benefits_signed')
+        .eq('case_id', id!).maybeSingle();
       return data;
     },
   });
@@ -475,6 +477,8 @@ export default function CaseDetail() {
   const solDays = c.sol_date ? Math.ceil((new Date(c.sol_date).getTime() - Date.now()) / 86400000) : null;
 
 
+
+
   return (
     <div className="space-y-6">
       <PHIBanner />
@@ -645,6 +649,52 @@ export default function CaseDetail() {
           </>
         )}
       </div>
+
+      {/* Patient Information Card — staff only */}
+      {isStaff && patientProfile && (
+        <div className="bg-card border border-border rounded-xl p-5 shadow-card">
+          <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5 mb-3">
+            <User className="w-4 h-4 text-primary" />
+            Patient Information
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+            <div className="space-y-0.5">
+              <Label className="text-[10px] text-muted-foreground">Address</Label>
+              <p className="text-foreground flex items-center gap-1">
+                <MapPin className="w-3 h-3 text-muted-foreground shrink-0" />
+                {[patientProfile.address, patientProfile.city, patientProfile.state, patientProfile.zip].filter(Boolean).join(', ') || '—'}
+              </p>
+            </div>
+            <div className="space-y-0.5">
+              <Label className="text-[10px] text-muted-foreground">Date of Birth</Label>
+              <p className="text-foreground flex items-center gap-1">
+                <Calendar className="w-3 h-3 text-muted-foreground shrink-0" />
+                {patientProfile.date_of_birth ? format(new Date(patientProfile.date_of_birth), 'MMM d, yyyy') : '—'}
+              </p>
+            </div>
+            <div className="space-y-0.5">
+              <Label className="text-[10px] text-muted-foreground">Preferred Language</Label>
+              <p className="text-foreground flex items-center gap-1">
+                <Languages className="w-3 h-3 text-muted-foreground shrink-0" />
+                {patientProfile.preferred_language || c.preferred_language || 'English'}
+                {needsInterpreter && <Badge variant="outline" className="text-[9px] ml-1">Interpreter needed</Badge>}
+              </p>
+            </div>
+            <div className="space-y-0.5">
+              <Label className="text-[10px] text-muted-foreground">Insurance Status</Label>
+              <p className="text-foreground">{patientProfile.insurance_status || '—'}</p>
+            </div>
+            <div className="space-y-0.5">
+              <Label className="text-[10px] text-muted-foreground">HIPAA Auth</Label>
+              <p className="text-foreground">{patientProfile.hipaa_auth_signed ? '✓ Signed' : '✗ Not signed'}</p>
+            </div>
+            <div className="space-y-0.5">
+              <Label className="text-[10px] text-muted-foreground">Assignment of Benefits</Label>
+              <p className="text-foreground">{patientProfile.assignment_of_benefits_signed ? '✓ Signed' : '✗ Not signed'}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Provider Referrals — hidden for providers */}
       {!isProvider && <ProviderReferralsModule caseId={id!} onSendReferral={() => setShowReferral(true)} />}
