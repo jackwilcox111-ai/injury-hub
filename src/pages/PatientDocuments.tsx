@@ -296,7 +296,7 @@ export default function PatientDocuments() {
                     <div className="flex items-center gap-2 mt-0.5">
                       <Badge variant="outline" className="text-[10px]">{doc.document_type}</Badge>
                       {doc.signed && (
-                        <Badge className="text-[10px] bg-green-500/10 text-green-600 border-green-500/20">
+                        <Badge className="text-[10px] bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                           Signed {doc.signed_at ? format(new Date(doc.signed_at), 'MMM d, yyyy') : ''}
                         </Badge>
                       )}
