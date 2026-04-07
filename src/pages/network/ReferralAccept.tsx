@@ -9,7 +9,6 @@ import { CheckCircle, XCircle, AlertTriangle, Clock } from 'lucide-react';
 
 type ReferralData = {
   id: string;
-  case_id: string;
   specialty: string | null;
   status: string;
   token_expires_at: string | null;
@@ -37,20 +36,23 @@ export default function ReferralAccept() {
   }, [token]);
 
   async function loadReferral() {
-    const { data, error: fetchError } = await (supabase
-      .from('referrals')
-      .select('id, case_id, specialty, status, token_expires_at, responded_at, cases(case_number, attorneys(firm_name))')
-      .eq('token', token!) as any)
-      .maybeSingle();
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('referral-token', {
+        body: { action: 'lookup', token },
+      });
 
-    if (fetchError || !data) {
+      if (fnError || !data || data.error) {
+        setError(data?.error || 'Referral not found or link is invalid.');
+        setLoading(false);
+        return;
+      }
+
+      setReferral(data);
+      setLoading(false);
+    } catch {
       setError('Referral not found or link is invalid.');
       setLoading(false);
-      return;
     }
-
-    setReferral(data);
-    setLoading(false);
   }
 
   const isExpired = referral?.token_expires_at && new Date(referral.token_expires_at) < new Date();
@@ -59,22 +61,24 @@ export default function ReferralAccept() {
   async function handleRespond(status: 'Accepted' | 'Declined') {
     if (!referral) return;
     setSubmitting(true);
-    const { error } = await (supabase
-      .from('referrals')
-      .update({
-        status,
-        responded_at: new Date().toISOString(),
-        response_notes: notes || null,
-      } as any)
-      .eq('id', referral.id) as any);
 
-    if (error) {
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('referral-token', {
+        body: { action: 'respond', token, status, notes: notes || null },
+      });
+
+      if (fnError || !data || data.error) {
+        setError(data?.error || 'Failed to submit response. Please try again.');
+        setSubmitting(false);
+        return;
+      }
+
+      setResult(status);
+      setSubmitting(false);
+    } catch {
       setError('Failed to submit response. Please try again.');
       setSubmitting(false);
-      return;
     }
-    setResult(status);
-    setSubmitting(false);
   }
 
   if (loading) {
