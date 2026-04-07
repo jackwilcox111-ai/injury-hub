@@ -114,11 +114,33 @@ export default function CasesList() {
 
   const filtered = useMemo(() => {
     return (cases || []).filter(c => {
+      if (statusFilter !== 'All' && c.status !== statusFilter) return false;
+      if (attorneyFilter !== 'All') {
+        const firm = (c as any).attorneys?.firm_name || '';
+        if (firm !== attorneyFilter) return false;
+      }
+      if (alertFilter !== 'All') {
+        const flag = c.flag || '';
+        if (alertFilter === 'None' && flag) return false;
+        if (alertFilter !== 'None' && flag !== alertFilter) return false;
+      }
       if (!search) return true;
       const s = search.toLowerCase();
-      return (c.patient_name?.toLowerCase().includes(s) || c.case_number?.toLowerCase().includes(s) || (c as any).attorneys?.firm_name?.toLowerCase().includes(s));
+      return (c.patient_name?.toLowerCase().includes(s) || c.case_number?.toLowerCase().includes(s) || (c as any).attorneys?.firm_name?.toLowerCase().includes(s) || c.patient_phone?.includes(s));
     });
-  }, [cases, search]);
+  }, [cases, search, statusFilter, attorneyFilter, alertFilter]);
+
+  const uniqueAttorneys = useMemo(() => {
+    const names = new Set<string>();
+    (cases || []).forEach(c => { const f = (c as any).attorneys?.firm_name; if (f) names.add(f); });
+    return Array.from(names).sort();
+  }, [cases]);
+
+  const uniqueAlerts = useMemo(() => {
+    const flags = new Set<string>();
+    (cases || []).forEach(c => { if (c.flag) flags.add(c.flag); });
+    return Array.from(flags).sort();
+  }, [cases]);
 
   const { sortedData: sorted, sortConfig, requestSort } = useSortableTable(filtered, { key: 'updated_at', direction: 'desc' });
 
