@@ -35,6 +35,19 @@ const IMAGING_TYPE_MAP: Record<string, string> = {
   'X-Ray': 'xray', 'MRI': 'mri', 'CT Scan': 'ct_scan', 'Ultrasound': 'ultrasound', 'Other': 'other',
 };
 
+const BODY_PART_OPTIONS = [
+  'Cervical Spine', 'Thoracic Spine', 'Lumbar Spine', 'Shoulder', 'Knee',
+  'Hip', 'Ankle', 'Wrist', 'Elbow', 'Head/Brain', 'Abdomen/Pelvis',
+];
+
+const CLINICAL_INDICATION_OPTIONS = [
+  'Nature/Type of Injury/Trauma',
+  'Persistent Pain',
+  'Radicular/Radiating Pain',
+  'Rule Out Fracture',
+  'Medically Necessary',
+];
+
 const MEDICAL_NECESSITY_REASONS = [
   'Patient\'s condition has not responded adequately to conservative care',
   'Patient presents with symptoms beyond the scope of my practice',
