@@ -961,7 +961,7 @@ export default function CaseDetail() {
           <TabsTrigger value="records" className="text-xs gap-1.5"><FileText className="w-3.5 h-3.5" /> Records</TabsTrigger>
           {!isProvider && <TabsTrigger value="workplan" className="text-xs gap-1.5"><ListTodo className="w-3.5 h-3.5" /> Work Plan</TabsTrigger>}
           {!isProvider && <TabsTrigger value="policy" className="text-xs gap-1.5"><Shield className="w-3.5 h-3.5" /> Policy</TabsTrigger>}
-          {!isProvider && <TabsTrigger value="documents" className="text-xs gap-1.5"><FolderOpen className="w-3.5 h-3.5" /> Documents</TabsTrigger>}
+          <TabsTrigger value="documents" className="text-xs gap-1.5"><FolderOpen className="w-3.5 h-3.5" /> Documents</TabsTrigger>
         </TabsList>
 
         <TabsContent value="activity" className="p-5">
