@@ -43,6 +43,7 @@ import { CaseTimelineSidebar } from '@/components/cases/CaseTimelineSidebar';
 import { CaseProgressStepper } from '@/components/cases/CaseProgressStepper';
 import { CaseTasksSection } from '@/components/cases/CaseTasksSection';
 import { AttorneyCaseActions } from '@/components/cases/AttorneyCaseActions';
+import { CaseDocumentsTab } from '@/components/cases/CaseDocumentsTab';
 
 
 function RecordsBillsDump({ caseId }: { caseId: string }) {
@@ -960,6 +961,7 @@ export default function CaseDetail() {
           <TabsTrigger value="records" className="text-xs gap-1.5"><FileText className="w-3.5 h-3.5" /> Records</TabsTrigger>
           {!isProvider && <TabsTrigger value="workplan" className="text-xs gap-1.5"><ListTodo className="w-3.5 h-3.5" /> Work Plan</TabsTrigger>}
           {!isProvider && <TabsTrigger value="policy" className="text-xs gap-1.5"><Shield className="w-3.5 h-3.5" /> Policy</TabsTrigger>}
+          {!isProvider && <TabsTrigger value="documents" className="text-xs gap-1.5"><FolderOpen className="w-3.5 h-3.5" /> Documents</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="activity" className="p-5">
@@ -1009,6 +1011,10 @@ export default function CaseDetail() {
 
         <TabsContent value="policy" className="p-5">
           <PolicyDetailsTab caseId={id!} />
+        </TabsContent>
+
+        <TabsContent value="documents" className="p-5">
+          <CaseDocumentsTab caseId={id!} caseData={caseData} patientProfile={patientProfile} allProviders={allProviders || []} />
         </TabsContent>
 
       </Tabs>
