@@ -116,13 +116,16 @@ export default function PatientDocuments() {
     try {
       const { data, error } = await supabase.storage
         .from('documents')
-        .createSignedUrl(doc.storage_path, 300); // 5 min expiry
+        .createSignedUrl(doc.storage_path, 300);
       if (error) throw error;
       if (isImage) {
         setViewingDoc({ url: data.signedUrl, name: doc.file_name, isImage: true });
+      } else if (/\.pdf$/i.test(doc.file_name)) {
+        setViewingDoc({ url: data.signedUrl, name: doc.file_name, isImage: false });
       } else {
-        // For PDFs and other files, open in new tab
-        window.open(data.signedUrl, '_blank');
+        // For unsupported formats (docx, etc.), open in Google Docs Viewer inline
+        const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(data.signedUrl)}&embedded=true`;
+        setViewingDoc({ url: viewerUrl, name: doc.file_name, isImage: false });
       }
     } catch (e: any) {
       toast.error('Could not open file');
