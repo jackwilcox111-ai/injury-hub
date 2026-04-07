@@ -364,7 +364,7 @@ export default function ProvidersPage() {
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div><span className="text-muted-foreground">Primary Specialty:</span> <span className="font-medium">{selectedProvider.specialty || '—'}</span></div>
                   <div><span className="text-muted-foreground">Services:</span> <span className="font-medium">{((selectedProvider as any).services_offered || []).join('; ') || '—'}</span></div>
-                  <div><span className="text-muted-foreground">Locations:</span> <span className="font-medium">{selectedProvider.locations}</span></div>
+                  <div><span className="text-muted-foreground">Locations:</span> <span className="font-medium">{providerLocations?.length || 0}</span></div>
                   
                   <div><span className="text-muted-foreground">Phone:</span> <span className="font-mono text-sm">{(selectedProvider as any).phone || '—'}</span></div>
                   <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={selectedProvider.status} /></div>
