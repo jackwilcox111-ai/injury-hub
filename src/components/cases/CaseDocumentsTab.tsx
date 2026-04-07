@@ -196,8 +196,9 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
       // Imaging-specific
       imaging_types: imagingTypes,
       imaging_other: imagingOther,
-      body_parts: bodyParts,
-      clinical_indication: clinicalIndication || caseData?.specialty || '',
+      body_parts: bodyParts.join(', '),
+      clinical_indication: clinicalIndication.length > 0 ? clinicalIndication.join(', ') : (caseData?.specialty || ''),
+      contrast_option: contrastOption,
       // Work/treatment note
       treatment_schedule: treatmentSchedule,
     };
