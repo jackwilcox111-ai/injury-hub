@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -20,7 +21,9 @@ interface Props {
 }
 
 export function ProviderReferralsModule({ caseId, onSendReferral }: Props) {
+  const { profile } = useAuth();
   const queryClient = useQueryClient();
+  const canSendReferral = profile?.role === 'admin' || profile?.role === 'care_manager';
 
   const { data: referrals, isLoading } = useQuery({
     queryKey: ['case-referrals', caseId],
@@ -69,9 +72,11 @@ export function ProviderReferralsModule({ caseId, onSendReferral }: Props) {
             {counts.sent} sent · {counts.accepted} accepted · {counts.pending} pending
           </p>
         </div>
-        <Button size="sm" className="h-8 text-xs gap-1.5" onClick={onSendReferral}>
-          <Send className="w-3.5 h-3.5" /> Send Referral
-        </Button>
+        {canSendReferral && (
+          <Button size="sm" className="h-8 text-xs gap-1.5" onClick={onSendReferral}>
+            <Send className="w-3.5 h-3.5" /> Send Referral
+          </Button>
+        )}
       </div>
 
       <table className="w-full text-sm">
