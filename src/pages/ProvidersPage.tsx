@@ -259,6 +259,7 @@ export default function ProvidersPage() {
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="imaging">Imaging Facilities</TabsTrigger>
           </TabsList>
 
           <TabsContent value="providers" className="mt-4">
