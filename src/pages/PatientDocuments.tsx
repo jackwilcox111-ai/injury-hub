@@ -110,6 +110,27 @@ export default function PatientDocuments() {
     return <Icon className="w-4 h-4" />;
   };
 
+  const viewDocument = async (doc: any) => {
+    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(doc.file_name);
+    setLoadingView(doc.id);
+    try {
+      const { data, error } = await supabase.storage
+        .from('documents')
+        .createSignedUrl(doc.storage_path, 300); // 5 min expiry
+      if (error) throw error;
+      if (isImage) {
+        setViewingDoc({ url: data.signedUrl, name: doc.file_name, isImage: true });
+      } else {
+        // For PDFs and other files, open in new tab
+        window.open(data.signedUrl, '_blank');
+      }
+    } catch (e: any) {
+      toast.error('Could not open file');
+    } finally {
+      setLoadingView(null);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
