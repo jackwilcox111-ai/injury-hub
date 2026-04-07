@@ -34,6 +34,8 @@ export default function CasesList() {
   const isAdmin = profile?.role === 'admin';
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [attorneyFilter, setAttorneyFilter] = useState('All');
+  const [alertFilter, setAlertFilter] = useState('All');
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
   const [showNew, setShowNew] = useState(false);
   const [newCase, setNewCase] = useState({
@@ -44,13 +46,11 @@ export default function CasesList() {
   });
 
   const { data: cases, isLoading } = useQuery({
-    queryKey: ['cases-list', statusFilter],
+    queryKey: ['cases-list'],
     queryFn: async () => {
-      let q = supabase.from('cases_with_counts')
+      const { data } = await supabase.from('cases_with_counts')
         .select('*, attorneys!cases_attorney_id_fkey(firm_name), providers!cases_provider_id_fkey(name)')
         .order('updated_at', { ascending: false });
-      if (statusFilter !== 'All') q = q.eq('status', statusFilter);
-      const { data } = await q;
       return data || [];
     },
   });
@@ -112,11 +112,33 @@ export default function CasesList() {
 
   const filtered = useMemo(() => {
     return (cases || []).filter(c => {
+      if (statusFilter !== 'All' && c.status !== statusFilter) return false;
+      if (attorneyFilter !== 'All') {
+        const firm = (c as any).attorneys?.firm_name || '';
+        if (firm !== attorneyFilter) return false;
+      }
+      if (alertFilter !== 'All') {
+        const flag = c.flag || '';
+        if (alertFilter === 'None' && flag) return false;
+        if (alertFilter !== 'None' && flag !== alertFilter) return false;
+      }
       if (!search) return true;
       const s = search.toLowerCase();
-      return (c.patient_name?.toLowerCase().includes(s) || c.case_number?.toLowerCase().includes(s) || (c as any).attorneys?.firm_name?.toLowerCase().includes(s));
+      return (c.patient_name?.toLowerCase().includes(s) || c.case_number?.toLowerCase().includes(s) || (c as any).attorneys?.firm_name?.toLowerCase().includes(s) || c.patient_phone?.includes(s));
     });
-  }, [cases, search]);
+  }, [cases, search, statusFilter, attorneyFilter, alertFilter]);
+
+  const uniqueAttorneys = useMemo(() => {
+    const names = new Set<string>();
+    (cases || []).forEach(c => { const f = (c as any).attorneys?.firm_name; if (f) names.add(f); });
+    return Array.from(names).sort();
+  }, [cases]);
+
+  const uniqueAlerts = useMemo(() => {
+    const flags = new Set<string>();
+    (cases || []).forEach(c => { if (c.flag) flags.add(c.flag); });
+    return Array.from(flags).sort();
+  }, [cases]);
 
   const { sortedData: sorted, sortConfig, requestSort } = useSortableTable(filtered, { key: 'updated_at', direction: 'desc' });
 
@@ -152,22 +174,32 @@ export default function CasesList() {
       ) : (
         <>
           {/* Search + Filters */}
-          <div className="flex items-center gap-4">
+           <div className="flex items-center gap-3 flex-wrap">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by patient, case #, or attorney..." className="pl-9 h-10" />
+              <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by patient, case #, attorney, phone..." className="pl-9 h-10" />
             </div>
-            <div className="flex gap-1 bg-card border border-border rounded-lg p-1">
-              {statuses.map(s => (
-                <button
-                  key={s}
-                  onClick={() => setStatusFilter(s)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${statusFilter === s ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="h-10 w-40 text-xs"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectContent>
+                {statuses.map(s => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={attorneyFilter} onValueChange={setAttorneyFilter}>
+              <SelectTrigger className="h-10 w-44 text-xs"><SelectValue placeholder="Attorney" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All" className="text-xs">All Attorneys</SelectItem>
+                {uniqueAttorneys.map(a => <SelectItem key={a} value={a} className="text-xs">{a}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={alertFilter} onValueChange={setAlertFilter}>
+              <SelectTrigger className="h-10 w-36 text-xs"><SelectValue placeholder="Alert" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All" className="text-xs">All Alerts</SelectItem>
+                <SelectItem value="None" className="text-xs">No Alert</SelectItem>
+                {uniqueAlerts.map(f => <SelectItem key={f} value={f} className="text-xs">{f}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
 
       {/* Cases Table */}
@@ -187,8 +219,7 @@ export default function CasesList() {
                 <SortableHeader label="Attorney" sortKey="attorneys.firm_name" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 <SortableHeader label="Status" sortKey="status" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 <SortableHeader label="Lien" sortKey="lien_amount" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
-                
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Alert</th>
+                <SortableHeader label="Alert" sortKey="flag" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 
               </tr>
             </thead>
