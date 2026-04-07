@@ -50,8 +50,7 @@ export function AppHeader({ onMenuToggle }: AppHeaderProps) {
   const [bellOpen, setBellOpen] = useState(false);
   const bellRef = useRef<HTMLDivElement>(null);
 
-  const basePath = '/' + location.pathname.split('/').filter(Boolean)[0];
-  const moduleName = routeNames[basePath] || 'Portal';
+  const moduleName = routeNames[location.pathname] || routeNames['/' + location.pathname.split('/').filter(Boolean)[0]] || 'Portal';
 
   const { data: flaggedCases } = useQuery({
     queryKey: ['flagged-cases'],
