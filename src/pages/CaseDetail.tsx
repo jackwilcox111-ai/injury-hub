@@ -43,6 +43,7 @@ import { CaseTimelineSidebar } from '@/components/cases/CaseTimelineSidebar';
 import { CaseProgressStepper } from '@/components/cases/CaseProgressStepper';
 import { CaseTasksSection } from '@/components/cases/CaseTasksSection';
 import { AttorneyCaseActions } from '@/components/cases/AttorneyCaseActions';
+import { CaseDocumentsTab } from '@/components/cases/CaseDocumentsTab';
 
 
 function RecordsBillsDump({ caseId }: { caseId: string }) {
