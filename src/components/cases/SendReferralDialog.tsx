@@ -45,6 +45,7 @@ export function SendReferralDialog({ open, onOpenChange, caseId, caseNumber }: P
     onSuccess: () => {
       toast.success('Referral placed — care manager will assign a provider.');
       queryClient.invalidateQueries({ queryKey: ['case-tasks', caseId] });
+      queryClient.invalidateQueries({ queryKey: ['provider-referral-requests', caseId] });
       onOpenChange(false);
       setSpecialty('');
     },
