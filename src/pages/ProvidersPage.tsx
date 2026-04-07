@@ -301,7 +301,7 @@ export default function ProvidersPage() {
           </TabsContent>
         </Tabs>
       ) : (
-        <ProviderTable providers={providers} caseCounts={caseCounts} onSelect={setShowDetail} />
+        <ProviderTable providers={providers} caseCounts={caseCounts} locationCounts={locationCounts} onSelect={setShowDetail} />
       )}
 
       {/* Detail Dialog */}
