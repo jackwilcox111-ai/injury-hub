@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
           referral_letter: "Referral Letter",
           imaging_requisition: "Imaging Requisition",
           work_treatment_note: "Work/Treatment Note",
-          medical_necessity_md_referral: "Medical Necessity &mdash; MD Referral Authorization",
+          medical_necessity_md_referral: "Medical Necessity — MD Referral Authorization",
         };
 
         const emailPayload = {
