@@ -164,20 +164,15 @@ export function ProviderProfileTab() {
       {/* Compliance section — read-only */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-border">
-          <h3 className="text-sm font-semibold text-foreground">Compliance & Status</h3>
+          <h3 className="text-sm font-semibold text-foreground">Compliance</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
           <div className="divide-y divide-border">
             <InfoRow label="HIPAA BAA on File" value={provider.hipaa_baa_on_file ? 'Yes' : 'No'} />
             <InfoRow label="Interpreter Available" value={provider.interpreter_available ? 'Yes' : 'No'} />
-            <InfoRow label="Credentialing Expiry" value={provider.credentialing_expiry || '—'} />
           </div>
           <div className="divide-y divide-border">
-            <div className="flex items-center justify-between px-6 py-4">
-              <span className="text-sm text-muted-foreground w-36 shrink-0 text-right pr-6">Status</span>
-              <Badge variant={provider.status === 'Active' ? 'default' : 'secondary'} className="text-xs">{provider.status}</Badge>
-            </div>
-            
+            <InfoRow label="Credentialing Expiry" value={provider.credentialing_expiry || '—'} />
           </div>
         </div>
       </div>
