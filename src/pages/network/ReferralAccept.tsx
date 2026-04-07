@@ -208,7 +208,7 @@ export default function ReferralAccept() {
         </div>
 
         <p className="text-center text-[10px] text-muted-foreground mt-4">
-          © {new Date().getFullYear()} Got Hurt Injury Network · CareLink Platform
+          © {new Date().getFullYear()} Got Hurt Injury Network
         </p>
       </div>
     </div>
