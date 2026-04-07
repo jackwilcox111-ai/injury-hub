@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,6 +36,8 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 }
 
 export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: TaskDetailDialogProps) {
+  const { profile } = useAuth();
+  const isStaff = profile?.role === 'admin' || profile?.role === 'care_manager';
   const queryClient = useQueryClient();
   const [providerSearch, setProviderSearch] = useState('');
   const [specialtyFilter, setSpecialtyFilter] = useState<string>('__all__');
@@ -206,7 +209,7 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
           )}
 
           {/* Provider Assignment Section */}
-          {isReferralTask && task.status !== 'Complete' && (
+          {isReferralTask && isStaff && task.status !== 'Complete' && (
             <div className="border-t border-border pt-4 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
