@@ -18,7 +18,7 @@ import { PHIBanner } from '@/components/global/PHIBanner';
 import {
   Calendar, FileText, DollarSign, Plus, Users, Building2, Link2, MessageCircle, Upload,
   TrendingUp, CheckCircle, Clock, AlertTriangle, FileCheck, FolderOpen, ArrowRight,
-  Phone, Search, ArrowUp, ArrowDown, X
+  Phone, Search, ArrowUp, ArrowDown, X, Send
 } from 'lucide-react';
 import { ProviderProfileTab } from '@/components/provider/ProviderProfileTab';
 import { ProviderLiensTab } from '@/components/provider/ProviderLiensTab';
