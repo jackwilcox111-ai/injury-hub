@@ -121,7 +121,7 @@ export default function TaskDashboard() {
             {filtered.map(t => {
               const isOverdue = t.due_date && isPast(new Date(t.due_date)) && t.status !== 'Complete';
               return (
-                <tr key={t.id} className="hover:bg-accent/30 transition-colors">
+                <tr key={t.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => setSelectedTask(t)}>
                   <td className="px-4 py-3">
                     <div className="font-medium text-foreground text-xs">{t.title}</div>
                     {t.description && <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{t.description}</p>}
