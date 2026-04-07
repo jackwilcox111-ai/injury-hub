@@ -162,6 +162,13 @@ export default function TaskDashboard() {
           </tbody>
         </table>
       </div>
+      <TaskDetailDialog
+        open={!!selectedTask}
+        onOpenChange={open => { if (!open) setSelectedTask(null); }}
+        task={selectedTask}
+        staff={staff || []}
+        onUpdate={(id, updates) => updateTask.mutate({ id, updates })}
+      />
     </div>
   );
 }
