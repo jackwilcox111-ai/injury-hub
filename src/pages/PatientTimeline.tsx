@@ -6,14 +6,14 @@ import { format } from 'date-fns';
 import { GitBranch, CheckCircle, Circle } from 'lucide-react';
 
 const patientLabels: Record<string, string> = {
-  'Intake': 'Case Opened',
-  'Provider Matched': 'Matched with Medical Providers',
-  'First Appointment': 'First Appointments Scheduled',
-  'Appointment Completed': 'First Appointments Completed',
-  'In Treatment': 'In Current Treatment',
-  'Treatment Completed': 'Treatment Completed',
-  'Records Received': 'Medical Records Being Reviewed',
-  'Settlement Reached': 'Attorney Working on Finalizing Your Case',
+  'Intake': 'Your Case Has Been Opened',
+  'Provider Matched': 'You've Been Matched with Medical Providers',
+  'First Appointment': 'Your First Appointments Are Scheduled',
+  'Appointment Completed': 'Your First Appointments Are Completed',
+  'In Treatment': 'You Are Currently in Treatment',
+  'Treatment Completed': 'Your Treatment Is Complete',
+  'Records Received': 'Your Medical Records Are Being Reviewed',
+  'Settlement Reached': 'Your Attorney Is Working on Finalizing Your Case',
 };
 
 const milestones = ['Intake', 'Provider Matched', 'First Appointment', 'Appointment Completed', 'In Treatment', 'Treatment Completed', 'Records Received', 'Settlement Reached'];
