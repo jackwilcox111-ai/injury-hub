@@ -331,12 +331,36 @@ export default function ProvidersPage() {
               {isAdmin ? (
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">Name</Label>
+                    <Label className="text-xs text-muted-foreground">Clinic Owner</Label>
+                    <Input defaultValue={(selectedProvider as any).clinic_owner || ''} className="h-9" onBlur={e => { const v = e.target.value || null; if (v !== (selectedProvider as any).clinic_owner) updateProvider.mutate({ clinic_owner: v }); }} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Clinic Name</Label>
                     <Input defaultValue={selectedProvider.name} className="h-9" onBlur={e => { if (e.target.value !== selectedProvider.name) updateProvider.mutate({ name: e.target.value }); }} />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs text-muted-foreground">Primary Specialty</Label>
                     <Input defaultValue={selectedProvider.specialty || ''} className="h-9" onBlur={e => { const v = e.target.value || null; if (v !== selectedProvider.specialty) updateProvider.mutate({ specialty: v }); }} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Phone</Label>
+                    <Input defaultValue={(selectedProvider as any).phone || ''} placeholder="(555) 555-5555" className="h-9 font-mono" onBlur={e => { const v = e.target.value || null; if (v !== (selectedProvider as any).phone) updateProvider.mutate({ phone: v }); }} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Email</Label>
+                    <Input type="email" defaultValue={(selectedProvider as any).email || ''} className="h-9" onBlur={e => { const v = e.target.value || null; if (v !== (selectedProvider as any).email) updateProvider.mutate({ email: v }); }} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Secondary Email</Label>
+                    <Input type="email" defaultValue={(selectedProvider as any).secondary_email || ''} className="h-9" onBlur={e => { const v = e.target.value || null; if (v !== (selectedProvider as any).secondary_email) updateProvider.mutate({ secondary_email: v }); }} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Fax</Label>
+                    <Input defaultValue={(selectedProvider as any).fax || ''} className="h-9 font-mono" onBlur={e => { const v = e.target.value || null; if (v !== (selectedProvider as any).fax) updateProvider.mutate({ fax: v }); }} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Website</Label>
+                    <Input defaultValue={(selectedProvider as any).website_url || ''} placeholder="https://..." className="h-9" onBlur={e => { const v = e.target.value || null; if (v !== (selectedProvider as any).website_url) updateProvider.mutate({ website_url: v }); }} />
                   </div>
                   <div className="col-span-2 space-y-1">
                     <Label className="text-xs text-muted-foreground">Services Offered</Label>
@@ -356,12 +380,20 @@ export default function ProvidersPage() {
                       })}
                     </div>
                   </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">Phone</Label>
-                    <Input defaultValue={(selectedProvider as any).phone || ''} placeholder="(555) 555-5555" className="h-9 font-mono" onBlur={e => { const v = e.target.value || null; if (v !== (selectedProvider as any).phone) updateProvider.mutate({ phone: v }); }} />
+                  <div className="col-span-2 grid grid-cols-4 gap-3 pt-1">
+                    <div className="flex items-center justify-between gap-1">
+                      <Label className="text-xs text-muted-foreground">Extended Hours</Label>
+                      <Switch checked={(selectedProvider as any).extended_hours || false} onCheckedChange={v => updateProvider.mutate({ extended_hours: v })} />
+                    </div>
+                    <div className="flex items-center justify-between gap-1">
+                      <Label className="text-xs text-muted-foreground">Transportation</Label>
+                      <Switch checked={(selectedProvider as any).offers_transportation || false} onCheckedChange={v => updateProvider.mutate({ offers_transportation: v })} />
+                    </div>
+                    <div className="flex items-center justify-between gap-1">
+                      <Label className="text-xs text-muted-foreground">Offers Virtual</Label>
+                      <Switch checked={(selectedProvider as any).offers_virtual || false} onCheckedChange={v => updateProvider.mutate({ offers_virtual: v })} />
+                    </div>
                   </div>
-                  <div className="space-y-1 col-span-2" />
-                  {/* Locations managed below */}
                   <div className="space-y-1">
                     <Label className="text-xs text-muted-foreground">Credentialing Expiry</Label>
                     <Input type="date" defaultValue={selectedProvider.credentialing_expiry || ''} className="h-9" onBlur={e => { const v = e.target.value || null; if (v !== selectedProvider.credentialing_expiry) updateProvider.mutate({ credentialing_expiry: v }); }} />
