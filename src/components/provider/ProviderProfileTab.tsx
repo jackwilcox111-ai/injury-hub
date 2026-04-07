@@ -26,19 +26,8 @@ export function ProviderProfileTab() {
     enabled: !!profile?.provider_id,
   });
 
-  // Fetch patients linked to this provider
-  const { data: patients } = useQuery({
-    queryKey: ['provider-patients-names', profile?.provider_id],
-    queryFn: async () => {
-      const { data } = await supabase.from('cases')
-        .select('id, patient_name')
-        .eq('provider_id', profile!.provider_id!)
-        .neq('status', 'Settled')
-        .order('patient_name');
-      return data || [];
-    },
-    enabled: !!profile?.provider_id,
-  });
+
+
 
   const { data: locations } = useQuery({
     queryKey: ['provider-locations', profile?.provider_id],
