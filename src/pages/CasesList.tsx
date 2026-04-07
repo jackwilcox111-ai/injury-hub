@@ -225,7 +225,6 @@ export default function CasesList() {
                     <FinancialValue value={c.lien_amount} />
                   </td>
                   <td className="px-5 py-3.5">
-                  <td className="px-5 py-3.5">
                     <FlagBadge flag={c.flag} />
                   </td>
                 </tr>
