@@ -176,22 +176,32 @@ export default function CasesList() {
       ) : (
         <>
           {/* Search + Filters */}
-          <div className="flex items-center gap-4">
+           <div className="flex items-center gap-3 flex-wrap">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by patient, case #, or attorney..." className="pl-9 h-10" />
+              <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by patient, case #, attorney, phone..." className="pl-9 h-10" />
             </div>
-            <div className="flex gap-1 bg-card border border-border rounded-lg p-1">
-              {statuses.map(s => (
-                <button
-                  key={s}
-                  onClick={() => setStatusFilter(s)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${statusFilter === s ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="h-10 w-40 text-xs"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectContent>
+                {statuses.map(s => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={attorneyFilter} onValueChange={setAttorneyFilter}>
+              <SelectTrigger className="h-10 w-44 text-xs"><SelectValue placeholder="Attorney" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All" className="text-xs">All Attorneys</SelectItem>
+                {uniqueAttorneys.map(a => <SelectItem key={a} value={a} className="text-xs">{a}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={alertFilter} onValueChange={setAlertFilter}>
+              <SelectTrigger className="h-10 w-36 text-xs"><SelectValue placeholder="Alert" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All" className="text-xs">All Alerts</SelectItem>
+                <SelectItem value="None" className="text-xs">No Alert</SelectItem>
+                {uniqueAlerts.map(f => <SelectItem key={f} value={f} className="text-xs">{f}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
 
       {/* Cases Table */}
