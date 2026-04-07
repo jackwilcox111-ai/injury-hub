@@ -7,7 +7,7 @@ import { GitBranch, CheckCircle, Circle } from 'lucide-react';
 
 const patientLabels: Record<string, string> = {
   'Intake': 'Your Case Has Been Opened',
-  'Provider Matched': 'You've Been Matched with Medical Providers',
+  'Provider Matched': "You've Been Matched with Medical Providers",
   'First Appointment': 'Your First Appointments Are Scheduled',
   'Appointment Completed': 'Your First Appointments Are Completed',
   'In Treatment': 'You Are Currently in Treatment',
