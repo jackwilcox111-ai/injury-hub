@@ -36,6 +36,7 @@ import AdminMessages from "./pages/AdminMessages";
 import FunderDashboard from "./pages/FunderDashboard";
 import ProviderRCM from "./pages/ProviderRCM";
 import PatientTimeline from "./pages/PatientTimeline";
+import PatientMedicalTeam from "./pages/PatientMedicalTeam";
 import PatientMessages from "./pages/PatientMessages";
 import ProviderMessages from "./pages/ProviderMessages";
 import FindProvider from "./pages/network/FindProvider";
@@ -54,7 +55,7 @@ function RequireAuth({ children, roles }: { children: ReactNode; roles?: string[
   if (roles && profile && !roles.includes(profile.role)) {
     if (profile.role === 'attorney') return <Navigate to="/dashboard" replace />;
     if (profile.role === 'provider') return <Navigate to="/provider/dashboard" replace />;
-    if (profile.role === 'patient') return <Navigate to="/patient/dashboard" replace />;
+    if (profile.role === 'patient') return <Navigate to="/patient/timeline" replace />;
     if (profile.role === 'funder') return <Navigate to="/funder/dashboard" replace />;
     
     return <Navigate to="/dashboard" replace />;
@@ -68,7 +69,7 @@ function AuthRedirect() {
   if (!session) return <Navigate to="/login" replace />;
   if (profile?.role === 'attorney') return <Navigate to="/dashboard" replace />;
   if (profile?.role === 'provider') return <Navigate to="/provider/dashboard" replace />;
-  if (profile?.role === 'patient') return <Navigate to="/patient/dashboard" replace />;
+  if (profile?.role === 'patient') return <Navigate to="/patient/timeline" replace />;
   if (profile?.role === 'funder') return <Navigate to="/funder/dashboard" replace />;
   
   return <Navigate to="/dashboard" replace />;
@@ -126,8 +127,9 @@ const App = () => (
             <Route path="/provider/messages" element={<RequireAuth roles={['provider']}><AppLayout><ProviderMessages /></AppLayout></RequireAuth>} />
 
             {/* Patient portal */}
-            <Route path="/patient/dashboard" element={<RequireAuth roles={['patient']}><AppLayout><PatientDashboard /></AppLayout></RequireAuth>} />
+            <Route path="/patient/dashboard" element={<Navigate to="/patient/timeline" replace />} />
             <Route path="/patient/timeline" element={<RequireAuth roles={['patient']}><AppLayout><PatientTimeline /></AppLayout></RequireAuth>} />
+            <Route path="/patient/medical-team" element={<RequireAuth roles={['patient']}><AppLayout><PatientMedicalTeam /></AppLayout></RequireAuth>} />
             <Route path="/patient/messages" element={<RequireAuth roles={['patient']}><AppLayout><PatientMessages /></AppLayout></RequireAuth>} />
 
             {/* Funder portal */}
