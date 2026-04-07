@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { Upload, FileText, Image, Camera, Car, ShieldCheck, File, Loader2, Eye, ExternalLink } from 'lucide-react';
+import { Upload, FileText, Image, Camera, Car, ShieldCheck, File, Loader2, Eye, ExternalLink, PenTool } from 'lucide-react';
 
 const DOCUMENT_CATEGORIES = [
   { value: 'Injury Photos', label: 'Injury Photos', icon: Camera },
