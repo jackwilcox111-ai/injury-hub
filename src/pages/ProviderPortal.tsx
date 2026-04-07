@@ -476,6 +476,34 @@ export default function ProviderPortal() {
             </div>
           </div>
 
+          {/* Incoming Referrals Alert */}
+          {(pendingReferrals?.length || 0) > 0 && (
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Send className="w-[18px] h-[18px] text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">
+                      {pendingReferrals!.length} Pending Referral{pendingReferrals!.length !== 1 ? 's' : ''}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      You have new patient referrals awaiting your review.
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  className="h-8 text-xs gap-1.5"
+                  onClick={() => navigate('/provider/dashboard?tab=referrals')}
+                >
+                  <Send className="w-3.5 h-3.5" /> Review Referrals
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Patient Pipeline Table */}
           <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
             <div className="px-5 py-3 border-b border-border flex flex-wrap items-center gap-3">
