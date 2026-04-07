@@ -6,7 +6,7 @@ import {
   DollarSign, CalendarDays, Settings, LogOut, ShieldCheck,
   BarChart3, Link2, CheckSquare, FileSignature, Video, Landmark, Banknote,
   CreditCard, GitBranch, MessageCircle, Heart, ClipboardCheck,
-  ShoppingBag, FileText, Calendar, Upload, Building2, Users, Share2
+  ShoppingBag, FileText, Calendar, Upload, Building2, Users, Share2, Send
 } from 'lucide-react';
 
 const navItems = [
@@ -22,6 +22,7 @@ const navItems = [
   { title: 'Calendar', path: '/calendar', icon: CalendarDays, roles: ['admin', 'care_manager', 'attorney'] as UserRole[] },
   { title: 'Settings', path: '/settings', icon: Settings, roles: ['admin'] as UserRole[] },
   { title: 'Dashboard', path: '/provider/dashboard', icon: LayoutDashboard, roles: ['provider'] as UserRole[] },
+  { title: 'Referrals', path: '/provider/dashboard?tab=referrals', icon: Send, roles: ['provider'] as UserRole[] },
   { title: 'Appointments', path: '/provider/dashboard?tab=appointments', icon: Calendar, roles: ['provider'] as UserRole[] },
   { title: 'Records & Bills', path: '/provider/dashboard?tab=records-bills', icon: FileText, roles: ['provider'] as UserRole[] },
   { title: 'Liens', path: '/provider/dashboard?tab=liens', icon: Link2, roles: ['provider'] as UserRole[] },

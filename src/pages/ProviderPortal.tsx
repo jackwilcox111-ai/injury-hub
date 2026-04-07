@@ -18,7 +18,7 @@ import { PHIBanner } from '@/components/global/PHIBanner';
 import {
   Calendar, FileText, DollarSign, Plus, Users, Building2, Link2, MessageCircle, Upload,
   TrendingUp, CheckCircle, Clock, AlertTriangle, FileCheck, FolderOpen, ArrowRight,
-  Phone, Search, ArrowUp, ArrowDown, X
+  Phone, Search, ArrowUp, ArrowDown, X, Send
 } from 'lucide-react';
 import { ProviderProfileTab } from '@/components/provider/ProviderProfileTab';
 import { ProviderLiensTab } from '@/components/provider/ProviderLiensTab';
@@ -26,6 +26,7 @@ import { ProviderDocumentsTab } from '@/components/provider/ProviderDocumentsTab
 import { ProviderMessagesTab } from '@/components/provider/ProviderMessagesTab';
 import { SPECIALTIES } from '@/lib/specialties';
 import { Textarea } from '@/components/ui/textarea';
+import { ProviderReferralsTab } from '@/components/provider/ProviderReferralsTab';
 
 const BILLING_PATHS = ['Lien', 'PIP', 'MedPay', 'Insurance'];
 const APPT_STATUSES = ['Scheduled', 'Completed', 'No-Show', 'Cancelled', 'Rescheduled'];
@@ -102,6 +103,18 @@ export default function ProviderPortal() {
         .select('*', { count: 'exact', head: true })
         .eq('viewed', false);
       return count || 0;
+    },
+  });
+
+  const { data: pendingReferrals } = useQuery({
+    queryKey: ['provider-pending-referrals'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('referrals')
+        .select('id, specialty, created_at, status, cases!referrals_case_id_fkey(case_number, patient_name)')
+        .in('status', ['Sent', 'Pending'])
+        .order('created_at', { ascending: false });
+      return data || [];
     },
   });
 
@@ -334,6 +347,7 @@ export default function ProviderPortal() {
   }
 
   const tabTitles: Record<string, string> = {
+    referrals: 'Referrals',
     appointments: 'Appointments',
     'records-bills': 'Records & Bills',
     liens: 'Liens',
@@ -342,6 +356,7 @@ export default function ProviderPortal() {
   };
 
   const tabDescriptions: Record<string, string> = {
+    referrals: 'Review and respond to incoming patient referrals.',
     appointments: 'Track upcoming, completed, and missed appointments.',
     'records-bills': 'Manage charges, medical records, and uploaded documents.',
     liens: 'Track lien amounts, reductions, and payments.',
@@ -472,6 +487,34 @@ export default function ProviderPortal() {
               </div>
             </div>
           </div>
+
+          {/* Incoming Referrals Alert */}
+          {(pendingReferrals?.length || 0) > 0 && (
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Send className="w-[18px] h-[18px] text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">
+                      {pendingReferrals!.length} Pending Referral{pendingReferrals!.length !== 1 ? 's' : ''}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      You have new patient referrals awaiting your review.
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  className="h-8 text-xs gap-1.5"
+                  onClick={() => navigate('/provider/dashboard?tab=referrals')}
+                >
+                  <Send className="w-3.5 h-3.5" /> Review Referrals
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Patient Pipeline Table */}
           <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
@@ -793,6 +836,11 @@ export default function ProviderPortal() {
         {/* Messages Tab */}
         <TabsContent value="messages" className="mt-4">
           <ProviderMessagesTab />
+        </TabsContent>
+
+        {/* Referrals Tab */}
+        <TabsContent value="referrals" className="mt-4">
+          <ProviderReferralsTab />
         </TabsContent>
 
         {/* My Practice Tab */}
