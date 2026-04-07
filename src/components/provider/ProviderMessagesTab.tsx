@@ -203,12 +203,23 @@ export function ProviderMessagesTab() {
         <DialogContent>
           <DialogHeader><DialogTitle>Send a Message</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label className="text-xs">Case</Label>
                 <Select value={caseId} onValueChange={setCaseId}>
                   <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Select case..." /></SelectTrigger>
                   <SelectContent>{providerCases?.map(c => <SelectItem key={c.id} value={c.id} className="text-xs">{c.case_number} — {c.patient_name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs">Recipient</Label>
+                <Select value={recipientRole} onValueChange={setRecipientRole}>
+                  <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="attorney" className="text-xs">Attorney</SelectItem>
+                    <SelectItem value="care_manager" className="text-xs">Care Coordinator</SelectItem>
+                    <SelectItem value="patient" className="text-xs">Patient</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
