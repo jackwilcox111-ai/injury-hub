@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
       .eq("id", user.id)
       .single();
 
-    if (!profile || !["admin", "care_manager"].includes(profile.role)) {
+    if (!profile || !["admin", "care_manager", "provider"].includes(profile.role)) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

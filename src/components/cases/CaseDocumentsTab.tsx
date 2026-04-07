@@ -200,7 +200,7 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
   return (
     <div className="space-y-5">
       {/* Header with Generate button */}
-      {isStaff && (
+      {canGenerate && (
         <div className="flex justify-end">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
