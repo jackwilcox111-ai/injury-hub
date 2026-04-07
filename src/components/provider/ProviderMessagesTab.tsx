@@ -64,7 +64,7 @@ export function ProviderMessagesTab() {
       if (!script.trim()) throw new Error('Enter a message.');
       const { error } = await supabase.from('video_messages').insert({
         case_id: caseId || null,
-        recipient_role: 'patient',
+        recipient_role: recipientRole,
         message_type: messageType,
         script: script.trim(),
         ai_generated_script: false,
