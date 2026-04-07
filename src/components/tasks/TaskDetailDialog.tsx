@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Search, UserPlus, CheckSquare, MapPin, Phone, Globe } from 'lucide-react';
 import { format } from 'date-fns';
 import { SPECIALTIES } from '@/lib/specialties';
+import { geocodeLocation } from '@/lib/geocode';
 
 interface TaskDetailDialogProps {
   open: boolean;
