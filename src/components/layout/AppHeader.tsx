@@ -50,7 +50,19 @@ export function AppHeader({ onMenuToggle }: AppHeaderProps) {
   const [bellOpen, setBellOpen] = useState(false);
   const bellRef = useRef<HTMLDivElement>(null);
 
-  const moduleName = routeNames[location.pathname] || routeNames['/' + location.pathname.split('/').filter(Boolean)[0]] || 'Portal';
+  const searchParams = new URLSearchParams(location.search);
+  const providerTab = searchParams.get('tab');
+  const providerTabNames: Record<string, string> = {
+    referrals: 'Referrals',
+    appointments: 'Appointments',
+    'records-bills': 'Records & Bills',
+    liens: 'Liens',
+    messages: 'Messages',
+    profile: 'My Practice',
+  };
+  const moduleName = (location.pathname === '/provider/dashboard' && providerTab && providerTabNames[providerTab])
+    ? providerTabNames[providerTab]
+    : routeNames[location.pathname] || routeNames['/' + location.pathname.split('/').filter(Boolean)[0]] || 'Portal';
 
   const { data: flaggedCases } = useQuery({
     queryKey: ['flagged-cases'],
