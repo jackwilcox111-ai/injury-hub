@@ -93,7 +93,7 @@ export const ProviderMapView = forwardRef<ProviderMapHandle, Props>(
     return (
       <div className="w-full rounded-xl overflow-hidden border border-border shadow-sm">
         <style>{`.custom-provider-marker { background: transparent !important; border: none !important; }`}</style>
-        <div ref={containerRef} style={{ height: '350px', width: '100%' }} />
+        <div ref={containerRef} style={{ height: '500px', width: '100%' }} />
       </div>
     );
   }
