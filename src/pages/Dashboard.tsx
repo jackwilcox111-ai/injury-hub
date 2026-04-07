@@ -166,10 +166,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Case Pipeline */}
-      <CasePipeline cases={activeCases} isAdmin={isAdmin} />
-
-      {/* Stale Cases */}
+      {/* Stale Cases - always show */}
       {staleCases.length > 0 && (
         <div className="bg-card border border-border rounded-xl shadow-card overflow-hidden">
           <div className="px-5 py-3 border-b border-border flex items-center gap-2">
