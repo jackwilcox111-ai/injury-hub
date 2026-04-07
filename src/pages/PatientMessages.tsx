@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
@@ -16,6 +18,7 @@ export default function PatientMessages() {
   const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showCompose, setShowCompose] = useState(false);
+  const [recipientRole, setRecipientRole] = useState<string>('care_manager');
   const [script, setScript] = useState('');
 
   const { data: messages, isLoading } = useQuery({
@@ -48,7 +51,7 @@ export default function PatientMessages() {
 
       const { error } = await supabase.from('video_messages').insert({
         case_id: patientProfile?.case_id || null,
-        recipient_role: 'care_manager',
+        recipient_role: recipientRole,
         message_type: 'General',
         script: script.trim(),
         ai_generated_script: false,
@@ -61,7 +64,8 @@ export default function PatientMessages() {
       queryClient.invalidateQueries({ queryKey: ['patient-messages'] });
       setShowCompose(false);
       setScript('');
-      toast.success('Message sent to your care team');
+      setRecipientRole('care_manager');
+      toast.success('Message sent');
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -158,7 +162,17 @@ export default function PatientMessages() {
         <DialogContent>
           <DialogHeader><DialogTitle>Message Your Care Team</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <p className="text-xs text-muted-foreground">Your message will be sent to your care coordinator.</p>
+            <div className="space-y-2">
+              <Label className="text-xs">Send to</Label>
+              <Select value={recipientRole} onValueChange={setRecipientRole}>
+                <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="care_manager" className="text-xs">Care Coordinator</SelectItem>
+                  <SelectItem value="attorney" className="text-xs">Attorney</SelectItem>
+                  <SelectItem value="provider" className="text-xs">Provider</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <Textarea
               value={script}
               onChange={e => setScript(e.target.value)}
