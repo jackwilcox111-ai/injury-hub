@@ -55,7 +55,7 @@ function RequireAuth({ children, roles }: { children: ReactNode; roles?: string[
   if (roles && profile && !roles.includes(profile.role)) {
     if (profile.role === 'attorney') return <Navigate to="/dashboard" replace />;
     if (profile.role === 'provider') return <Navigate to="/provider/dashboard" replace />;
-    if (profile.role === 'patient') return <Navigate to="/patient/dashboard" replace />;
+    if (profile.role === 'patient') return <Navigate to="/patient/timeline" replace />;
     if (profile.role === 'funder') return <Navigate to="/funder/dashboard" replace />;
     
     return <Navigate to="/dashboard" replace />;
