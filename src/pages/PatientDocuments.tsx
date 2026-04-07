@@ -248,6 +248,22 @@ export default function PatientDocuments() {
           </p>
         </div>
       )}
+
+      {/* Image preview dialog */}
+      <Dialog open={!!viewingDoc} onOpenChange={() => setViewingDoc(null)}>
+        <DialogContent className="max-w-3xl p-2 sm:p-4">
+          {viewingDoc && (
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-foreground truncate px-2">{viewingDoc.name}</p>
+              <img
+                src={viewingDoc.url}
+                alt={viewingDoc.name}
+                className="w-full rounded-lg object-contain max-h-[70vh]"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
