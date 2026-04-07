@@ -36,6 +36,8 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 }
 
 export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: TaskDetailDialogProps) {
+  const { profile } = useAuth();
+  const isStaff = profile?.role === 'admin' || profile?.role === 'care_manager';
   const queryClient = useQueryClient();
   const [providerSearch, setProviderSearch] = useState('');
   const [specialtyFilter, setSpecialtyFilter] = useState<string>('__all__');
