@@ -319,6 +319,10 @@ export default function ProvidersPage() {
               </div>
             )}
           </TabsContent>
+
+          <TabsContent value="imaging" className="mt-4">
+            <ImagingFacilitiesSection />
+          </TabsContent>
         </Tabs>
       ) : (
         <ProviderTable providers={providers} caseCounts={caseCounts} locationCounts={locationCounts} onSelect={setShowDetail} />
