@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Search, UserPlus, CheckSquare, MapPin, Phone, Globe } from 'lucide-react';
 import { format } from 'date-fns';
 import { SPECIALTIES } from '@/lib/specialties';
+import { geocodeLocation } from '@/lib/geocode';
 
 interface TaskDetailDialogProps {
   open: boolean;
@@ -90,12 +91,18 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
     onError: (e: any) => toast.error(e.message),
   });
 
-  // Use a simple geocode lookup for patient city/state if we have it
-  // For now we'll match against provider lat/lng if patient has a known location
-  const patientLocation = useMemo(() => {
-    // We don't have patient lat/lng directly, but we can try to find a rough center
-    // For real distance we'd need geocoding. For now, return null and sort alphabetically.
-    return null as { lat: number; lng: number } | null;
+  // Geocode patient address for distance calculations
+  const [patientCoords, setPatientCoords] = useState<{ lat: number; lng: number } | null>(null);
+
+  useEffect(() => {
+    if (!patientProfile) { setPatientCoords(null); return; }
+    const addr = [patientProfile.address, patientProfile.city, patientProfile.state, patientProfile.zip].filter(Boolean).join(', ');
+    if (!addr) { setPatientCoords(null); return; }
+    let cancelled = false;
+    geocodeLocation(addr).then(result => {
+      if (!cancelled && result) setPatientCoords({ lat: result.lat, lng: result.lng });
+    });
+    return () => { cancelled = true; };
   }, [patientProfile]);
 
   const filteredProviders = useMemo(() => {
@@ -117,26 +124,23 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
       );
     }
 
-    // Calculate distance and sort if we have patient coords
-    // We'll use patient city/state to find a matching provider's coords as a proxy
-    // Better: sort providers that share the same city/state first
-    if (patientProfile?.city || patientProfile?.state) {
-      const pCity = patientProfile.city?.toLowerCase() || '';
-      const pState = patientProfile.state?.toLowerCase() || '';
-      list = [...list].sort((a, b) => {
-        const aCity = a.address_city?.toLowerCase() || '';
-        const aState = a.address_state?.toLowerCase() || '';
-        const bCity = b.address_city?.toLowerCase() || '';
-        const bState = b.address_state?.toLowerCase() || '';
-        // Same city+state first, then same state, then rest
-        const aScore = (aCity === pCity && aState === pState) ? 0 : (aState === pState ? 1 : 2);
-        const bScore = (bCity === pCity && bState === pState) ? 0 : (bState === pState ? 1 : 2);
-        return aScore - bScore;
+    // Calculate distance and sort by nearest if we have patient coordinates
+    if (patientCoords) {
+      list = [...list].map(p => ({
+        ...p,
+        _distance: (p.latitude && p.longitude)
+          ? haversineDistance(patientCoords.lat, patientCoords.lng, p.latitude, p.longitude)
+          : null,
+      })).sort((a, b) => {
+        if (a._distance == null && b._distance == null) return 0;
+        if (a._distance == null) return 1;
+        if (b._distance == null) return -1;
+        return a._distance - b._distance;
       });
     }
 
     return list;
-  }, [allProviders, specialtyFilter, providerSearch, patientProfile]);
+  }, [allProviders, specialtyFilter, providerSearch, patientCoords]);
 
   if (!task) return null;
 
@@ -249,6 +253,9 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
                           <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
                             <MapPin className="w-2.5 h-2.5" />
                             {[p.address_city, p.address_state].filter(Boolean).join(', ')}
+                            {(p as any)._distance != null && (
+                              <span className="ml-1 font-medium text-primary">({(p as any)._distance.toFixed(1)} mi)</span>
+                            )}
                           </span>
                         )}
                         {p.phone && (
