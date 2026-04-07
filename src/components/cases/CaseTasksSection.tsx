@@ -1,12 +1,13 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CheckSquare, ListTodo } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { TaskDetailDialog } from '@/components/tasks/TaskDetailDialog';
 
 const statusColors: Record<string, string> = {
   Pending: 'bg-amber-100 text-amber-700 border-amber-200',
@@ -19,18 +20,34 @@ export function CaseTasksSection({ caseId }: { caseId: string }) {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const isAdmin = profile?.role === 'admin' || profile?.role === 'care_manager';
+  const [selectedTask, setSelectedTask] = useState<any>(null);
 
   const { data: tasks } = useQuery({
     queryKey: ['case-tasks-section', caseId],
     queryFn: async () => {
       const { data } = await supabase
         .from('case_tasks')
-        .select('*, profiles:assignee_id(full_name)')
+        .select('*, profiles:assignee_id(full_name), cases:case_id(case_number, patient_name)')
         .eq('case_id', caseId)
         .order('created_at', { ascending: false });
       return data || [];
     },
   });
+
+  const { data: staff } = useQuery({
+    queryKey: ['staff-profiles'],
+    queryFn: async () => {
+      const { data } = await supabase.from('profiles').select('id, full_name, role').in('role', ['admin', 'care_manager']);
+      return data || [];
+    },
+  });
+
+  const updateTask = async (id: string, updates: Record<string, any>) => {
+    const { error } = await supabase.from('case_tasks').update(updates).eq('id', id);
+    if (error) { toast.error(error.message); return; }
+    queryClient.invalidateQueries({ queryKey: ['case-tasks-section', caseId] });
+    toast.success('Task updated');
+  };
 
   const updateStatus = useMutation({
     mutationFn: async ({ taskId, status }: { taskId: string; status: string }) => {
@@ -67,7 +84,7 @@ export function CaseTasksSection({ caseId }: { caseId: string }) {
         </thead>
         <tbody className="divide-y divide-border">
           {tasks.map((t: any) => (
-            <tr key={t.id} className="hover:bg-accent/30 transition-colors">
+            <tr key={t.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => setSelectedTask(t)}>
               <td className="px-4 py-2.5">
                 <div className="flex items-center gap-1.5">
                   <CheckSquare className={`w-3.5 h-3.5 shrink-0 ${t.status === 'Complete' || t.status === 'Completed' ? 'text-emerald-500' : 'text-muted-foreground'}`} />
@@ -83,7 +100,7 @@ export function CaseTasksSection({ caseId }: { caseId: string }) {
                 </span>
               </td>
               {isAdmin && (
-                <td className="px-4 py-2.5">
+                <td className="px-4 py-2.5" onClick={e => e.stopPropagation()}>
                   <Select value={t.status} onValueChange={v => updateStatus.mutate({ taskId: t.id, status: v })}>
                     <SelectTrigger className="h-7 text-xs w-28"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -96,6 +113,14 @@ export function CaseTasksSection({ caseId }: { caseId: string }) {
           ))}
         </tbody>
       </table>
+
+      <TaskDetailDialog
+        open={!!selectedTask}
+        onOpenChange={open => { if (!open) setSelectedTask(null); }}
+        task={selectedTask}
+        staff={staff || []}
+        onUpdate={updateTask}
+      />
     </div>
   );
 }
