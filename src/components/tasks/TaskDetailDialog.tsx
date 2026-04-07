@@ -74,16 +74,17 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
     mutationFn: async (providerId: string) => {
       const { error: caseErr } = await supabase.from('cases').update({ provider_id: providerId }).eq('id', task.case_id);
       if (caseErr) throw caseErr;
-      // Referral record is auto-created by DB trigger
+      // Referral record is auto-created by DB trigger with status 'Sent'
+      // Task moves to In Progress — it completes when the provider accepts
       const { error: taskErr } = await supabase.from('case_tasks').update({
-        status: 'Complete',
-        completed_at: new Date().toISOString(),
+        status: 'In Progress',
       }).eq('id', task.id);
       if (taskErr) throw taskErr;
     },
     onSuccess: () => {
-      toast.success('Provider assigned and task completed');
+      toast.success('Referral sent to provider — awaiting their response');
       queryClient.invalidateQueries({ queryKey: ['admin-all-tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['case-tasks-section'] });
       queryClient.invalidateQueries({ queryKey: ['cases'] });
       queryClient.invalidateQueries({ queryKey: ['case-referrals'] });
       onOpenChange(false);
