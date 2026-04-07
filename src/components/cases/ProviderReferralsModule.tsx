@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { Send, RotateCcw, Eye } from 'lucide-react';
+import { Send, RotateCcw } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const STATUS_STYLES: Record<string, string> = {
   Pending: 'bg-amber-100 text-amber-700 border-amber-200',
