@@ -26,19 +26,8 @@ export function ProviderProfileTab() {
     enabled: !!profile?.provider_id,
   });
 
-  // Fetch patients linked to this provider
-  const { data: patients } = useQuery({
-    queryKey: ['provider-patients-names', profile?.provider_id],
-    queryFn: async () => {
-      const { data } = await supabase.from('cases')
-        .select('id, patient_name')
-        .eq('provider_id', profile!.provider_id!)
-        .neq('status', 'Settled')
-        .order('patient_name');
-      return data || [];
-    },
-    enabled: !!profile?.provider_id,
-  });
+
+
 
   const { data: locations } = useQuery({
     queryKey: ['provider-locations', profile?.provider_id],
@@ -136,16 +125,6 @@ export function ProviderProfileTab() {
             />
             <InfoRow label="Offers Transportation" value={(provider as any).offers_transportation ? 'Yes' : 'No'} />
             <InfoRow label="Offers Virtual" value={(provider as any).offers_virtual ? 'Yes' : 'No'} />
-            <div className="flex items-start justify-between px-6 py-4">
-              <span className="text-sm text-muted-foreground w-36 shrink-0 text-right pr-6">Patients</span>
-              <div className="flex-1 flex flex-wrap gap-1.5">
-                {patients && patients.length > 0 ? patients.map(p => (
-                  <span key={p.id} className="text-sm text-primary">{p.patient_name}</span>
-                )) : (
-                  <span className="text-sm text-muted-foreground">—</span>
-                )}
-              </div>
-            </div>
           </div>
         </div>
       </div>
