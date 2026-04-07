@@ -320,6 +320,97 @@ export type Database = {
         }
         Relationships: []
       }
+      case_documents: {
+        Row: {
+          additional_notes: string | null
+          case_id: string
+          created_at: string | null
+          document_type: string
+          file_path: string | null
+          generated_at: string
+          generated_by: string | null
+          id: string
+          merge_data: Json | null
+          receiving_provider_id: string | null
+          referring_provider_id: string | null
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          case_id: string
+          created_at?: string | null
+          document_type: string
+          file_path?: string | null
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          merge_data?: Json | null
+          receiving_provider_id?: string | null
+          referring_provider_id?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          additional_notes?: string | null
+          case_id?: string
+          created_at?: string | null
+          document_type?: string
+          file_path?: string | null
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          merge_data?: Json | null
+          receiving_provider_id?: string | null
+          referring_provider_id?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "case_documents_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_documents_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases_with_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_documents_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_documents_generated_by_fkey"
+            columns: ["generated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_documents_receiving_provider_id_fkey"
+            columns: ["receiving_provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_documents_referring_provider_id_fkey"
+            columns: ["referring_provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       case_sequence: {
         Row: {
           last_seq: number
@@ -2112,6 +2203,7 @@ export type Database = {
           longitude: number | null
           name: string
           notes: string | null
+          npi: string | null
           offers_transportation: boolean | null
           offers_virtual: boolean | null
           phone: string | null
@@ -2145,6 +2237,7 @@ export type Database = {
           longitude?: number | null
           name: string
           notes?: string | null
+          npi?: string | null
           offers_transportation?: boolean | null
           offers_virtual?: boolean | null
           phone?: string | null
@@ -2178,6 +2271,7 @@ export type Database = {
           longitude?: number | null
           name?: string
           notes?: string | null
+          npi?: string | null
           offers_transportation?: boolean | null
           offers_virtual?: boolean | null
           phone?: string | null
