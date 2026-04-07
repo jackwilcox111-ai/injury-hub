@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Plus, Search, Phone, LayoutGrid, Table2 } from 'lucide-react';
+import { formatPhone } from '@/lib/format-phone';
 import { PHIBanner } from '@/components/global/PHIBanner';
 import { US_STATES } from '@/lib/us-states';
 import { SortableHeader } from '@/components/global/SortableHeader';
@@ -239,7 +240,7 @@ export default function CasesList() {
                   <td className="px-5 py-3.5">
                     {c.patient_phone ? (
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Phone className="w-3 h-3" /> {c.patient_phone}
+                        <Phone className="w-3 h-3" /> {formatPhone(c.patient_phone)}
                       </span>
                     ) : <span className="text-xs text-muted-foreground">—</span>}
                   </td>
