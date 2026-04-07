@@ -42,6 +42,7 @@ export function CaseDocumentsTab({ caseId, caseData, patientProfile, allProvider
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const isStaff = profile?.role === 'admin' || profile?.role === 'care_manager';
+  const canGenerate = isStaff || profile?.role === 'provider';
 
   const [showGenerate, setShowGenerate] = useState(false);
   const [selectedType, setSelectedType] = useState<DocType | null>(null);
