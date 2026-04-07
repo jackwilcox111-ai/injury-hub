@@ -8,7 +8,8 @@ import { FlagBadge } from '@/components/global/FlagBadge';
 import { FinancialValue } from '@/components/global/FinancialValue';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle, TrendingUp, FolderOpen, Plus, ArrowRight, Phone, Clock, FileWarning, Timer } from 'lucide-react';
-import { formatDistanceToNow, differenceInDays, differenceInCalendarDays } from 'date-fns';
+import { formatDistanceToNow, differenceInDays, differenceInCalendarDays, format } from 'date-fns';
+import { formatPhone } from '@/lib/format-phone';
 import { Button } from '@/components/ui/button';
 
 
