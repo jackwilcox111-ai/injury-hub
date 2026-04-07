@@ -221,8 +221,7 @@ export default function CasesList() {
                 <SortableHeader label="Attorney" sortKey="attorneys.firm_name" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 <SortableHeader label="Status" sortKey="status" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 <SortableHeader label="Lien" sortKey="lien_amount" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
-                
-                <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Alert</th>
+                <SortableHeader label="Alert" sortKey="flag" currentKey={sortConfig.key} direction={sortConfig.direction} onSort={requestSort} />
                 
               </tr>
             </thead>
