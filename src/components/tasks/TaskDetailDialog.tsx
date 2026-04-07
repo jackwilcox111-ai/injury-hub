@@ -36,7 +36,7 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: TaskDetailDialogProps) {
   const queryClient = useQueryClient();
   const [providerSearch, setProviderSearch] = useState('');
-  const [specialtyFilter, setSpecialtyFilter] = useState<string>('');
+  const [specialtyFilter, setSpecialtyFilter] = useState<string>('__all__');
   const defaultSpecialty = useMemo(() => extractSpecialty(task?.title || ''), [task?.title]);
   const isReferralTask = !!defaultSpecialty;
 
