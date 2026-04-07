@@ -36,12 +36,12 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: TaskDetailDialogProps) {
   const queryClient = useQueryClient();
   const [providerSearch, setProviderSearch] = useState('');
-  const [specialtyFilter, setSpecialtyFilter] = useState<string>('');
+  const [specialtyFilter, setSpecialtyFilter] = useState<string>('__all__');
   const defaultSpecialty = useMemo(() => extractSpecialty(task?.title || ''), [task?.title]);
   const isReferralTask = !!defaultSpecialty;
 
   // Reset specialty filter when task changes
-  useMemo(() => { setSpecialtyFilter(defaultSpecialty || ''); }, [defaultSpecialty]);
+  useMemo(() => { setSpecialtyFilter(defaultSpecialty || '__all__'); }, [defaultSpecialty]);
 
   // Fetch patient profile for address/coordinates
   const { data: patientProfile } = useQuery({
@@ -101,7 +101,7 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
     let list = allProviders;
 
     // Filter by specialty
-    if (specialtyFilter) {
+    if (specialtyFilter && specialtyFilter !== '__all__') {
       list = list.filter(p => p.specialty?.toLowerCase().includes(specialtyFilter.toLowerCase()));
     }
 
@@ -222,7 +222,7 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
                 <Select value={specialtyFilter} onValueChange={setSpecialtyFilter}>
                   <SelectTrigger className="h-9 w-48 text-xs"><SelectValue placeholder="All Specialties" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Specialties</SelectItem>
+                    <SelectItem value="__all__">All Specialties</SelectItem>
                     {SPECIALTIES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                   </SelectContent>
                 </Select>
