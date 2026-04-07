@@ -23,6 +23,7 @@ interface Props {
 
 export function ProviderReferralsModule({ caseId, onSendReferral }: Props) {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isAttorney = profile?.role === 'attorney';
   const canSendReferral = profile?.role === 'admin' || profile?.role === 'care_manager';
