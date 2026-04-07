@@ -269,6 +269,50 @@ export default function PatientDocuments() {
         </div>
       )}
 
+      {/* Signed contracts & shared documents from care team */}
+      {sharedDocs && sharedDocs.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+            <PenTool className="w-4 h-4 text-primary" /> Contracts & Shared Documents
+          </h3>
+          <div className="space-y-2">
+            {sharedDocs.map(doc => {
+              const isImage = /\.(jpg|jpeg|png|gif|webp|heic)$/i.test(doc.file_name);
+              return (
+                <button
+                  key={doc.id}
+                  onClick={() => viewDocument(doc)}
+                  className="bg-card border border-border rounded-xl p-4 flex items-center gap-3 w-full text-left hover:bg-accent/50 transition-colors cursor-pointer"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    {loadingView === doc.id ? (
+                      <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                    ) : (
+                      <PenTool className="w-5 h-5 text-primary" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{doc.file_name}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <Badge variant="outline" className="text-[10px]">{doc.document_type}</Badge>
+                      {doc.signed && (
+                        <Badge className="text-[10px] bg-green-500/10 text-green-600 border-green-500/20">
+                          Signed {doc.signed_at ? format(new Date(doc.signed_at), 'MMM d, yyyy') : ''}
+                        </Badge>
+                      )}
+                      <span className="text-[10px] text-muted-foreground font-mono">
+                        {doc.created_at ? format(new Date(doc.created_at), 'MMM d, yyyy') : ''}
+                      </span>
+                    </div>
+                  </div>
+                  <Eye className="w-4 h-4 text-muted-foreground shrink-0" />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Document preview dialog */}
       <Dialog open={!!viewingDoc} onOpenChange={() => setViewingDoc(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh] p-2 sm:p-4">
