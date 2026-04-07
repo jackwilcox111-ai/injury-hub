@@ -18,6 +18,7 @@ export default function PatientMessages() {
   const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showCompose, setShowCompose] = useState(false);
+  const [recipientRole, setRecipientRole] = useState<string>('care_manager');
   const [script, setScript] = useState('');
 
   const { data: messages, isLoading } = useQuery({
