@@ -27,6 +27,7 @@ export function ProviderMessagesTab() {
   const [selected, setSelected] = useState<any>(null);
   const [showCompose, setShowCompose] = useState(false);
   const [messageType, setMessageType] = useState<string>('General');
+  const [recipientRole, setRecipientRole] = useState<string>('attorney');
   const [script, setScript] = useState('');
   const [caseId, setCaseId] = useState('');
 
