@@ -385,8 +385,6 @@ export default function ProviderPortal() {
     messages: (
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <KpiCard icon={MessageCircle} value={unreadMessages || 0} label="Unread" color="text-destructive" />
-        <KpiCard icon={Users} value={activeCases.length} label="Active Cases" />
-        <KpiCard icon={Calendar} value={scheduled} label="Upcoming Appts" />
       </div>
     ),
   };
