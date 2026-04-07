@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle, TrendingUp, FolderOpen, Plus, ArrowRight, Phone, Clock, FileWarning, Timer } from 'lucide-react';
 import { formatDistanceToNow, differenceInDays, differenceInCalendarDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { CasePipeline } from '@/components/dashboard/CasePipeline';
+
 
 export default function Dashboard() {
   const { profile } = useAuth();
