@@ -59,6 +59,16 @@ export default function ProvidersPage() {
     },
   });
 
+  const { data: locationCounts } = useQuery({
+    queryKey: ['provider-location-counts'],
+    queryFn: async () => {
+      const { data } = await supabase.from('provider_locations').select('provider_id');
+      const counts: Record<string, number> = {};
+      data?.forEach(l => { if (l.provider_id) counts[l.provider_id] = (counts[l.provider_id] || 0) + 1; });
+      return counts;
+    },
+  });
+
   const { data: linkedCases } = useQuery({
     queryKey: ['provider-cases', showDetail],
     queryFn: async () => {
@@ -233,7 +243,7 @@ export default function ProvidersPage() {
           </TabsList>
 
           <TabsContent value="providers" className="mt-4">
-            <ProviderTable providers={providers} caseCounts={caseCounts} onSelect={setShowDetail} />
+            <ProviderTable providers={providers} caseCounts={caseCounts} locationCounts={locationCounts} onSelect={setShowDetail} />
           </TabsContent>
 
           <TabsContent value="applications" className="mt-4">
@@ -291,7 +301,7 @@ export default function ProvidersPage() {
           </TabsContent>
         </Tabs>
       ) : (
-        <ProviderTable providers={providers} caseCounts={caseCounts} onSelect={setShowDetail} />
+        <ProviderTable providers={providers} caseCounts={caseCounts} locationCounts={locationCounts} onSelect={setShowDetail} />
       )}
 
       {/* Detail Dialog */}
@@ -354,7 +364,7 @@ export default function ProvidersPage() {
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div><span className="text-muted-foreground">Primary Specialty:</span> <span className="font-medium">{selectedProvider.specialty || '—'}</span></div>
                   <div><span className="text-muted-foreground">Services:</span> <span className="font-medium">{((selectedProvider as any).services_offered || []).join('; ') || '—'}</span></div>
-                  <div><span className="text-muted-foreground">Locations:</span> <span className="font-medium">{selectedProvider.locations}</span></div>
+                  <div><span className="text-muted-foreground">Locations:</span> <span className="font-medium">{providerLocations?.length || 0}</span></div>
                   
                   <div><span className="text-muted-foreground">Phone:</span> <span className="font-mono text-sm">{(selectedProvider as any).phone || '—'}</span></div>
                   <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={selectedProvider.status} /></div>
@@ -530,7 +540,7 @@ export default function ProvidersPage() {
   );
 }
 
-function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] | undefined; caseCounts: Record<string, number> | undefined; onSelect: (id: string) => void }) {
+function ProviderTable({ providers, caseCounts, locationCounts, onSelect }: { providers: any[] | undefined; caseCounts: Record<string, number> | undefined; locationCounts: Record<string, number> | undefined; onSelect: (id: string) => void }) {
   const [search, setSearch] = useState('');
   
   const filtered = providers?.filter(p => {
@@ -584,11 +594,11 @@ function ProviderTable({ providers, caseCounts, onSelect }: { providers: any[] |
                       )}
                     </div>
                   </td>
-                  <td className="px-5 py-3.5">
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <MapPin className="w-3 h-3" /> {p.locations || 1}
-                    </span>
-                  </td>
+                    <td className="px-5 py-3.5">
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <MapPin className="w-3 h-3" /> {locationCounts?.[p.id] || 0}
+                      </span>
+                    </td>
                   <td className="px-5 py-3.5 font-mono text-xs tabular-nums text-primary">{p.activeCases}</td>
                   <td className="px-5 py-3.5">
                     <span className={`flex items-center gap-1 text-xs ${p.hipaa_baa_on_file ? 'text-emerald-600' : 'text-red-500'}`}>
