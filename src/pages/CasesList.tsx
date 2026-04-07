@@ -240,7 +240,7 @@ export default function CasesList() {
                   <td className="px-5 py-3.5">
                     {c.patient_phone ? (
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Phone className="w-3 h-3" /> {c.patient_phone}
+                        <Phone className="w-3 h-3" /> {formatPhone(c.patient_phone)}
                       </span>
                     ) : <span className="text-xs text-muted-foreground">—</span>}
                   </td>
