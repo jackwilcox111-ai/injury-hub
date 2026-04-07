@@ -13,7 +13,8 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Plus, Check, X, MapPin, Clock, CheckCircle2, XCircle, Stethoscope, Users, Languages, Search, FileText, Download, FileCheck } from 'lucide-react';
+import { Plus, Check, X, MapPin, Clock, CheckCircle2, XCircle, Stethoscope, Users, Languages, Search, FileText, Download, FileCheck, Building2 } from 'lucide-react';
+import { ImagingFacilitiesSection } from '@/pages/ImagingFacilitiesPage';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, differenceInDays } from 'date-fns';
@@ -258,6 +259,7 @@ export default function ProvidersPage() {
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="imaging">Imaging Facilities</TabsTrigger>
           </TabsList>
 
           <TabsContent value="providers" className="mt-4">
@@ -316,6 +318,10 @@ export default function ProvidersPage() {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="imaging" className="mt-4">
+            <ImagingFacilitiesSection />
           </TabsContent>
         </Tabs>
       ) : (

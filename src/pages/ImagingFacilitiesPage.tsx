@@ -42,7 +42,7 @@ const emptyForm = {
   accepted_imaging_types: [] as string[], is_preferred: false, status: 'active', notes: '',
 };
 
-export default function ImagingFacilitiesPage() {
+export function ImagingFacilitiesSection() {
   const queryClient = useQueryClient();
   const [showDialog, setShowDialog] = useState(false);
   const [editing, setEditing] = useState<Facility | null>(null);
@@ -129,12 +129,9 @@ export default function ImagingFacilitiesPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">Imaging Facilities</h1>
-          <p className="text-sm text-muted-foreground">Manage imaging facility directory by location</p>
-        </div>
+        <p className="text-sm text-muted-foreground">Manage imaging facility directory by location</p>
         <Button onClick={openAdd} size="sm" className="gap-1.5"><Plus className="w-4 h-4" /> Add Facility</Button>
       </div>
 
@@ -329,4 +326,8 @@ export default function ImagingFacilitiesPage() {
       </Dialog>
     </div>
   );
+}
+
+export default function ImagingFacilitiesPage() {
+  return <ImagingFacilitiesSection />;
 }
