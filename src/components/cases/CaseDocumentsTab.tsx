@@ -711,7 +711,7 @@ function DocumentPreview({ type, mergeData }: { type: DocType; mergeData: any })
         <p>Ordering Provider: {d.referring_provider_name}<br />{d.referring_provider_practice}<br />NPI: {d.referring_provider_npi}</p>
         <p className="pt-1">Patient: {d.patient_name}<br />DOB: {d.patient_dob}<br />Phone: {d.patient_phone}</p>
         <p className="pt-1">Date of Injury: {d.patient_dol}<br />Injury Type: {d.injury_type}<br />Case #: {d.case_number}</p>
-        <p className="pt-1">Imaging Requested: {(d.imaging_types || []).join(', ')}{d.imaging_other ? ` — ${d.imaging_other}` : ''}</p>
+        <p className="pt-1">Imaging Requested: {Array.isArray(d.imaging_types) ? d.imaging_types.join(', ') : (d.imaging_types || '')}{d.imaging_other ? ` \u2014 ${d.imaging_other}` : ''}</p>
         <p>Body Part(s): {d.body_parts}</p>
         <p>Clinical Indication: {d.clinical_indication}</p>
         <p className="pt-1">Send Results To: {d.referring_provider_name} — Fax: {d.referring_provider_fax}</p>
