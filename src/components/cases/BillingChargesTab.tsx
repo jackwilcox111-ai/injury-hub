@@ -281,7 +281,7 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
                 </div>
               ) : (
                 <Button type="button" variant="outline" className="w-full h-9 text-xs" onClick={() => fileInputRef.current?.click()}>
-                  <Upload className="w-3.5 h-3.5 mr-1.5" /> Choose PDF...
+                  <Upload className="w-3.5 h-3.5 mr-1.5" /> Upload Bill...
                 </Button>
               )}
             </div>
