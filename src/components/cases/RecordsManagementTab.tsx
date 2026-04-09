@@ -285,7 +285,7 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
               <Select value={newRecord.record_type} onValueChange={v => setNewRecord(p => ({ ...p, record_type: v }))}>
                 <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
                 <SelectContent>
-                  {['Treatment Notes', 'Billing', 'Imaging', 'Surgical Report', 'Initial Evaluation', 'Progress Notes', 'X-rays', 'MRI Report', 'Other'].map(t =>
+                  {['Initial Evaluation', 'Treatment Notes', 'Progress Notes', 'Billing', 'Radiology / Imaging', 'Surgical Report', 'Other'].map(t =>
                     <SelectItem key={t} value={t}>{t}</SelectItem>
                   )}
                 </SelectContent>
