@@ -152,6 +152,26 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
   const deliveredCount = records?.filter((r: any) => r.delivered_to_attorney_date).length || 0;
   const receivedCount = records?.filter((r: any) => r.received_date).length || 0;
 
+  const [compiling, setCompiling] = useState(false);
+  const handleDownloadAll = async () => {
+    const files = (documents || [])
+      .filter((d: any) => d.storage_path && d.document_type !== 'Billing')
+      .map((d: any) => ({ storage_path: d.storage_path, file_name: d.file_name }));
+    const recordFiles = (records || [])
+      .filter((r: any) => r.documents?.storage_path)
+      .map((r: any) => ({ storage_path: r.documents.storage_path, file_name: r.documents.file_name }));
+    // Deduplicate by storage_path
+    const seen = new Set<string>();
+    const allFiles = [...recordFiles, ...files].filter(f => { if (seen.has(f.storage_path)) return false; seen.add(f.storage_path); return true; });
+    if (!allFiles.length) { toast.error('No downloadable record files found'); return; }
+    setCompiling(true);
+    try {
+      await compileFilesToPdf(allFiles, `records-${caseId.slice(0, 8)}.pdf`);
+      toast.success('Records PDF downloaded');
+    } catch (e: any) { toast.error(e.message || 'Failed to compile PDF'); }
+    setCompiling(false);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -160,6 +180,9 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
           <h3 className="text-sm font-semibold text-foreground">Records Pipeline</h3>
         </div>
         <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" className="h-8 text-xs" onClick={handleDownloadAll} disabled={compiling}>
+            <Download className="w-3.5 h-3.5 mr-1" /> {compiling ? 'Compiling…' : 'Download All'}
+          </Button>
           {isAdminOrCM && missingTypes.length > 0 && (
             <Button size="sm" variant="outline" className="h-8 text-xs text-amber-600 border-amber-200 hover:bg-amber-50"
               onClick={() => requestAllMissing.mutate(missingTypes)} disabled={requestAllMissing.isPending}>
