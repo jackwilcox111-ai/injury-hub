@@ -111,6 +111,32 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
     onError: (e: any) => toast.error(e.message),
   });
 
+  const attachBill = useMutation({
+    mutationFn: async ({ chargeId, file }: { chargeId: string; file: File }) => {
+      const filePath = `charges/${caseId}/${Date.now()}_${file.name}`;
+      const { error: uploadError } = await supabase.storage.from('documents').upload(filePath, file);
+      if (uploadError) throw uploadError;
+
+      const { data: docData, error: docError } = await supabase.from('documents').insert({
+        case_id: caseId,
+        file_name: file.name,
+        storage_path: filePath,
+        document_type: 'bill',
+        uploader_id: user?.id,
+      }).select('id').single();
+      if (docError) throw docError;
+
+      const { error } = await supabase.from('charges').update({ document_id: docData.id }).eq('id', chargeId);
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      await invalidateChargeDerivedQueries();
+      setAttachingChargeId(null);
+      toast.success('Bill attached');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   const viewDocument = async (storagePath: string) => {
     const { data } = await supabase.storage.from('documents').createSignedUrl(storagePath, 300);
     if (data?.signedUrl) window.open(data.signedUrl, '_blank');
