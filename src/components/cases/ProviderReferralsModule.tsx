@@ -82,6 +82,20 @@ export function ProviderReferralsModule({ caseId, onSendReferral }: Props) {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (referralId: string) => {
+      const { error } = await supabase.from('referrals').delete().eq('id', referralId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['case-referrals', caseId] });
+      queryClient.invalidateQueries({ queryKey: ['cases'] });
+      setEditingReferral(null);
+      toast.success('Referral deleted');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   const counts = {
     sent: referrals?.length || 0,
     accepted: referrals?.filter(r => r.status === 'Accepted').length || 0,
