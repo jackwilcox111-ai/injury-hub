@@ -204,11 +204,13 @@ export function ProviderReferralsModule({ caseId, onSendReferral }: Props) {
   );
 }
 
-function EditReferralDialog({ referral, onClose, onSave, isPending }: {
+function EditReferralDialog({ referral, onClose, onSave, onDelete, isPending, isDeleting }: {
   referral: any;
   onClose: () => void;
   onSave: (updates: Record<string, any>) => void;
+  onDelete: (id: string) => void;
   isPending: boolean;
+  isDeleting: boolean;
 }) {
   const [status, setStatus] = useState('');
   const [method, setMethod] = useState('');
