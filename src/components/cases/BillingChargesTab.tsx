@@ -20,6 +20,7 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isAdminOrCM = profile?.role === 'admin' || profile?.role === 'care_manager';
+  const [billSortDir, setBillSortDir] = useState<'asc' | 'desc'>('desc');
 
   const { data: charges, isLoading } = useQuery({
     queryKey: ['charges', caseId],
