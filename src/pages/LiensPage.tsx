@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { exportToCSV } from '@/lib/csv-export';
 import { useState, useRef } from 'react';
-import { Download, TrendingUp, PieChart, BarChart3, Percent, Search, Upload, CheckCircle2, AlertTriangle, FileText } from 'lucide-react';
+import { Download, TrendingUp, PieChart, BarChart3, Percent, Search, Upload, CheckCircle2, AlertTriangle, FileText, FilePlus2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
