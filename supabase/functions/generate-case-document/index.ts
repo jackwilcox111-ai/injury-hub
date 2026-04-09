@@ -422,24 +422,24 @@ function generateDocumentHtml(type: string, d: Record<string, any>): string {
   }
 
   // work_treatment_note
-  return \`<!DOCTYPE html><html><head>\${baseStyles}</head><body>
+  return `<!DOCTYPE html><html><head>${baseStyles}</head><body>
     <h1>WORK/TREATMENT NOTE</h1>
-    <p>Date: \${d.today_date}</p>
+    <p>Date: ${d.today_date}</p>
     <div class="section">
       <p class="label">Provider:</p>
-      <p>\${d.referring_provider_name}<br>\${d.referring_provider_practice}<br>\${d.referring_provider_address}<br>Phone: \${d.referring_provider_phone} | Fax: \${d.referring_provider_fax}</p>
+      <p>${d.referring_provider_name}<br>${d.referring_provider_practice}<br>${d.referring_provider_address}<br>Phone: ${d.referring_provider_phone} | Fax: ${d.referring_provider_fax}</p>
     </div>
     <div class="divider"></div>
     <p>To Whom It May Concern:</p>
-    <p>This letter is to confirm that \${d.patient_name} (DOB: \${d.patient_dob}) is a patient of \${d.referring_provider_practice}.</p>
-    <p>The above patient will begin treating at our office for their injuries sustained in a motor vehicle collision on \${d.patient_dol}.</p>
-    \${d.treatment_schedule ? \`<p><strong>Treatment schedule:</strong> \${d.treatment_schedule}</p>\` : ""}
+    <p>This letter is to confirm that ${d.patient_name} (DOB: ${d.patient_dob}) is a patient of ${d.referring_provider_practice}.</p>
+    <p>The above patient will begin treating at our office for their injuries sustained in a motor vehicle collision on ${d.patient_dol}.</p>
+    ${d.treatment_schedule ? `<p><strong>Treatment schedule:</strong> ${d.treatment_schedule}</p>` : ""}
     <p>The patient may need to be excused from work/school obligations during the course of treatment. Please accommodate their treatment schedule accordingly.</p>
     <p>If you have any questions or require additional documentation, please contact our office.</p>
-    \${d.additional_notes ? \`<p>\${d.additional_notes}</p>\` : ""}
+    ${d.additional_notes ? `<p>${d.additional_notes}</p>` : ""}
     <div class="signature">
       <p>Sincerely,</p>
-      <p>\${d.referring_provider_name}<br>\${d.referring_provider_practice}<br>Phone: \${d.referring_provider_phone}<br>Fax: \${d.referring_provider_fax}</p>
+      <p>${d.referring_provider_name}<br>${d.referring_provider_practice}<br>Phone: ${d.referring_provider_phone}<br>Fax: ${d.referring_provider_fax}</p>
     </div>
-  </body></html>\`;
+  </body></html>`;
 }
