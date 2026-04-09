@@ -248,7 +248,11 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
               
             </tr></thead>
             <tbody className="divide-y divide-border">
-              {records.map((r: any) => {
+              {[...(records || [])].sort((a: any, b: any) => {
+                const dateA = a.received_date || '';
+                const dateB = b.received_date || '';
+                return sortDir === 'asc' ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
+              }).map((r: any) => {
                 const doc = r.documents;
                 return (
                   <tr key={r.id} className="hover:bg-accent/30 transition-colors">
