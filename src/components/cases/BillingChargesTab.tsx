@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { DollarSign, Plus, FileText, Upload, X, ArrowUp, ArrowDown } from 'lucide-react';
+import { DollarSign, Plus, FileText, Upload, X, ArrowUp, ArrowDown, Download } from 'lucide-react';
+import { compileFilesToPdf } from '@/lib/pdf-compiler';
 
 const BILLING_PATHS = ['Lien', 'PIP', 'MedPay', 'Insurance'];
 const STATUSES = ['Pending', 'Submitted', 'Paid', 'Denied', 'Adjusted'];
@@ -126,6 +127,20 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
     return acc;
   }, {}) || {};
 
+  const [compilingBills, setCompilingBills] = useState(false);
+  const handleDownloadAllBills = async () => {
+    const files = (charges || [])
+      .filter((c: any) => c.documents?.storage_path)
+      .map((c: any) => ({ storage_path: c.documents.storage_path, file_name: c.documents.file_name }));
+    if (!files.length) { toast.error('No bill attachments to compile'); return; }
+    setCompilingBills(true);
+    try {
+      await compileFilesToPdf(files, `bills-${caseId.slice(0, 8)}.pdf`);
+      toast.success('Bills PDF downloaded');
+    } catch (e: any) { toast.error(e.message || 'Failed to compile PDF'); }
+    setCompilingBills(false);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -133,11 +148,16 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
           <DollarSign className="w-4 h-4 text-primary" />
           <h3 className="text-sm font-semibold text-foreground">Billing & Charges</h3>
         </div>
-        {isAdminOrCM && (
-          <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowAdd(true)}>
-            <Plus className="w-3.5 h-3.5 mr-1" /> Add Charge
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" className="h-8 text-xs" onClick={handleDownloadAllBills} disabled={compilingBills}>
+            <Download className="w-3.5 h-3.5 mr-1" /> {compilingBills ? 'Compiling…' : 'Download All'}
           </Button>
-        )}
+          {isAdminOrCM && (
+            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setShowAdd(true)}>
+              <Plus className="w-3.5 h-3.5 mr-1" /> Add Charge
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Summary Cards */}
