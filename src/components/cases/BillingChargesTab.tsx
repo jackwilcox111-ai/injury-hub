@@ -250,13 +250,7 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
                 </Select>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Provider</Label>
-              <Select value={form.provider_id} onValueChange={v => setForm(f => ({ ...f, provider_id: v }))}>
-                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                <SelectContent>{providers.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
+            <div className="space-y-2"><Label>Notes</Label><Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Optional notes about this charge..." /></div>
 
             {/* Bill Upload */}
             <div className="space-y-2">
