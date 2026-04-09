@@ -20,6 +20,8 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
   const [showAdd, setShowAdd] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const attachFileRef = useRef<HTMLInputElement>(null);
+  const [attachingChargeId, setAttachingChargeId] = useState<string | null>(null);
   const isAdminOrCM = profile?.role === 'admin' || profile?.role === 'care_manager';
   const [billSortDir, setBillSortDir] = useState<'asc' | 'desc'>('desc');
 
