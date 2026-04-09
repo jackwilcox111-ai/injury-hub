@@ -241,8 +241,14 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
             </div>
             <div className="space-y-2"><Label>Description</Label><Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="e.g. Office visit, MRI, Injection..." /></div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Amount ($) *</Label><Input type="number" value={form.charge_amount} onChange={e => setForm(f => ({ ...f, charge_amount: e.target.value }))} required /></div>
-              <div className="space-y-2"><Label>Units</Label><Input type="number" value={form.units} onChange={e => setForm(f => ({ ...f, units: e.target.value }))} /></div>
+              <div className="space-y-2"><Label>Amount ($) *</Label><Input type="number" step="0.01" value={form.charge_amount} onChange={e => setForm(f => ({ ...f, charge_amount: e.target.value }))} required /></div>
+              <div className="space-y-2">
+                <Label>Provider</Label>
+                <Select value={form.provider_id} onValueChange={v => setForm(f => ({ ...f, provider_id: v }))}>
+                  <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>{providers.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Provider</Label>
