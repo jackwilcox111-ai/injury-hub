@@ -66,7 +66,7 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
     enabled: open && isReferralTask,
     queryFn: async () => {
       const { data } = await supabase.from('providers')
-        .select('id, name, specialty, phone, address_city, address_state, accepting_patients, languages_spoken, rating, latitude, longitude')
+        .select('id, name, specialty, services_offered, phone, address_city, address_state, accepting_patients, languages_spoken, rating, latitude, longitude')
         .eq('status', 'Active')
         .order('name');
       return data || [];
