@@ -299,11 +299,34 @@ function EditReferralDialog({ referral, onClose, onSave, onDelete, isPending, is
               <p>Referred: <span className="font-mono">{referral.created_at ? format(new Date(referral.created_at), 'MMM d, yyyy') : '—'}</span></p>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" size="sm" onClick={onClose}>Cancel</Button>
-              <Button type="submit" size="sm" disabled={isPending}>
-                <Save className="w-3.5 h-3.5 mr-1" /> Save Changes
-              </Button>
+            <div className="flex justify-between items-center pt-2">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button type="button" variant="destructive" size="sm" disabled={isDeleting}>
+                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Referral</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently remove the referral to {provider?.name}. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onDelete(referral.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={onClose}>Cancel</Button>
+                <Button type="submit" size="sm" disabled={isPending}>
+                  <Save className="w-3.5 h-3.5 mr-1" /> Save Changes
+                </Button>
+              </div>
             </div>
           </form>
         )}
