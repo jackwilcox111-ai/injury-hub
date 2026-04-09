@@ -227,7 +227,7 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
       {/* Add Charge Dialog */}
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
         <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>Add Charge</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Submit Charge</DialogTitle></DialogHeader>
           <form onSubmit={ev => { ev.preventDefault(); addMutation.mutate(); }} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2"><Label>Service Date *</Label><Input type="date" value={form.service_date} onChange={e => setForm(f => ({ ...f, service_date: e.target.value }))} required /></div>
