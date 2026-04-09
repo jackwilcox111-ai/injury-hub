@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { DollarSign, Plus, FileText, Upload, X, ArrowUp, ArrowDown } from 'lucide-react';
+import { DollarSign, Plus, FileText, Upload, X, ArrowUp, ArrowDown, Download } from 'lucide-react';
+import { compileFilesToPdf } from '@/lib/pdf-compiler';
 
 const BILLING_PATHS = ['Lien', 'PIP', 'MedPay', 'Insurance'];
 const STATUSES = ['Pending', 'Submitted', 'Paid', 'Denied', 'Adjusted'];
