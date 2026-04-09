@@ -248,7 +248,14 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs font-medium text-foreground truncate">{p.name}</span>
-                        {p.specialty && <Badge variant="secondary" className="text-[9px] shrink-0">{p.specialty}</Badge>}
+                        {p.specialty && (
+                          <span
+                            className="text-[9px] font-semibold px-2 py-0.5 rounded-full text-white shrink-0"
+                            style={{ backgroundColor: getSpecialtyColor(p.specialty) }}
+                          >
+                            {p.specialty}
+                          </span>
+                        )}
                         {p.accepting_patients && <Badge variant="outline" className="text-[9px] border-emerald-300 text-emerald-600 shrink-0">Accepting</Badge>}
                         {p.rating && <span className="text-[10px] text-amber-500">★ {p.rating}</span>}
                       </div>
