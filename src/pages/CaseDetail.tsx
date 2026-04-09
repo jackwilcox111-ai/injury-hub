@@ -1296,6 +1296,9 @@ export default function CaseDetail() {
                   <Select value={editCharge.billing_path || ''} onValueChange={v => setEditCharge((p: any) => ({...p, billing_path: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{['Insurance','Lien','Self-Pay','MedPay/PIP'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select>
                 </div>
               </div>
+              <div className="space-y-2"><Label className="text-sm font-medium">Provider</Label>
+                <Select value={editCharge.provider_id || ''} onValueChange={v => setEditCharge((p: any) => ({...p, provider_id: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{(caseProviders || []).map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
+              </div>
               <div className="space-y-2"><Label className="text-sm font-medium">Notes</Label><Textarea value={editCharge.notes || ''} onChange={e => setEditCharge((p: any) => ({...p, notes: e.target.value}))} /></div>
               <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
               <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowEditCharge(false)}>Cancel</Button><Button type="submit" disabled={updateChargeMutation.isPending}>{updateChargeMutation.isPending ? 'Saving...' : 'Save'}</Button></div>
