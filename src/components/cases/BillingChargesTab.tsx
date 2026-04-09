@@ -258,13 +258,13 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
               </Select>
             </div>
 
-            {/* Document Upload */}
+            {/* Bill Upload */}
             <div className="space-y-2">
-              <Label>Attach Bill (PDF)</Label>
+              <Label>Attach Bill (PDF or Image)</Label>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".pdf,application/pdf"
+                accept=".pdf,application/pdf,image/*"
                 className="hidden"
                 onChange={e => {
                   const file = e.target.files?.[0];
