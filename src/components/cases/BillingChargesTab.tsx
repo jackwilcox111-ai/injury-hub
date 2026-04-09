@@ -260,6 +260,16 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
                       >
                         <FileText className="w-3 h-3" /> View
                       </button>
+                    ) : isAdminOrCM ? (
+                      <button
+                        onClick={() => {
+                          setAttachingChargeId(c.id);
+                          attachFileRef.current?.click();
+                        }}
+                        className="text-primary hover:underline flex items-center gap-1 text-xs"
+                      >
+                        <Upload className="w-3 h-3" /> Attach
+                      </button>
                     ) : (
                       <span className="text-xs text-muted-foreground">—</span>
                     )}
