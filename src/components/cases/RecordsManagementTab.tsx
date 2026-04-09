@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { FileText, Plus, CheckCircle2, Clock, AlertCircle, Send, Upload, ArrowUpDown, ArrowUp, ArrowDown, Download } from 'lucide-react';
+import { FileText, Plus, CheckCircle2, Clock, AlertCircle, Send, Upload, ArrowUpDown, ArrowUp, ArrowDown, Download, ShieldCheck } from 'lucide-react';
 import { compileFilesToPdf } from '@/lib/pdf-compiler';
 
 const SPECIALTY_RECORDS: Record<string, string[]> = {
@@ -239,18 +239,26 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
         <div className="space-y-2">
           <p className="text-xs font-semibold text-foreground">Uploaded Documents</p>
           <div className="space-y-1">
-            {documents.map((d: any) => (
-              <div key={d.id} className="flex items-center justify-between border border-border rounded-lg px-3 py-2">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span className="text-xs text-foreground">{d.file_name}</span>
-                  <span className="text-[10px] text-muted-foreground">{d.document_type}</span>
+            {documents.map((d: any) => {
+              const isLienAgreement = d.document_type === 'Lien Agreement';
+              return (
+                <div key={d.id} className={`flex items-center justify-between border rounded-lg px-3 py-2 ${isLienAgreement && d.signed ? 'border-emerald-200 bg-emerald-50/30' : 'border-border'}`}>
+                  <div className="flex items-center gap-2">
+                    {isLienAgreement ? <ShieldCheck className={`w-3.5 h-3.5 ${d.signed ? 'text-emerald-600' : 'text-amber-500'}`} /> : <FileText className="w-3.5 h-3.5 text-muted-foreground" />}
+                    <span className="text-xs text-foreground">{d.file_name}</span>
+                    <span className="text-[10px] text-muted-foreground">{d.document_type}</span>
+                    {isLienAgreement && (
+                      <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${d.signed ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                        {d.signed ? 'Signed' : 'Awaiting Signature'}
+                      </span>
+                    )}
+                  </div>
+                  <Button size="sm" variant="ghost" className="h-6 text-[10px]" onClick={() => downloadDoc(d.storage_path, d.file_name)}>
+                    Download
+                  </Button>
                 </div>
-                <Button size="sm" variant="ghost" className="h-6 text-[10px]" onClick={() => downloadDoc(d.storage_path, d.file_name)}>
-                  Download
-                </Button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
