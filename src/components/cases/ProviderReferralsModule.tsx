@@ -196,7 +196,9 @@ export function ProviderReferralsModule({ caseId, onSendReferral }: Props) {
         referral={editingReferral}
         onClose={() => setEditingReferral(null)}
         onSave={(updates) => updateMutation.mutate(updates)}
+        onDelete={(id) => deleteMutation.mutate(id)}
         isPending={updateMutation.isPending}
+        isDeleting={deleteMutation.isPending}
       />
     </>
   );
