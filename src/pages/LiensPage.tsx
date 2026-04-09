@@ -81,6 +81,20 @@ export default function LiensPage() {
     onError: (e: any) => toast.error(e.message || 'Upload failed'),
   });
 
+  const markAsSigned = useMutation({
+    mutationFn: async (documentId: string) => {
+      const { error } = await supabase.from('documents')
+        .update({ signed: true, signed_at: new Date().toISOString() })
+        .eq('id', documentId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success('Lien document marked as signed');
+      queryClient.invalidateQueries({ queryKey: ['liens-full'] });
+    },
+    onError: (e: any) => toast.error(e.message || 'Failed to update'),
+  });
+
   const generateLienDoc = async (lien: any) => {
     setGeneratingLienId(lien.id);
     try {
