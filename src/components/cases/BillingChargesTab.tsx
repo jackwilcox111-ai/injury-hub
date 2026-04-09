@@ -227,7 +227,7 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
       {/* Add Charge Dialog */}
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
         <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>Add Charge</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Submit Charge</DialogTitle></DialogHeader>
           <form onSubmit={ev => { ev.preventDefault(); addMutation.mutate(); }} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2"><Label>Service Date *</Label><Input type="date" value={form.service_date} onChange={e => setForm(f => ({ ...f, service_date: e.target.value }))} required /></div>
@@ -241,24 +241,24 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
             </div>
             <div className="space-y-2"><Label>Description</Label><Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="e.g. Office visit, MRI, Injection..." /></div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Amount ($) *</Label><Input type="number" value={form.charge_amount} onChange={e => setForm(f => ({ ...f, charge_amount: e.target.value }))} required /></div>
-              <div className="space-y-2"><Label>Units</Label><Input type="number" value={form.units} onChange={e => setForm(f => ({ ...f, units: e.target.value }))} /></div>
+              <div className="space-y-2"><Label>Amount ($) *</Label><Input type="number" step="0.01" value={form.charge_amount} onChange={e => setForm(f => ({ ...f, charge_amount: e.target.value }))} required /></div>
+              <div className="space-y-2">
+                <Label>Provider</Label>
+                <Select value={form.provider_id} onValueChange={v => setForm(f => ({ ...f, provider_id: v }))}>
+                  <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>{providers.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Provider</Label>
-              <Select value={form.provider_id} onValueChange={v => setForm(f => ({ ...f, provider_id: v }))}>
-                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                <SelectContent>{providers.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
+            <div className="space-y-2"><Label>Notes</Label><Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Optional notes about this charge..." /></div>
 
-            {/* Document Upload */}
+            {/* Bill Upload */}
             <div className="space-y-2">
-              <Label>Attach Bill (PDF)</Label>
+              <Label>Attach Bill (PDF or Image)</Label>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".pdf,application/pdf"
+                accept=".pdf,application/pdf,image/*"
                 className="hidden"
                 onChange={e => {
                   const file = e.target.files?.[0];
@@ -275,14 +275,15 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
                 </div>
               ) : (
                 <Button type="button" variant="outline" className="w-full h-9 text-xs" onClick={() => fileInputRef.current?.click()}>
-                  <Upload className="w-3.5 h-3.5 mr-1.5" /> Choose PDF...
+                  <Upload className="w-3.5 h-3.5 mr-1.5" /> Upload Bill...
                 </Button>
               )}
             </div>
 
+            <p className="text-[10px] text-muted-foreground">PHI &mdash; Handle in accordance with HIPAA policy</p>
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
-              <Button type="submit" disabled={addMutation.isPending || !form.service_date}>Add Charge</Button>
+              <Button type="submit" disabled={addMutation.isPending || !form.service_date || !form.charge_amount}>Submit</Button>
             </div>
           </form>
         </DialogContent>

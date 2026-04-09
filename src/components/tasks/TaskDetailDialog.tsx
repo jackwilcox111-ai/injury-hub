@@ -66,7 +66,7 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
     enabled: open && isReferralTask,
     queryFn: async () => {
       const { data } = await supabase.from('providers')
-        .select('id, name, specialty, services_offered, phone, address_city, address_state, accepting_patients, languages_spoken, rating, latitude, longitude')
+        .select('id, name, specialty, phone, address_city, address_state, accepting_patients, languages_spoken, rating, latitude, longitude')
         .eq('status', 'Active')
         .order('name');
       return data || [];
@@ -248,15 +248,14 @@ export function TaskDetailDialog({ open, onOpenChange, task, staff, onUpdate }: 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs font-medium text-foreground truncate">{p.name}</span>
-                        {((p as any).services_offered?.length > 0 ? (p as any).services_offered : p.specialty ? [p.specialty] : []).map((s: string) => (
+                        {p.specialty && (
                           <span
-                            key={s}
                             className="text-[9px] font-semibold px-2 py-0.5 rounded-full text-white shrink-0"
-                            style={{ backgroundColor: getSpecialtyColor(s) }}
+                            style={{ backgroundColor: getSpecialtyColor(p.specialty) }}
                           >
-                            {s}
+                            {p.specialty}
                           </span>
-                        ))}
+                        )}
                         {p.accepting_patients && <Badge variant="outline" className="text-[9px] border-emerald-300 text-emerald-600 shrink-0">Accepting</Badge>}
                         {p.rating && <span className="text-[10px] text-amber-500">★ {p.rating}</span>}
                       </div>
