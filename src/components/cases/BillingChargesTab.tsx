@@ -291,6 +291,21 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
         </div>
       )}
 
+      {/* Hidden file input for attaching bills to existing charges */}
+      <input
+        ref={attachFileRef}
+        type="file"
+        accept=".pdf,application/pdf,image/*"
+        className="hidden"
+        onChange={e => {
+          const file = e.target.files?.[0];
+          if (file && attachingChargeId) {
+            attachBill.mutate({ chargeId: attachingChargeId, file });
+          }
+          if (attachFileRef.current) attachFileRef.current.value = '';
+        }}
+      />
+
       {/* Add Charge Dialog */}
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
         <DialogContent className="max-w-lg">
