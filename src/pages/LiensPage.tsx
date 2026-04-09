@@ -33,7 +33,7 @@ export default function LiensPage() {
     queryKey: ['liens-full'],
     queryFn: async () => {
       const { data } = await supabase.from('liens')
-        .select('*, cases!liens_case_id_fkey(id, case_number, patient_name, attorney_id, settlement_estimate, sol_date, sol_period_days, accident_state, status, attorneys!cases_attorney_id_fkey(firm_name)), providers(name), documents!liens_lien_document_id_fkey(id, file_name, storage_path)')
+        .select('*, cases!liens_case_id_fkey(id, case_number, patient_name, attorney_id, settlement_estimate, sol_date, sol_period_days, accident_state, status, attorneys!cases_attorney_id_fkey(firm_name)), providers(name), documents!liens_lien_document_id_fkey(id, file_name, storage_path, signed)')
         .order('created_at', { ascending: false });
       return data || [];
     },
