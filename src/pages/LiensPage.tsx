@@ -267,59 +267,98 @@ export default function LiensPage() {
           </tr></thead>
           <tbody className="divide-y divide-border">
             {sortedLiens?.map(l => {
-              const doc = (l as any).documents;
-              const isSigned = !!doc?.id;
-              const isActive = l.status === 'Active' || l.status === 'Reduced';
-              return (
-                <tr key={l.id} className={`hover:bg-accent/50 cursor-pointer transition-colors ${!isSigned && isActive ? 'bg-destructive/5' : ''}`} onClick={() => navigate(`/cases/${(l as any).cases?.id}`)}>
-                  <td className="px-5 py-3.5 font-mono text-xs text-primary font-medium">{(l as any).cases?.case_number}</td>
-                  <td className="px-5 py-3.5 text-xs font-medium">{(l as any).cases?.patient_name}</td>
-                  <td className="px-5 py-3.5 text-xs text-muted-foreground">{(l as any).providers?.name || '—'}</td>
-                  <td className="px-5 py-3.5 font-mono text-xs text-emerald-600 tabular-nums">${l.amount.toLocaleString()}</td>
-                  <td className="px-5 py-3.5 font-mono text-xs text-amber-600 tabular-nums">${l.reduction_amount.toLocaleString()}</td>
-                  <td className="px-5 py-3.5 font-mono text-xs font-medium tabular-nums">${(l.amount - l.reduction_amount).toLocaleString()}</td>
-                  <td className="px-5 py-3.5" onClick={e => e.stopPropagation()}>
-                    {isSigned ? (
-                      <button onClick={(e) => handleDownloadLienDoc(e, doc.storage_path)} className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:underline">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span className="truncate max-w-[100px]">{doc.file_name}</span>
-                      </button>
-                    ) : isAdminOrCM ? (
-                      <div className="flex items-center gap-1">
-                        <Button
-                          size="sm" variant="ghost"
-                          className="h-7 text-[10px] text-primary hover:text-primary"
-                          disabled={generatingLienId === l.id}
-                          onClick={() => generateLienDoc(l)}
-                        >
-                          <FilePlus2 className="w-3 h-3 mr-1" />
-                          {generatingLienId === l.id ? 'Generating…' : 'Generate'}
-                        </Button>
-                        <Button
-                          size="sm" variant="ghost"
-                          className={`h-7 text-[10px] ${isActive ? 'text-destructive hover:text-destructive' : 'text-muted-foreground'}`}
-                          disabled={uploadLienDoc.isPending && uploadingLienId === l.id}
-                          onClick={() => { setUploadingLienId(l.id); fileInputRef.current?.click(); }}
-                        >
-                          <Upload className="w-3 h-3 mr-1" />
-                          {uploadLienDoc.isPending && uploadingLienId === l.id ? '…' : 'Upload'}
-                        </Button>
-                        {isActive && <AlertTriangle className="w-3 h-3 text-destructive" />}
-                      </div>
-                    ) : (
-                      <Badge variant="outline" className={`text-[10px] ${isActive ? 'border-destructive/30 text-destructive' : ''}`}>
-                        {isActive ? <><AlertTriangle className="w-3 h-3 mr-1" /> Unsigned</> : 'N/A'}
-                      </Badge>
-                    )}
-                  </td>
-                  <td className="px-5 py-3.5"><SoLCountdown sol_date={(l as any).cases?.sol_date} /></td>
-                  <td className="px-5 py-3.5"><StatusBadge status={l.status} /></td>
-                </tr>
-              );
-            })}
-            {(!sortedLiens || sortedLiens.length === 0) && (
-              <tr><td colSpan={9} className="px-5 py-16 text-center text-muted-foreground">No liens recorded</td></tr>
-            )}
+               const doc = (l as any).documents;
+               const hasDoc = !!doc?.id;
+               const isSigned = !!doc?.signed;
+               const isActive = l.status === 'Active' || l.status === 'Reduced';
+               const isAttorney = profile?.role === 'attorney';
+               return (
+                 <tr key={l.id} className={`hover:bg-accent/50 cursor-pointer transition-colors ${!isSigned && isActive ? 'bg-destructive/5' : ''}`} onClick={() => navigate(`/cases/${(l as any).cases?.id}`)}>
+                   <td className="px-5 py-3.5 font-mono text-xs text-primary font-medium">{(l as any).cases?.case_number}</td>
+                   <td className="px-5 py-3.5 text-xs font-medium">{(l as any).cases?.patient_name}</td>
+                   <td className="px-5 py-3.5 text-xs text-muted-foreground">{(l as any).providers?.name || '—'}</td>
+                   <td className="px-5 py-3.5 font-mono text-xs text-emerald-600 tabular-nums">${l.amount.toLocaleString()}</td>
+                   <td className="px-5 py-3.5 font-mono text-xs text-amber-600 tabular-nums">${l.reduction_amount.toLocaleString()}</td>
+                   <td className="px-5 py-3.5 font-mono text-xs font-medium tabular-nums">${(l.amount - l.reduction_amount).toLocaleString()}</td>
+                   <td className="px-5 py-3.5" onClick={e => e.stopPropagation()}>
+                     {hasDoc && isSigned ? (
+                       /* Signed — everyone can download */
+                       <button onClick={(e) => handleDownloadLienDoc(e, doc.storage_path)} className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:underline">
+                         <ShieldCheck className="w-3.5 h-3.5" />
+                         <span className="truncate max-w-[100px]">{doc.file_name}</span>
+                       </button>
+                     ) : hasDoc && !isSigned ? (
+                       /* Uploaded but awaiting signature */
+                       isAdminOrCM ? (
+                         <div className="flex items-center gap-1">
+                           <button onClick={(e) => handleDownloadLienDoc(e, doc.storage_path)} className="inline-flex items-center gap-1 text-xs text-amber-600 hover:underline">
+                             <Clock className="w-3.5 h-3.5" />
+                             <span className="truncate max-w-[80px]">{doc.file_name}</span>
+                           </button>
+                           <Button
+                             size="sm" variant="ghost"
+                             className="h-7 text-[10px] text-emerald-600 hover:text-emerald-700"
+                             onClick={() => markAsSigned.mutate(doc.id)}
+                             disabled={markAsSigned.isPending}
+                           >
+                             <ShieldCheck className="w-3 h-3 mr-1" />
+                             Mark Signed
+                           </Button>
+                           <Button
+                             size="sm" variant="ghost"
+                             className="h-7 text-[10px] text-muted-foreground"
+                             onClick={() => { setUploadingLienId(l.id); fileInputRef.current?.click(); }}
+                           >
+                             <Upload className="w-3 h-3 mr-1" /> Replace
+                           </Button>
+                         </div>
+                       ) : isAttorney ? (
+                         <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-600">
+                           <Clock className="w-3 h-3 mr-1" /> Awaiting Signature
+                         </Badge>
+                       ) : (
+                         <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-600">
+                           <Clock className="w-3 h-3 mr-1" /> Pending
+                         </Badge>
+                       )
+                     ) : isAdminOrCM ? (
+                       /* No document yet — admin/CM can generate or upload */
+                       <div className="flex items-center gap-1">
+                         <Button
+                           size="sm" variant="ghost"
+                           className="h-7 text-[10px] text-primary hover:text-primary"
+                           disabled={generatingLienId === l.id}
+                           onClick={() => generateLienDoc(l)}
+                         >
+                           <FilePlus2 className="w-3 h-3 mr-1" />
+                           {generatingLienId === l.id ? 'Generating…' : 'Generate'}
+                         </Button>
+                         <Button
+                           size="sm" variant="ghost"
+                           className={`h-7 text-[10px] ${isActive ? 'text-destructive hover:text-destructive' : 'text-muted-foreground'}`}
+                           disabled={uploadLienDoc.isPending && uploadingLienId === l.id}
+                           onClick={() => { setUploadingLienId(l.id); fileInputRef.current?.click(); }}
+                         >
+                           <Upload className="w-3 h-3 mr-1" />
+                           {uploadLienDoc.isPending && uploadingLienId === l.id ? '…' : 'Upload'}
+                         </Button>
+                         {isActive && <AlertTriangle className="w-3 h-3 text-destructive" />}
+                       </div>
+                     ) : (
+                       /* No document — non-admin sees nothing or N/A */
+                       isAttorney && isActive ? null : (
+                         <Badge variant="outline" className="text-[10px]">N/A</Badge>
+                       )
+                     )}
+                   </td>
+                   <td className="px-5 py-3.5"><SoLCountdown sol_date={(l as any).cases?.sol_date} /></td>
+                   <td className="px-5 py-3.5"><StatusBadge status={l.status} /></td>
+                 </tr>
+               );
+             })}
+             {(!sortedLiens || sortedLiens.length === 0) && (
+               <tr><td colSpan={9} className="px-5 py-16 text-center text-muted-foreground">No liens recorded</td></tr>
+             )}
           </tbody>
         </table>
       </div>
