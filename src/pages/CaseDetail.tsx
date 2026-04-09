@@ -230,6 +230,29 @@ export default function CaseDetail() {
     },
   });
 
+  // Providers assigned to this case (via referrals + primary provider)
+  const { data: caseProviders } = useQuery({
+    queryKey: ['case-providers', id],
+    queryFn: async () => {
+      const { data: referralProviders } = await supabase
+        .from('referrals')
+        .select('provider_id, providers(id, name)')
+        .eq('case_id', id!);
+      const providerMap = new Map<string, { id: string; name: string }>();
+      // Add primary provider from case
+      if (caseData?.provider_id) {
+        const match = allProviders?.find(p => p.id === caseData.provider_id);
+        if (match) providerMap.set(match.id, match);
+      }
+      // Add referral providers
+      referralProviders?.forEach((r: any) => {
+        if (r.providers?.id) providerMap.set(r.providers.id, { id: r.providers.id, name: r.providers.name });
+      });
+      return Array.from(providerMap.values());
+    },
+    enabled: !!id && !!allProviders,
+  });
+
   const { data: allAttorneys } = useQuery({
     queryKey: ['attorneys-active'],
     queryFn: async () => {
@@ -1002,7 +1025,7 @@ export default function CaseDetail() {
         </TabsContent>
 
         <TabsContent value="records" className="p-5">
-          <RecordsManagementTab caseId={id!} specialty={c.specialty} providers={allProviders || []} />
+          <RecordsManagementTab caseId={id!} specialty={c.specialty} providers={caseProviders || []} />
         </TabsContent>
 
         <TabsContent value="workplan" className="p-5">
