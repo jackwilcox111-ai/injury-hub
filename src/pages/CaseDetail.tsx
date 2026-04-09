@@ -1025,7 +1025,7 @@ export default function CaseDetail() {
         </TabsContent>
 
         <TabsContent value="records" className="p-5">
-          <RecordsManagementTab caseId={id!} specialty={c.specialty} providers={allProviders || []} />
+          <RecordsManagementTab caseId={id!} specialty={c.specialty} providers={caseProviders || []} />
         </TabsContent>
 
         <TabsContent value="workplan" className="p-5">
