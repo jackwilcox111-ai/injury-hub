@@ -243,7 +243,11 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Type</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Document</th>
-              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Received</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">
+                <button className="flex items-center gap-1 hover:text-foreground transition-colors" onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}>
+                  Received {sortDir === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+                </button>
+              </th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Delivered to Atty</th>
               
             </tr></thead>
