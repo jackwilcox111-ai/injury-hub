@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { FileText, Plus, CheckCircle2, Clock, AlertCircle, Send, Upload } from 'lucide-react';
+import { FileText, Plus, CheckCircle2, Clock, AlertCircle, Send, Upload, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 const SPECIALTY_RECORDS: Record<string, string[]> = {
   'Pain Management': ['Initial Evaluation', 'Treatment Notes', 'Injection Records', 'Imaging', 'Billing'],
@@ -36,6 +36,7 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const isAdminOrCM = profile?.role === 'admin' || profile?.role === 'care_manager';
 
   const { data: records, isLoading } = useQuery({
@@ -242,12 +243,20 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Type</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Document</th>
-              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Received</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">
+                <button className="flex items-center gap-1 hover:text-foreground transition-colors" onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}>
+                  Received {sortDir === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+                </button>
+              </th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Delivered to Atty</th>
               
             </tr></thead>
             <tbody className="divide-y divide-border">
-              {records.map((r: any) => {
+              {[...(records || [])].sort((a: any, b: any) => {
+                const dateA = a.received_date || '';
+                const dateB = b.received_date || '';
+                return sortDir === 'asc' ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
+              }).map((r: any) => {
                 const doc = r.documents;
                 return (
                   <tr key={r.id} className="hover:bg-accent/30 transition-colors">
