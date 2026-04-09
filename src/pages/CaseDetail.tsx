@@ -1021,7 +1021,7 @@ export default function CaseDetail() {
         </TabsContent>
 
         <TabsContent value="billing" className="p-5">
-          <BillingChargesTab caseId={id!} providers={allProviders || []} />
+          <BillingChargesTab caseId={id!} providers={caseProviders || []} />
         </TabsContent>
 
         <TabsContent value="records" className="p-5">
