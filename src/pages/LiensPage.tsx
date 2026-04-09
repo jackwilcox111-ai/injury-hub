@@ -271,16 +271,27 @@ export default function LiensPage() {
                         <span className="truncate max-w-[100px]">{doc.file_name}</span>
                       </button>
                     ) : isAdminOrCM ? (
-                      <Button
-                        size="sm" variant="ghost"
-                        className={`h-7 text-[10px] ${isActive ? 'text-destructive hover:text-destructive' : 'text-muted-foreground'}`}
-                        disabled={uploadLienDoc.isPending && uploadingLienId === l.id}
-                        onClick={(e) => { e.stopPropagation(); setUploadingLienId(l.id); fileInputRef.current?.click(); }}
-                      >
-                        <Upload className="w-3 h-3 mr-1" />
-                        {uploadLienDoc.isPending && uploadingLienId === l.id ? 'Uploading…' : 'Upload'}
-                        {isActive && <AlertTriangle className="w-3 h-3 ml-1" />}
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          size="sm" variant="ghost"
+                          className="h-7 text-[10px] text-primary hover:text-primary"
+                          disabled={generatingLienId === l.id}
+                          onClick={() => generateLienDoc(l)}
+                        >
+                          <FilePlus2 className="w-3 h-3 mr-1" />
+                          {generatingLienId === l.id ? 'Generating…' : 'Generate'}
+                        </Button>
+                        <Button
+                          size="sm" variant="ghost"
+                          className={`h-7 text-[10px] ${isActive ? 'text-destructive hover:text-destructive' : 'text-muted-foreground'}`}
+                          disabled={uploadLienDoc.isPending && uploadingLienId === l.id}
+                          onClick={() => { setUploadingLienId(l.id); fileInputRef.current?.click(); }}
+                        >
+                          <Upload className="w-3 h-3 mr-1" />
+                          {uploadLienDoc.isPending && uploadingLienId === l.id ? '…' : 'Upload'}
+                        </Button>
+                        {isActive && <AlertTriangle className="w-3 h-3 text-destructive" />}
+                      </div>
                     ) : (
                       <Badge variant="outline" className={`text-[10px] ${isActive ? 'border-destructive/30 text-destructive' : ''}`}>
                         {isActive ? <><AlertTriangle className="w-3 h-3 mr-1" /> Unsigned</> : 'N/A'}
