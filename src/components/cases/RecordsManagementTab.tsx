@@ -36,6 +36,7 @@ export function RecordsManagementTab({ caseId, specialty, providers }: RecordsMa
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const isAdminOrCM = profile?.role === 'admin' || profile?.role === 'care_manager';
 
   const { data: records, isLoading } = useQuery({
