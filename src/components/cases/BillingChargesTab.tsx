@@ -193,7 +193,11 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Status</th>
             </tr></thead>
             <tbody className="divide-y divide-border">
-              {charges.map((c: any) => (
+              {[...(charges || [])].sort((a: any, b: any) => {
+                const dateA = a.service_date || '';
+                const dateB = b.service_date || '';
+                return billSortDir === 'asc' ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
+              }).map((c: any) => (
                 <tr key={c.id} className="hover:bg-accent/30 transition-colors">
                   <td className="px-4 py-2.5 font-mono-data text-xs">{c.service_date}</td>
                   <td className="px-4 py-2.5 text-xs text-foreground truncate max-w-[200px]">{c.cpt_description || c.cpt_code}</td>
