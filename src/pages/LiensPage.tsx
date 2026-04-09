@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { exportToCSV } from '@/lib/csv-export';
 import { useState, useRef } from 'react';
-import { Download, TrendingUp, PieChart, BarChart3, Percent, Search, Upload, CheckCircle2, AlertTriangle, FileText } from 'lucide-react';
+import { Download, TrendingUp, PieChart, BarChart3, Percent, Search, Upload, CheckCircle2, AlertTriangle, FileText, FilePlus2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -26,6 +26,7 @@ export default function LiensPage() {
   const [search, setSearch] = useState('');
   const [uploadingLienId, setUploadingLienId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [generatingLienId, setGeneratingLienId] = useState<string | null>(null);
   const isAdminOrCM = profile?.role === 'admin' || profile?.role === 'care_manager';
 
   const { data: liens, isLoading } = useQuery({
@@ -79,6 +80,75 @@ export default function LiensPage() {
     },
     onError: (e: any) => toast.error(e.message || 'Upload failed'),
   });
+
+  const generateLienDoc = async (lien: any) => {
+    setGeneratingLienId(lien.id);
+    try {
+      // Fetch case details
+      const { data: caseData } = await supabase.from('cases')
+        .select('*, attorneys!cases_attorney_id_fkey(firm_name, contact_name, phone, email), providers!cases_provider_id_fkey(name, phone, address_street, address_city, address_state, address_zip)')
+        .eq('id', lien.case_id).single();
+      // Fetch patient profile
+      const { data: patientProfile } = await supabase.from('patient_profiles')
+        .select('date_of_birth').eq('case_id', lien.case_id).maybeSingle();
+      // Fetch provider details for this lien
+      const { data: providerData } = lien.provider_id
+        ? await supabase.from('providers').select('name, phone, address_street, address_city, address_state, address_zip').eq('id', lien.provider_id).single()
+        : { data: null };
+      // Fetch charges for this provider on this case
+      const chargesQuery = supabase.from('charges').select('service_date, cpt_description, charge_amount, notes').eq('case_id', lien.case_id);
+      if (lien.provider_id) chargesQuery.eq('provider_id', lien.provider_id);
+      const { data: chargesData } = await chargesQuery.order('service_date', { ascending: true });
+
+      const provAddr = providerData
+        ? [providerData.address_street, providerData.address_city, providerData.address_state, providerData.address_zip].filter(Boolean).join(', ')
+        : '';
+
+      const mergeData = {
+        today_date: format(new Date(), 'MMMM d, yyyy'),
+        patient_name: caseData?.patient_name || '',
+        patient_dob: patientProfile?.date_of_birth ? format(new Date(patientProfile.date_of_birth), 'MM/dd/yyyy') : '—',
+        patient_dol: caseData?.accident_date ? format(new Date(caseData.accident_date), 'MM/dd/yyyy') : '—',
+        case_number: caseData?.case_number || '',
+        provider_name: providerData?.name || (lien as any).providers?.name || '—',
+        provider_address: provAddr,
+        provider_phone: providerData?.phone || '',
+        attorney_name: caseData?.attorneys?.contact_name || '',
+        attorney_firm: caseData?.attorneys?.firm_name || '',
+        attorney_phone: caseData?.attorneys?.phone || '',
+        lien_amount: lien.amount,
+        charges: (chargesData || []).map((c: any) => ({
+          service_date: c.service_date ? format(new Date(c.service_date), 'MM/dd/yyyy') : '—',
+          description: c.notes || c.cpt_description || '—',
+          amount: c.charge_amount,
+        })),
+      };
+
+      const { data: result, error } = await supabase.functions.invoke('generate-case-document', {
+        body: { case_id: lien.case_id, document_type: 'lien_agreement', merge_data: mergeData },
+      });
+      if (error) throw error;
+
+      // Create a document record and link to lien
+      const { data: doc, error: docError } = await supabase.from('documents').insert({
+        case_id: lien.case_id,
+        file_name: `Lien-Agreement-${(lien as any).providers?.name || 'provider'}.html`,
+        storage_path: result.file_path,
+        document_type: 'Lien Agreement',
+        uploader_id: user?.id,
+        visible_to: ['admin', 'care_manager', 'attorney'],
+      }).select('id').single();
+      if (docError) throw docError;
+
+      await supabase.from('liens').update({ lien_document_id: doc.id } as any).eq('id', lien.id);
+
+      toast.success('Lien agreement generated');
+      queryClient.invalidateQueries({ queryKey: ['liens-full'] });
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to generate lien document');
+    }
+    setGeneratingLienId(null);
+  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -201,16 +271,27 @@ export default function LiensPage() {
                         <span className="truncate max-w-[100px]">{doc.file_name}</span>
                       </button>
                     ) : isAdminOrCM ? (
-                      <Button
-                        size="sm" variant="ghost"
-                        className={`h-7 text-[10px] ${isActive ? 'text-destructive hover:text-destructive' : 'text-muted-foreground'}`}
-                        disabled={uploadLienDoc.isPending && uploadingLienId === l.id}
-                        onClick={(e) => { e.stopPropagation(); setUploadingLienId(l.id); fileInputRef.current?.click(); }}
-                      >
-                        <Upload className="w-3 h-3 mr-1" />
-                        {uploadLienDoc.isPending && uploadingLienId === l.id ? 'Uploading…' : 'Upload'}
-                        {isActive && <AlertTriangle className="w-3 h-3 ml-1" />}
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          size="sm" variant="ghost"
+                          className="h-7 text-[10px] text-primary hover:text-primary"
+                          disabled={generatingLienId === l.id}
+                          onClick={() => generateLienDoc(l)}
+                        >
+                          <FilePlus2 className="w-3 h-3 mr-1" />
+                          {generatingLienId === l.id ? 'Generating…' : 'Generate'}
+                        </Button>
+                        <Button
+                          size="sm" variant="ghost"
+                          className={`h-7 text-[10px] ${isActive ? 'text-destructive hover:text-destructive' : 'text-muted-foreground'}`}
+                          disabled={uploadLienDoc.isPending && uploadingLienId === l.id}
+                          onClick={() => { setUploadingLienId(l.id); fileInputRef.current?.click(); }}
+                        >
+                          <Upload className="w-3 h-3 mr-1" />
+                          {uploadLienDoc.isPending && uploadingLienId === l.id ? '…' : 'Upload'}
+                        </Button>
+                        {isActive && <AlertTriangle className="w-3 h-3 text-destructive" />}
+                      </div>
                     ) : (
                       <Badge variant="outline" className={`text-[10px] ${isActive ? 'border-destructive/30 text-destructive' : ''}`}>
                         {isActive ? <><AlertTriangle className="w-3 h-3 mr-1" /> Unsigned</> : 'N/A'}

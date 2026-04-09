@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const validTypes = ["referral_letter", "imaging_requisition", "work_treatment_note", "medical_necessity_md_referral"];
+    const validTypes = ["referral_letter", "imaging_requisition", "work_treatment_note", "medical_necessity_md_referral", "lien_agreement"];
     if (!validTypes.includes(document_type)) {
       return new Response(JSON.stringify({ error: "Invalid document type" }), {
         status: 400,
@@ -332,6 +332,92 @@ function generateDocumentHtml(type: string, d: Record<string, any>): string {
       <div class="divider"></div>
       <p><strong>Attorney on File:</strong> ${d.attorney_name} &mdash; ${d.attorney_firm}<br>Phone: ${d.attorney_phone}</p>
       ${d.additional_notes ? `<p>${d.additional_notes}</p>` : ""}
+    </body></html>`;
+  }
+
+  if (type === "lien_agreement") {
+    const chargeRows = (d.charges || []).map((c: any) =>
+      `<tr><td style="padding:4px 8px;border:1px solid #ccc;">${c.service_date || '—'}</td><td style="padding:4px 8px;border:1px solid #ccc;">${c.description || '—'}</td><td style="padding:4px 8px;border:1px solid #ccc;text-align:right;">$${Number(c.amount || 0).toLocaleString()}</td></tr>`
+    ).join("\n");
+    const chargesTable = (d.charges && d.charges.length > 0)
+      ? `<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+          <thead><tr style="background:#f5f5f5;"><th style="padding:4px 8px;border:1px solid #ccc;text-align:left;">Date</th><th style="padding:4px 8px;border:1px solid #ccc;text-align:left;">Description</th><th style="padding:4px 8px;border:1px solid #ccc;text-align:right;">Amount</th></tr></thead>
+          <tbody>${chargeRows}</tbody>
+        </table>`
+      : "";
+
+    return `<!DOCTYPE html><html><head>${baseStyles}
+      <style>.lien-box { border: 2px solid #333; padding: 20px; margin: 10px 0; }</style>
+    </head><body>
+      <h1>LETTER OF PROTECTION / MEDICAL LIEN AGREEMENT</h1>
+      <p style="text-align:center;font-size:11px;color:#666;">Date: ${d.today_date}</p>
+
+      <div class="lien-box">
+        <div class="section">
+          <p class="label">Provider:</p>
+          <p>${d.provider_name}<br>${d.provider_address || ''}<br>${d.provider_phone ? 'Phone: ' + d.provider_phone : ''}</p>
+        </div>
+
+        <div class="section">
+          <p class="label">Patient:</p>
+          <p>${d.patient_name}<br>DOB: ${d.patient_dob || '—'}<br>Date of Injury: ${d.patient_dol || '—'}<br>Case #: ${d.case_number}</p>
+        </div>
+
+        <div class="section">
+          <p class="label">Attorney:</p>
+          <p>${d.attorney_name || '—'}<br>${d.attorney_firm || '—'}<br>${d.attorney_phone ? 'Phone: ' + d.attorney_phone : ''}</p>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section">
+        <p>I, <strong>${d.patient_name}</strong>, hereby authorize and direct my attorney, <strong>${d.attorney_name || '____________________'}</strong>, of the law firm <strong>${d.attorney_firm || '____________________'}</strong>, to pay directly to <strong>${d.provider_name}</strong> all charges for medical services rendered to me in connection with injuries sustained on <strong>${d.patient_dol || '____________________'}</strong>, from any settlement, judgment, or verdict received on my behalf.</p>
+      </div>
+
+      <div class="section">
+        <p>I understand that:</p>
+        <ol style="margin-left:16px;">
+          <li>I am financially responsible for the charges incurred for medical treatment provided by the above-named provider.</li>
+          <li>Payment of these charges will be satisfied from the proceeds of any settlement, judgment, or verdict in the above-referenced case.</li>
+          <li>If no recovery is made, I remain personally responsible for all charges.</li>
+          <li>This lien is irrevocable and cannot be canceled without written consent of the provider.</li>
+        </ol>
+      </div>
+
+      ${chargesTable}
+
+      <div class="section" style="margin-top:16px;">
+        <p><strong>Total Lien Amount: $${Number(d.lien_amount || 0).toLocaleString()}</strong></p>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section">
+        <p>The attorney named above agrees to honor this lien and to make payment directly to the provider from the proceeds of any settlement, judgment, or verdict.</p>
+      </div>
+
+      <div class="signature" style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:30px;">
+        <div>
+          <p>Patient Signature: ________________________</p>
+          <p>Print Name: ${d.patient_name}</p>
+          <p>Date: _______________</p>
+        </div>
+        <div>
+          <p>Attorney Signature: ________________________</p>
+          <p>Print Name: ${d.attorney_name || '____________________'}</p>
+          <p>Date: _______________</p>
+        </div>
+      </div>
+
+      <div class="signature" style="margin-top:20px;">
+        <p>Provider Signature: ________________________</p>
+        <p>Print Name: ${d.provider_name}</p>
+        <p>Date: _______________</p>
+      </div>
+
+      <div class="divider"></div>
+      <p style="font-size:10px;color:#999;text-align:center;">This document was generated electronically and requires wet signatures from all parties to be legally binding.</p>
     </body></html>`;
   }
 
