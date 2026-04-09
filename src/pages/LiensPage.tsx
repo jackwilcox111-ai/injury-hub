@@ -26,6 +26,7 @@ export default function LiensPage() {
   const [search, setSearch] = useState('');
   const [uploadingLienId, setUploadingLienId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [generatingLienId, setGeneratingLienId] = useState<string | null>(null);
   const isAdminOrCM = profile?.role === 'admin' || profile?.role === 'care_manager';
 
   const { data: liens, isLoading } = useQuery({
