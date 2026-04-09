@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { exportToCSV } from '@/lib/csv-export';
 import { useState, useRef } from 'react';
-import { Download, TrendingUp, PieChart, BarChart3, Percent, Search, Upload, CheckCircle2, AlertTriangle, FileText, FilePlus2 } from 'lucide-react';
+import { Download, TrendingUp, PieChart, BarChart3, Percent, Search, Upload, CheckCircle2, AlertTriangle, FileText, FilePlus2, ShieldCheck, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -33,7 +33,7 @@ export default function LiensPage() {
     queryKey: ['liens-full'],
     queryFn: async () => {
       const { data } = await supabase.from('liens')
-        .select('*, cases!liens_case_id_fkey(id, case_number, patient_name, attorney_id, settlement_estimate, sol_date, sol_period_days, accident_state, status, attorneys!cases_attorney_id_fkey(firm_name)), providers(name), documents!liens_lien_document_id_fkey(id, file_name, storage_path)')
+        .select('*, cases!liens_case_id_fkey(id, case_number, patient_name, attorney_id, settlement_estimate, sol_date, sol_period_days, accident_state, status, attorneys!cases_attorney_id_fkey(firm_name)), providers(name), documents!liens_lien_document_id_fkey(id, file_name, storage_path, signed)')
         .order('created_at', { ascending: false });
       return data || [];
     },
@@ -79,6 +79,20 @@ export default function LiensPage() {
       setUploadingLienId(null);
     },
     onError: (e: any) => toast.error(e.message || 'Upload failed'),
+  });
+
+  const markAsSigned = useMutation({
+    mutationFn: async (documentId: string) => {
+      const { error } = await supabase.from('documents')
+        .update({ signed: true, signed_at: new Date().toISOString() })
+        .eq('id', documentId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success('Lien document marked as signed');
+      queryClient.invalidateQueries({ queryKey: ['liens-full'] });
+    },
+    onError: (e: any) => toast.error(e.message || 'Failed to update'),
   });
 
   const generateLienDoc = async (lien: any) => {
@@ -178,7 +192,7 @@ export default function LiensPage() {
   const settledCases = new Set((liens || []).filter(l => (l as any).cases?.status === 'Settled').map(l => (l as any).cases?.id));
   const reductions = (liens || []).filter(l => l.reduction_amount > 0);
   const avgReduction = reductions.length > 0 ? reductions.reduce((sum, l) => sum + (l.reduction_amount / (l.amount || 1)), 0) / reductions.length : 0;
-  const unsignedCount = activeLiens.filter(l => !(l as any).documents?.id).length;
+  const unsignedCount = activeLiens.filter(l => !(l as any).documents?.signed).length;
 
   if (isLoading) return <div className="space-y-6"><h2 className="font-display text-2xl">Liens & Settlements</h2><Skeleton className="h-96 rounded-xl" /></div>;
 
@@ -194,7 +208,7 @@ export default function LiensPage() {
         <Button variant="outline" onClick={() => exportToCSV(filtered?.map(l => ({
           case_number: (l as any).cases?.case_number, patient: (l as any).cases?.patient_name,
           provider: (l as any).providers?.name, amount: l.amount, reduction: l.reduction_amount,
-          net: l.amount - l.reduction_amount, status: l.status, signed: (l as any).documents?.id ? 'Yes' : 'No',
+          net: l.amount - l.reduction_amount, status: l.status, signed: (l as any).documents?.signed ? 'Signed' : (l as any).documents?.id ? 'Awaiting Signature' : 'No',
         })) || [], 'gothurt-liens.csv')}>
           <Download className="w-4 h-4 mr-1.5" /> Export CSV
         </Button>
@@ -253,59 +267,98 @@ export default function LiensPage() {
           </tr></thead>
           <tbody className="divide-y divide-border">
             {sortedLiens?.map(l => {
-              const doc = (l as any).documents;
-              const isSigned = !!doc?.id;
-              const isActive = l.status === 'Active' || l.status === 'Reduced';
-              return (
-                <tr key={l.id} className={`hover:bg-accent/50 cursor-pointer transition-colors ${!isSigned && isActive ? 'bg-destructive/5' : ''}`} onClick={() => navigate(`/cases/${(l as any).cases?.id}`)}>
-                  <td className="px-5 py-3.5 font-mono text-xs text-primary font-medium">{(l as any).cases?.case_number}</td>
-                  <td className="px-5 py-3.5 text-xs font-medium">{(l as any).cases?.patient_name}</td>
-                  <td className="px-5 py-3.5 text-xs text-muted-foreground">{(l as any).providers?.name || '—'}</td>
-                  <td className="px-5 py-3.5 font-mono text-xs text-emerald-600 tabular-nums">${l.amount.toLocaleString()}</td>
-                  <td className="px-5 py-3.5 font-mono text-xs text-amber-600 tabular-nums">${l.reduction_amount.toLocaleString()}</td>
-                  <td className="px-5 py-3.5 font-mono text-xs font-medium tabular-nums">${(l.amount - l.reduction_amount).toLocaleString()}</td>
-                  <td className="px-5 py-3.5" onClick={e => e.stopPropagation()}>
-                    {isSigned ? (
-                      <button onClick={(e) => handleDownloadLienDoc(e, doc.storage_path)} className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:underline">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span className="truncate max-w-[100px]">{doc.file_name}</span>
-                      </button>
-                    ) : isAdminOrCM ? (
-                      <div className="flex items-center gap-1">
-                        <Button
-                          size="sm" variant="ghost"
-                          className="h-7 text-[10px] text-primary hover:text-primary"
-                          disabled={generatingLienId === l.id}
-                          onClick={() => generateLienDoc(l)}
-                        >
-                          <FilePlus2 className="w-3 h-3 mr-1" />
-                          {generatingLienId === l.id ? 'Generating…' : 'Generate'}
-                        </Button>
-                        <Button
-                          size="sm" variant="ghost"
-                          className={`h-7 text-[10px] ${isActive ? 'text-destructive hover:text-destructive' : 'text-muted-foreground'}`}
-                          disabled={uploadLienDoc.isPending && uploadingLienId === l.id}
-                          onClick={() => { setUploadingLienId(l.id); fileInputRef.current?.click(); }}
-                        >
-                          <Upload className="w-3 h-3 mr-1" />
-                          {uploadLienDoc.isPending && uploadingLienId === l.id ? '…' : 'Upload'}
-                        </Button>
-                        {isActive && <AlertTriangle className="w-3 h-3 text-destructive" />}
-                      </div>
-                    ) : (
-                      <Badge variant="outline" className={`text-[10px] ${isActive ? 'border-destructive/30 text-destructive' : ''}`}>
-                        {isActive ? <><AlertTriangle className="w-3 h-3 mr-1" /> Unsigned</> : 'N/A'}
-                      </Badge>
-                    )}
-                  </td>
-                  <td className="px-5 py-3.5"><SoLCountdown sol_date={(l as any).cases?.sol_date} /></td>
-                  <td className="px-5 py-3.5"><StatusBadge status={l.status} /></td>
-                </tr>
-              );
-            })}
-            {(!sortedLiens || sortedLiens.length === 0) && (
-              <tr><td colSpan={9} className="px-5 py-16 text-center text-muted-foreground">No liens recorded</td></tr>
-            )}
+               const doc = (l as any).documents;
+               const hasDoc = !!doc?.id;
+               const isSigned = !!doc?.signed;
+               const isActive = l.status === 'Active' || l.status === 'Reduced';
+               const isAttorney = profile?.role === 'attorney';
+               return (
+                 <tr key={l.id} className={`hover:bg-accent/50 cursor-pointer transition-colors ${!isSigned && isActive ? 'bg-destructive/5' : ''}`} onClick={() => navigate(`/cases/${(l as any).cases?.id}`)}>
+                   <td className="px-5 py-3.5 font-mono text-xs text-primary font-medium">{(l as any).cases?.case_number}</td>
+                   <td className="px-5 py-3.5 text-xs font-medium">{(l as any).cases?.patient_name}</td>
+                   <td className="px-5 py-3.5 text-xs text-muted-foreground">{(l as any).providers?.name || '—'}</td>
+                   <td className="px-5 py-3.5 font-mono text-xs text-emerald-600 tabular-nums">${l.amount.toLocaleString()}</td>
+                   <td className="px-5 py-3.5 font-mono text-xs text-amber-600 tabular-nums">${l.reduction_amount.toLocaleString()}</td>
+                   <td className="px-5 py-3.5 font-mono text-xs font-medium tabular-nums">${(l.amount - l.reduction_amount).toLocaleString()}</td>
+                   <td className="px-5 py-3.5" onClick={e => e.stopPropagation()}>
+                     {hasDoc && isSigned ? (
+                       /* Signed — everyone can download */
+                       <button onClick={(e) => handleDownloadLienDoc(e, doc.storage_path)} className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:underline">
+                         <ShieldCheck className="w-3.5 h-3.5" />
+                         <span className="truncate max-w-[100px]">{doc.file_name}</span>
+                       </button>
+                     ) : hasDoc && !isSigned ? (
+                       /* Uploaded but awaiting signature */
+                       isAdminOrCM ? (
+                         <div className="flex items-center gap-1">
+                           <button onClick={(e) => handleDownloadLienDoc(e, doc.storage_path)} className="inline-flex items-center gap-1 text-xs text-amber-600 hover:underline">
+                             <Clock className="w-3.5 h-3.5" />
+                             <span className="truncate max-w-[80px]">{doc.file_name}</span>
+                           </button>
+                           <Button
+                             size="sm" variant="ghost"
+                             className="h-7 text-[10px] text-emerald-600 hover:text-emerald-700"
+                             onClick={() => markAsSigned.mutate(doc.id)}
+                             disabled={markAsSigned.isPending}
+                           >
+                             <ShieldCheck className="w-3 h-3 mr-1" />
+                             Mark Signed
+                           </Button>
+                           <Button
+                             size="sm" variant="ghost"
+                             className="h-7 text-[10px] text-muted-foreground"
+                             onClick={() => { setUploadingLienId(l.id); fileInputRef.current?.click(); }}
+                           >
+                             <Upload className="w-3 h-3 mr-1" /> Replace
+                           </Button>
+                         </div>
+                       ) : isAttorney ? (
+                         <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-600">
+                           <Clock className="w-3 h-3 mr-1" /> Awaiting Signature
+                         </Badge>
+                       ) : (
+                         <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-600">
+                           <Clock className="w-3 h-3 mr-1" /> Pending
+                         </Badge>
+                       )
+                     ) : isAdminOrCM ? (
+                       /* No document yet — admin/CM can generate or upload */
+                       <div className="flex items-center gap-1">
+                         <Button
+                           size="sm" variant="ghost"
+                           className="h-7 text-[10px] text-primary hover:text-primary"
+                           disabled={generatingLienId === l.id}
+                           onClick={() => generateLienDoc(l)}
+                         >
+                           <FilePlus2 className="w-3 h-3 mr-1" />
+                           {generatingLienId === l.id ? 'Generating…' : 'Generate'}
+                         </Button>
+                         <Button
+                           size="sm" variant="ghost"
+                           className={`h-7 text-[10px] ${isActive ? 'text-destructive hover:text-destructive' : 'text-muted-foreground'}`}
+                           disabled={uploadLienDoc.isPending && uploadingLienId === l.id}
+                           onClick={() => { setUploadingLienId(l.id); fileInputRef.current?.click(); }}
+                         >
+                           <Upload className="w-3 h-3 mr-1" />
+                           {uploadLienDoc.isPending && uploadingLienId === l.id ? '…' : 'Upload'}
+                         </Button>
+                         {isActive && <AlertTriangle className="w-3 h-3 text-destructive" />}
+                       </div>
+                     ) : (
+                       /* No document — non-admin sees nothing or N/A */
+                       isAttorney && isActive ? null : (
+                         <Badge variant="outline" className="text-[10px]">N/A</Badge>
+                       )
+                     )}
+                   </td>
+                   <td className="px-5 py-3.5"><SoLCountdown sol_date={(l as any).cases?.sol_date} /></td>
+                   <td className="px-5 py-3.5"><StatusBadge status={l.status} /></td>
+                 </tr>
+               );
+             })}
+             {(!sortedLiens || sortedLiens.length === 0) && (
+               <tr><td colSpan={9} className="px-5 py-16 text-center text-muted-foreground">No liens recorded</td></tr>
+             )}
           </tbody>
         </table>
       </div>
