@@ -208,7 +208,7 @@ export default function LiensPage() {
         <Button variant="outline" onClick={() => exportToCSV(filtered?.map(l => ({
           case_number: (l as any).cases?.case_number, patient: (l as any).cases?.patient_name,
           provider: (l as any).providers?.name, amount: l.amount, reduction: l.reduction_amount,
-          net: l.amount - l.reduction_amount, status: l.status, signed: (l as any).documents?.id ? 'Yes' : 'No',
+          net: l.amount - l.reduction_amount, status: l.status, signed: (l as any).documents?.signed ? 'Signed' : (l as any).documents?.id ? 'Awaiting Signature' : 'No',
         })) || [], 'gothurt-liens.csv')}>
           <Download className="w-4 h-4 mr-1.5" /> Export CSV
         </Button>
