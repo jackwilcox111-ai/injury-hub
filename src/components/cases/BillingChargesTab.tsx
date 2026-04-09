@@ -286,9 +286,10 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
               )}
             </div>
 
+            <p className="text-[10px] text-muted-foreground">PHI &mdash; Handle in accordance with HIPAA policy</p>
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
-              <Button type="submit" disabled={addMutation.isPending || !form.service_date}>Add Charge</Button>
+              <Button type="submit" disabled={addMutation.isPending || !form.service_date || !form.charge_amount}>Submit</Button>
             </div>
           </form>
         </DialogContent>
