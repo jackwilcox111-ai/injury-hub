@@ -192,7 +192,7 @@ export default function LiensPage() {
   const settledCases = new Set((liens || []).filter(l => (l as any).cases?.status === 'Settled').map(l => (l as any).cases?.id));
   const reductions = (liens || []).filter(l => l.reduction_amount > 0);
   const avgReduction = reductions.length > 0 ? reductions.reduce((sum, l) => sum + (l.reduction_amount / (l.amount || 1)), 0) / reductions.length : 0;
-  const unsignedCount = activeLiens.filter(l => !(l as any).documents?.id).length;
+  const unsignedCount = activeLiens.filter(l => !(l as any).documents?.signed).length;
 
   if (isLoading) return <div className="space-y-6"><h2 className="font-display text-2xl">Liens & Settlements</h2><Skeleton className="h-96 rounded-xl" /></div>;
 
