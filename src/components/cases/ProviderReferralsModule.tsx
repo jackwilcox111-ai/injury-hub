@@ -12,7 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { Send, RotateCcw, Save } from 'lucide-react';
+import { Send, RotateCcw, Save, Trash2 } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 const STATUS_STYLES: Record<string, string> = {
   Pending: 'bg-amber-100 text-amber-700 border-amber-200',
@@ -77,6 +78,20 @@ export function ProviderReferralsModule({ caseId, onSendReferral }: Props) {
       queryClient.invalidateQueries({ queryKey: ['case-referrals', caseId] });
       setEditingReferral(null);
       toast.success('Referral updated');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (referralId: string) => {
+      const { error } = await supabase.from('referrals').delete().eq('id', referralId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['case-referrals', caseId] });
+      queryClient.invalidateQueries({ queryKey: ['cases'] });
+      setEditingReferral(null);
+      toast.success('Referral deleted');
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -181,17 +196,21 @@ export function ProviderReferralsModule({ caseId, onSendReferral }: Props) {
         referral={editingReferral}
         onClose={() => setEditingReferral(null)}
         onSave={(updates) => updateMutation.mutate(updates)}
+        onDelete={(id) => deleteMutation.mutate(id)}
         isPending={updateMutation.isPending}
+        isDeleting={deleteMutation.isPending}
       />
     </>
   );
 }
 
-function EditReferralDialog({ referral, onClose, onSave, isPending }: {
+function EditReferralDialog({ referral, onClose, onSave, onDelete, isPending, isDeleting }: {
   referral: any;
   onClose: () => void;
   onSave: (updates: Record<string, any>) => void;
+  onDelete: (id: string) => void;
   isPending: boolean;
+  isDeleting: boolean;
 }) {
   const [status, setStatus] = useState('');
   const [method, setMethod] = useState('');
@@ -280,11 +299,34 @@ function EditReferralDialog({ referral, onClose, onSave, isPending }: {
               <p>Referred: <span className="font-mono">{referral.created_at ? format(new Date(referral.created_at), 'MMM d, yyyy') : '—'}</span></p>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" size="sm" onClick={onClose}>Cancel</Button>
-              <Button type="submit" size="sm" disabled={isPending}>
-                <Save className="w-3.5 h-3.5 mr-1" /> Save Changes
-              </Button>
+            <div className="flex justify-between items-center pt-2">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button type="button" variant="destructive" size="sm" disabled={isDeleting}>
+                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Referral</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently remove the referral to {provider?.name}. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onDelete(referral.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={onClose}>Cancel</Button>
+                <Button type="submit" size="sm" disabled={isPending}>
+                  <Save className="w-3.5 h-3.5 mr-1" /> Save Changes
+                </Button>
+              </div>
             </div>
           </form>
         )}
