@@ -180,7 +180,11 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
         <div className="border border-border rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead><tr className="border-b border-border bg-accent/50">
-              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Date</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">
+                <button className="flex items-center gap-1 hover:text-foreground transition-colors" onClick={() => setBillSortDir(d => d === 'asc' ? 'desc' : 'asc')}>
+                  Date {billSortDir === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+                </button>
+              </th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Description</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Path</th>
