@@ -54,7 +54,7 @@ export async function compileFilesToPdf(files: FileEntry[], outputName: string):
   if (added === 0) throw new Error('No compatible files found (PDF/JPG/PNG only)');
 
   const pdfBytes = await mergedPdf.save();
-  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  const blob = new Blob([pdfBytes.buffer as ArrayBuffer], { type: 'application/pdf' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
