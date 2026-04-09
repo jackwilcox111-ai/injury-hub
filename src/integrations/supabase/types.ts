@@ -1566,6 +1566,7 @@ export type Database = {
           case_id: string
           created_at: string | null
           id: string
+          lien_document_id: string | null
           notes: string | null
           payment_date: string | null
           provider_id: string | null
@@ -1577,6 +1578,7 @@ export type Database = {
           case_id: string
           created_at?: string | null
           id?: string
+          lien_document_id?: string | null
           notes?: string | null
           payment_date?: string | null
           provider_id?: string | null
@@ -1588,6 +1590,7 @@ export type Database = {
           case_id?: string
           created_at?: string | null
           id?: string
+          lien_document_id?: string | null
           notes?: string | null
           payment_date?: string | null
           provider_id?: string | null
@@ -1614,6 +1617,13 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "marketplace_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "liens_lien_document_id_fkey"
+            columns: ["lien_document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
             referencedColumns: ["id"]
           },
           {

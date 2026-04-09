@@ -1,6 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { StatusBadge } from '@/components/global/StatusBadge';
 import { SoLCountdown } from '@/components/global/SoLCountdown';
 import { SortableHeader } from '@/components/global/SortableHeader';
@@ -8,23 +9,30 @@ import { useSortableTable } from '@/hooks/use-sortable-table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { exportToCSV } from '@/lib/csv-export';
-import { useState } from 'react';
-import { Download, TrendingUp, PieChart, BarChart3, Percent, Search } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Download, TrendingUp, PieChart, BarChart3, Percent, Search, Upload, CheckCircle2, AlertTriangle, FileText } from 'lucide-react';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 const lienStatuses = ['All', 'Active', 'Reduced', 'Paid', 'Waived'];
 
 export default function LiensPage() {
   const navigate = useNavigate();
+  const { user, profile } = useAuth();
+  const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState('All');
   const [search, setSearch] = useState('');
+  const [uploadingLienId, setUploadingLienId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const isAdminOrCM = profile?.role === 'admin' || profile?.role === 'care_manager';
 
   const { data: liens, isLoading } = useQuery({
     queryKey: ['liens-full'],
     queryFn: async () => {
       const { data } = await supabase.from('liens')
-        .select('*, cases!liens_case_id_fkey(id, case_number, patient_name, attorney_id, settlement_estimate, sol_date, sol_period_days, accident_state, status, attorneys!cases_attorney_id_fkey(firm_name)), providers(name)')
+        .select('*, cases!liens_case_id_fkey(id, case_number, patient_name, attorney_id, settlement_estimate, sol_date, sol_period_days, accident_state, status, attorneys!cases_attorney_id_fkey(firm_name)), providers(name), documents!liens_lien_document_id_fkey(id, file_name, storage_path)')
         .order('created_at', { ascending: false });
       return data || [];
     },
@@ -43,6 +51,51 @@ export default function LiensPage() {
     },
   });
 
+  const uploadLienDoc = useMutation({
+    mutationFn: async ({ lienId, caseId, file }: { lienId: string; caseId: string; file: File }) => {
+      const filePath = `liens/${caseId}/${Date.now()}_${file.name}`;
+      const { error: uploadError } = await supabase.storage.from('documents').upload(filePath, file);
+      if (uploadError) throw uploadError;
+
+      const { data: doc, error: docError } = await supabase.from('documents').insert({
+        case_id: caseId,
+        file_name: file.name,
+        storage_path: filePath,
+        document_type: 'Lien Agreement',
+        uploader_id: user?.id,
+        visible_to: ['admin', 'care_manager', 'attorney'],
+      }).select('id').single();
+      if (docError) throw docError;
+
+      const { error: linkError } = await supabase.from('liens')
+        .update({ lien_document_id: doc.id } as any)
+        .eq('id', lienId);
+      if (linkError) throw linkError;
+    },
+    onSuccess: () => {
+      toast.success('Signed lien uploaded');
+      queryClient.invalidateQueries({ queryKey: ['liens-full'] });
+      setUploadingLienId(null);
+    },
+    onError: (e: any) => toast.error(e.message || 'Upload failed'),
+  });
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !uploadingLienId) return;
+    const lien = liens?.find(l => l.id === uploadingLienId);
+    if (!lien) return;
+    uploadLienDoc.mutate({ lienId: uploadingLienId, caseId: lien.case_id, file });
+    e.target.value = '';
+  };
+
+  const handleDownloadLienDoc = async (e: React.MouseEvent, storagePath: string) => {
+    e.stopPropagation();
+    const { data, error } = await supabase.storage.from('documents').createSignedUrl(storagePath, 300);
+    if (error) { toast.error('Could not generate download link'); return; }
+    window.open(data.signedUrl, '_blank');
+  };
+
   const statusFiltered = statusFilter === 'All' ? liens : liens?.filter(l => l.status === statusFilter);
   const filtered = statusFiltered?.filter(l => {
     if (!search) return true;
@@ -55,11 +108,14 @@ export default function LiensPage() {
   const settledCases = new Set((liens || []).filter(l => (l as any).cases?.status === 'Settled').map(l => (l as any).cases?.id));
   const reductions = (liens || []).filter(l => l.reduction_amount > 0);
   const avgReduction = reductions.length > 0 ? reductions.reduce((sum, l) => sum + (l.reduction_amount / (l.amount || 1)), 0) / reductions.length : 0;
+  const unsignedCount = activeLiens.filter(l => !(l as any).documents?.id).length;
 
   if (isLoading) return <div className="space-y-6"><h2 className="font-display text-2xl">Liens & Settlements</h2><Skeleton className="h-96 rounded-xl" /></div>;
 
   return (
     <div className="space-y-6">
+      <input ref={fileInputRef} type="file" accept=".pdf,application/pdf,image/*" className="hidden" onChange={handleFileSelect} />
+
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-display text-2xl text-foreground">Liens & Settlements</h2>
@@ -68,11 +124,19 @@ export default function LiensPage() {
         <Button variant="outline" onClick={() => exportToCSV(filtered?.map(l => ({
           case_number: (l as any).cases?.case_number, patient: (l as any).cases?.patient_name,
           provider: (l as any).providers?.name, amount: l.amount, reduction: l.reduction_amount,
-          net: l.amount - l.reduction_amount, status: l.status,
+          net: l.amount - l.reduction_amount, status: l.status, signed: (l as any).documents?.id ? 'Yes' : 'No',
         })) || [], 'gothurt-liens.csv')}>
           <Download className="w-4 h-4 mr-1.5" /> Export CSV
         </Button>
       </div>
+
+      {/* Unsigned alert banner */}
+      {unsignedCount > 0 && (
+        <div className="flex items-center gap-2 bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-3">
+          <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
+          <p className="text-sm text-destructive font-medium">{unsignedCount} active lien{unsignedCount > 1 ? 's' : ''} missing signed agreement</p>
+        </div>
+      )}
 
       {/* Summary */}
       <div className="grid grid-cols-4 gap-5">
@@ -113,24 +177,53 @@ export default function LiensPage() {
             <SortableHeader label="Lien" sortKey="amount" currentKey={lienSortConfig.key} direction={lienSortConfig.direction} onSort={lienRequestSort} />
             <SortableHeader label="Reduction" sortKey="reduction_amount" currentKey={lienSortConfig.key} direction={lienSortConfig.direction} onSort={lienRequestSort} />
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Net</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">Signed Lien</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground">SoL</th>
             <SortableHeader label="Status" sortKey="status" currentKey={lienSortConfig.key} direction={lienSortConfig.direction} onSort={lienRequestSort} />
           </tr></thead>
           <tbody className="divide-y divide-border">
-            {sortedLiens?.map(l => (
-              <tr key={l.id} className="hover:bg-accent/50 cursor-pointer transition-colors" onClick={() => navigate(`/cases/${(l as any).cases?.id}`)}>
-                <td className="px-5 py-3.5 font-mono text-xs text-primary font-medium">{(l as any).cases?.case_number}</td>
-                <td className="px-5 py-3.5 text-xs font-medium">{(l as any).cases?.patient_name}</td>
-                <td className="px-5 py-3.5 text-xs text-muted-foreground">{(l as any).providers?.name || '—'}</td>
-                <td className="px-5 py-3.5 font-mono text-xs text-emerald-600 tabular-nums">${l.amount.toLocaleString()}</td>
-                <td className="px-5 py-3.5 font-mono text-xs text-amber-600 tabular-nums">${l.reduction_amount.toLocaleString()}</td>
-                <td className="px-5 py-3.5 font-mono text-xs font-medium tabular-nums">${(l.amount - l.reduction_amount).toLocaleString()}</td>
-                <td className="px-5 py-3.5"><SoLCountdown sol_date={(l as any).cases?.sol_date} /></td>
-                <td className="px-5 py-3.5"><StatusBadge status={l.status} /></td>
-              </tr>
-            ))}
+            {sortedLiens?.map(l => {
+              const doc = (l as any).documents;
+              const isSigned = !!doc?.id;
+              const isActive = l.status === 'Active' || l.status === 'Reduced';
+              return (
+                <tr key={l.id} className={`hover:bg-accent/50 cursor-pointer transition-colors ${!isSigned && isActive ? 'bg-destructive/5' : ''}`} onClick={() => navigate(`/cases/${(l as any).cases?.id}`)}>
+                  <td className="px-5 py-3.5 font-mono text-xs text-primary font-medium">{(l as any).cases?.case_number}</td>
+                  <td className="px-5 py-3.5 text-xs font-medium">{(l as any).cases?.patient_name}</td>
+                  <td className="px-5 py-3.5 text-xs text-muted-foreground">{(l as any).providers?.name || '—'}</td>
+                  <td className="px-5 py-3.5 font-mono text-xs text-emerald-600 tabular-nums">${l.amount.toLocaleString()}</td>
+                  <td className="px-5 py-3.5 font-mono text-xs text-amber-600 tabular-nums">${l.reduction_amount.toLocaleString()}</td>
+                  <td className="px-5 py-3.5 font-mono text-xs font-medium tabular-nums">${(l.amount - l.reduction_amount).toLocaleString()}</td>
+                  <td className="px-5 py-3.5" onClick={e => e.stopPropagation()}>
+                    {isSigned ? (
+                      <button onClick={(e) => handleDownloadLienDoc(e, doc.storage_path)} className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:underline">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span className="truncate max-w-[100px]">{doc.file_name}</span>
+                      </button>
+                    ) : isAdminOrCM ? (
+                      <Button
+                        size="sm" variant="ghost"
+                        className={`h-7 text-[10px] ${isActive ? 'text-destructive hover:text-destructive' : 'text-muted-foreground'}`}
+                        disabled={uploadLienDoc.isPending && uploadingLienId === l.id}
+                        onClick={(e) => { e.stopPropagation(); setUploadingLienId(l.id); fileInputRef.current?.click(); }}
+                      >
+                        <Upload className="w-3 h-3 mr-1" />
+                        {uploadLienDoc.isPending && uploadingLienId === l.id ? 'Uploading…' : 'Upload'}
+                        {isActive && <AlertTriangle className="w-3 h-3 ml-1" />}
+                      </Button>
+                    ) : (
+                      <Badge variant="outline" className={`text-[10px] ${isActive ? 'border-destructive/30 text-destructive' : ''}`}>
+                        {isActive ? <><AlertTriangle className="w-3 h-3 mr-1" /> Unsigned</> : 'N/A'}
+                      </Badge>
+                    )}
+                  </td>
+                  <td className="px-5 py-3.5"><SoLCountdown sol_date={(l as any).cases?.sol_date} /></td>
+                  <td className="px-5 py-3.5"><StatusBadge status={l.status} /></td>
+                </tr>
+              );
+            })}
             {(!sortedLiens || sortedLiens.length === 0) && (
-              <tr><td colSpan={8} className="px-5 py-16 text-center text-muted-foreground">No liens recorded</td></tr>
+              <tr><td colSpan={9} className="px-5 py-16 text-center text-muted-foreground">No liens recorded</td></tr>
             )}
           </tbody>
         </table>
