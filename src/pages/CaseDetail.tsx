@@ -1055,7 +1055,7 @@ export default function CaseDetail() {
           <DialogHeader><DialogTitle>Add Record</DialogTitle></DialogHeader>
           <form onSubmit={e => { e.preventDefault(); addRecord.mutate(); }} className="space-y-4">
             <div className="space-y-2"><Label className="text-sm font-medium">Record Type</Label>
-              <Select value={newRecord.record_type} onValueChange={v => setNewRecord(p => ({...p, record_type: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{['Treatment Notes','Billing','Imaging','Surgical Report','Initial Evaluation','Progress Notes','X-rays','MRI Report','Other'].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent></Select>
+              <Select value={newRecord.record_type} onValueChange={v => setNewRecord(p => ({...p, record_type: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{['Initial Evaluation','Treatment Notes','Progress Notes','Radiology / Imaging','Surgical Report','Other'].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent></Select>
             </div>
             <div className="space-y-2"><Label className="text-sm font-medium">Provider</Label>
               <Select value={newRecord.provider_id} onValueChange={v => setNewRecord(p => ({...p, provider_id: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{allProviders?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
