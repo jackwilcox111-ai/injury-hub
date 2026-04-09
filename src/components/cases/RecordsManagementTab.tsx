@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { FileText, Plus, CheckCircle2, Clock, AlertCircle, Send, Upload } from 'lucide-react';
+import { FileText, Plus, CheckCircle2, Clock, AlertCircle, Send, Upload, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 const SPECIALTY_RECORDS: Record<string, string[]> = {
   'Pain Management': ['Initial Evaluation', 'Treatment Notes', 'Injection Records', 'Imaging', 'Billing'],
