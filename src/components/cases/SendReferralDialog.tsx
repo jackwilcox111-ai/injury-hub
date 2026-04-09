@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { Search, UserPlus, Send, MapPin, Phone, Globe } from 'lucide-react';
-import { SPECIALTIES } from '@/lib/specialties';
+import { SPECIALTIES, getSpecialtyColor } from '@/lib/specialties';
 import { geocodeLocation } from '@/lib/geocode';
 
 function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
