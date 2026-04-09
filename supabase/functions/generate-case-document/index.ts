@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const validTypes = ["referral_letter", "imaging_requisition", "work_treatment_note", "medical_necessity_md_referral"];
+    const validTypes = ["referral_letter", "imaging_requisition", "work_treatment_note", "medical_necessity_md_referral", "lien_agreement"];
     if (!validTypes.includes(document_type)) {
       return new Response(JSON.stringify({ error: "Invalid document type" }), {
         status: 400,
