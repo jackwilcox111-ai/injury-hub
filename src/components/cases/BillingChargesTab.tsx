@@ -20,6 +20,8 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
   const [showAdd, setShowAdd] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const attachFileRef = useRef<HTMLInputElement>(null);
+  const [attachingChargeId, setAttachingChargeId] = useState<string | null>(null);
   const isAdminOrCM = profile?.role === 'admin' || profile?.role === 'care_manager';
   const [billSortDir, setBillSortDir] = useState<'asc' | 'desc'>('desc');
 
@@ -106,6 +108,32 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['charges', caseId] }),
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const attachBill = useMutation({
+    mutationFn: async ({ chargeId, file }: { chargeId: string; file: File }) => {
+      const filePath = `charges/${caseId}/${Date.now()}_${file.name}`;
+      const { error: uploadError } = await supabase.storage.from('documents').upload(filePath, file);
+      if (uploadError) throw uploadError;
+
+      const { data: docData, error: docError } = await supabase.from('documents').insert({
+        case_id: caseId,
+        file_name: file.name,
+        storage_path: filePath,
+        document_type: 'bill',
+        uploader_id: user?.id,
+      }).select('id').single();
+      if (docError) throw docError;
+
+      const { error } = await supabase.from('charges').update({ document_id: docData.id }).eq('id', chargeId);
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      await invalidateChargeDerivedQueries();
+      setAttachingChargeId(null);
+      toast.success('Bill attached');
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -232,6 +260,16 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
                       >
                         <FileText className="w-3 h-3" /> View
                       </button>
+                    ) : isAdminOrCM ? (
+                      <button
+                        onClick={() => {
+                          setAttachingChargeId(c.id);
+                          attachFileRef.current?.click();
+                        }}
+                        className="text-primary hover:underline flex items-center gap-1 text-xs"
+                      >
+                        <Upload className="w-3 h-3" /> Attach
+                      </button>
                     ) : (
                       <span className="text-xs text-muted-foreground">—</span>
                     )}
@@ -252,6 +290,21 @@ export function BillingChargesTab({ caseId, providers }: { caseId: string; provi
           </table>
         </div>
       )}
+
+      {/* Hidden file input for attaching bills to existing charges */}
+      <input
+        ref={attachFileRef}
+        type="file"
+        accept=".pdf,application/pdf,image/*"
+        className="hidden"
+        onChange={e => {
+          const file = e.target.files?.[0];
+          if (file && attachingChargeId) {
+            attachBill.mutate({ chargeId: attachingChargeId, file });
+          }
+          if (attachFileRef.current) attachFileRef.current.value = '';
+        }}
+      />
 
       {/* Add Charge Dialog */}
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
