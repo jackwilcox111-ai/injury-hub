@@ -191,7 +191,7 @@ export default function CaseDetail() {
   const { data: liens } = useQuery({
     queryKey: ['case-liens', id],
     queryFn: async () => {
-      const { data } = await supabase.from('liens').select('*, providers(name), documents:lien_document_id(id, file_name, storage_path)');
+      const { data } = await supabase.from('liens').select('*, providers(name), documents:lien_document_id(id, file_name, storage_path)')
         .eq('case_id', id!).order('created_at', { ascending: false });
       return data || [];
     },
