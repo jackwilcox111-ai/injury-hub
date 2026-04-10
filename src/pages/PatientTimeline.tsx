@@ -205,7 +205,7 @@ export default function PatientTimeline() {
           {[
             { title: 'Attend Every Appointment', text: 'Keeping your scheduled visits helps ensure you receive consistent care. If you need to reschedule, please let us know as soon as possible.' },
             { title: 'Keep Notes on Your Recovery', text: 'It can be helpful to note how you are feeling day to day. This information may be useful for your care team.' },
-            { title: 'Be Mindful on Social Media', text: 'Consider limiting posts about your health or activities while your case is open. Your attorney can provide more guidance.' },
+            
             { title: 'Timeline Expectations', text: 'Every case is different. Your care team and attorney are working to move things forward. Please reach out with questions any time.' },
           ].map(tip => (
             <div key={tip.title} className="rounded-lg bg-accent/50 p-3 space-y-0.5">
