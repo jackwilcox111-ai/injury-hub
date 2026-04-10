@@ -118,6 +118,8 @@ export default function CaseDetail() {
   const chargeFileRef = useRef<HTMLInputElement>(null);
   const [showEditLien, setShowEditLien] = useState(false);
   const [editLien, setEditLien] = useState<any>(null);
+  const [lienFile, setLienFile] = useState<File | null>(null);
+  const lienFileRef = useRef<HTMLInputElement>(null);
   const [showSettlementModal, setShowSettlementModal] = useState(false);
   const [settlementAmount, setSettlementAmount] = useState('');
   const [editingEstimate, setEditingEstimate] = useState(false);
@@ -189,7 +191,7 @@ export default function CaseDetail() {
   const { data: liens } = useQuery({
     queryKey: ['case-liens', id],
     queryFn: async () => {
-      const { data } = await supabase.from('liens').select('*, providers(name)')
+      const { data } = await supabase.from('liens').select('*, providers(name), documents:lien_document_id(id, file_name, storage_path)');
         .eq('case_id', id!).order('created_at', { ascending: false });
       return data || [];
     },
@@ -461,13 +463,38 @@ export default function CaseDetail() {
 
   const updateLienMutation = useMutation({
     mutationFn: async (lien: any) => {
+      let lienDocId = lien.lien_document_id || null;
+
+      // Upload lien document if a new file was selected
+      if (lienFile) {
+        const filePath = `liens/${id}/${Date.now()}_${lienFile.name}`;
+        const { error: uploadError } = await supabase.storage.from('documents').upload(filePath, lienFile);
+        if (uploadError) throw uploadError;
+
+        const { data: docData, error: docError } = await supabase.from('documents').insert({
+          case_id: id!, file_name: lienFile.name, storage_path: filePath,
+          document_type: 'lien_agreement', uploader_id: user?.id,
+        }).select('id').single();
+        if (docError) throw docError;
+        lienDocId = docData.id;
+
+        // Also create a record entry so it appears in Records section
+        await supabase.from('records').insert({
+          case_id: id!, provider_id: lien.provider_id || null,
+          record_type: 'Lien Agreement', document_id: docData.id,
+          received_date: new Date().toISOString().split('T')[0],
+          notes: `Signed lien document for ${lien.providers?.name || 'provider'}`,
+        });
+      }
+
       const { error } = await supabase.from('liens').update({
         amount: lien.amount, reduction_amount: lien.reduction_amount,
         status: lien.status, notes: lien.notes || null, payment_date: lien.payment_date || null,
+        lien_document_id: lienDocId,
       }).eq('id', lien.id);
       if (error) throw error;
     },
-    onSuccess: () => { invalidateAll(); setShowEditLien(false); setEditLien(null); toast.success('Lien updated'); },
+    onSuccess: () => { invalidateAll(); setShowEditLien(false); setEditLien(null); setLienFile(null); toast.success('Lien updated'); },
     onError: (e: any) => toast.error(e.message),
   });
 
