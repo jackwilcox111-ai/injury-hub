@@ -9,21 +9,20 @@ const steps = [
 
 export function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="py-24 bg-card border-y border-border/60 relative overflow-hidden">
-      {/* Background depth */}
+    <section id="how-it-works" className="py-14 bg-card border-y border-border/60 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-72 h-72 bg-primary/[0.02] rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl" />
 
       <div className="max-w-6xl mx-auto px-6 relative z-10">
-        <div className="mb-16">
-          <span className="text-xs font-medium uppercase tracking-widest text-primary mb-3 block">Process</span>
+        <div className="mb-10">
+          <span className="text-xs font-medium uppercase tracking-widest text-primary mb-2 block">Process</span>
           <h2 className="text-3xl font-display font-bold text-foreground">How It Works</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-border rounded-xl overflow-hidden">
           {steps.map((step, i) => (
-            <div key={i} className="bg-card p-7 space-y-4 group hover:bg-accent/30 transition-colors duration-300">
+            <div key={i} className="bg-card p-6 space-y-3">
               <span className="font-mono-data text-xs text-muted-foreground/60">{step.num}</span>
-              <div className="w-10 h-10 rounded-lg bg-primary/8 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
+              <div className="w-10 h-10 rounded-lg bg-primary/8 flex items-center justify-center">
                 <step.icon className="w-5 h-5 text-primary" />
               </div>
               <h3 className="font-display text-base font-bold text-foreground">{step.title}</h3>

@@ -2,8 +2,7 @@ import missionBg from '@/assets/mission-bg.jpg';
 
 export function MissionBanner() {
   return (
-    <section className="relative py-24 md:py-32 overflow-hidden">
-      {/* Background image with overlay */}
+    <section className="relative py-14 md:py-18 overflow-hidden">
       <div className="absolute inset-0">
         <img
           src={missionBg}
@@ -18,11 +17,11 @@ export function MissionBanner() {
       </div>
 
       <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-        <div className="w-12 h-px bg-primary mx-auto mb-8" />
-        <p className="text-2xl md:text-3xl lg:text-[34px] font-display font-bold text-primary-foreground leading-snug">
+        <div className="w-12 h-px bg-primary mx-auto mb-5" />
+        <p className="text-xl md:text-2xl lg:text-[28px] font-display font-bold text-primary-foreground leading-snug">
           We partner with attorneys and providers to streamline quality patient care at a great value — enabling patients to maximize their personal injury settlements.
         </p>
-        <div className="w-12 h-px bg-primary mx-auto mt-8" />
+        <div className="w-12 h-px bg-primary mx-auto mt-5" />
       </div>
     </section>
   );
