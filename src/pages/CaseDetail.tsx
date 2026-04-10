@@ -113,6 +113,8 @@ export default function CaseDetail() {
   const [showEditCharge, setShowEditCharge] = useState(false);
   const [editCharge, setEditCharge] = useState<any>(null);
   const [showAddCharge, setShowAddCharge] = useState(false);
+  const [editChargeFile, setEditChargeFile] = useState<File | null>(null);
+  const editChargeFileRef = useRef<HTMLInputElement>(null);
   const [newCharge, setNewCharge] = useState({ cpt_description: '', service_date: '', charge_amount: 0, status: 'Pending', billing_path: '', notes: '', provider_id: '' });
   const [chargeFile, setChargeFile] = useState<File | null>(null);
   const chargeFileRef = useRef<HTMLInputElement>(null);
@@ -182,7 +184,7 @@ export default function CaseDetail() {
   const { data: charges } = useQuery({
     queryKey: ['case-charges-inline', id],
     queryFn: async () => {
-      const { data } = await supabase.from('charges').select('*, providers!charges_provider_id_fkey(name)')
+      const { data } = await supabase.from('charges').select('*, providers!charges_provider_id_fkey(name), documents:document_id(id, file_name, storage_path)')
         .eq('case_id', id!).order('service_date', { ascending: false });
       return data || [];
     },
@@ -417,14 +419,28 @@ export default function CaseDetail() {
 
   const updateChargeMutation = useMutation({
     mutationFn: async (charge: any) => {
+      let docId = charge.document_id || null;
+
+      if (editChargeFile) {
+        const filePath = `charges/${id}/${Date.now()}_${editChargeFile.name}`;
+        const { error: uploadError } = await supabase.storage.from('documents').upload(filePath, editChargeFile);
+        if (uploadError) throw uploadError;
+        const { data: docData, error: docError } = await supabase.from('documents').insert({
+          case_id: id!, file_name: editChargeFile.name, storage_path: filePath,
+          document_type: 'bill', uploader_id: user?.id,
+        }).select('id').single();
+        if (docError) throw docError;
+        docId = docData.id;
+      }
+
       const { error } = await supabase.from('charges').update({
         cpt_description: charge.cpt_description, service_date: charge.service_date,
         charge_amount: charge.charge_amount, status: charge.status, notes: charge.notes || null,
-        billing_path: charge.billing_path || null,
+        billing_path: charge.billing_path || null, document_id: docId,
       }).eq('id', charge.id);
       if (error) throw error;
     },
-    onSuccess: () => { invalidateAll(); setShowEditCharge(false); setEditCharge(null); toast.success('Charge updated'); },
+    onSuccess: () => { invalidateAll(); setShowEditCharge(false); setEditCharge(null); setEditChargeFile(null); toast.success('Charge updated'); },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -1336,7 +1352,7 @@ export default function CaseDetail() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showEditCharge} onOpenChange={v => { setShowEditCharge(v); if (!v) setEditCharge(null); }}>
+      <Dialog open={showEditCharge} onOpenChange={v => { setShowEditCharge(v); if (!v) { setEditCharge(null); setEditChargeFile(null); } }}>
         <DialogContent>
           <DialogHeader><DialogTitle>Edit Charge</DialogTitle></DialogHeader>
           {editCharge && (
@@ -1364,6 +1380,29 @@ export default function CaseDetail() {
                 <Select value={editCharge.provider_id || ''} onValueChange={v => setEditCharge((p: any) => ({...p, provider_id: v}))}><SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{(caseProviders || []).map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
               </div>
               <div className="space-y-2"><Label className="text-sm font-medium">Notes</Label><Textarea value={editCharge.notes || ''} onChange={e => setEditCharge((p: any) => ({...p, notes: e.target.value}))} /></div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Bill Attachment</Label>
+                <input ref={editChargeFileRef} type="file" accept=".pdf,application/pdf,image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) setEditChargeFile(f); }} />
+                {(editCharge as any).documents?.file_name && !editChargeFile ? (
+                  <div className="flex items-center gap-2 bg-accent/30 rounded-lg px-3 py-2">
+                    <FileText className="w-4 h-4 text-primary shrink-0" />
+                    <span className="text-xs text-foreground truncate flex-1">{(editCharge as any).documents.file_name}</span>
+                    <button type="button" onClick={async () => {
+                      const { data } = await supabase.storage.from('documents').createSignedUrl((editCharge as any).documents.storage_path, 300);
+                      if (data?.signedUrl) window.open(data.signedUrl, '_blank');
+                    }} className="text-primary hover:underline text-xs">View</button>
+                    <button type="button" onClick={() => editChargeFileRef.current?.click()} className="text-primary hover:underline text-xs">Replace</button>
+                  </div>
+                ) : editChargeFile ? (
+                  <div className="flex items-center gap-2 bg-accent/30 rounded-lg px-3 py-2">
+                    <FileText className="w-4 h-4 text-primary shrink-0" />
+                    <span className="text-xs text-foreground truncate flex-1">{editChargeFile.name}</span>
+                    <button type="button" onClick={() => { setEditChargeFile(null); if (editChargeFileRef.current) editChargeFileRef.current.value = ''; }} className="text-muted-foreground hover:text-foreground"><X className="w-3.5 h-3.5" /></button>
+                  </div>
+                ) : (
+                  <Button type="button" variant="outline" className="w-full h-9 text-xs" onClick={() => editChargeFileRef.current?.click()}><Upload className="w-3.5 h-3.5 mr-1.5" /> Upload Bill...</Button>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
               <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowEditCharge(false)}>Cancel</Button><Button type="submit" disabled={updateChargeMutation.isPending}>{updateChargeMutation.isPending ? 'Saving...' : 'Save'}</Button></div>
             </form>
