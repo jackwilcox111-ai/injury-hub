@@ -118,6 +118,8 @@ export default function CaseDetail() {
   const chargeFileRef = useRef<HTMLInputElement>(null);
   const [showEditLien, setShowEditLien] = useState(false);
   const [editLien, setEditLien] = useState<any>(null);
+  const [lienFile, setLienFile] = useState<File | null>(null);
+  const lienFileRef = useRef<HTMLInputElement>(null);
   const [showSettlementModal, setShowSettlementModal] = useState(false);
   const [settlementAmount, setSettlementAmount] = useState('');
   const [editingEstimate, setEditingEstimate] = useState(false);
@@ -189,7 +191,7 @@ export default function CaseDetail() {
   const { data: liens } = useQuery({
     queryKey: ['case-liens', id],
     queryFn: async () => {
-      const { data } = await supabase.from('liens').select('*, providers(name)')
+      const { data } = await supabase.from('liens').select('*, providers(name), documents:lien_document_id(id, file_name, storage_path)')
         .eq('case_id', id!).order('created_at', { ascending: false });
       return data || [];
     },
@@ -461,13 +463,38 @@ export default function CaseDetail() {
 
   const updateLienMutation = useMutation({
     mutationFn: async (lien: any) => {
+      let lienDocId = lien.lien_document_id || null;
+
+      // Upload lien document if a new file was selected
+      if (lienFile) {
+        const filePath = `liens/${id}/${Date.now()}_${lienFile.name}`;
+        const { error: uploadError } = await supabase.storage.from('documents').upload(filePath, lienFile);
+        if (uploadError) throw uploadError;
+
+        const { data: docData, error: docError } = await supabase.from('documents').insert({
+          case_id: id!, file_name: lienFile.name, storage_path: filePath,
+          document_type: 'lien_agreement', uploader_id: user?.id,
+        }).select('id').single();
+        if (docError) throw docError;
+        lienDocId = docData.id;
+
+        // Also create a record entry so it appears in Records section
+        await supabase.from('records').insert({
+          case_id: id!, provider_id: lien.provider_id || null,
+          record_type: 'Lien Agreement', document_id: docData.id,
+          received_date: new Date().toISOString().split('T')[0],
+          notes: `Signed lien document for ${lien.providers?.name || 'provider'}`,
+        });
+      }
+
       const { error } = await supabase.from('liens').update({
         amount: lien.amount, reduction_amount: lien.reduction_amount,
         status: lien.status, notes: lien.notes || null, payment_date: lien.payment_date || null,
+        lien_document_id: lienDocId,
       }).eq('id', lien.id);
       if (error) throw error;
     },
-    onSuccess: () => { invalidateAll(); setShowEditLien(false); setEditLien(null); toast.success('Lien updated'); },
+    onSuccess: () => { invalidateAll(); setShowEditLien(false); setEditLien(null); setLienFile(null); toast.success('Lien updated'); },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -968,20 +995,28 @@ export default function CaseDetail() {
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Amount</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Reduction</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Net Lien</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Signed Doc</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Status</th>
             </tr></thead>
             <tbody className="divide-y divide-border">
               {liens?.map(l => (
-                <tr key={l.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => { setEditLien({ ...l }); setShowEditLien(true); }}>
+                <tr key={l.id} className={`hover:bg-accent/30 transition-colors cursor-pointer ${!(l as any).documents ? 'bg-destructive/5' : ''}`} onClick={() => { setEditLien({ ...l }); setShowEditLien(true); }}>
                   <td className="px-4 py-2.5 text-xs font-medium">{(l as any).providers?.name || '—'}</td>
                   <td className="px-4 py-2.5 font-mono text-xs tabular-nums">${l.amount.toLocaleString()}</td>
                   <td className="px-4 py-2.5 font-mono text-xs tabular-nums">${l.reduction_amount.toLocaleString()}</td>
                   <td className="px-4 py-2.5 font-mono text-xs text-foreground font-medium tabular-nums">${(l.amount - l.reduction_amount).toLocaleString()}</td>
+                  <td className="px-4 py-2.5 text-xs">
+                    {(l as any).documents ? (
+                      <span className="flex items-center gap-1 text-emerald-600"><ShieldCheck className="w-3.5 h-3.5" /> Signed</span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-amber-600"><AlertTriangle className="w-3.5 h-3.5" /> Missing</span>
+                    )}
+                  </td>
                   <td className="px-4 py-2.5"><StatusBadge status={l.status} /></td>
                 </tr>
               ))}
               {(!liens || liens.length === 0) && (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground text-sm">No liens recorded</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground text-sm">No liens recorded</td></tr>
               )}
             </tbody>
           </table>
@@ -1337,7 +1372,7 @@ export default function CaseDetail() {
       </Dialog>
 
       {/* Edit Lien Dialog */}
-      <Dialog open={showEditLien} onOpenChange={v => { setShowEditLien(v); if (!v) setEditLien(null); }}>
+      <Dialog open={showEditLien} onOpenChange={v => { setShowEditLien(v); if (!v) { setEditLien(null); setLienFile(null); } }}>
         <DialogContent>
           <DialogHeader><DialogTitle>Edit Lien</DialogTitle></DialogHeader>
           {editLien && (
@@ -1362,6 +1397,29 @@ export default function CaseDetail() {
                 </div>
               </div>
               <div className="space-y-2"><Label className="text-sm font-medium">Notes</Label><Textarea value={editLien.notes || ''} onChange={e => setEditLien((p: any) => ({...p, notes: e.target.value}))} /></div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Signed Lien Document</Label>
+                <input ref={lienFileRef} type="file" accept=".pdf,application/pdf,image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) setLienFile(f); }} />
+                {(editLien as any).documents?.file_name && !lienFile ? (
+                  <div className="flex items-center gap-2 bg-accent/30 rounded-lg px-3 py-2">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span className="text-xs text-foreground truncate flex-1">{(editLien as any).documents.file_name}</span>
+                    <button type="button" onClick={async () => {
+                      const { data } = await supabase.storage.from('documents').createSignedUrl((editLien as any).documents.storage_path, 300);
+                      if (data?.signedUrl) window.open(data.signedUrl, '_blank');
+                    }} className="text-primary hover:underline text-xs">View</button>
+                    <button type="button" onClick={() => lienFileRef.current?.click()} className="text-primary hover:underline text-xs">Replace</button>
+                  </div>
+                ) : lienFile ? (
+                  <div className="flex items-center gap-2 bg-accent/30 rounded-lg px-3 py-2">
+                    <FileText className="w-4 h-4 text-primary shrink-0" />
+                    <span className="text-xs text-foreground truncate flex-1">{lienFile.name}</span>
+                    <button type="button" onClick={() => { setLienFile(null); if (lienFileRef.current) lienFileRef.current.value = ''; }} className="text-muted-foreground hover:text-foreground"><X className="w-3.5 h-3.5" /></button>
+                  </div>
+                ) : (
+                  <Button type="button" variant="outline" className="w-full h-9 text-xs" onClick={() => lienFileRef.current?.click()}><Upload className="w-3.5 h-3.5 mr-1.5" /> Upload Signed Lien...</Button>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
               <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowEditLien(false)}>Cancel</Button><Button type="submit" disabled={updateLienMutation.isPending}>{updateLienMutation.isPending ? 'Saving...' : 'Save'}</Button></div>
             </form>
