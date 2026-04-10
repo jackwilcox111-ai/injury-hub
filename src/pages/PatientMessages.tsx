@@ -21,12 +21,33 @@ export default function PatientMessages() {
   const [recipientRole, setRecipientRole] = useState<string>('care_manager');
   const [script, setScript] = useState('');
 
+  // Fetch patient's case to get attorney/provider names
+  const { data: caseData } = useQuery({
+    queryKey: ['patient-case-team', profile?.id],
+    enabled: !!profile?.id,
+    queryFn: async () => {
+      const { data: pp } = await supabase.from('patient_profiles')
+        .select('case_id')
+        .eq('profile_id', profile!.id)
+        .maybeSingle();
+      if (!pp?.case_id) return null;
+      const { data: caseRow } = await supabase.from('cases')
+        .select('id, attorney_id, provider_id, attorneys:attorney_id(firm_name, contact_name), providers:provider_id(name)')
+        .eq('id', pp.case_id)
+        .maybeSingle();
+      return caseRow;
+    },
+  });
+
+  const attorneyName = (caseData as any)?.attorneys?.contact_name || (caseData as any)?.attorneys?.firm_name || null;
+  const providerName = (caseData as any)?.providers?.name || null;
+
   const { data: messages, isLoading } = useQuery({
     queryKey: ['patient-messages', profile?.id],
     enabled: !!profile?.id,
     queryFn: async () => {
       const { data } = await supabase.from('video_messages')
-        .select('*, sender:created_by(full_name)')
+        .select('*, sender:created_by(full_name, role)')
         .order('created_at', { ascending: false });
       return data || [];
     },
