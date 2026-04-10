@@ -489,7 +489,7 @@ export default function CaseDetail() {
 
         const { data: docData, error: docError } = await supabase.from('documents').insert({
           case_id: id!, file_name: lienFile.name, storage_path: filePath,
-          document_type: 'lien_agreement', uploader_id: user?.id,
+          document_type: 'Lien Agreement', uploader_id: user?.id,
         }).select('id').single();
         if (docError) throw docError;
         lienDocId = docData.id;
