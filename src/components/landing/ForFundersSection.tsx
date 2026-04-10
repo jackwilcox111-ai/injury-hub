@@ -7,21 +7,21 @@ export function ForFundersSection() {
   const navigate = useNavigate();
 
   return (
-    <section id="funders" className="py-24 relative overflow-hidden">
+    <section id="funders" className="py-14 relative overflow-hidden">
       <div className="absolute -top-20 -right-40 w-[500px] h-[500px] rounded-full bg-settled/[0.03] blur-3xl" />
 
       <div className="max-w-6xl mx-auto px-6 relative z-10">
-        <div className="grid md:grid-cols-2 gap-14 items-center">
+        <div className="grid md:grid-cols-2 gap-10 items-center">
           <div>
-            <span className="text-xs font-medium uppercase tracking-widest text-settled mb-3 block">For Funders</span>
-            <h2 className="text-3xl font-display font-bold text-foreground mb-6">Invest in PI Medical Liens</h2>
-            <div className="space-y-5">
+            <span className="text-xs font-medium uppercase tracking-widest text-settled mb-2 block">For Funders</span>
+            <h2 className="text-3xl font-display font-bold text-foreground mb-5">Invest in PI Medical Liens</h2>
+            <div className="space-y-4">
               {[
                 { icon: Search, label: 'Case Underwriting', desc: 'Anonymized case data with specialty, SoL, and treatment progress.' },
                 { icon: BarChart3, label: 'Portfolio Visibility', desc: 'Real-time view of deployed capital and active investments.' },
                 { icon: Receipt, label: 'Settlement Tracking', desc: 'Automated repayment tracking when cases settle.' },
               ].map((item, i) => (
-                <div key={i} className="flex gap-4">
+                <div key={i} className="flex gap-3">
                   <div className="w-9 h-9 rounded-lg bg-settled/8 flex items-center justify-center shrink-0 mt-0.5">
                     <item.icon className="w-4 h-4 text-settled" />
                   </div>
@@ -32,7 +32,7 @@ export function ForFundersSection() {
                 </div>
               ))}
             </div>
-            <Button className="mt-8 gap-2 rounded-lg" variant="outline" onClick={() => navigate('/funder/join')}>
+            <Button className="mt-6 gap-2 rounded-lg" variant="outline" onClick={() => navigate('/funder/join')}>
               Become a Network Funder <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
@@ -41,14 +41,13 @@ export function ForFundersSection() {
               <img
                 src={fundersImage}
                 alt="Financial analytics dashboard showing portfolio data"
-                className="w-full h-[420px] object-cover"
+                className="w-full h-[360px] object-cover"
                 loading="lazy"
                 width={1280}
                 height={800}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/10 to-transparent" />
-              {/* Stats overlay */}
-              <div className="absolute bottom-0 inset-x-0 bg-card/90 backdrop-blur-md border-t border-border/40 p-5">
+              <div className="absolute bottom-0 inset-x-0 bg-card/90 backdrop-blur-md border-t border-border/40 p-4">
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div><p className="font-mono-data text-xl font-semibold text-foreground">$2.4M</p><p className="text-[11px] text-muted-foreground">Capital Deployed</p></div>
                   <div><p className="font-mono-data text-xl font-semibold text-foreground">87%</p><p className="text-[11px] text-muted-foreground">Recovery Rate</p></div>
