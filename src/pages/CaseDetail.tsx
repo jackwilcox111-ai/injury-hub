@@ -995,20 +995,28 @@ export default function CaseDetail() {
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Amount</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Reduction</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Net Lien</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Signed Doc</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Status</th>
             </tr></thead>
             <tbody className="divide-y divide-border">
               {liens?.map(l => (
-                <tr key={l.id} className="hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => { setEditLien({ ...l }); setShowEditLien(true); }}>
+                <tr key={l.id} className={`hover:bg-accent/30 transition-colors cursor-pointer ${!(l as any).documents ? 'bg-destructive/5' : ''}`} onClick={() => { setEditLien({ ...l }); setShowEditLien(true); }}>
                   <td className="px-4 py-2.5 text-xs font-medium">{(l as any).providers?.name || '—'}</td>
                   <td className="px-4 py-2.5 font-mono text-xs tabular-nums">${l.amount.toLocaleString()}</td>
                   <td className="px-4 py-2.5 font-mono text-xs tabular-nums">${l.reduction_amount.toLocaleString()}</td>
                   <td className="px-4 py-2.5 font-mono text-xs text-foreground font-medium tabular-nums">${(l.amount - l.reduction_amount).toLocaleString()}</td>
+                  <td className="px-4 py-2.5 text-xs">
+                    {(l as any).documents ? (
+                      <span className="flex items-center gap-1 text-emerald-600"><ShieldCheck className="w-3.5 h-3.5" /> Signed</span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-amber-600"><AlertTriangle className="w-3.5 h-3.5" /> Missing</span>
+                    )}
+                  </td>
                   <td className="px-4 py-2.5"><StatusBadge status={l.status} /></td>
                 </tr>
               ))}
               {(!liens || liens.length === 0) && (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground text-sm">No liens recorded</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground text-sm">No liens recorded</td></tr>
               )}
             </tbody>
           </table>
