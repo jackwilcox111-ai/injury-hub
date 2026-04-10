@@ -33,35 +33,35 @@ const milestoneIcons: Record<string, React.ReactNode> = {
 const milestoneEducation: Record<string, { what: string; expect: string }> = {
   'Intake': {
     what: 'Your case has been created and our care coordination team is reviewing your information.',
-    expect: 'We will reach out within 1-2 business days to confirm your details and begin matching you with the right medical providers.',
+    expect: 'A member of our team will be in touch to confirm your details and discuss next steps.',
   },
   'Provider Matched': {
-    what: 'We have identified medical providers who specialize in treating your type of injury.',
-    expect: 'Our team will schedule your first appointments. You may receive a call or text to confirm times that work for you.',
+    what: 'We have identified medical providers in our network who may be a good fit for your care needs.',
+    expect: 'Our team will work with you to schedule your first visits at a time that works for you.',
   },
   'First Appointment': {
-    what: 'Your initial medical appointments have been scheduled with your care providers.',
-    expect: 'Please arrive 15 minutes early and bring a valid photo ID. If you need transportation or an interpreter, let us know.',
+    what: 'Your initial medical appointments have been scheduled.',
+    expect: 'Please arrive 15 minutes early and bring a valid photo ID. Let us know if you need any accommodations.',
   },
   'Appointment Completed': {
-    what: 'You have completed your initial evaluation. Your provider is developing a treatment plan.',
-    expect: 'Follow-up appointments will be scheduled based on your provider\'s recommendations. Consistency helps your recovery and your case.',
+    what: 'You have completed your initial evaluation with your provider.',
+    expect: 'Your provider will outline recommended next steps. Follow-up visits may be scheduled based on their guidance.',
   },
   'In Treatment': {
-    what: 'You are actively receiving medical treatment for your injuries.',
-    expect: 'Keep attending all scheduled appointments. Missing visits can impact both your health and your legal case.',
+    what: 'You are actively receiving care from your medical providers.',
+    expect: 'Continue attending your scheduled appointments. Reach out to us if you have questions or need to reschedule.',
   },
   'Treatment Completed': {
-    what: 'Your medical providers have determined that you have reached maximum medical improvement (MMI).',
-    expect: 'Your medical records and bills are being compiled. This typically takes 2-4 weeks. No action is needed from you.',
+    what: 'Your medical providers have indicated that your current course of treatment is complete.',
+    expect: 'Medical records and documentation are being compiled. Our team will keep you updated on progress.',
   },
   'Records Received': {
-    what: 'All medical records and billing documentation have been gathered and are under review.',
-    expect: 'Your care team and attorney are preparing a demand package to send to the insurance company.',
+    what: 'Medical records and billing documentation have been gathered and are under review.',
+    expect: 'Your care team is organizing your file. Your attorney will be in touch regarding next steps.',
   },
   'Settlement Reached': {
-    what: 'Your attorney is negotiating with the insurance company to reach a fair settlement.',
-    expect: 'Negotiations can take weeks to months. Your attorney will contact you with any offers. You have final say.',
+    what: 'Your attorney is working on the next phase of your case.',
+    expect: 'Your attorney will reach out to you directly with updates. Feel free to contact them with any questions.',
   },
 };
 
@@ -203,10 +203,10 @@ export default function PatientTimeline() {
         </h3>
         <div className="space-y-2.5">
           {[
-            { title: 'Attend Every Appointment', text: 'Missing medical visits can delay your treatment and weaken your case. If you need to reschedule, contact us ASAP.' },
-            { title: 'Document Your Symptoms', text: 'Track pain levels and how injuries affect daily life. This helps build a stronger case.' },
-            { title: 'Stay Off Social Media', text: 'Insurance companies may monitor your posts. Avoid posting about your accident or physical activities.' },
-            { title: 'How Long Does This Take?', text: 'Personal injury cases typically take 6-18 months. Your team is working to resolve it as quickly as possible.' },
+            { title: 'Attend Every Appointment', text: 'Keeping your scheduled visits helps ensure you receive consistent care. If you need to reschedule, please let us know as soon as possible.' },
+            { title: 'Keep Notes on Your Recovery', text: 'It can be helpful to note how you are feeling day to day. This information may be useful for your care team.' },
+            { title: 'Be Mindful on Social Media', text: 'Consider limiting posts about your health or activities while your case is open. Your attorney can provide more guidance.' },
+            { title: 'Timeline Expectations', text: 'Every case is different. Your care team and attorney are working to move things forward. Please reach out with questions any time.' },
           ].map(tip => (
             <div key={tip.title} className="rounded-lg bg-accent/50 p-3 space-y-0.5">
               <p className="text-xs font-semibold text-foreground">{tip.title}</p>
