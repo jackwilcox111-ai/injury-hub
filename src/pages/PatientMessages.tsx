@@ -140,9 +140,25 @@ export default function PatientMessages() {
                     <Badge variant="outline" className="text-[10px]">{m.message_type}</Badge>
                     {isReceived && !m.viewed && <Badge className="text-[10px] bg-primary">New</Badge>}
                   </div>
-                  {isReceived && (m as any).sender?.full_name && (
-                    <p className="text-[10px] text-muted-foreground mt-0.5">From: {(m as any).sender.full_name}</p>
-                  )}
+                   {isReceived && (
+                     <p className="text-[10px] text-muted-foreground mt-0.5">
+                       From: {(m as any).sender?.full_name || 'Care Team'}
+                       {(m as any).sender?.role && ` (${
+                         (m as any).sender.role === 'care_manager' ? 'Care Coordinator' :
+                         (m as any).sender.role === 'attorney' ? 'Attorney' :
+                         (m as any).sender.role === 'provider' ? 'Provider' :
+                         (m as any).sender.role
+                       })`}
+                     </p>
+                   )}
+                   {isSent && (
+                     <p className="text-[10px] text-muted-foreground mt-0.5">
+                       To: {m.recipient_role === 'care_manager' ? 'Care Coordinator' :
+                            m.recipient_role === 'attorney' ? (attorneyName ? `${attorneyName} (Attorney)` : 'Attorney') :
+                            m.recipient_role === 'provider' ? (providerName ? `${providerName} (Provider)` : 'Provider') :
+                            m.recipient_role}
+                     </p>
+                   )}
                   <p className="text-sm text-foreground mt-1 line-clamp-2">{m.script}</p>
                   <p className="text-[10px] text-muted-foreground mt-1">{m.sent_at ? formatDistanceToNow(new Date(m.sent_at), { addSuffix: true }) : ''}</p>
                 </div>
@@ -189,8 +205,10 @@ export default function PatientMessages() {
                 <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="care_manager" className="text-xs">Care Coordinator</SelectItem>
-                  <SelectItem value="attorney" className="text-xs">Attorney</SelectItem>
-                  <SelectItem value="provider" className="text-xs">Provider</SelectItem>
+                  {attorneyName && <SelectItem value="attorney" className="text-xs">{attorneyName} (Attorney)</SelectItem>}
+                  {!attorneyName && <SelectItem value="attorney" className="text-xs">Attorney</SelectItem>}
+                  {providerName && <SelectItem value="provider" className="text-xs">{providerName} (Provider)</SelectItem>}
+                  {!providerName && <SelectItem value="provider" className="text-xs">Provider</SelectItem>}
                 </SelectContent>
               </Select>
             </div>
