@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { logPHIAccess } from '@/lib/audit-logger';
 import { PHIBanner } from '@/components/global/PHIBanner';
 import { SPECIALTIES } from '@/lib/specialties';
@@ -22,7 +22,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { ArrowLeft, AlertTriangle, Clock, FileText, DollarSign, Activity, Send, ShieldCheck, Heart, Bell, ListTodo, FileSignature, GitBranch, Radar, Shield, Languages, Info, Phone, MessageCircle, FolderOpen, Download, MapPin, User, Calendar } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Clock, FileText, DollarSign, Activity, Send, ShieldCheck, Heart, Bell, ListTodo, FileSignature, GitBranch, Radar, Shield, Languages, Info, Phone, MessageCircle, FolderOpen, Download, MapPin, User, Calendar, Upload, X } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, formatDistanceToNow } from 'date-fns';
 import { InsuranceEligibilityTab } from '@/components/cases/InsuranceEligibilityTab';
@@ -114,6 +114,8 @@ export default function CaseDetail() {
   const [editCharge, setEditCharge] = useState<any>(null);
   const [showAddCharge, setShowAddCharge] = useState(false);
   const [newCharge, setNewCharge] = useState({ cpt_description: '', service_date: '', charge_amount: 0, status: 'Pending', billing_path: '', notes: '', provider_id: '' });
+  const [chargeFile, setChargeFile] = useState<File | null>(null);
+  const chargeFileRef = useRef<HTMLInputElement>(null);
   const [showEditLien, setShowEditLien] = useState(false);
   const [editLien, setEditLien] = useState<any>(null);
   const [showSettlementModal, setShowSettlementModal] = useState(false);
@@ -426,17 +428,31 @@ export default function CaseDetail() {
 
   const addChargeMutation = useMutation({
     mutationFn: async () => {
+      let documentId: string | null = null;
+      if (chargeFile) {
+        const filePath = `charges/${id}/${Date.now()}_${chargeFile.name}`;
+        const { error: uploadError } = await supabase.storage.from('documents').upload(filePath, chargeFile);
+        if (uploadError) throw uploadError;
+        const { data: docData, error: docError } = await supabase.from('documents').insert({
+          case_id: id!, file_name: chargeFile.name, storage_path: filePath,
+          document_type: 'bill', uploader_id: user?.id,
+        }).select('id').single();
+        if (docError) throw docError;
+        documentId = docData.id;
+      }
       const { error } = await supabase.from('charges').insert({
         case_id: id!, cpt_code: 'MISC', cpt_description: newCharge.cpt_description,
         service_date: newCharge.service_date, charge_amount: newCharge.charge_amount,
         status: newCharge.status, billing_path: newCharge.billing_path || null,
         notes: newCharge.notes || null, provider_id: newCharge.provider_id || null,
+        document_id: documentId,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       invalidateAll();
       setShowAddCharge(false);
+      setChargeFile(null);
       setNewCharge({ cpt_description: '', service_date: '', charge_amount: 0, status: 'Pending', billing_path: '', notes: '', provider_id: '' });
       toast.success('Charge added');
     },
@@ -1227,6 +1243,19 @@ export default function CaseDetail() {
               </div>
             </div>
             <div className="space-y-2"><Label>Notes</Label><Textarea value={newCharge.notes} onChange={e => setNewCharge(p => ({...p, notes: e.target.value}))} /></div>
+            <div className="space-y-2">
+              <Label>Attach Bill (PDF or Image)</Label>
+              <input ref={chargeFileRef} type="file" accept=".pdf,application/pdf,image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) setChargeFile(f); }} />
+              {chargeFile ? (
+                <div className="flex items-center gap-2 bg-accent/30 rounded-lg px-3 py-2">
+                  <FileText className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-xs text-foreground truncate flex-1">{chargeFile.name}</span>
+                  <button type="button" onClick={() => { setChargeFile(null); if (chargeFileRef.current) chargeFileRef.current.value = ''; }} className="text-muted-foreground hover:text-foreground"><X className="w-3.5 h-3.5" /></button>
+                </div>
+              ) : (
+                <Button type="button" variant="outline" className="w-full h-9 text-xs" onClick={() => chargeFileRef.current?.click()}><Upload className="w-3.5 h-3.5 mr-1.5" /> Upload Bill...</Button>
+              )}
+            </div>
             <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
             <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowAddCharge(false)}>Cancel</Button><Button type="submit" disabled={!newCharge.service_date || !newCharge.charge_amount || addChargeMutation.isPending}>{addChargeMutation.isPending ? 'Submitting...' : 'Submit'}</Button></div>
           </form>
