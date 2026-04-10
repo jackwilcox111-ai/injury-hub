@@ -1372,7 +1372,7 @@ export default function CaseDetail() {
       </Dialog>
 
       {/* Edit Lien Dialog */}
-      <Dialog open={showEditLien} onOpenChange={v => { setShowEditLien(v); if (!v) setEditLien(null); }}>
+      <Dialog open={showEditLien} onOpenChange={v => { setShowEditLien(v); if (!v) { setEditLien(null); setLienFile(null); } }}>
         <DialogContent>
           <DialogHeader><DialogTitle>Edit Lien</DialogTitle></DialogHeader>
           {editLien && (
