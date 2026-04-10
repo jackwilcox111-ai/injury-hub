@@ -1397,6 +1397,29 @@ export default function CaseDetail() {
                 </div>
               </div>
               <div className="space-y-2"><Label className="text-sm font-medium">Notes</Label><Textarea value={editLien.notes || ''} onChange={e => setEditLien((p: any) => ({...p, notes: e.target.value}))} /></div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Signed Lien Document</Label>
+                <input ref={lienFileRef} type="file" accept=".pdf,application/pdf,image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) setLienFile(f); }} />
+                {(editLien as any).documents?.file_name && !lienFile ? (
+                  <div className="flex items-center gap-2 bg-accent/30 rounded-lg px-3 py-2">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span className="text-xs text-foreground truncate flex-1">{(editLien as any).documents.file_name}</span>
+                    <button type="button" onClick={async () => {
+                      const { data } = await supabase.storage.from('documents').createSignedUrl((editLien as any).documents.storage_path, 300);
+                      if (data?.signedUrl) window.open(data.signedUrl, '_blank');
+                    }} className="text-primary hover:underline text-xs">View</button>
+                    <button type="button" onClick={() => lienFileRef.current?.click()} className="text-primary hover:underline text-xs">Replace</button>
+                  </div>
+                ) : lienFile ? (
+                  <div className="flex items-center gap-2 bg-accent/30 rounded-lg px-3 py-2">
+                    <FileText className="w-4 h-4 text-primary shrink-0" />
+                    <span className="text-xs text-foreground truncate flex-1">{lienFile.name}</span>
+                    <button type="button" onClick={() => { setLienFile(null); if (lienFileRef.current) lienFileRef.current.value = ''; }} className="text-muted-foreground hover:text-foreground"><X className="w-3.5 h-3.5" /></button>
+                  </div>
+                ) : (
+                  <Button type="button" variant="outline" className="w-full h-9 text-xs" onClick={() => lienFileRef.current?.click()}><Upload className="w-3.5 h-3.5 mr-1.5" /> Upload Signed Lien...</Button>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground border-t pt-3">PHI — Handle in accordance with HIPAA policy</p>
               <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setShowEditLien(false)}>Cancel</Button><Button type="submit" disabled={updateLienMutation.isPending}>{updateLienMutation.isPending ? 'Saving...' : 'Save'}</Button></div>
             </form>
